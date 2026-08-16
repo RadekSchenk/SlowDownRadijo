@@ -47,3 +47,38 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         MARKETING_VERSION: "1.0"
         CURRENT_PROJECT_VERSION: "1"
+    dependencies:
+      - target: SlowDownRadijoWidgetExtension
+        embed: true
+
+  # Home Screen widget — small/medium "what's on now" tile. Self-contained,
+  # no App Group: it reads its own bundled copy of schedule.json and makes
+  # its own lightweight Supabase call for the latest track, rather than
+  # sharing state with the host app (see SlowDownRadijoWidget/README notes
+  # in NowPlayingWidgetView.swift for why language/live playback aren't
+  # shared here).
+  SlowDownRadijoWidgetExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: SlowDownRadijoWidget
+      - path: SlowDownRadijo/Models/Show.swift
+      - path: SlowDownRadijo/Services/ScheduleStore.swift
+      - path: SlowDownRadijo/Models/RemotePlayedTrack.swift
+      - path: SlowDownRadijo/DesignSystem/Theme.swift
+      - path: SlowDownRadijo/Resources/schedule.json
+      - path: SlowDownRadijo/Resources/Assets.xcassets
+    info:
+      path: SlowDownRadijoWidget/Info.plist
+      properties:
+        CFBundleDisplayName: "Slow Down Rádijo"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: cz.slowdownradijo.app.Widget
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SKIP_INSTALL: "YES"
+        TARGETED_DEVICE_FAMILY: "1"
