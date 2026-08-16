@@ -52,6 +52,13 @@ enum Theme {
     /// than borrowing a third party's brand color. Adaptive for the same
     /// reason as `lavender` above.
     static let gold = Color.adaptive(light: 0x8A5E12, dark: 0xD4A24C)
+    /// A legible accent purple for text/icons/borders (the "Najít na
+    /// Spotify" pill) — distinct from `brandPurple`, which is a *fixed*
+    /// color deliberately kept constant for the splash screen background
+    /// and decorative glows, where it's never read as foreground text
+    /// against a variable background. This one adapts so it stays
+    /// readable against `surface`/`background` in both appearances.
+    static let purpleAccent = Color.adaptive(light: 0x433785, dark: 0xA78BFA)
 
     /// Spotify's brand green — no longer used by the redesigned Spotify CTA
     /// (see `gold` above), kept only in case a future screen wants the

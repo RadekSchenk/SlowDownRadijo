@@ -120,7 +120,7 @@ struct TrackDetailsRow: View {
                         )
                     }
                     if let spotifyURL {
-                        ActionPillButton(icon: "arrow.up.right", label: L10n.spotifyFindAction, tint: Theme.brandPurple) {
+                        ActionPillButton(icon: "arrow.up.right", label: L10n.spotifyFindAction, tint: Theme.purpleAccent) {
                             openURL(spotifyURL)
                         }
                     }
@@ -140,11 +140,6 @@ struct TrackDetailsRow: View {
                 .stroke(Theme.hairline(0.08), lineWidth: 1)
                 .allowsHitTesting(false)
         )
-        // A soft, floating shadow reads as an actually-elevated card rather
-        // than a flat rectangle with an outline — the streaming-app look
-        // the border-only version was missing.
-        .shadow(color: .black.opacity(0.16), radius: 14, x: 0, y: 6)
-        .shadow(color: .black.opacity(0.06), radius: 2, x: 0, y: 1)
     }
 
     /// The artwork with a translucent play/pause badge overlaid on its
