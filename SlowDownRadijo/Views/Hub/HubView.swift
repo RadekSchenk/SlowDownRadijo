@@ -7,6 +7,15 @@ import SwiftUI
 /// top of it rather than opening as its own sheet.
 struct HubView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
+
+    /// WhatsApp's own brand green — a deliberate exception to this app's
+    /// usual "keep third-party touchpoints in-house-styled" rule (see
+    /// `SpotifyPillButton`, `SocialLinksRow`). The station leans on this
+    /// channel heavily on-air, so it gets first position and its own color
+    /// to stand out from the lower-priority "also follow us" social row.
+    private static let whatsAppGreen = Color(red: 0.145, green: 0.827, blue: 0.400)
+    private static let whatsAppURL = URL(string: "https://wa.me/420720600811")!
 
     var body: some View {
         NavigationStack {
@@ -15,6 +24,14 @@ struct HubView: View {
                     header
 
                     VStack(spacing: Theme.Spacing.sm) {
+                        // First and most prominent — see `whatsAppGreen` above.
+                        Button {
+                            openURL(Self.whatsAppURL)
+                        } label: {
+                            HubRow(icon: "message.fill", title: L10n.hubWhatsAppRow, subtitle: L10n.hubWhatsAppRowSubtitle, tint: Self.whatsAppGreen)
+                        }
+                        .buttonStyle(.plain)
+
                         NavigationLink {
                             SettingsView()
                         } label: {
@@ -96,14 +113,15 @@ private struct HubRow: View {
     let icon: String
     let title: String
     let subtitle: String
+    var tint: Color = Theme.sunOrange
 
     var body: some View {
         HStack(spacing: Theme.Spacing.md) {
             Image(systemName: icon)
                 .font(.system(size: 20, weight: .semibold))
-                .foregroundStyle(Theme.sunOrange)
+                .foregroundStyle(tint)
                 .frame(width: 44, height: 44)
-                .background(Theme.sunOrange.opacity(0.12), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)

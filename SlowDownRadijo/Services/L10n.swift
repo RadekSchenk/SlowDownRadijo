@@ -591,6 +591,15 @@ enum L10n {
         }
     }
 
+    static var hubWhatsAppRow: String { "WhatsApp" }
+
+    static var hubWhatsAppRowSubtitle: String {
+        switch lang {
+        case .cs: return "Napiš nám přímo"
+        case .en: return "Message us directly"
+        }
+    }
+
     static var hubSettingsRow: String {
         switch lang {
         case .cs: return "Nastavení"
