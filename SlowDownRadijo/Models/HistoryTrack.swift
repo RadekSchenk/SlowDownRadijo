@@ -11,6 +11,14 @@ struct HistoryTrack: Identifiable, Equatable {
     /// recorded and shown (the iTunes lookup is async) — see
     /// `PlayHistoryStore.artworkUpdatedPublisher`.
     var artworkURL: URL?
+    /// True once the iTunes lookup has come back with nothing — not just
+    /// "no artwork found yet" (that's `artworkURL == nil` while this is
+    /// still `false`). Rows for a confirmed non-match hide their action
+    /// pills entirely (see `TrackDetailsRow`): if it's not a real
+    /// catalogable song (a jingle, station ID, DJ mix block), a preview
+    /// can't work, and favoriting/Spotify-searching it doesn't make sense
+    /// either.
+    var hasNoITunesMatch: Bool = false
     let playedAt: Date?
 
     /// The show that was airing when this track played, if known.

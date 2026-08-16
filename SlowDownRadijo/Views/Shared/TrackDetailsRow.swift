@@ -33,6 +33,12 @@ struct TrackDetailsRow: View {
     let artist: String
     let spotifyURL: URL?
     var cornerRadius: CGFloat = 8
+    /// True once iTunes has confirmed it doesn't recognize this track (a
+    /// jingle, station ID, DJ mix block — not a real catalogable song).
+    /// Hides the whole action-pill row: a preview genuinely can't work,
+    /// and favoriting/Spotify-searching something that isn't a real song
+    /// doesn't make sense either.
+    var hasNoITunesMatch = false
     var favorite: FavoriteButtonState?
     var preview: PreviewButtonState?
 
@@ -92,27 +98,35 @@ struct TrackDetailsRow: View {
                 Spacer(minLength: 0)
             }
 
-            FlowLayout(spacing: Theme.Spacing.sm) {
-                if let preview {
-                    ActionPillButton(
-                        icon: previewIcon(preview.playback),
-                        label: previewLabel(preview.playback),
-                        isLoading: preview.playback == .loading,
-                        action: preview.action
-                    )
-                }
-                if let spotifyURL {
-                    ActionPillButton(icon: "arrow.up.right", label: L10n.spotifyFindAction, tint: Theme.gold) {
-                        openURL(spotifyURL)
+            // A confirmed iTunes non-match means this isn't a real,
+            // catalogable song (a jingle, station ID, DJ mix block) — a
+            // preview genuinely can't work, and favoriting/Spotify-
+            // searching it doesn't make sense either, so none of these
+            // show at all rather than just the preview button.
+            if !hasNoITunesMatch {
+                FlowLayout(spacing: Theme.Spacing.sm) {
+                    if let preview {
+                        ActionPillButton(
+                            icon: previewIcon(preview.playback),
+                            label: previewLabel(preview.playback),
+                            tint: Theme.gold,
+                            isLoading: preview.playback == .loading,
+                            action: preview.action
+                        )
                     }
-                }
-                if let favorite {
-                    ActionPillButton(
-                        icon: favorite.isFavorite ? "heart.fill" : "heart",
-                        label: favorite.isFavorite ? L10n.favoriteRemoveAction : L10n.favoriteAddAction,
-                        tint: favorite.isFavorite ? Theme.sunOrange : Theme.lavender,
-                        action: favorite.action
-                    )
+                    if let favorite {
+                        ActionPillButton(
+                            icon: favorite.isFavorite ? "heart.fill" : "heart",
+                            label: favorite.isFavorite ? L10n.favoriteRemoveAction : L10n.favoriteAddAction,
+                            tint: Theme.gold,
+                            action: favorite.action
+                        )
+                    }
+                    if let spotifyURL {
+                        ActionPillButton(icon: "arrow.up.right", label: L10n.spotifyFindAction, tint: Theme.brandPurple) {
+                            openURL(spotifyURL)
+                        }
+                    }
                 }
             }
         }

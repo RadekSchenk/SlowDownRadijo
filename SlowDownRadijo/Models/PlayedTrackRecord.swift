@@ -20,6 +20,9 @@ final class PlayedTrackRecord {
     /// Resolved lazily after insert via `ITunesArtworkService`; nil until
     /// (if ever) a match is found.
     var artworkURLString: String?
+    /// Set once the iTunes lookup has definitively come back with nothing
+    /// — see `HistoryTrack.hasNoITunesMatch` for what this gates in the UI.
+    var hasNoITunesMatch: Bool = false
 
     init(
         artist: String,

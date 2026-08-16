@@ -24,6 +24,10 @@ final class PlayHistoryStore {
     /// whatever fallback image it had at insert time forever.
     let artworkUpdatedPublisher = PassthroughSubject<(id: UUID, url: URL), Never>()
 
+    /// Fires once a track's iTunes lookup has definitively come back with
+    /// no match — see `HistoryTrack.hasNoITunesMatch`.
+    let noITunesMatchPublisher = PassthroughSubject<UUID, Never>()
+
     private let container: ModelContainer
     private var context: ModelContext { container.mainContext }
 
@@ -67,6 +71,17 @@ final class PlayHistoryStore {
         record.artworkURLString = url.absoluteString
         try? context.save()
         artworkUpdatedPublisher.send((id: id, url: url))
+    }
+
+    func markNoITunesMatch(for id: UUID) {
+        let descriptor = FetchDescriptor<PlayedTrackRecord>(predicate: #Predicate { $0.id == id })
+        guard let record = try? context.fetch(descriptor).first else { return }
+        // A later-arriving artwork update (or a repeat call) shouldn't
+        // clobber a real match or re-fire the publisher pointlessly.
+        guard record.artworkURLString == nil, !record.hasNoITunesMatch else { return }
+        record.hasNoITunesMatch = true
+        try? context.save()
+        noITunesMatchPublisher.send(id)
     }
 
     /// Fetches up to `limit` records strictly older than `cursor`, no older

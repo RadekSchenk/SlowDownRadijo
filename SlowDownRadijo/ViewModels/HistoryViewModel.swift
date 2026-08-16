@@ -86,6 +86,13 @@ final class HistoryViewModel: ObservableObject {
                 self?.handleArtworkUpdate(id: update.id, url: update.url)
             }
             .store(in: &cancellables)
+
+        historyStore.noITunesMatchPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] id in
+                self?.handleNoITunesMatch(id: id)
+            }
+            .store(in: &cancellables)
     }
 
     deinit {
@@ -165,15 +172,22 @@ final class HistoryViewModel: ObservableObject {
     /// the race) permanently stuck with neither artwork nor a working
     /// preview button.
     private func resolveArtworkForRemoteTracks() {
-        let pending = remoteTracks.filter { $0.artworkURL == nil }
+        let pending = remoteTracks.filter { $0.artworkURL == nil && !$0.hasNoITunesMatch }
         guard !pending.isEmpty else { return }
 
         Task { [weak self] in
             for track in pending {
                 guard let self else { return }
                 let id = track.id
-                guard let url = await ITunesArtworkService.shared.artworkURL(artist: track.artist, title: track.title) else { continue }
                 guard let index = self.remoteTracks.firstIndex(where: { $0.id == id }) else { continue }
+                guard let url = await ITunesArtworkService.shared.artworkURL(artist: track.artist, title: track.title) else {
+                    guard !self.remoteTracks[index].hasNoITunesMatch else { continue }
+                    self.remoteTracks[index].hasNoITunesMatch = true
+                    withAnimation(.easeInOut(duration: 0.35)) {
+                        self.publish()
+                    }
+                    continue
+                }
                 guard self.remoteTracks[index].artworkURL == nil else { continue }
                 self.remoteTracks[index].artworkURL = url
                 withAnimation(.easeInOut(duration: 0.35)) {
@@ -219,6 +233,18 @@ final class HistoryViewModel: ObservableObject {
 
         withAnimation(.easeInOut(duration: 0.35)) {
             localTracks[index].artworkURL = url
+            publish()
+        }
+    }
+
+    /// A confirmed iTunes non-match — hides the action pills for this row
+    /// (see `HistoryTrack.hasNoITunesMatch`).
+    private func handleNoITunesMatch(id: UUID) {
+        guard let index = localTracks.firstIndex(where: { $0.id == id }) else { return }
+        guard !localTracks[index].hasNoITunesMatch else { return }
+
+        withAnimation(.easeInOut(duration: 0.35)) {
+            localTracks[index].hasNoITunesMatch = true
             publish()
         }
     }
@@ -293,6 +319,7 @@ private extension HistoryTrack {
             title: record.title,
             album: nil,
             artworkURL: record.artworkURL ?? record.showImageURL,
+            hasNoITunesMatch: record.hasNoITunesMatch,
             playedAt: record.playedAt,
             show: record.showName.map { name in
                 Show(id: name, name: name, start: "", end: "", imageURL: record.showImageURL)
@@ -307,6 +334,7 @@ private extension HistoryTrack {
             title: remote.title,
             album: nil,
             artworkURL: nil,
+            hasNoITunesMatch: false,
             playedAt: remote.playedAt,
             show: remote.showName.map { name in
                 Show(id: name, name: name, start: "", end: "", imageURL: nil)

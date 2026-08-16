@@ -127,6 +127,10 @@ final class NowPlayingViewModel: ObservableObject {
                     await MainActor.run {
                         self.historyStore.updateArtwork(for: record.id, to: artworkURL)
                     }
+                } else {
+                    await MainActor.run {
+                        self.historyStore.markNoITunesMatch(for: record.id)
+                    }
                 }
             }
         }

@@ -31,6 +31,7 @@ struct HistoryRowView: View {
                 title: track.title,
                 artist: track.artist,
                 spotifyURL: track.spotifySearchURL,
+                hasNoITunesMatch: track.hasNoITunesMatch,
                 favorite: FavoriteButtonState(
                     isFavorite: favorites.isFavorite(artist: track.artist, title: track.title),
                     action: {
