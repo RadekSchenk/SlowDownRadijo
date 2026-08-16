@@ -32,6 +32,10 @@ struct HistoryRowView: View {
                 artist: track.artist,
                 spotifyURL: track.spotifySearchURL,
                 hasNoITunesMatch: track.hasNoITunesMatch,
+                // Matches the time column's own 64pt-tall, center-aligned
+                // frame just to its left, so the tail points at the time
+                // regardless of how tall the card grows below.
+                tailY: 32,
                 favorite: FavoriteButtonState(
                     isFavorite: favorites.isFavorite(artist: track.artist, title: track.title),
                     action: {

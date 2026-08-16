@@ -39,6 +39,12 @@ struct TrackDetailsRow: View {
     /// and favoriting/Spotify-searching something that isn't a real song
     /// doesn't make sense either.
     var hasNoITunesMatch = false
+    /// Vertical offset (from the card's own top edge) of a small speech-
+    /// bubble tail pointing left, toward an adjacent time label — see
+    /// `HistoryRowView`, the only caller that sets this (a time column sits
+    /// to the left there; `FavoritesView`'s rows have no such neighbor, so
+    /// they stay a plain rounded card). `nil` draws no tail.
+    var tailY: CGFloat?
     var favorite: FavoriteButtonState?
     var preview: PreviewButtonState?
 
@@ -131,6 +137,7 @@ struct TrackDetailsRow: View {
             }
         }
         .padding(Theme.Spacing.md)
+        .background(Theme.surface, in: CalloutCardShape(cornerRadius: Theme.Radius.card, tailY: tailY))
         .overlay(
             // `.allowsHitTesting(false)` is load-bearing: an overlaid Shape
             // is hit-testable across its whole (geometric, not just drawn)
@@ -138,8 +145,8 @@ struct TrackDetailsRow: View {
             // front of the action pills below in z-order — silently
             // swallowed every tap meant for them. Decorative-only border,
             // so it must not intercept touches.
-            RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
-                .strokeBorder(Theme.hairline(0.1), lineWidth: 1)
+            CalloutCardShape(cornerRadius: Theme.Radius.card, tailY: tailY)
+                .stroke(Theme.hairline(0.1), lineWidth: 1)
                 .allowsHitTesting(false)
         )
     }
@@ -164,6 +171,43 @@ struct TrackDetailsRow: View {
         case .loading: return L10n.previewLoadingAction
         case .playing: return L10n.previewStopAction
         }
+    }
+}
+
+/// A rounded card, optionally with a small speech-bubble tail poking out of
+/// the left edge — used to visually tie a "Co hrálo" card back to its
+/// timestamp, which sits just to its left in `HistoryRowView`. With
+/// `tailY == nil` this is just a plain rounded rectangle.
+private struct CalloutCardShape: Shape {
+    var cornerRadius: CGFloat
+    var tailY: CGFloat?
+    var tailReach: CGFloat = 7
+    var tailSpan: CGFloat = 14
+
+    func path(in rect: CGRect) -> Path {
+        guard let tailY else {
+            return Path(roundedRect: rect, cornerRadius: cornerRadius)
+        }
+
+        let r = cornerRadius
+        let tailTopY = tailY - tailSpan / 2
+        let tailBottomY = tailY + tailSpan / 2
+
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX + r, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX - r, y: rect.minY))
+        path.addArc(center: CGPoint(x: rect.maxX - r, y: rect.minY + r), radius: r, startAngle: .degrees(-90), endAngle: .degrees(0), clockwise: false)
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY - r))
+        path.addArc(center: CGPoint(x: rect.maxX - r, y: rect.maxY - r), radius: r, startAngle: .degrees(0), endAngle: .degrees(90), clockwise: false)
+        path.addLine(to: CGPoint(x: rect.minX + r, y: rect.maxY))
+        path.addArc(center: CGPoint(x: rect.minX + r, y: rect.maxY - r), radius: r, startAngle: .degrees(90), endAngle: .degrees(180), clockwise: false)
+        path.addLine(to: CGPoint(x: rect.minX, y: tailBottomY))
+        path.addLine(to: CGPoint(x: rect.minX - tailReach, y: tailY))
+        path.addLine(to: CGPoint(x: rect.minX, y: tailTopY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.minY + r))
+        path.addArc(center: CGPoint(x: rect.minX + r, y: rect.minY + r), radius: r, startAngle: .degrees(180), endAngle: .degrees(270), clockwise: false)
+        path.closeSubpath()
+        return path
     }
 }
 
