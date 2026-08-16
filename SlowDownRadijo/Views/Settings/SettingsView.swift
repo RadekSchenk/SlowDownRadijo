@@ -1,0 +1,148 @@
+import SwiftUI
+
+/// Pushed from the hamburger menu — the appearance/language pickers that
+/// used to live as small header controls (moved here once there was real
+/// room for full labels), plus an autoplay toggle. Feedback moved to its
+/// own menu item (`FeedbackView`), always last in the menu.
+struct SettingsView: View {
+    @ObservedObject private var loc = LocalizationManager.shared
+    @ObservedObject private var appearanceManager = AppearanceManager.shared
+    @AppStorage("autoplayEnabled") private var autoplayEnabled = true
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var systemColorScheme
+
+    private var isEffectivelyDark: Bool {
+        switch appearanceManager.appearance {
+        case .system: return systemColorScheme == .dark
+        case .light: return false
+        case .dark: return true
+        }
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
+                BackHeaderView(title: L10n.settingsTitle, onBack: { dismiss() })
+                autoplaySection
+                appearanceSection
+                languageSection
+                aboutFooter
+            }
+            .padding(Theme.Spacing.md)
+        }
+        .background(Theme.background.ignoresSafeArea())
+        .toolbar(.hidden, for: .navigationBar)
+    }
+
+    // MARK: - Autoplay
+
+    private var autoplaySection: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+            sectionHeader(L10n.settingsAutoplayTitle)
+
+            HStack(alignment: .center, spacing: Theme.Spacing.md) {
+                Text(L10n.settingsAutoplayDescription)
+                    .font(Theme.Typography.Manrope.regular(size: 13, relativeTo: .footnote))
+                    .foregroundStyle(Theme.lavender)
+
+                Spacer(minLength: Theme.Spacing.md)
+
+                Toggle("", isOn: $autoplayEnabled)
+                    .labelsHidden()
+                    .tint(Theme.sunOrange)
+            }
+        }
+    }
+
+    // MARK: - Appearance
+
+    private var appearanceSection: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+            sectionHeader(L10n.settingsAppearanceTitle)
+
+            HStack(spacing: Theme.Spacing.sm) {
+                appearanceOption(isDark: false, title: L10n.settingsAppearanceLight, icon: "sun.max.fill")
+                appearanceOption(isDark: true, title: L10n.settingsAppearanceDark, icon: "moon.fill")
+            }
+        }
+    }
+
+    private func appearanceOption(isDark: Bool, title: String, icon: String) -> some View {
+        let isSelected = isEffectivelyDark == isDark
+        return Button {
+            appearanceManager.appearance = isDark ? .dark : .light
+        } label: {
+            VStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.system(size: 22, weight: .semibold))
+                Text(title)
+                    .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
+            }
+            .foregroundStyle(isSelected ? .white : Theme.textPrimary)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, Theme.Spacing.lg)
+            .background(
+                RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
+                    .fill(isSelected ? Theme.sunOrange : Color.clear)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
+                    .strokeBorder(isSelected ? Color.clear : Theme.hairline(0.1), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Language
+
+    private var languageSection: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+            sectionHeader(L10n.settingsLanguageTitle)
+
+            HStack(spacing: Theme.Spacing.sm) {
+                ForEach(AppLanguage.allCases) { language in
+                    languageOption(language)
+                }
+            }
+        }
+    }
+
+    private func languageOption(_ language: AppLanguage) -> some View {
+        let isSelected = loc.language == language
+        return Button {
+            loc.language = language
+        } label: {
+            Text(language.displayName)
+                .font(Theme.Typography.Manrope.semibold(size: 15, relativeTo: .subheadline))
+                .foregroundStyle(isSelected ? .white : Theme.textPrimary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, Theme.Spacing.md)
+                .background(
+                    RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
+                        .fill(isSelected ? Theme.sunOrange : Color.clear)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
+                        .strokeBorder(isSelected ? Color.clear : Theme.hairline(0.1), lineWidth: 1)
+                )
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Shared bits
+
+    private func sectionHeader(_ title: String) -> some View {
+        Text(title)
+            .font(Theme.Typography.Manrope.bold(size: 18, relativeTo: .title3))
+            .foregroundStyle(Theme.textPrimary)
+    }
+
+    private var aboutFooter: some View {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "?"
+        return Text(L10n.settingsAbout(version: version, build: build))
+            .font(Theme.Typography.Manrope.regular(size: 11, relativeTo: .caption2))
+            .foregroundStyle(Theme.lavender)
+            .frame(maxWidth: .infinity, alignment: .center)
+    }
+}

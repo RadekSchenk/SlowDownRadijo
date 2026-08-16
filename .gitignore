@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# Xcode
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+DerivedData/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Supabase CLI local state — regenerated per machine by `supabase link`,
+# never contains anything meant for version control.
+backend/supabase/.temp/
+
+# Secrets — never committed; Edge Functions read these from Supabase's own
+# secrets vault at runtime (`Deno.env.get(...)`), not from files here.
+.env
+.env.local
+*.env
