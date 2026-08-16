@@ -57,6 +57,21 @@ actor ITunesArtworkService {
                   let first = results.first else {
                 return LookupResult(artworkURL: nil, previewURL: nil)
             }
+
+            // iTunes' text search is fuzzy — it very rarely returns zero
+            // results, even for station-only content (jingles, promos, DJ
+            // mix blocks) that isn't a real catalogable song. Left
+            // unchecked this surfaces confidently-wrong matches (e.g.
+            // searching "SLOWDOWN PROMO" returns King Promise's unrelated
+            // song "Slow Down"). Requiring the returned track name to share
+            // at least one real word with what we searched for rejects
+            // those false positives while real matches — which are always
+            // at least near-identical — sail through.
+            guard let trackName = first["trackName"] as? String,
+                  Self.sharesSignificantWord(searched: title, result: trackName) else {
+                return LookupResult(artworkURL: nil, previewURL: nil)
+            }
+
             var artwork: URL?
             if let artworkString = first["artworkUrl100"] as? String {
                 // Request a bigger image than the default 100x100 thumbnail.
@@ -78,5 +93,21 @@ actor ITunesArtworkService {
             URLQueryItem(name: "limit", value: "1")
         ]
         return components?.url
+    }
+
+    private static func sharesSignificantWord(searched: String, result: String) -> Bool {
+        let searchedWords = significantWords(in: searched)
+        // Nothing meaningful to compare (e.g. a one/two-letter title) —
+        // don't block on a check that can't say anything useful.
+        guard !searchedWords.isEmpty else { return true }
+        return !searchedWords.isDisjoint(with: significantWords(in: result))
+    }
+
+    private static func significantWords(in text: String) -> Set<String> {
+        Set(
+            text.lowercased()
+                .components(separatedBy: CharacterSet.alphanumerics.inverted)
+                .filter { $0.count > 2 }
+        )
     }
 }

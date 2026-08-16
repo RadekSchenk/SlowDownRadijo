@@ -150,6 +150,7 @@ final class HistoryViewModel: ObservableObject {
         appendLocal(localPage)
         hasMore = localHasMore || remoteHasMore
         publish()
+        resolveArtworkForLocalTracks()
 
         guard remoteHasMore,
               let remotePage = try? await RemoteHistoryService.fetchPage(before: remoteCursor, windowStart: windowStart, limit: Self.pageSize),
@@ -190,6 +191,40 @@ final class HistoryViewModel: ObservableObject {
                 }
                 guard self.remoteTracks[index].artworkURL == nil else { continue }
                 self.remoteTracks[index].artworkURL = url
+                withAnimation(.easeInOut(duration: 0.35)) {
+                    self.publish()
+                }
+            }
+        }
+    }
+
+    /// Local tracks normally get their one lookup attempt the instant
+    /// they're recorded (see `NowPlayingViewModel.handleTrackChange`) — but
+    /// any that predate that check existing, or whose one attempt was lost
+    /// to a rate-limited burst, are stuck permanently "unresolved" with no
+    /// retry of their own. Every page load gives those another shot,
+    /// persisting the result back to `PlayHistoryStore` so it sticks.
+    private func resolveArtworkForLocalTracks() {
+        let pending = localTracks.filter { $0.artworkURL == nil && !$0.hasNoITunesMatch }
+        guard !pending.isEmpty else { return }
+
+        Task { [weak self] in
+            for track in pending {
+                guard let self else { return }
+                let id = track.id
+                guard let index = self.localTracks.firstIndex(where: { $0.id == id }) else { continue }
+                guard let url = await ITunesArtworkService.shared.artworkURL(artist: track.artist, title: track.title) else {
+                    guard !self.localTracks[index].hasNoITunesMatch else { continue }
+                    self.localTracks[index].hasNoITunesMatch = true
+                    self.historyStore.markNoITunesMatch(for: id)
+                    withAnimation(.easeInOut(duration: 0.35)) {
+                        self.publish()
+                    }
+                    continue
+                }
+                guard self.localTracks[index].artworkURL == nil else { continue }
+                self.localTracks[index].artworkURL = url
+                self.historyStore.updateArtwork(for: id, to: url)
                 withAnimation(.easeInOut(duration: 0.35)) {
                     self.publish()
                 }
