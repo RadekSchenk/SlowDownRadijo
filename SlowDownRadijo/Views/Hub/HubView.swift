@@ -28,7 +28,9 @@ struct HubView: View {
                         Button {
                             openURL(Self.whatsAppURL)
                         } label: {
-                            HubRow(icon: "message.fill", title: L10n.hubWhatsAppRow, subtitle: L10n.hubWhatsAppRowSubtitle, tint: Self.whatsAppGreen)
+                            HubRow(title: L10n.hubWhatsAppRow, subtitle: L10n.hubWhatsAppRowSubtitle, tint: Self.whatsAppGreen) {
+                                WhatsAppGlyph()
+                            }
                         }
                         .buttonStyle(.plain)
 
@@ -110,15 +112,33 @@ struct HubView: View {
 }
 
 private struct HubRow: View {
-    let icon: String
     let title: String
     let subtitle: String
     var tint: Color = Theme.sunOrange
+    let icon: AnyView
+
+    init(icon systemImage: String, title: String, subtitle: String, tint: Color = Theme.sunOrange) {
+        self.title = title
+        self.subtitle = subtitle
+        self.tint = tint
+        self.icon = AnyView(
+            Image(systemName: systemImage)
+                .font(.system(size: 20, weight: .semibold))
+        )
+    }
+
+    /// For rows that need a custom glyph instead of a plain SF Symbol —
+    /// currently just the WhatsApp row (see `WhatsAppGlyph`).
+    init(title: String, subtitle: String, tint: Color = Theme.sunOrange, @ViewBuilder icon: () -> some View) {
+        self.title = title
+        self.subtitle = subtitle
+        self.tint = tint
+        self.icon = AnyView(icon())
+    }
 
     var body: some View {
         HStack(spacing: Theme.Spacing.md) {
-            Image(systemName: icon)
-                .font(.system(size: 20, weight: .semibold))
+            icon
                 .foregroundStyle(tint)
                 .frame(width: 44, height: 44)
                 .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
@@ -143,5 +163,35 @@ private struct HubRow: View {
             RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
                 .strokeBorder(Theme.hairline(0.1), lineWidth: 1)
         )
+    }
+}
+
+/// A simplified, monochrome silhouette of WhatsApp's phone-in-speech-bubble
+/// mark — deliberately not their official logo (a colored, licensed
+/// trademark asset that would also look out of place among this menu's
+/// flat single-tone icons). Just enough shape to read as "chat", which
+/// alongside the visible "WhatsApp" text label is unambiguous.
+private struct WhatsAppGlyph: View {
+    var body: some View {
+        ZStack {
+            ChatBubbleOutline()
+                .stroke(lineWidth: 1.6)
+            Image(systemName: "phone.fill")
+                .font(.system(size: 9, weight: .semibold))
+                .offset(y: -1.5)
+        }
+        .frame(width: 22, height: 20)
+    }
+}
+
+private struct ChatBubbleOutline: Shape {
+    func path(in rect: CGRect) -> Path {
+        let bodyHeight = rect.height * 0.78
+        let bodyRect = CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: bodyHeight)
+        var path = Path(roundedRect: bodyRect, cornerRadius: bodyHeight / 2)
+        path.move(to: CGPoint(x: rect.minX + rect.width * 0.22, y: bodyRect.maxY - 1))
+        path.addLine(to: CGPoint(x: rect.minX + rect.width * 0.13, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.minX + rect.width * 0.42, y: bodyRect.maxY - 1))
+        return path
     }
 }
