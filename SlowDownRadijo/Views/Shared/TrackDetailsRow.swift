@@ -88,11 +88,11 @@ struct TrackDetailsRow: View {
     private var expandedBody: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             HStack(alignment: .top, spacing: Theme.Spacing.md) {
-                artwork(size: 64)
+                artworkWithPreviewBadge
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
-                        .font(Theme.Typography.Manrope.extraBold(size: 18, relativeTo: .headline))
+                        .font(Theme.Typography.Manrope.extraBold(size: 19, relativeTo: .headline))
                         .foregroundStyle(Theme.textPrimary)
                         .lineLimit(2)
                     Text(artist)
@@ -111,15 +111,6 @@ struct TrackDetailsRow: View {
             // show at all rather than just the preview button.
             if !hasNoITunesMatch {
                 FlowLayout(spacing: Theme.Spacing.sm) {
-                    if let preview {
-                        ActionPillButton(
-                            icon: previewIcon(preview.playback),
-                            label: previewLabel(preview.playback),
-                            tint: Theme.gold,
-                            isLoading: preview.playback == .loading,
-                            action: preview.action
-                        )
-                    }
                     if let favorite {
                         ActionPillButton(
                             icon: favorite.isFavorite ? "heart.fill" : "heart",
@@ -146,9 +137,58 @@ struct TrackDetailsRow: View {
             // swallowed every tap meant for them. Decorative-only border,
             // so it must not intercept touches.
             CalloutCardShape(cornerRadius: Theme.Radius.card, tailY: tailY)
-                .stroke(Theme.hairline(0.1), lineWidth: 1)
+                .stroke(Theme.hairline(0.08), lineWidth: 1)
                 .allowsHitTesting(false)
         )
+        // A soft, floating shadow reads as an actually-elevated card rather
+        // than a flat rectangle with an outline — the streaming-app look
+        // the border-only version was missing.
+        .shadow(color: .black.opacity(0.16), radius: 14, x: 0, y: 6)
+        .shadow(color: .black.opacity(0.06), radius: 2, x: 0, y: 1)
+    }
+
+    /// The artwork with a translucent play/pause badge overlaid on its
+    /// corner when a preview is available — tapping the artwork itself to
+    /// hear a clip, the way Spotify/Apple Music treat album art, rather
+    /// than a separate "Přehrát ukázku" pill competing for attention below.
+    @ViewBuilder
+    private var artworkWithPreviewBadge: some View {
+        if let preview {
+            Button(action: preview.action) {
+                artwork(size: 72)
+                    .overlay(alignment: .bottomTrailing) {
+                        previewBadge(preview.playback)
+                            .padding(6)
+                    }
+            }
+            .buttonStyle(.plain)
+            .disabled(preview.playback == .loading)
+        } else {
+            artwork(size: 72)
+        }
+    }
+
+    private func previewBadge(_ playback: PreviewPlaybackState) -> some View {
+        ZStack {
+            Circle()
+                .fill(.black.opacity(0.55))
+            Group {
+                switch playback {
+                case .idle:
+                    Image(systemName: "play.fill")
+                case .loading:
+                    ProgressView()
+                        .tint(.white)
+                        .scaleEffect(0.65)
+                case .playing:
+                    Image(systemName: "pause.fill")
+                }
+            }
+            .font(.system(size: 13, weight: .bold))
+            .foregroundStyle(.white)
+        }
+        .frame(width: 28, height: 28)
+        .shadow(color: .black.opacity(0.3), radius: 4, y: 2)
     }
 
     private func artwork(size: CGFloat) -> some View {
@@ -156,21 +196,6 @@ struct TrackDetailsRow: View {
             .frame(width: size, height: size)
             .id(artworkURL)
             .transition(.opacity)
-    }
-
-    private func previewIcon(_ playback: PreviewPlaybackState) -> String {
-        switch playback {
-        case .idle, .loading: return "play.circle.fill"
-        case .playing: return "stop.circle.fill"
-        }
-    }
-
-    private func previewLabel(_ playback: PreviewPlaybackState) -> String {
-        switch playback {
-        case .idle: return L10n.previewPlayAction
-        case .loading: return L10n.previewLoadingAction
-        case .playing: return L10n.previewStopAction
-        }
     }
 }
 
