@@ -2,7 +2,7 @@
 
 *Poslední aktualizace: [DOPLNIT DATUM PŘED ZVEŘEJNĚNÍM]*
 
-Tento dokument popisuje, jaké údaje aplikace Slow Down Rádijo pro iOS (a Android, pokud vznikne) zpracovává. Aplikaci provozuje **Slow Down Radio s.r.o.** (kontakt: info@slowdownradijo.cz), technickou stránku aplikace a zpětnou vazbu má na starosti jsem@radekschenk.cz. [DOPLNIT: IČO a sídlo společnosti, pokud je chcete v zásadách uvádět — nebyly veřejně dostupné na kontaktní stránce webu, dohledatelné v Obchodním rejstříku.]
+Tento dokument popisuje, jaké údaje aplikace Slow Down Rádijo pro iOS (a Android, pokud vznikne) zpracovává. Aplikaci provozuje **Slow Down Radio s.r.o.**, IČO 23309440, se sídlem Jeseniova 1575/69, Žižkov, 130 00 Praha 3 (kontakt: info@slowdownradijo.cz). Technickou stránku aplikace a zpětnou vazbu má na starosti jsem@radekschenk.cz.
 
 ## Aplikace nevyžaduje žádný účet
 
