@@ -10,6 +10,11 @@ struct SettingsView: View {
     @AppStorage("autoplayEnabled") private var autoplayEnabled = true
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var systemColorScheme
+    @State private var isShowingPrivacyPolicy = false
+
+    // TODO: placeholder — point this at the real hosted page once
+    // PRIVACY_POLICY.md is published (see repo root).
+    private static let privacyPolicyURL = URL(string: "https://slowdownradijo.cz/ochrana-osobnich-udaju/")!
 
     private var isEffectivelyDark: Bool {
         switch appearanceManager.appearance {
@@ -26,12 +31,16 @@ struct SettingsView: View {
                 autoplaySection
                 appearanceSection
                 languageSection
+                privacyPolicyRow
                 aboutFooter
             }
             .padding(Theme.Spacing.md)
         }
         .background(Theme.background.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)
+        .sheet(isPresented: $isShowingPrivacyPolicy) {
+            SafariView(url: Self.privacyPolicyURL)
+        }
     }
 
     // MARK: - Autoplay
@@ -125,6 +134,26 @@ struct SettingsView: View {
                     RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
                         .strokeBorder(isSelected ? Color.clear : Theme.hairline(0.1), lineWidth: 1)
                 )
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Privacy policy
+
+    private var privacyPolicyRow: some View {
+        Button {
+            isShowingPrivacyPolicy = true
+        } label: {
+            HStack(spacing: Theme.Spacing.sm) {
+                Image(systemName: "hand.raised")
+                    .font(.system(size: 14, weight: .semibold))
+                Text(L10n.settingsPrivacyPolicy)
+                    .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+            }
+            .foregroundStyle(Theme.textPrimary)
         }
         .buttonStyle(.plain)
     }

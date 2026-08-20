@@ -919,6 +919,13 @@ enum L10n {
         }
     }
 
+    static var settingsPrivacyPolicy: String {
+        switch lang {
+        case .cs: return "Zásady ochrany osobních údajů"
+        case .en: return "Privacy Policy"
+        }
+    }
+
     // MARK: - News
 
     static var newsTitle: String {
