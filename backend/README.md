@@ -89,6 +89,14 @@ contents of `supabase/sql/001_played_tracks.sql`, and run it. This creates
 `played_tracks`, its read-only RLS policy, and the three stats functions
 (`diversity_weekly`, `repetition_rate`, `first_plays`).
 
+Then run `002_first_plays_weekly.sql`, `003_total_unique_tracks.sql`, and
+`004_filter_promo_plays.sql` in the same way, in that order — each one
+replaces/extends functions from the previous file. `004` adds a
+`played_tracks_clean` view that filters out station jingles/sponsor
+mentions and untagged-show placeholder rows, and re-points every stats
+function at it — run it any time to pick up the new filter, even on an
+already-populated table.
+
 ### 2. Deploy the two functions
 
 ```
