@@ -19,19 +19,9 @@ struct HomeView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: Theme.Spacing.lg) {
-                ZStack(alignment: .top) {
-                    HomeHeroBackground(image: heroImage)
-                        // Bleeds past the VStack's own 20pt horizontal
-                        // inset (applied below) so the image reaches the
-                        // true screen edges, while `AppHeaderView` stays
-                        // inset like every other row.
-                        .padding(.horizontal, -20)
-                        .ignoresSafeArea(edges: .top)
+                heroSection
 
-                    AppHeaderView()
-                }
-
-                showInfoCard
+                remainingShowInfo
 
                 nowPlayingSection
 
@@ -40,6 +30,13 @@ struct HomeView: View {
             .padding(.horizontal, 20)
             .padding(.bottom, Theme.Spacing.xl)
         }
+        // Needs to live on the `ScrollView` itself, not a descendant — a
+        // nested `.ignoresSafeArea(edges: .top)` inside a `ScrollView`
+        // doesn't actually bleed past the status bar (the ScrollView still
+        // insets its content by the safe area first), which is why the
+        // hero previously left a gap above it instead of reaching the true
+        // top edge like the Figma spec.
+        .ignoresSafeArea(edges: .top)
         .background(Theme.background.ignoresSafeArea())
         .onAppear { history.loadIfNeeded() }
         .refreshable { history.refresh() }
@@ -65,25 +62,48 @@ struct HomeView: View {
         return nowPlaying.showArtwork
     }
 
-    private var showInfoCard: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-            HStack(spacing: Theme.Spacing.sm) {
-                OnAirBadge()
-                Spacer(minLength: Theme.Spacing.sm)
-                if let hostName = nowPlaying.currentShow?.hostName {
-                    HostBadge(name: hostName, imageName: nowPlaying.currentShow?.hostImageName)
+    /// The hero image, header, on-air/host badges, and play button + show
+    /// title all live in one `ZStack` — per Figma, the image is a fixed
+    /// 233pt band starting at the very top of the screen, and the header
+    /// plus the first two rows of show info are overlaid on top of it (the
+    /// image's own bottom-edge gradient, in `HomeHeroBackground`, is what
+    /// keeps that overlaid text legible). Everything else about the show
+    /// (progress bar, sleep timer) sits below in normal flow — see
+    /// `remainingShowInfo`.
+    private var heroSection: some View {
+        ZStack(alignment: .top) {
+            HomeHeroBackground(image: heroImage)
+                // Bleeds past the VStack's own 20pt horizontal inset
+                // (applied at the top-level `body`) so the image reaches
+                // the true screen edges, while everything overlaid on top
+                // of it stays inset like every other row.
+                .padding(.horizontal, -20)
+
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                AppHeaderView()
+
+                HStack(spacing: Theme.Spacing.sm) {
+                    OnAirBadge()
+                    Spacer(minLength: Theme.Spacing.sm)
+                    if let hostName = nowPlaying.currentShow?.hostName {
+                        HostBadge(name: hostName, imageName: nowPlaying.currentShow?.hostImageName)
+                    }
+                }
+
+                HStack(spacing: Theme.Spacing.md) {
+                    PlayButton(state: nowPlaying.playbackState, action: nowPlaying.togglePlayPause, diameter: 54, iconSize: 20)
+
+                    Text(nowPlaying.showName.uppercased())
+                        .font(Theme.Typography.Manrope.extraBold(size: 22, relativeTo: .title2))
+                        .foregroundStyle(Theme.textPrimary)
+                        .lineLimit(2)
                 }
             }
+        }
+    }
 
-            HStack(spacing: Theme.Spacing.md) {
-                PlayButton(state: nowPlaying.playbackState, action: nowPlaying.togglePlayPause, diameter: 54, iconSize: 20)
-
-                Text(nowPlaying.showName.uppercased())
-                    .font(Theme.Typography.Manrope.extraBold(size: 22, relativeTo: .title2))
-                    .foregroundStyle(Theme.textPrimary)
-                    .lineLimit(2)
-            }
-
+    private var remainingShowInfo: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             if let show = nowPlaying.currentShow {
                 // 12pt matches the Figma "show-progress" container's own
                 // gap for its three top-level children — the
