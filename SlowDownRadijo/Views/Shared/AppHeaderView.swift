@@ -62,7 +62,10 @@ struct AppHeaderView: View {
             }
             .buttonStyle(.plain)
         }
-        .padding(.vertical, Theme.Spacing.sm)
+        // Matches the Figma "app-header" frame's own auto-layout padding
+        // (20 horizontal — already provided by every tab root's own outer
+        // inset, so not repeated here — and 16 vertical).
+        .padding(.vertical, Theme.Spacing.md)
         .sheet(isPresented: $isShowingHub) {
             HubView()
         }

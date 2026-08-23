@@ -81,6 +81,13 @@ struct HomeView: View {
 
             VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                 AppHeaderView()
+                    // The hero image itself bleeds all the way to the
+                    // screen's true top edge, behind the status bar — but
+                    // the header content shouldn't start until below it.
+                    // Matches Figma's "app-header" frame, which sits at a
+                    // fixed y=40 (its own status-bar mockup's height), not
+                    // at y=0.
+                    .padding(.top, 40)
 
                 HStack(spacing: Theme.Spacing.sm) {
                     OnAirBadge()
