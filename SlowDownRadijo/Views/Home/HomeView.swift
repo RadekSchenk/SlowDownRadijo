@@ -15,6 +15,12 @@ struct HomeView: View {
     /// explainer sheet below only appears once, ever.
     @AppStorage("hasSeenFavoritesIntro") private var hasSeenFavoritesIntro = false
     @State private var isShowingFavoritesIntro = false
+    /// The page content's vertical offset within the `ScrollView`, read via
+    /// a `GeometryReader` probe + `HomeScrollOffsetKey` pinned to the
+    /// `"homeScroll"` named coordinate space below — positive while
+    /// pulled down past the top, negative while scrolled down through the
+    /// page. Feeds `HomeHeroBackground`'s stretch/parallax effect.
+    @State private var scrollOffset: CGFloat = 0
 
     var body: some View {
         ScrollView {
@@ -37,7 +43,17 @@ struct HomeView: View {
             }
             .padding(.horizontal, 20)
             .padding(.bottom, Theme.Spacing.xl)
+            .background {
+                GeometryReader { proxy in
+                    Color.clear.preference(
+                        key: HomeScrollOffsetKey.self,
+                        value: proxy.frame(in: .named("homeScroll")).minY
+                    )
+                }
+            }
         }
+        .coordinateSpace(name: "homeScroll")
+        .onPreferenceChange(HomeScrollOffsetKey.self) { scrollOffset = $0 }
         // Needs to live on the `ScrollView` itself, not a descendant — a
         // nested `.ignoresSafeArea(edges: .top)` inside a `ScrollView`
         // doesn't actually bleed past the status bar (the ScrollView still
@@ -117,7 +133,7 @@ struct HomeView: View {
             .padding(.top, 20)
         }
         .background(alignment: .top) {
-            HomeHeroBackground(image: heroImage)
+            HomeHeroBackground(image: heroImage, scrollOffset: scrollOffset)
                 // Bleeds past the VStack's own 20pt horizontal inset
                 // (applied at the top-level `body`) so the image reaches
                 // the true screen edges, while everything overlaid on top
@@ -338,5 +354,15 @@ struct HomeView: View {
 private extension Array {
     subscript(safe index: Int) -> Element? {
         indices.contains(index) ? self[index] : nil
+    }
+}
+
+/// Reports the scroll content's `minY` within the `"homeScroll"` named
+/// coordinate space — see `HomeView.body`'s `GeometryReader` probe and
+/// `HomeHeroBackground`'s stretch/parallax effect.
+private struct HomeScrollOffsetKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }
