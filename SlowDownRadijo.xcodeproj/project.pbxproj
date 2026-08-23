@@ -59,7 +59,6 @@
 		7449C3A4F9DE11E8D0981EE5 /* NowPlayingEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 564A0A33D4EF7543E59E6825 /* NowPlayingEntry.swift */; };
 		75861ED0E375D85E1BC3B8ED /* VoiceMessageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D16B988B620307084ED49725 /* VoiceMessageViewModel.swift */; };
 		762A9C011E94513BB0C54FFB /* RemoteHistoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 298328CFB2247B8C05D3A60D /* RemoteHistoryService.swift */; };
-		7822A4940E41D04FEBF6EE18 /* SocialStatsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 149111CF29CCEA5A30331EDD /* SocialStatsService.swift */; };
 		79F0209D836446A11C833D89 /* SpotifySearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26C1AC0ADB5E0B105C0D88C3 /* SpotifySearch.swift */; };
 		7CB94CFB105A7A757BDF6879 /* Manrope-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E5E20A4EF4EE7A6B6FB7F387 /* Manrope-Regular.ttf */; };
 		7E1BBDA27F5658EA53680597 /* MessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72A53ABC9D26C0FEFCD3A623 /* MessageView.swift */; };
@@ -75,7 +74,6 @@
 		8B72DAE348C9F95FF4B2745F /* SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFDC7B7426A30CD06C7985FA /* SplashScreenView.swift */; };
 		8E229403FC095FB807381F79 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 785B53C322F00255EF254B2F /* HomeView.swift */; };
 		917F3F0027BB829917DAA166 /* NowPlayingTrack.swift in Sources */ = {isa = PBXBuildFile; fileRef = E255183D953C93B1A328DC27 /* NowPlayingTrack.swift */; };
-		91E60858519606D23284E49A /* SocialStat.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65623F0ADECBD4993F9D32F /* SocialStat.swift */; };
 		92F90E0A2E75446181E382F9 /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4AF4F99AF9B78C5C8DB251E /* L10n.swift */; };
 		98CE4DBD8D0286954B38615F /* Manrope-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1DD55775932816203A312CA9 /* Manrope-ExtraBold.ttf */; };
 		9F8B19A4B8ECB6EB2C250ABB /* NewsPost.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DC82166EB2B538C0565A55 /* NewsPost.swift */; };
@@ -142,7 +140,6 @@
 		0F436EA2030072CA0794ABD9 /* ShowCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowCardView.swift; sourceTree = "<group>"; };
 		115C3C27B735851EB291CCE1 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		13BBF7A0C3DC9EDBAB44043D /* HubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HubView.swift; sourceTree = "<group>"; };
-		149111CF29CCEA5A30331EDD /* SocialStatsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialStatsService.swift; sourceTree = "<group>"; };
 		178B6B727528004BCE00BE98 /* NowPlayingProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingProvider.swift; sourceTree = "<group>"; };
 		1894C8926E55BAF50B5C8E43 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1A17221357C04352A1BE1CD5 /* RemoteArtworkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteArtworkView.swift; sourceTree = "<group>"; };
@@ -197,7 +194,6 @@
 		B26E607347B3911B648DB65E /* Manrope-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Manrope-Medium.ttf"; sourceTree = "<group>"; };
 		B4F8F9F79C08E14505F9BAF7 /* FavoriteTrack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteTrack.swift; sourceTree = "<group>"; };
 		B5DC82166EB2B538C0565A55 /* NewsPost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsPost.swift; sourceTree = "<group>"; };
-		B65623F0ADECBD4993F9D32F /* SocialStat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialStat.swift; sourceTree = "<group>"; };
 		B81CC38CB16FF17402C43ED6 /* HomeHeroBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeHeroBackground.swift; sourceTree = "<group>"; };
 		BBADEE545D3880AC7D8E9963 /* FeedbackViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackViewModel.swift; sourceTree = "<group>"; };
 		BC51E5E415F925B3F6890307 /* SupportCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportCardView.swift; sourceTree = "<group>"; };
@@ -419,7 +415,6 @@
 				9F23391374D5E984B83EE88C /* RadioPlayerService.swift */,
 				298328CFB2247B8C05D3A60D /* RemoteHistoryService.swift */,
 				F7A43A86699B9373436B5D67 /* ScheduleStore.swift */,
-				149111CF29CCEA5A30331EDD /* SocialStatsService.swift */,
 				7BADD47AE92FCB3825D65C65 /* VoiceMessageRecorder.swift */,
 				FB944480FA340A7F8CF3B6EE /* VoiceMessageUploadService.swift */,
 			);
@@ -437,7 +432,6 @@
 				3164EFEA27D9FB845A97838A /* PlayedTrackRecord.swift */,
 				510CA2B353BF9B8EB1856F02 /* RemotePlayedTrack.swift */,
 				3DC0DD53F5302B6021C60A04 /* Show.swift */,
-				B65623F0ADECBD4993F9D32F /* SocialStat.swift */,
 				26C1AC0ADB5E0B105C0D88C3 /* SpotifySearch.swift */,
 				4C1714C7CB0A4E98D80D86D5 /* StatsResponse.swift */,
 				0ACD021D959A7172D4435FA1 /* SupportOption.swift */,
@@ -652,8 +646,6 @@
 				3210C945C5FB168548C5D16D /* SleepTimerButton.swift in Sources */,
 				083E1777286799A0388FD6E3 /* SlowDownRadijoApp.swift in Sources */,
 				446F3002BB673D2133818D7C /* SocialLinksRow.swift in Sources */,
-				91E60858519606D23284E49A /* SocialStat.swift in Sources */,
-				7822A4940E41D04FEBF6EE18 /* SocialStatsService.swift in Sources */,
 				8B72DAE348C9F95FF4B2745F /* SplashScreenView.swift in Sources */,
 				79F0209D836446A11C833D89 /* SpotifySearch.swift in Sources */,
 				29AB995D3F407673B28BAEA9 /* StatsResponse.swift in Sources */,
