@@ -60,6 +60,11 @@ struct HomeView: View {
                     .lineLimit(2)
             }
 
+            NowPlayingWaveform(
+                isActive: nowPlaying.playbackState == .playing,
+                trackID: nowPlaying.track?.displayText ?? nowPlaying.showName
+            )
+
             if let show = nowPlaying.currentShow {
                 VStack(alignment: .leading, spacing: 10) {
                     ShowProgressBar(

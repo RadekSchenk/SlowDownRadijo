@@ -40,6 +40,16 @@ enum Theme {
         endPoint: .trailing
     )
 
+    /// Same three stops as `accentGradient`, rotated vertical — red grounded
+    /// at the bottom rising to yellow at the top. Used by
+    /// `NowPlayingWaveform` so its bars read as one continuous gradient
+    /// across the whole shape rather than each bar getting its own copy.
+    static let accentGradientVertical = LinearGradient(
+        colors: [sunYellow, sunOrange, sunRed],
+        startPoint: .top,
+        endPoint: .bottom
+    )
+
     /// Muted lavender used for secondary text in the flat redesign — a
     /// tinted alternative to a plain white-opacity gray, giving text a
     /// warmer, more "branded" look than generic gray would. Adaptive: the

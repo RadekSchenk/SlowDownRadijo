@@ -65,6 +65,7 @@
 		85FAEB2980FDEDC41E30C8A8 /* schedule.json in Resources */ = {isa = PBXBuildFile; fileRef = 71D9A5C726F15EF4EFD6CAAC /* schedule.json */; };
 		8720147EB02735B78A7AE944 /* NewsNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66F758606524470018FDFB0B /* NewsNotificationManager.swift */; };
 		8A786130476152AAE9DC6B87 /* NewsContentParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CBD0E0AF540E7AFE6527FC4 /* NewsContentParser.swift */; };
+		8AFC8F56D504B8FC0F263F1F /* NowPlayingWaveform.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A32882572C0542DDA2BFF30 /* NowPlayingWaveform.swift */; };
 		8B0C184F62D55FFF69C21A01 /* ITunesArtworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 779AB7DBCEFF12992574B221 /* ITunesArtworkService.swift */; };
 		8B72DAE348C9F95FF4B2745F /* SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFDC7B7426A30CD06C7985FA /* SplashScreenView.swift */; };
 		8E229403FC095FB807381F79 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 785B53C322F00255EF254B2F /* HomeView.swift */; };
@@ -156,6 +157,7 @@
 		564A0A33D4EF7543E59E6825 /* NowPlayingEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingEntry.swift; sourceTree = "<group>"; };
 		57004A1C40BD06A347014176 /* NowPlayingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingViewModel.swift; sourceTree = "<group>"; };
 		5976046FB7D0A7BCE7F3C533 /* OnAirBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnAirBadge.swift; sourceTree = "<group>"; };
+		5A32882572C0542DDA2BFF30 /* NowPlayingWaveform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingWaveform.swift; sourceTree = "<group>"; };
 		5D358E3DC746BA6BB9F1DCB6 /* NowPlayingWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingWidgetView.swift; sourceTree = "<group>"; };
 		66D1232EE750409656EAA552 /* NewsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsService.swift; sourceTree = "<group>"; };
 		66F758606524470018FDFB0B /* NewsNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsNotificationManager.swift; sourceTree = "<group>"; };
@@ -229,6 +231,7 @@
 				785B53C322F00255EF254B2F /* HomeView.swift */,
 				A67F7188132BB057D8C6B8BB /* HostBadge.swift */,
 				6F9F81DF3119022A7E2E59C8 /* NowPlayingEqualizer.swift */,
+				5A32882572C0542DDA2BFF30 /* NowPlayingWaveform.swift */,
 				5976046FB7D0A7BCE7F3C533 /* OnAirBadge.swift */,
 				EA30370E85EA8E17C80F01B5 /* PlayButton.swift */,
 				76A74413EEB07E86A610A9BC /* ShowDividerRow.swift */,
@@ -609,6 +612,7 @@
 				3EAC830FDD87FF1FFB8B6D25 /* NowPlayingEqualizer.swift in Sources */,
 				917F3F0027BB829917DAA166 /* NowPlayingTrack.swift in Sources */,
 				6D4D5918B72BA49593209D09 /* NowPlayingViewModel.swift in Sources */,
+				8AFC8F56D504B8FC0F263F1F /* NowPlayingWaveform.swift in Sources */,
 				DD54EF6977CA308D18A13529 /* OnAirBadge.swift in Sources */,
 				44E1E8C58EFAD2F5CBE6A957 /* PlayButton.swift in Sources */,
 				1E54C534DF958CE607942485 /* PlayHistoryStore.swift in Sources */,
