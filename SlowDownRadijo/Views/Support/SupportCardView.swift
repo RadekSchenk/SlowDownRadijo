@@ -12,13 +12,14 @@ struct SupportCardView: View {
 
     var body: some View {
         HStack(spacing: Theme.Spacing.md) {
-            Image(systemName: option.symbolName)
-                .font(.system(size: 26))
-                .foregroundStyle(Theme.sunOrange)
+            Image(option.logoAssetName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 32, height: 32)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(option.name)
-                    .font(Theme.Typography.Manrope.bold(size: 16, relativeTo: .headline))
+                    .font(Theme.Typography.Manrope.bold(size: 18, relativeTo: .headline))
                     .foregroundStyle(Theme.textPrimary)
                 Text(option.price)
                     .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
@@ -29,7 +30,7 @@ struct SupportCardView: View {
 
             Button(action: action) {
                 Text(L10n.support)
-                    .font(Theme.Typography.Manrope.bold(size: 14, relativeTo: .subheadline))
+                    .font(Theme.Typography.Manrope.bold(size: 15, relativeTo: .subheadline))
                     .foregroundStyle(.white)
                     .padding(.horizontal, Theme.Spacing.md)
                     .padding(.vertical, Theme.Spacing.sm)

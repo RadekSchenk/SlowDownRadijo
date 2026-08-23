@@ -7,7 +7,10 @@ struct SupportOption: Identifiable {
     /// suffix is appended via `price` from `L10n.perMonth` so it localizes.
     let amount: String
     let url: URL
-    let symbolName: String
+    /// Name of a theme-adaptive imageset in Assets.xcassets (light/dark
+    /// appearance variants of the platform's own brand mark), not an SF
+    /// Symbol — real logos read more trustworthy on a support/payment card.
+    let logoAssetName: String
 
     var price: String { "\(amount)/\(L10n.perMonth)" }
 
@@ -25,21 +28,21 @@ struct SupportOption: Identifiable {
             name: "Herohero",
             amount: "8 €",
             url: URL(string: "https://herohero.co/slowdownradijo")!,
-            symbolName: "star.circle.fill"
+            logoAssetName: "SupportHerohero"
         ),
         SupportOption(
             id: "patreon",
             name: "Patreon",
             amount: "170 Kč",
             url: URL(string: "https://www.patreon.com/c/SLOWDOWNRADIJO")!,
-            symbolName: "heart.circle.fill"
+            logoAssetName: "SupportPatreon"
         ),
         SupportOption(
             id: "forendors",
             name: "Forendors",
             amount: "160 Kč",
             url: URL(string: "https://www.forendors.cz/slowdownradijo")!,
-            symbolName: "gift.circle.fill"
+            logoAssetName: "SupportForendors"
         )
     ]
 }

@@ -2,8 +2,8 @@ import SwiftUI
 
 /// Matches the flat "radio-flat-typo" typography/color scale used
 /// throughout the rest of the app (see `HomeView`): 28pt
-/// extraBold page title, 18pt bold section headers, `Theme.lavender` for
-/// secondary text, `Theme.gold`/`Theme.sunOrange` for accents.
+/// extraBold page title, 24pt extraBold section headers, `Theme.lavender`
+/// for secondary text, `Theme.gold`/`Theme.sunOrange` for accents.
 ///
 /// All three support platforms list the same four benefits (verified
 /// against slowdownradijo.cz/podpora/), so they're shown once in a shared
@@ -73,8 +73,11 @@ struct SupportView: View {
 
     private var platformsSection: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+            // Matches `supportBenefitsTitle` above — both are page-level
+            // section headers, so they share the same 24pt extraBold scale
+            // rather than this one being a step smaller.
             Text(L10n.supportChooseTitle)
-                .font(Theme.Typography.Manrope.bold(size: 18, relativeTo: .title3))
+                .font(Theme.Typography.Manrope.extraBold(size: 24, relativeTo: .title2))
                 .foregroundStyle(Theme.textPrimary)
 
             ForEach(SupportOption.all) { option in
