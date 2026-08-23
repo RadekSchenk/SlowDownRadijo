@@ -103,12 +103,15 @@ struct HomeHeroBackground: View {
         // node — the user keeps tuning these directly in Figma, so always
         // re-check against a fresh fetch rather than trusting this
         // comment's own history): darken the right edge (behind the header
-        // buttons), darken the left edge (behind the logo), darken the
-        // bottom so the image blends into the page content below, and — new
-        // this pass — darken the top edge too, now that the image sits
-        // `Self.topInset` down from the true screen edge instead of flush
-        // against it, so the strip of plain background above it blends in
-        // rather than cutting off sharply.
+        // buttons), darken the left edge (behind the logo) — now on a
+        // ~126° diagonal rather than a flat horizontal fade, which the user
+        // tuned specifically to break up the "looking through a keyhole"
+        // look the circular blur mask below was creating in combination
+        // with a hard horizontal cutoff — darken the bottom so the image
+        // blends into the page content below, and darken the top edge too,
+        // now that the image sits `Self.topInset` down from the true
+        // screen edge instead of flush against it, so the strip of plain
+        // background above it blends in rather than cutting off sharply.
         ZStack {
             LinearGradient(
                 stops: [
@@ -120,11 +123,15 @@ struct HomeHeroBackground: View {
             )
             LinearGradient(
                 stops: [
-                    .init(color: Theme.background, location: 0),
-                    .init(color: Theme.background.opacity(0), location: 0.538)
+                    .init(color: Theme.background, location: 0.1186),
+                    .init(color: Theme.background.opacity(0), location: 0.5409)
                 ],
-                startPoint: .leading,
-                endPoint: .trailing
+                // CSS `linear-gradient(125.88deg, …)` converted to SwiftUI's
+                // unit-point form: direction vector (sin θ, -cos θ) about
+                // the frame's center, since SwiftUI has no direct
+                // angle-based gradient API.
+                startPoint: UnitPoint(x: 0.0949, y: 0.2069),
+                endPoint: UnitPoint(x: 0.9051, y: 0.7931)
             )
             LinearGradient(
                 stops: [
