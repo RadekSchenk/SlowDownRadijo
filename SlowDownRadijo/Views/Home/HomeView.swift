@@ -53,13 +53,15 @@ struct HomeView: View {
         }
     }
 
-    /// The current show's artwork, unless it's "The Best of Slow Down" — a
-    /// rotation filler block whose graphic is a generic branded card, not a
-    /// real per-show photo, so the hero banner deliberately excludes it
-    /// even though it does have an `imageURL` (still used for lock-screen
-    /// art via `NowPlayingViewModel.publishNowPlaying`, where that's fine).
+    /// The current show's artwork — except "The Best of Slow Down", a
+    /// rotation filler block whose own `imageURL` (still used as-is for
+    /// lock-screen art via `NowPlayingViewModel.publishNowPlaying`) is a
+    /// generic branded card, not a real per-show photo. For the in-app hero
+    /// it uses a dedicated bundled photo (`TheBestOfSlowDownHero`) instead.
     private var heroImage: UIImage? {
-        guard nowPlaying.currentShow?.name != "The Best of Slow Down" else { return nil }
+        if nowPlaying.currentShow?.name == "The Best of Slow Down" {
+            return UIImage(named: "TheBestOfSlowDownHero")
+        }
         return nowPlaying.showArtwork
     }
 

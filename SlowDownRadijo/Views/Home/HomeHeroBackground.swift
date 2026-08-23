@@ -1,12 +1,12 @@
 import SwiftUI
 
 /// Blurred hero band behind the home screen's header — the current show's
-/// own artwork (`NowPlayingViewModel.showArtwork`), softened and vignetted
-/// into `Theme.background` on both sides and along the bottom so the
-/// header buttons and the content below stay legible. Renders nothing when
-/// `image` is `nil` — the caller is responsible for deciding when that's
-/// appropriate (no `imageURL` on the current show, or a show the design
-/// deliberately excludes, e.g. "The Best of Slow Down" — see `HomeView`).
+/// own artwork (`NowPlayingViewModel.showArtwork`, or a dedicated bundled
+/// photo for "The Best of Slow Down" — see `HomeView.heroImage`), softened
+/// and vignetted into `Theme.background` on both sides and along the
+/// bottom so the header buttons and the content below stay legible.
+/// Renders nothing when `image` is `nil` — the caller is responsible for
+/// deciding when that's appropriate (no `imageURL` on the current show).
 struct HomeHeroBackground: View {
     let image: UIImage?
 
