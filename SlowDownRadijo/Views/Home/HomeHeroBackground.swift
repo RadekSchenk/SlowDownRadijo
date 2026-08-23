@@ -19,22 +19,29 @@ struct HomeHeroBackground: View {
     var scrollOffset: CGFloat = 0
 
     static let height: CGFloat = 320
+    /// Resting gap between the screen's true top edge and the image's own
+    /// top edge (was flush at 0 — the Figma "Image Holder" frame now sits
+    /// at `y: 16` within its parent instead of `y: 0`), revealing a strip
+    /// of plain page background above it that the new top gradient in
+    /// `gradientOverlay` blends into.
+    static let topInset: CGFloat = 16
 
     /// How much taller than normal to render while rubber-banding, so the
     /// image visibly stretches to cover the gap instead of revealing the
     /// flat page background above it — the classic "stretchy header"
     /// pattern (Instagram/Twitter profile headers do the same thing).
     private var stretch: CGFloat { max(0, scrollOffset) }
-    /// Vertical shift applied to the whole hero: while pulled down, exactly
-    /// cancels `stretch` so the image's top edge stays pinned at the
-    /// screen's true top edge (growing downward isn't enough on its own —
-    /// without this the extra height would just push the bottom edge
-    /// further down instead of filling the gap above). While scrolling up
-    /// through the page, only partially cancels the content's own
-    /// movement (35%), so the image visibly lags behind everything else
-    /// scrolling past it — the actual parallax effect.
+    /// Vertical shift applied to the whole hero, on top of the static
+    /// `topInset`: while pulled down, exactly cancels `stretch` so the
+    /// image's top edge stays pinned at `topInset` regardless of how far
+    /// the rubber-band gap grows (growing the image downward isn't enough
+    /// on its own — without this the extra height would just push the
+    /// bottom edge further down instead of filling the gap above). While
+    /// scrolling up through the page, only partially cancels the content's
+    /// own movement (35%), so the image visibly lags behind everything
+    /// else scrolling past it — the actual parallax effect.
     private var offsetY: CGFloat {
-        scrollOffset > 0 ? -stretch : -scrollOffset * 0.35
+        Self.topInset + (scrollOffset > 0 ? -stretch : -scrollOffset * 0.35)
     }
 
     var body: some View {
@@ -91,20 +98,22 @@ struct HomeHeroBackground: View {
     }
 
     private var gradientOverlay: some View {
-        // Three stacked gradients, matching the Figma source's exact stop
-        // percentages (right-edge one re-verified again 2026-08-23, now
-        // 56%->100% — was 74%->100% just a couple commits ago; the user
-        // keeps tuning it directly in Figma, so always re-check against a
-        // fresh screenshot rather than trusting this comment's own
-        // history): darken the right edge (behind the header buttons),
-        // darken the left edge (behind the logo), then darken the bottom
-        // so the image blends into the page background below rather than
-        // cutting off sharply.
+        // Four stacked gradients, matching the Figma source's exact stop
+        // percentages (re-verified 2026-08-23 against the "Image Holder"
+        // node — the user keeps tuning these directly in Figma, so always
+        // re-check against a fresh fetch rather than trusting this
+        // comment's own history): darken the right edge (behind the header
+        // buttons), darken the left edge (behind the logo), darken the
+        // bottom so the image blends into the page content below, and — new
+        // this pass — darken the top edge too, now that the image sits
+        // `Self.topInset` down from the true screen edge instead of flush
+        // against it, so the strip of plain background above it blends in
+        // rather than cutting off sharply.
         ZStack {
             LinearGradient(
                 stops: [
-                    .init(color: Theme.background.opacity(0), location: 0.56),
-                    .init(color: Theme.background, location: 1.0)
+                    .init(color: Theme.background.opacity(0), location: 0.58),
+                    .init(color: Theme.background, location: 0.963)
                 ],
                 startPoint: .leading,
                 endPoint: .trailing
@@ -112,7 +121,7 @@ struct HomeHeroBackground: View {
             LinearGradient(
                 stops: [
                     .init(color: Theme.background, location: 0),
-                    .init(color: Theme.background.opacity(0), location: 0.54)
+                    .init(color: Theme.background.opacity(0), location: 0.538)
                 ],
                 startPoint: .leading,
                 endPoint: .trailing
@@ -124,6 +133,14 @@ struct HomeHeroBackground: View {
                 ],
                 startPoint: .top,
                 endPoint: .bottom
+            )
+            LinearGradient(
+                stops: [
+                    .init(color: Theme.background.opacity(0), location: 0.734),
+                    .init(color: Theme.background, location: 1)
+                ],
+                startPoint: .bottom,
+                endPoint: .top
             )
         }
     }
