@@ -47,50 +47,27 @@ struct RootTabView: View {
         _previewPlayer = StateObject(wrappedValue: PreviewPlayerService(radioPlayer: playerService))
     }
 
-    /// Rádio/Program/Vzkaz icons (`TabIconAntenna`/`TabIconCalendar`/
-    /// `TabIconMessageCircle`) and Favorites' `TabIconHeart` are template-
-    /// rendered assets matching the Figma "bottom-nav" node (`2065:4350`)
-    /// exactly — Lucide icons (`antenna`/`calendar`/`message-circle`/`heart`
-    /// by literal `id`), not SF Symbols, confirmed by `get_design_context`
-    /// returning them as raw `<img>` sources rather than `<SFSymbol>`-
-    /// wrapped elements. That Figma frame is a 4-tab layout predating the
-    /// Favorites-tab promotion (heart there maps to a "Podpora" tab that no
-    /// longer exists in this app's structure) — reused its `heart` icon for
-    /// the current Favorites tab instead, since that's the closer semantic
-    /// match, and left Support's `gift` SF Symbol untouched since the frame
-    /// has no icon reference for that tab at all.
-    ///
-    /// `TabIconHeart` specifically ships as pre-rasterized PNGs (1x/2x/3x),
-    /// not a vector SVG like the other three — and its source art is
-    /// deliberately pre-flipped vertically. UIKit's tab bar renders this
-    /// one asset upside-down in *both* selected and unselected states
-    /// (verified via screenshots of each; the other three icons render
-    /// correctly un-flipped in the same tab bar, so it's isolated to this
-    /// asset, not a systemic tab-bar quirk or a selection-state-specific
-    /// one). Root cause not identified; this is a verified workaround, not
-    /// a real fix — if `TabIconHeart`'s art ever needs updating, regenerate
-    /// from the correct orientation, then flip vertically before shipping.
     var body: some View {
         TabView(selection: $selectedTab) {
             NavigationStack {
                 HomeView(nowPlaying: nowPlayingViewModel, history: historyViewModel)
                     .toolbar(.hidden, for: .navigationBar)
             }
-            .tabItem { Label(L10n.tabRadio, image: "TabIconAntenna") }
+            .tabItem { Label(L10n.tabRadio, systemImage: "antenna.radiowaves.left.and.right") }
             .tag(0)
 
             NavigationStack {
                 ProgramView(scheduleStore: scheduleStore)
                     .toolbar(.hidden, for: .navigationBar)
             }
-            .tabItem { Label(L10n.tabProgram, image: "TabIconCalendar") }
+            .tabItem { Label(L10n.tabProgram, systemImage: "calendar") }
             .tag(1)
 
             NavigationStack {
                 FavoritesView()
                     .toolbar(.hidden, for: .navigationBar)
             }
-            .tabItem { Label(L10n.tabFavorites, image: "TabIconHeart") }
+            .tabItem { Label(L10n.tabFavorites, systemImage: "heart") }
             .tag(2)
 
             NavigationStack {
@@ -99,7 +76,7 @@ struct RootTabView: View {
                 }
                 .toolbar(.hidden, for: .navigationBar)
             }
-            .tabItem { Label(L10n.tabMessage, image: "TabIconMessageCircle") }
+            .tabItem { Label(L10n.tabMessage, systemImage: "message.circle") }
             .tag(3)
 
             NavigationStack {
@@ -109,7 +86,7 @@ struct RootTabView: View {
             .tabItem { Label(L10n.tabSupport, systemImage: "gift") }
             .tag(4)
         }
-        .tint(Theme.liveRed)
+        .tint(Theme.sunOrange)
         .environmentObject(favoriteTrackStore)
         .environmentObject(previewPlayer)
         .onAppear {
