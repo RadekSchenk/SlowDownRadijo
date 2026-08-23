@@ -9,12 +9,6 @@ struct HubView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
 
-    /// WhatsApp's own brand green — a deliberate exception to this app's
-    /// usual "keep third-party touchpoints in-house-styled" rule (see
-    /// `SpotifyPillButton`, `SocialLinksRow`). The station leans on this
-    /// channel heavily on-air, so it gets first position and its own color
-    /// to stand out from the lower-priority "also follow us" social row.
-    private static let whatsAppGreen = Color(red: 0.145, green: 0.827, blue: 0.400)
     private static let whatsAppURL = URL(string: "https://wa.me/420720600811")!
 
     var body: some View {
@@ -27,19 +21,17 @@ struct HubView: View {
                     // card anymore, rows sit directly on the page
                     // background separated by hairlines, same "Line 5"
                     // pattern as the home screen's "Co hrálo" list
-                    // (`Theme.lavender.opacity(0.2)`). `HubRow` draws its
-                    // own trailing divider; this just adds the leading one
-                    // to bound the list on both ends, matching Figma.
+                    // (`Theme.lavender.opacity(0.2)`). No divider before the
+                    // first row or after the last — `HubRow.showsDivider`
+                    // defaults to `true` and only the last row opts out.
                     VStack(spacing: 0) {
-                        Rectangle()
-                            .fill(Theme.lavender.opacity(0.2))
-                            .frame(height: 1)
-
-                        // First and most prominent — see `whatsAppGreen` above.
+                        // First and most prominent — the station leans on
+                        // this channel heavily on-air, so it gets first
+                        // position ahead of Settings.
                         Button {
                             openURL(Self.whatsAppURL)
                         } label: {
-                            HubRow(icon: "message.fill", title: L10n.hubWhatsAppRow, subtitle: L10n.hubWhatsAppRowSubtitle, tint: Self.whatsAppGreen)
+                            HubRow(icon: "message.fill", title: L10n.hubWhatsAppRow, subtitle: L10n.hubWhatsAppRowSubtitle)
                         }
                         .buttonStyle(.plain)
 
@@ -68,7 +60,7 @@ struct HubView: View {
                         NavigationLink {
                             FeedbackView()
                         } label: {
-                            HubRow(icon: "envelope.fill", title: L10n.hubFeedbackRow, subtitle: L10n.hubFeedbackRowSubtitle)
+                            HubRow(icon: "envelope.fill", title: L10n.hubFeedbackRow, subtitle: L10n.hubFeedbackRowSubtitle, showsDivider: false)
                         }
                         .buttonStyle(.plain)
                     }
@@ -94,47 +86,50 @@ struct HubView: View {
     }
 
     private var header: some View {
-        HStack {
+        ZStack {
             Text(L10n.hubTitle)
                 .font(Theme.Typography.Manrope.extraBold(size: 28, relativeTo: .title))
                 .foregroundStyle(Theme.textPrimary)
+                .frame(maxWidth: .infinity, alignment: .center)
 
-            Spacer()
-
-            Button { dismiss() } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundStyle(Theme.textPrimary)
-                    .frame(width: 32, height: 32)
-                    .background(Theme.hairline(0.08), in: Circle())
+            HStack {
+                Spacer()
+                Button { dismiss() } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(Theme.textPrimary)
+                        .frame(width: 32, height: 32)
+                        .background(Theme.hairline(0.08), in: Circle())
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
     }
 }
 
-/// A single menu row — icon, title/subtitle, trailing arrow. Icons/tints
-/// per call site are unchanged from before this redesign (WhatsApp keeps
-/// its own green, everything else keeps `Theme.sunOrange`); only the
-/// container styling changed: flat 84pt row (was a bordered, rounded
-/// card), icon chip corner radius 12→2 and tint opacity 12%→20%, bigger
-/// title/subtitle type, and the trailing chevron swapped for a bolder
-/// rightward arrow in `Theme.gold` (`#d4a24c` — matches the Figma asset's
-/// literal fill exactly) instead of `Theme.lavender`.
+/// A single menu row — icon, title/subtitle, trailing arrow. Icon glyph
+/// and background both now use `Theme.liveRed` (`#db304e`) uniformly,
+/// matching the Figma asset's literal fill exactly (glyph at full
+/// opacity, background at 20%) — supersedes the previous per-row tint
+/// (WhatsApp's own green, `Theme.sunOrange` elsewhere), per the user's
+/// explicit "use the icon/background colors from that design" ask.
 private struct HubRow: View {
     let icon: String
     let title: String
     let subtitle: String
-    var tint: Color = Theme.sunOrange
+    /// `false` only for the last row in the list — no divider needed
+    /// below it, and none is drawn above the first row either (see
+    /// `HubView.body`), so the list's own top/bottom edges stay clean.
+    var showsDivider: Bool = true
 
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: Theme.Spacing.md) {
                 Image(systemName: icon)
                     .font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(tint)
+                    .foregroundStyle(Theme.liveRed)
                     .frame(width: 52, height: 52)
-                    .background(tint.opacity(0.2), in: RoundedRectangle(cornerRadius: 2, style: .continuous))
+                    .background(Theme.liveRed.opacity(0.2), in: RoundedRectangle(cornerRadius: 2, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
@@ -156,9 +151,11 @@ private struct HubRow: View {
             }
             .frame(height: 84)
 
-            Rectangle()
-                .fill(Theme.lavender.opacity(0.2))
-                .frame(height: 1)
+            if showsDivider {
+                Rectangle()
+                    .fill(Theme.lavender.opacity(0.2))
+                    .frame(height: 1)
+            }
         }
     }
 }
