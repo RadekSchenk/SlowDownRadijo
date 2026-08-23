@@ -4,7 +4,6 @@ enum VoiceMessageState: Equatable {
     case ready
     case recording
     case recorded(url: URL, duration: TimeInterval)
-    case sending(url: URL, duration: TimeInterval)
     case sent
 }
 
@@ -12,7 +11,6 @@ enum VoiceMessageState: Equatable {
 final class VoiceMessageViewModel: ObservableObject {
     @Published private(set) var state: VoiceMessageState = .ready
     @Published var permissionDeniedAlert = false
-    @Published var uploadFailedAlert = false
 
     let recorder: VoiceMessageRecorder
     private let radioPlayer: RadioPlayerService
@@ -27,14 +25,14 @@ final class VoiceMessageViewModel: ObservableObject {
 
     var recordingURL: URL? {
         switch state {
-        case .recorded(let url, _), .sending(let url, _): return url
+        case .recorded(let url, _): return url
         case .ready, .recording, .sent: return nil
         }
     }
 
     var recordingDuration: TimeInterval {
         switch state {
-        case .recorded(_, let duration), .sending(_, let duration): return duration
+        case .recorded(_, let duration): return duration
         case .ready, .recording, .sent: return 0
         }
     }
@@ -84,25 +82,25 @@ final class VoiceMessageViewModel: ObservableObject {
         recorder.togglePlayback(url: url)
     }
 
-    /// Uploads the recording to our relay endpoint (see
-    /// `VoiceMessageUploadService`), which forwards it as an email — no
-    /// system mail composer, no user-visible mail step.
-    func submit() {
-        guard case .recorded(let url, let duration) = state else { return }
+    /// Stops any preview playback and hands back the recording's file URL
+    /// so `MessageView` can present the system share sheet — there's no
+    /// network upload anymore (see `ActivityShareSheet`'s doc comment for
+    /// why). `nil` if there's no recording to share.
+    func beginSharing() -> URL? {
+        guard case .recorded(let url, _) = state else { return nil }
         recorder.stopPlayback()
-        state = .sending(url: url, duration: duration)
+        return url
+    }
 
-        Task {
-            do {
-                try await VoiceMessageUploadService.upload(fileURL: url)
-                recorder.discardRecording(at: url)
-                radioPlayer.reactivatePlaybackAudioSession()
-                state = .sent
-            } catch {
-                uploadFailedAlert = true
-                state = .recorded(url: url, duration: duration)
-            }
-        }
+    /// Called once the share sheet presented from `beginSharing()`'s URL
+    /// closes. `completed` is `false` if the user cancelled/dismissed it
+    /// without picking a share target — in that case the recording is
+    /// still intact and the "recorded" screen stays up so they can retry.
+    func finishSharing(completed: Bool) {
+        guard case .recorded(let url, _) = state, completed else { return }
+        recorder.discardRecording(at: url)
+        radioPlayer.reactivatePlaybackAudioSession()
+        state = .sent
     }
 
     func recordAnother() {

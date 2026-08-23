@@ -349,8 +349,18 @@ enum L10n {
 
     static var sendToRadio: String {
         switch lang {
-        case .cs: return "Odeslat vzkaz do rádia"
-        case .en: return "Send message to the radio"
+        case .cs: return "Odeslat na WhatsApp"
+        case .en: return "Send via WhatsApp"
+        }
+    }
+
+    /// Below the send button — no API lets the app pre-select who a shared
+    /// file goes to (see `ActivityShareSheet`), so this just tells the user
+    /// who to pick once WhatsApp's own chat picker opens.
+    static func whatsAppRecipientHint(_ phoneNumber: String) -> String {
+        switch lang {
+        case .cs: return "V dalším kroku vyber WhatsApp a odešli na \(phoneNumber)"
+        case .en: return "In the next step, pick WhatsApp and send to \(phoneNumber)"
         }
     }
 
@@ -442,41 +452,6 @@ enum L10n {
         switch lang {
         case .cs: return "Povol appce přístup k mikrofonu v Nastavení, abys mohl nahrát vzkaz."
         case .en: return "Allow microphone access in Settings so you can record a message."
-        }
-    }
-
-    static var sendingTitle: String {
-        switch lang {
-        case .cs: return "Odesílám vzkaz..."
-        case .en: return "Sending your message..."
-        }
-    }
-
-    static var sendingSubtitle: String {
-        switch lang {
-        case .cs: return "Prosím počkej, nahrávka se odesílá."
-        case .en: return "Please wait, your recording is uploading."
-        }
-    }
-
-    static var sendingButtonLabel: String {
-        switch lang {
-        case .cs: return "Odesílání..."
-        case .en: return "Sending..."
-        }
-    }
-
-    static var uploadFailedTitle: String {
-        switch lang {
-        case .cs: return "Odeslání se nepovedlo"
-        case .en: return "Couldn't send message"
-        }
-    }
-
-    static var uploadFailedMessage: String {
-        switch lang {
-        case .cs: return "Zkontroluj připojení k internetu a zkus to znovu."
-        case .en: return "Check your internet connection and try again."
         }
     }
 
