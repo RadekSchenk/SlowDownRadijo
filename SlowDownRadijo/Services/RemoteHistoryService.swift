@@ -1,10 +1,9 @@
 import Foundation
 
-/// Reads `played_tracks` directly from Supabase's REST API (PostgREST) —
-/// separate from `StatisticsService`'s `get-stats` Edge Function, which
-/// only exposes aggregates, not raw rows. The table has a public read RLS
-/// policy (see `backend/supabase/sql/001_played_tracks.sql`), so this only
-/// needs the anon key, not a service-role secret.
+/// Reads `played_tracks` directly from Supabase's REST API (PostgREST). The
+/// table has a public read RLS policy (see
+/// `backend/supabase/sql/001_played_tracks.sql`), so this only needs the
+/// anon key, not a service-role secret.
 enum RemoteHistoryService {
     private static let baseURL = URL(string: "https://toqoqrshyutyezoyxvlj.supabase.co/rest/v1/played_tracks")!
     /// Supabase's "anon" public key — safe to embed, it only grants what

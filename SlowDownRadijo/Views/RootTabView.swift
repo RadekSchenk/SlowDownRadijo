@@ -9,7 +9,6 @@ struct RootTabView: View {
     @StateObject private var nowPlayingViewModel: NowPlayingViewModel
     @StateObject private var historyViewModel: HistoryViewModel
     @StateObject private var voiceMessageViewModel: VoiceMessageViewModel
-    @StateObject private var statisticsViewModel = StatisticsViewModel()
     @StateObject private var favoriteTrackStore = FavoriteTrackStore()
     @StateObject private var previewPlayer: PreviewPlayerService
 
@@ -79,13 +78,6 @@ struct RootTabView: View {
             }
             .tabItem { Label(L10n.tabSupport, systemImage: "heart") }
             .tag(3)
-
-            NavigationStack {
-                StatisticsView(viewModel: statisticsViewModel)
-                    .toolbar(.hidden, for: .navigationBar)
-            }
-            .tabItem { Label(L10n.tabStatistics, systemImage: "chart.bar.fill") }
-            .tag(4)
         }
         .tint(Theme.sunOrange)
         .environmentObject(favoriteTrackStore)

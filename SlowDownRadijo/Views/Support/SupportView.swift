@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Matches the flat "radio-flat-typo" typography/color scale used
-/// throughout the rest of the app (see `HomeView`, `StatisticsView`): 28pt
+/// throughout the rest of the app (see `HomeView`): 28pt
 /// extraBold page title, 18pt bold section headers, `Theme.lavender` for
 /// secondary text, `Theme.gold`/`Theme.sunOrange` for accents.
 ///
