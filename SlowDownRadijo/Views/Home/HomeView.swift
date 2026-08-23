@@ -18,14 +18,22 @@ struct HomeView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: Theme.Spacing.lg) {
+            // Explicit per-section top padding instead of a uniform
+            // `spacing:` — `remainingShowInfo` needs a tighter 20pt gap
+            // after the hero (matching the Figma "variation-3-card" auto
+            // layout's own internal gap, see `heroSection`), while the
+            // later sections keep the wider 24pt gap.
+            VStack(spacing: 0) {
                 heroSection
 
                 remainingShowInfo
+                    .padding(.top, 20)
 
                 nowPlayingSection
+                    .padding(.top, Theme.Spacing.lg)
 
                 historySection
+                    .padding(.top, Theme.Spacing.lg)
             }
             .padding(.horizontal, 20)
             .padding(.bottom, Theme.Spacing.xl)
@@ -80,7 +88,12 @@ struct HomeView: View {
                 // of it stays inset like every other row.
                 .padding(.horizontal, -20)
 
-            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+            // Spacing 0 + explicit per-child top padding, not a uniform
+            // `spacing:` — the header-to-badges gap (8) and the two
+            // "variation-3-card" internal gaps (badges-to-title,
+            // title-to-progress, both 20) are different Figma values, not
+            // one shared number.
+            VStack(alignment: .leading, spacing: 0) {
                 AppHeaderView()
                     // The hero image itself bleeds all the way to the
                     // screen's true top edge, behind the status bar — but
@@ -97,6 +110,7 @@ struct HomeView: View {
                         HostBadge(name: hostName, imageName: nowPlaying.currentShow?.hostImageName)
                     }
                 }
+                .padding(.top, Theme.Spacing.sm)
 
                 HStack(spacing: Theme.Spacing.md) {
                     PlayButton(state: nowPlaying.playbackState, action: nowPlaying.togglePlayPause, diameter: 54, iconSize: 20)
@@ -106,6 +120,7 @@ struct HomeView: View {
                         .foregroundStyle(Theme.textPrimary)
                         .lineLimit(2)
                 }
+                .padding(.top, 20)
             }
         }
     }
