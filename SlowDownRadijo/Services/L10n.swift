@@ -570,6 +570,15 @@ enum L10n {
         }
     }
 
+    /// Appended to a social icon's accessibility label when a follower
+    /// count is available — "YouTube, 1234 <suffix>".
+    static var followersAccessibilitySuffix: String {
+        switch lang {
+        case .cs: return "sledujících"
+        case .en: return "followers"
+        }
+    }
+
     // MARK: - Favorites
 
     static var favoritesTitle: String {
