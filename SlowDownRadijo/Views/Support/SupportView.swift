@@ -18,6 +18,10 @@ struct SupportView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
                 AppHeaderView()
+                    // Matches the home screen's header offset exactly (see
+                    // `HomeView.heroSection`) — fixed 40pt from the true
+                    // top edge, not the system safe-area inset.
+                    .padding(.top, 40)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(L10n.tabSupport)
@@ -32,8 +36,10 @@ struct SupportView: View {
 
                 platformsSection
             }
-            .padding(Theme.Spacing.md)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.bottom, Theme.Spacing.md)
         }
+        .ignoresSafeArea(edges: .top)
         .background(Theme.background.ignoresSafeArea())
         .sheet(isPresented: $isShowingSafari) {
             if let safariURL {

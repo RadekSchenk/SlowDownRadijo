@@ -28,6 +28,10 @@ struct MessageView: View {
     var body: some View {
         VStack(spacing: 0) {
             AppHeaderView()
+                // Matches the home screen's header offset exactly (see
+                // `HomeView.heroSection`) — fixed 40pt from the true top
+                // edge, not the system safe-area inset.
+                .padding(.top, 40)
 
             Spacer(minLength: 0)
 
@@ -37,6 +41,7 @@ struct MessageView: View {
         }
         .padding(.horizontal, Theme.Spacing.lg)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea(edges: .top)
         .background(Theme.background.ignoresSafeArea())
         .alert(L10n.micUnavailableTitle, isPresented: $viewModel.permissionDeniedAlert) {
             Button(L10n.ok, role: .cancel) {}

@@ -13,6 +13,10 @@ struct FavoritesView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
                 AppHeaderView()
+                    // Matches the home screen's header offset exactly (see
+                    // `HomeView.heroSection`) — fixed 40pt from the true
+                    // top edge, not the system safe-area inset.
+                    .padding(.top, 40)
 
                 Text(L10n.favoritesTitle)
                     .font(Theme.Typography.Manrope.extraBold(size: 28, relativeTo: .title))
@@ -28,8 +32,10 @@ struct FavoritesView: View {
                     }
                 }
             }
-            .padding(Theme.Spacing.md)
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.bottom, Theme.Spacing.md)
         }
+        .ignoresSafeArea(edges: .top)
         .background(Theme.background.ignoresSafeArea())
         .alert(
             L10n.favoritesDeleteTitle,

@@ -30,6 +30,13 @@ struct ProgramView: View {
         VStack(spacing: 0) {
             AppHeaderView()
                 .padding(.horizontal, 20)
+                // Matches the home screen's header offset exactly (see
+                // `HomeView.heroSection`) — fixed 40pt from the true top
+                // edge rather than the system safe-area inset, which
+                // otherwise put every tab's header at a different distance
+                // from the top depending on how much padding its own
+                // content wrapper happened to add.
+                .padding(.top, 40)
 
             Text(L10n.tabProgram)
                 .font(Theme.Typography.Manrope.extraBold(size: 28, relativeTo: .title))
@@ -64,6 +71,7 @@ struct ProgramView: View {
                 .onAppear { scrollToLiveShowIfNeeded(using: proxy) }
             }
         }
+        .ignoresSafeArea(edges: .top)
         .background(Theme.background.ignoresSafeArea())
         .onReceive(Self.progressTicker) { now = $0 }
     }
