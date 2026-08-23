@@ -62,10 +62,15 @@ struct HistoryRowView: View {
             // rather than hugging one of them. Color/opacity matches the
             // Figma "Line 5" asset exactly (`#8f89a9` at 20% — i.e.
             // `Theme.lavender` itself, not the generic white/black-based
-            // `Theme.hairline`).
+            // `Theme.hairline`). Not full-width and right-aligned, per the
+            // Figma spec — inset from the left by the time column's width
+            // (44) + its gap to the track content (12), so it hangs under
+            // the artwork/text only, not the timestamp column, and reaches
+            // the true right edge (no trailing inset).
             Rectangle()
                 .fill(Theme.lavender.opacity(0.2))
                 .frame(height: 1)
+                .padding(.leading, 56)
                 .padding(.vertical, 12)
         }
     }
