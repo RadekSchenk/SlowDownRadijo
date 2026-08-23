@@ -1,10 +1,13 @@
 # Slow Down Rádijo — backend
 
-Two things live in this Supabase project:
+Three things live in this Supabase project:
 
 1. `send-voice-message` — receives a recorded voice message from the app and
    relays it as an email attachment via [Resend](https://resend.com).
-2. Radio-wide stats (`played_tracks` table + `collect-now-playing` +
+2. `send-feedback` — receives an in-app feedback message (Menu ▸ Zpětná
+   vazba) and relays it as a plain email via Resend, same pattern as
+   `send-voice-message` above, sharing the same `RESEND_API_KEY` secret.
+3. Radio-wide stats (`played_tracks` table + `collect-now-playing` +
    `get-stats`) — a scheduled function polls the live stream's ICY metadata
    independently of whether the app is open, logs every track change (plus
    which show was airing, resolved from a bundled copy of the schedule) to
@@ -57,6 +60,7 @@ Two things live in this Supabase project:
 cd backend
 supabase secrets set RESEND_API_KEY=re_xxxxxxxxxxxx
 supabase functions deploy send-voice-message --no-verify-jwt
+supabase functions deploy send-feedback --no-verify-jwt
 ```
 
 `--no-verify-jwt` makes the endpoint public (no Supabase auth token
@@ -105,8 +109,10 @@ supabase functions deploy collect-now-playing --no-verify-jwt
 supabase functions deploy get-stats --no-verify-jwt
 ```
 
-Paste the printed `get-stats` URL into the iOS project (wherever
-`StatisticsService`'s endpoint constant is — see the app's Services folder).
+The app doesn't currently have a UI that consumes `get-stats` — the
+"Statistiky" tab was removed pending a redesign (see project notes), but
+this collector and endpoint are deliberately left running so data keeps
+accumulating for when that tab comes back.
 
 ### 3. Schedule the collector
 
