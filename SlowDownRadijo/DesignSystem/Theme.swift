@@ -23,6 +23,16 @@ enum Theme {
     static let background = Color.adaptive(light: 0xF5F5F7, dark: 0x120E25)
     static let surface = Color.adaptive(light: 0xFFFFFF, dark: 0x1A1A1E)
     static let surfaceElevated = Color.adaptive(light: 0xEDEDF2, dark: 0x222226)
+    /// The tab bar deliberately did **not** follow `background`'s
+    /// 2026-08-23 update (`#1a1535` → `#120e25`) — Figma's `bottom-nav`
+    /// spec still uses the old `#1a1535` for a subtle visual separation
+    /// from the page content above it. Light-mode value matches
+    /// `background`'s own light value, unchanged.
+    static let tabBarBackground = Color.adaptive(light: 0xF5F5F7, dark: 0x1A1535)
+    /// Same story as `tabBarBackground`: the unselected tab label/icon
+    /// color stayed at the old `lavender` dark value (`#b8afdc`) even
+    /// after `lavender` itself moved to `#8f89a9`.
+    static let tabBarUnselected = Color.adaptive(light: 0x5C4F8A, dark: 0xB8AFDC)
 
     // Brand
     /// Matches the Figma splash screen's background exactly (`#433785`) —

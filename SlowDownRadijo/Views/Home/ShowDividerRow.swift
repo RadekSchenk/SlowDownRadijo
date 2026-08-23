@@ -30,9 +30,10 @@ struct ShowDividerRow: View {
             }
 
             // See HistoryRowView — 12pt on both sides matches the Figma
-            // row gap and keeps the hairline centered between rows.
+            // row gap and keeps the hairline centered between rows, color
+            // matches the Figma "Line 5" asset (`Theme.lavender` at 20%).
             Rectangle()
-                .fill(Theme.hairline(0.12))
+                .fill(Theme.lavender.opacity(0.2))
                 .frame(height: 1)
                 .padding(.vertical, 12)
         }

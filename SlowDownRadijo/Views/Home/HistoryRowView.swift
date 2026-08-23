@@ -58,9 +58,12 @@ struct HistoryRowView: View {
             // 12pt matches the Figma redesign's row gap exactly — applied
             // on both sides of the hairline (not just above it) so the
             // line sits centered in the gap between this row and the next,
-            // rather than hugging one of them.
+            // rather than hugging one of them. Color/opacity matches the
+            // Figma "Line 5" asset exactly (`#8f89a9` at 20% — i.e.
+            // `Theme.lavender` itself, not the generic white/black-based
+            // `Theme.hairline`).
             Rectangle()
-                .fill(Theme.hairline(0.12))
+                .fill(Theme.lavender.opacity(0.2))
                 .frame(height: 1)
                 .padding(.vertical, 12)
         }

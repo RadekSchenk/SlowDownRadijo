@@ -102,13 +102,17 @@ struct RootTabView: View {
     private func configureTabBarAppearance() {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = UIColor(Theme.background)
+        appearance.backgroundColor = UIColor(Theme.tabBarBackground)
         appearance.shadowColor = UIColor.white.withAlphaComponent(0.08)
-        let unselected: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor(Theme.lavender)]
+        let unselected: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor(Theme.tabBarUnselected)]
         appearance.stackedLayoutAppearance.normal.titleTextAttributes = unselected
-        appearance.stackedLayoutAppearance.normal.iconColor = UIColor(Theme.lavender)
+        appearance.stackedLayoutAppearance.normal.iconColor = UIColor(Theme.tabBarUnselected)
         UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance
+        // Belt-and-suspenders: newer iOS tab bar rendering doesn't always
+        // honor `stackedLayoutAppearance.normal` for unselected items, but
+        // this older, coarser property is still respected.
+        UITabBar.appearance().unselectedItemTintColor = UIColor(Theme.tabBarUnselected)
 
         let navAppearance = UINavigationBarAppearance()
         navAppearance.configureWithOpaqueBackground()

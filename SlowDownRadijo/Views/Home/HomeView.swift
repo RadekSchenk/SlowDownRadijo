@@ -82,22 +82,20 @@ struct HomeView: View {
                     .lineLimit(2)
             }
 
-            // Removed from the layout entirely while paused — not just
-            // dimmed — matching the 2026-08-23 hero redesign.
-            if nowPlaying.playbackState == .playing {
-                NowPlayingWaveform(
-                    progress: nowPlaying.showProgress,
-                    trackID: nowPlaying.track?.displayText ?? nowPlaying.showName
-                )
-            }
-
             if let show = nowPlaying.currentShow {
-                VStack(alignment: .leading, spacing: 10) {
+                // 12pt matches the Figma "show-progress" container's own
+                // gap for its three top-level children — the
+                // waveform+track+labels group (inside ShowProgressBar),
+                // the remaining-time block (also inside ShowProgressBar),
+                // and this sleep-timer link.
+                VStack(alignment: .leading, spacing: 12) {
                     ShowProgressBar(
                         show: show,
                         progress: nowPlaying.showProgress,
                         remainingMinutes: nowPlaying.showRemainingMinutes,
-                        nextShow: nowPlaying.nextShow
+                        nextShow: nowPlaying.nextShow,
+                        isPlaying: nowPlaying.playbackState == .playing,
+                        waveformTrackID: nowPlaying.track?.displayText ?? nowPlaying.showName
                     )
                     SleepTimerButton(player: nowPlaying.player, currentShowEndDate: nowPlaying.currentShowEndDate)
                 }
