@@ -21,7 +21,6 @@ enum L10n {
         }
     }
 
-    static var spotify: String { "Spotify" }
     static var ok: String { "OK" }
 
     // MARK: - Tab bar / page titles

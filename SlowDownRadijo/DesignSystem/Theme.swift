@@ -63,16 +63,6 @@ enum Theme {
         endPoint: .bottom
     )
 
-    /// Yellow-to-`liveRed` gradient for each *elapsed* bar in
-    /// `NowPlayingWaveform` — applied per-bar (not as one shared mask
-    /// across the whole shape), matching the Figma source's own per-bar
-    /// `bg-gradient-to-b`.
-    static let liveWaveformGradient = LinearGradient(
-        colors: [sunYellow, liveRed],
-        startPoint: .top,
-        endPoint: .bottom
-    )
-
     /// Muted lavender used for secondary text in the flat redesign — a
     /// tinted alternative to a plain white-opacity gray, giving text a
     /// warmer, more "branded" look than generic gray would. Adaptive: the

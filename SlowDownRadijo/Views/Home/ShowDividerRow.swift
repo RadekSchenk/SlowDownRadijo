@@ -10,7 +10,7 @@ struct ShowDividerRow: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack(alignment: .top, spacing: Theme.Spacing.md) {
+            HStack(alignment: .top, spacing: 12) {
                 Text(show.start)
                     .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .footnote))
                     .foregroundStyle(Theme.lavender)

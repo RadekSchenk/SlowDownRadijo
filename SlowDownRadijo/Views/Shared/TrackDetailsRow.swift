@@ -6,11 +6,12 @@ enum PreviewPlaybackState: Equatable {
     case idle, loading, playing
 }
 
-/// Non-nil `favorite`/`preview` on `TrackDetailsRow` opt a row into the
-/// bigger "Co hrálo"/Favorites card layout, with a labeled action pill row
-/// below the title/artist — both stay `nil` for rows that don't support
-/// them (currently just the live now-playing row, which keeps the original
-/// compact single-line layout).
+/// Non-nil `favorite` on `TrackDetailsRow` opts a row into the bigger
+/// "Co hrálo"/Favorites card layout, with a labeled action pill row below
+/// the title/artist. `preview` is independent of that — it just adds the
+/// play/pause badge over the artwork — and works in the compact layout too
+/// (the "Nyní" now-playing row has a preview badge but no pills, matching
+/// the 2026-08-23 hero redesign).
 struct FavoriteButtonState {
     let isFavorite: Bool
     let action: () -> Void
@@ -56,7 +57,7 @@ struct TrackDetailsRow: View {
 
     @Environment(\.openURL) private var openURL
 
-    private var isExpanded: Bool { favorite != nil || preview != nil }
+    private var isExpanded: Bool { favorite != nil }
 
     var body: some View {
         if isExpanded {
@@ -66,49 +67,42 @@ struct TrackDetailsRow: View {
         }
     }
 
-    private var compactBody: some View {
-        HStack(spacing: Theme.Spacing.md) {
-            artwork(size: 56)
+    /// Artwork + title/artist — identical in both layouts (only whether a
+    /// pills row + card wrapper follows differs). Matches the "Co hrálo"
+    /// card redesign's spec exactly for both the compact "Nyní" row and
+    /// the expanded card, since Figma gives them the same 80pt artwork and
+    /// text treatment (2026-08-23 hero redesign removed the Nyní row's
+    /// smaller 56pt artwork and inline Spotify pill — dropped here to
+    /// match; `spotifyURL` is unused when `favorite == nil`, only feeding
+    /// the pills row below in the expanded layout).
+    private var headerRow: some View {
+        HStack(alignment: .center, spacing: 12) {
+            artworkWithPreviewBadge
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(Theme.Typography.Manrope.extraBold(size: 16, relativeTo: .subheadline))
+                    .font(Theme.Typography.Manrope.bold(size: 18, relativeTo: .headline))
                     .foregroundStyle(Theme.textPrimary)
-                    .lineLimit(1)
+                    .lineLimit(2)
                     .contentTransition(.opacity)
                 Text(artist)
-                    .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .footnote))
+                    .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
                     .foregroundStyle(Theme.lavender)
-                    .lineLimit(1)
+                    .lineLimit(2)
                     .contentTransition(.opacity)
             }
 
-            Spacer(minLength: Theme.Spacing.sm)
-
-            if let spotifyURL {
-                SpotifyPillButton(url: spotifyURL)
-            }
+            Spacer(minLength: 0)
         }
     }
 
+    private var compactBody: some View {
+        headerRow
+    }
+
     private var expandedBody: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-            HStack(alignment: .center, spacing: Theme.Spacing.md) {
-                artworkWithPreviewBadge
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .font(Theme.Typography.Manrope.bold(size: 18, relativeTo: .headline))
-                        .foregroundStyle(Theme.textPrimary)
-                        .lineLimit(2)
-                    Text(artist)
-                        .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
-                        .foregroundStyle(Theme.lavender)
-                        .lineLimit(2)
-                }
-
-                Spacer(minLength: 0)
-            }
+        VStack(alignment: .leading, spacing: 7) {
+            headerRow
 
             // A confirmed iTunes non-match means this isn't a real,
             // catalogable song (a jingle, station ID, DJ mix block) — a

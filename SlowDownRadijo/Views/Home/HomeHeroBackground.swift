@@ -34,7 +34,7 @@ struct HomeHeroBackground: View {
                     // unrecognizable color smear. Tuned down empirically by
                     // comparing against the actual Figma screenshot until
                     // faces read clearly again, matching the reference.
-                    .blur(radius: 5)
+                    .blur(radius: 2)
                     .clipped()
             }
             .frame(height: Self.height)

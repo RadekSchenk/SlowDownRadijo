@@ -89,7 +89,6 @@
 		DCD839FB2B5D87DE94B5F036 /* NewsDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55EB0993837F40C17F84987B /* NewsDetailView.swift */; };
 		DD23B1199B371E431C578E32 /* RemotePlayedTrack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 510CA2B353BF9B8EB1856F02 /* RemotePlayedTrack.swift */; };
 		DD54EF6977CA308D18A13529 /* OnAirBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5976046FB7D0A7BCE7F3C533 /* OnAirBadge.swift */; };
-		DF3C421FEEEDCFD43EC5CC40 /* SpotifyPillButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CBEBD6FE03F2C833C2478F1 /* SpotifyPillButton.swift */; };
 		E01056718F1ED54005F776A1 /* HistoryRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32038C1E233C21A7ED9DD89C /* HistoryRowView.swift */; };
 		E11C263A9917B1CB0E0D88C7 /* LatestTrackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C122843C9684C125663D1683 /* LatestTrackService.swift */; };
 		E47620A3B9B86CDE26648AD3 /* ScheduleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A43A86699B9373436B5D67 /* ScheduleStore.swift */; };
@@ -165,7 +164,6 @@
 		6818BC034DD4D105A2930FD1 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		69AF4E70CC54DF8156A8E440 /* WaveformBarsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformBarsView.swift; sourceTree = "<group>"; };
 		6C6586899D71C60394AFCA32 /* UploadSpinnerRing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadSpinnerRing.swift; sourceTree = "<group>"; };
-		6CBEBD6FE03F2C833C2478F1 /* SpotifyPillButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyPillButton.swift; sourceTree = "<group>"; };
 		6F9F81DF3119022A7E2E59C8 /* NowPlayingEqualizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingEqualizer.swift; sourceTree = "<group>"; };
 		71D9A5C726F15EF4EFD6CAAC /* schedule.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = schedule.json; sourceTree = "<group>"; };
 		72A53ABC9D26C0FEFCD3A623 /* MessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageView.swift; sourceTree = "<group>"; };
@@ -389,7 +387,6 @@
 				D586E39AA7BC35C063E18F8F /* BackHeaderView.swift */,
 				1A17221357C04352A1BE1CD5 /* RemoteArtworkView.swift */,
 				7FC1874F9D061ECC0C1B095E /* SafariView.swift */,
-				6CBEBD6FE03F2C833C2478F1 /* SpotifyPillButton.swift */,
 				3080A7F705A91A1A384AE650 /* TrackDetailsRow.swift */,
 			);
 			path = Shared;
@@ -640,7 +637,6 @@
 				083E1777286799A0388FD6E3 /* SlowDownRadijoApp.swift in Sources */,
 				446F3002BB673D2133818D7C /* SocialLinksRow.swift in Sources */,
 				8B72DAE348C9F95FF4B2745F /* SplashScreenView.swift in Sources */,
-				DF3C421FEEEDCFD43EC5CC40 /* SpotifyPillButton.swift in Sources */,
 				79F0209D836446A11C833D89 /* SpotifySearch.swift in Sources */,
 				29AB995D3F407673B28BAEA9 /* StatsResponse.swift in Sources */,
 				EB8439B199E1F3444643C03A /* SupportCardView.swift in Sources */,

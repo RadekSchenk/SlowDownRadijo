@@ -17,9 +17,11 @@ import SwiftUI
 /// layout entirely rather than dimmed, per the 2026-08-23 hero redesign.
 struct NowPlayingWaveform: View {
     /// Fraction (0...1) of the current show elapsed — bars up to this
-    /// fraction get the warm yellow-to-`liveRed` gradient ("played"); the
-    /// rest get a flat muted fill ("not yet played"), matching the
-    /// progress bar directly below.
+    /// fraction get a flat `liveRed` fill ("played"); the rest get a flat
+    /// muted fill ("not yet played"), matching the progress bar directly
+    /// below. Both are solid fills, not gradients — the Figma source's own
+    /// waveform asset switched from a per-bar yellow-to-red gradient to a
+    /// single solid `#db304e` for the whole played region (2026-08-23).
     let progress: Double
     /// Any value that changes when the track changes — only used to
     /// trigger a reseed, never read for its content.
@@ -71,7 +73,7 @@ struct NowPlayingWaveform: View {
                 let bar = bars[index]
                 let heightFraction = Self.heightFraction(for: bar, at: time)
                 Capsule()
-                    .fill(index < elapsedCount ? AnyShapeStyle(Theme.liveWaveformGradient) : AnyShapeStyle(Theme.waveformMuted))
+                    .fill(index < elapsedCount ? Theme.liveRed : Theme.waveformMuted)
                     .frame(height: max(3, Self.height * heightFraction))
             }
         }

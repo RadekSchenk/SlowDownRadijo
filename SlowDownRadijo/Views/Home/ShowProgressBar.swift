@@ -24,16 +24,16 @@ struct ShowProgressBar: View {
 
             GeometryReader { proxy in
                 ZStack(alignment: .leading) {
-                    Capsule()
+                    Rectangle()
                         .fill(Theme.hairline(0.08))
 
-                    Capsule()
+                    Rectangle()
                         .fill(Theme.liveRed)
                         .frame(width: max(6, proxy.size.width * progress))
                         .animation(.linear(duration: 0.6), value: progress)
                 }
             }
-            .frame(height: 6)
+            .frame(height: 4)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(remainingLabel)

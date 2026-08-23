@@ -9,6 +9,7 @@ struct HomeView: View {
     @ObservedObject var history: HistoryViewModel
     @ObservedObject private var loc = LocalizationManager.shared
     @EnvironmentObject private var favorites: FavoriteTrackStore
+    @EnvironmentObject private var previewPlayer: PreviewPlayerService
 
     /// One-shot: flips true the first time a favorite is ever added, so the
     /// explainer sheet below only appears once, ever.
@@ -142,7 +143,7 @@ struct HomeView: View {
     /// Figma now-playing card (history rows do the opposite — title bold,
     /// artist secondary). Centered against the track row per the Figma spec.
     private var nowPlayingRow: some View {
-        HStack(alignment: .center, spacing: Theme.Spacing.md) {
+        HStack(alignment: .center, spacing: 12) {
             VStack(spacing: 8) {
                 NowPlayingEqualizer(isActive: nowPlaying.playbackState == .playing)
                 Group {
@@ -162,9 +163,25 @@ struct HomeView: View {
                 title: primaryLine,
                 artist: secondaryLine,
                 spotifyURL: nowPlaying.track?.spotifySearchURL,
-                cornerRadius: 12
+                cornerRadius: 2,
+                preview: nowPlayingPreview
             )
         }
+    }
+
+    /// `nil` until we have a real track (artist + title) to preview —
+    /// showing a play badge over placeholder/show artwork with nothing
+    /// real to play would be broken, not just unhelpful.
+    private var nowPlayingPreview: PreviewButtonState? {
+        guard let track = nowPlaying.track, !track.artist.isEmpty, !track.title.isEmpty else { return nil }
+        let key = FavoriteTrack.normalize(artist: track.artist, title: track.title)
+        let playback: PreviewPlaybackState = previewPlayer.activeKey != key
+            ? .idle
+            : (previewPlayer.isLoading ? .loading : .playing)
+        return PreviewButtonState(
+            playback: playback,
+            action: { previewPlayer.toggle(artist: track.artist, title: track.title) }
+        )
     }
 
     /// Bold primary line — the artist, falling back to the show name when

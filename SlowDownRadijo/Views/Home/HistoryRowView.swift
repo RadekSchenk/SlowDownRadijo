@@ -16,7 +16,7 @@ struct HistoryRowView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack(alignment: .top, spacing: Theme.Spacing.md) {
+            HStack(alignment: .top, spacing: 12) {
                 Group {
                     if let playedAt = track.playedAt {
                         Text(playedAt, style: .time)
