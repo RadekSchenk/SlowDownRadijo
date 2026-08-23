@@ -12,6 +12,7 @@
 		082C715D2F52E5C9F9565A7C /* HistoryTrack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90B431CDF4A4EFCF8E422D28 /* HistoryTrack.swift */; };
 		083E1777286799A0388FD6E3 /* SlowDownRadijoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02708E92931556A0F4220DDB /* SlowDownRadijoApp.swift */; };
 		0AD5A5BFBE291B5B68887447 /* UploadSpinnerRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C6586899D71C60394AFCA32 /* UploadSpinnerRing.swift */; };
+		0C16D61E6DB830F19A0FD8E0 /* HomeHeroBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = B81CC38CB16FF17402C43ED6 /* HomeHeroBackground.swift */; };
 		12138EC3F2E3DAA9F7A69D2D /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D29DCFF928882F59284F0CCA /* HistoryViewModel.swift */; };
 		1E54C534DF958CE607942485 /* PlayHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B4B83B7A5C2FD80261B977E /* PlayHistoryStore.swift */; };
 		22608BE624DFAAE3C52CF47F /* RemoteArtworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A17221357C04352A1BE1CD5 /* RemoteArtworkView.swift */; };
@@ -189,6 +190,7 @@
 		B26E607347B3911B648DB65E /* Manrope-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Manrope-Medium.ttf"; sourceTree = "<group>"; };
 		B4F8F9F79C08E14505F9BAF7 /* FavoriteTrack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteTrack.swift; sourceTree = "<group>"; };
 		B5DC82166EB2B538C0565A55 /* NewsPost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsPost.swift; sourceTree = "<group>"; };
+		B81CC38CB16FF17402C43ED6 /* HomeHeroBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeHeroBackground.swift; sourceTree = "<group>"; };
 		BBADEE545D3880AC7D8E9963 /* FeedbackViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackViewModel.swift; sourceTree = "<group>"; };
 		BC51E5E415F925B3F6890307 /* SupportCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportCardView.swift; sourceTree = "<group>"; };
 		C038CD1239DAFA87CF752B10 /* SupportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportView.swift; sourceTree = "<group>"; };
@@ -228,6 +230,7 @@
 			isa = PBXGroup;
 			children = (
 				32038C1E233C21A7ED9DD89C /* HistoryRowView.swift */,
+				B81CC38CB16FF17402C43ED6 /* HomeHeroBackground.swift */,
 				785B53C322F00255EF254B2F /* HomeView.swift */,
 				A67F7188132BB057D8C6B8BB /* HostBadge.swift */,
 				6F9F81DF3119022A7E2E59C8 /* NowPlayingEqualizer.swift */,
@@ -592,6 +595,7 @@
 				E01056718F1ED54005F776A1 /* HistoryRowView.swift in Sources */,
 				082C715D2F52E5C9F9565A7C /* HistoryTrack.swift in Sources */,
 				12138EC3F2E3DAA9F7A69D2D /* HistoryViewModel.swift in Sources */,
+				0C16D61E6DB830F19A0FD8E0 /* HomeHeroBackground.swift in Sources */,
 				8E229403FC095FB807381F79 /* HomeView.swift in Sources */,
 				394385C41FDA5B2B5913B110 /* HostBadge.swift in Sources */,
 				EC45E5C3BA3A15F1CA6D5D36 /* HubView.swift in Sources */,

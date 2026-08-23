@@ -1,9 +1,10 @@
 import SwiftUI
 
-/// Flat, single-color play/pause button (per the "radio-flat-typo" Figma
-/// redesign) — a plain `sunOrange` circle with no gradient or glow, sized
-/// to sit inline in the now-playing row rather than as a standalone hero
-/// control.
+/// Flat, single-color play/pause button — a plain `liveRed` circle with no
+/// gradient or glow, sized to sit inline in the now-playing row rather than
+/// as a standalone hero control. `liveRed` (not `sunOrange`) since the
+/// 2026-08-23 hero redesign introduced a dedicated "now playing" accent —
+/// see `Theme.liveRed`.
 struct PlayButton: View {
     let state: PlaybackState
     let action: () -> Void
@@ -15,7 +16,7 @@ struct PlayButton: View {
         Button(action: action) {
             ZStack {
                 Circle()
-                    .fill(Theme.sunOrange)
+                    .fill(Theme.liveRed)
                     .frame(width: diameter, height: diameter)
 
                 switch state {

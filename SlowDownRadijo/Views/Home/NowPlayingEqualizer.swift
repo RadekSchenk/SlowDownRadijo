@@ -25,7 +25,7 @@ struct NowPlayingEqualizer: View {
         HStack(alignment: .bottom, spacing: 2) {
             ForEach(bars.indices, id: \.self) { index in
                 Capsule()
-                    .fill(Theme.sunOrange)
+                    .fill(Theme.liveRed)
                     .frame(width: 3, height: animate ? bars[index].maxHeight : bars[index].minHeight)
                     .animation(
                         .easeInOut(duration: bars[index].duration)

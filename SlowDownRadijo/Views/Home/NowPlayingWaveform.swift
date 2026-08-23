@@ -10,8 +10,17 @@ import SwiftUI
 /// (fresh random frequencies/phases) whenever `trackID` changes, so a new
 /// track gets a visibly different pattern rather than the same drift
 /// carrying over.
+///
+/// Only ever shown while actively playing — the caller (`HomeView`) wraps
+/// this in `if playbackState == .playing`, so the view itself doesn't
+/// track an active/inactive state; when paused it's removed from the
+/// layout entirely rather than dimmed, per the 2026-08-23 hero redesign.
 struct NowPlayingWaveform: View {
-    let isActive: Bool
+    /// Fraction (0...1) of the current show elapsed — bars up to this
+    /// fraction get the warm yellow-to-`liveRed` gradient ("played"); the
+    /// rest get a flat muted fill ("not yet played"), matching the
+    /// progress bar directly below.
+    let progress: Double
     /// Any value that changes when the track changes — only used to
     /// trigger a reseed, never read for its content.
     let trackID: AnyHashable
@@ -41,35 +50,28 @@ struct NowPlayingWaveform: View {
         }
     }
 
+    private var elapsedBarCount: Int {
+        Int((Double(Self.barCount) * progress).rounded())
+    }
+
     var body: some View {
-        Group {
-            if isActive {
-                TimelineView(.animation) { context in
-                    waveform(time: context.date.timeIntervalSinceReferenceDate)
-                }
-            } else {
-                waveform(time: 0, resting: true)
-            }
+        TimelineView(.animation) { context in
+            waveform(time: context.date.timeIntervalSinceReferenceDate)
         }
         .frame(height: Self.height)
-        .opacity(isActive ? 1 : 0.3)
-        .animation(.easeInOut(duration: 0.4), value: isActive)
         .onChange(of: trackID) { _, _ in
             bars = Self.randomBars()
         }
     }
 
-    private func waveform(time: Double, resting: Bool = false) -> some View {
-        Theme.accentGradientVertical
-            .mask(barShapes(time: time, resting: resting))
-    }
-
-    private func barShapes(time: Double, resting: Bool) -> some View {
-        HStack(alignment: .bottom, spacing: 3) {
+    private func waveform(time: Double) -> some View {
+        let elapsedCount = elapsedBarCount
+        return HStack(alignment: .bottom, spacing: 3) {
             ForEach(bars.indices, id: \.self) { index in
                 let bar = bars[index]
-                let heightFraction = resting ? 0.12 : Self.heightFraction(for: bar, at: time)
+                let heightFraction = Self.heightFraction(for: bar, at: time)
                 Capsule()
+                    .fill(index < elapsedCount ? AnyShapeStyle(Theme.liveWaveformGradient) : AnyShapeStyle(Theme.waveformMuted))
                     .frame(height: max(3, Self.height * heightFraction))
             }
         }

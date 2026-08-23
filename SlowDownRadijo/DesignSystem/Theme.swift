@@ -35,6 +35,19 @@ enum Theme {
     /// progress fill).
     static let sunOrange = Color(hex: 0xE8652B)
     static let sunRed = Color(hex: 0xE04A4F)
+    /// A second, distinct red — "live"/now-playing accent introduced by the
+    /// 2026-08-23 home-screen hero redesign (`#db304e`). Deliberately
+    /// scoped to now-playing-card surfaces only (`PlayButton`,
+    /// `ShowProgressBar`, `NowPlayingEqualizer`, `NowPlayingWaveform`) —
+    /// `sunOrange` remains the app-wide accent everywhere else (tab bar,
+    /// Settings, Vzkaz, Program, Support), so don't reach for this outside
+    /// the now-playing card without the design calling for it.
+    static let liveRed = Color(hex: 0xDB304E)
+    /// Flat, muted fill for the *unplayed* portion of `NowPlayingWaveform`'s
+    /// bars (`#2a263b`) — distinct from `surfaceElevated`, which is
+    /// adaptive and reads too light against this specific dark waveform
+    /// context.
+    static let waveformMuted = Color(hex: 0x2A263B)
 
     static let accentGradient = LinearGradient(
         colors: [sunYellow, sunOrange, sunRed],
@@ -43,11 +56,19 @@ enum Theme {
     )
 
     /// Same three stops as `accentGradient`, rotated vertical — red grounded
-    /// at the bottom rising to yellow at the top. Used by
-    /// `NowPlayingWaveform` so its bars read as one continuous gradient
-    /// across the whole shape rather than each bar getting its own copy.
+    /// at the bottom rising to yellow at the top.
     static let accentGradientVertical = LinearGradient(
         colors: [sunYellow, sunOrange, sunRed],
+        startPoint: .top,
+        endPoint: .bottom
+    )
+
+    /// Yellow-to-`liveRed` gradient for each *elapsed* bar in
+    /// `NowPlayingWaveform` — applied per-bar (not as one shared mask
+    /// across the whole shape), matching the Figma source's own per-bar
+    /// `bg-gradient-to-b`.
+    static let liveWaveformGradient = LinearGradient(
+        colors: [sunYellow, liveRed],
         startPoint: .top,
         endPoint: .bottom
     )

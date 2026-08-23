@@ -28,7 +28,7 @@ struct ShowProgressBar: View {
                         .fill(Theme.hairline(0.08))
 
                     Capsule()
-                        .fill(Theme.sunOrange)
+                        .fill(Theme.liveRed)
                         .frame(width: max(6, proxy.size.width * progress))
                         .animation(.linear(duration: 0.6), value: progress)
                 }

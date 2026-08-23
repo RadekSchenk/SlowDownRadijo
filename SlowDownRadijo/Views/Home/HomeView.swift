@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// Matches the Figma "radio-flat-typo" redesign (node 37:4): flat colors
 /// (no gradients/glows/card surfaces), Manrope throughout, and a compact
@@ -17,7 +18,17 @@ struct HomeView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: Theme.Spacing.lg) {
-                AppHeaderView()
+                ZStack(alignment: .top) {
+                    HomeHeroBackground(image: heroImage)
+                        // Bleeds past the VStack's own 20pt horizontal
+                        // inset (applied below) so the image reaches the
+                        // true screen edges, while `AppHeaderView` stays
+                        // inset like every other row.
+                        .padding(.horizontal, -20)
+                        .ignoresSafeArea(edges: .top)
+
+                    AppHeaderView()
+                }
 
                 showInfoCard
 
@@ -41,6 +52,16 @@ struct HomeView: View {
         }
     }
 
+    /// The current show's artwork, unless it's "The Best of Slow Down" — a
+    /// rotation filler block whose graphic is a generic branded card, not a
+    /// real per-show photo, so the hero banner deliberately excludes it
+    /// even though it does have an `imageURL` (still used for lock-screen
+    /// art via `NowPlayingViewModel.publishNowPlaying`, where that's fine).
+    private var heroImage: UIImage? {
+        guard nowPlaying.currentShow?.name != "The Best of Slow Down" else { return nil }
+        return nowPlaying.showArtwork
+    }
+
     private var showInfoCard: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             HStack(spacing: Theme.Spacing.sm) {
@@ -60,10 +81,14 @@ struct HomeView: View {
                     .lineLimit(2)
             }
 
-            NowPlayingWaveform(
-                isActive: nowPlaying.playbackState == .playing,
-                trackID: nowPlaying.track?.displayText ?? nowPlaying.showName
-            )
+            // Removed from the layout entirely while paused — not just
+            // dimmed — matching the 2026-08-23 hero redesign.
+            if nowPlaying.playbackState == .playing {
+                NowPlayingWaveform(
+                    progress: nowPlaying.showProgress,
+                    trackID: nowPlaying.track?.displayText ?? nowPlaying.showName
+                )
+            }
 
             if let show = nowPlaying.currentShow {
                 VStack(alignment: .leading, spacing: 10) {
@@ -120,9 +145,15 @@ struct HomeView: View {
         HStack(alignment: .center, spacing: Theme.Spacing.md) {
             VStack(spacing: 8) {
                 NowPlayingEqualizer(isActive: nowPlaying.playbackState == .playing)
-                Text(L10n.now)
-                    .font(Theme.Typography.Manrope.extraBold(size: 15, relativeTo: .subheadline))
-                    .foregroundStyle(Theme.sunOrange)
+                Group {
+                    if let trackStartedAt = nowPlaying.trackStartedAt {
+                        Text(trackStartedAt, style: .time)
+                    } else {
+                        Text("--:--")
+                    }
+                }
+                .font(Theme.Typography.Manrope.extraBold(size: 15, relativeTo: .subheadline))
+                .foregroundStyle(Theme.liveRed)
             }
             .frame(width: 44)
 

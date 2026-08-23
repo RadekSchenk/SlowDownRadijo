@@ -58,10 +58,11 @@ enum L10n {
 
     static var onAir: String { "ON-AIR" }
 
-    static var now: String {
+    /// Kicker line above the host's name in `HostBadge`.
+    static var hostedByKicker: String {
         switch lang {
-        case .cs: return "Nyní"
-        case .en: return "Now"
+        case .cs: return "Moderuje"
+        case .en: return "Hosted by"
         }
     }
 

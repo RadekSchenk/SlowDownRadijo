@@ -1,42 +1,45 @@
 import SwiftUI
 
-/// Persistent masthead used at the top of every tab — brand mark + slogan,
-/// replacing the native navigation bar title across the whole app (see
-/// `RootTabView`, which hides the system nav bar). Matches the Figma
-/// "radio-flat-typo" redesign's `app-header`.
+/// Persistent masthead used at the top of every tab — brand mark + a CZ/EN
+/// language pill + a Menu pill, replacing the native navigation bar title
+/// across the whole app (see `RootTabView`, which hides the system nav
+/// bar). Matches the 2026-08-23 home-screen hero redesign's `app-header` —
+/// no tagline anymore (dropped from all three of that design's variants).
 ///
-/// The hamburger icon opens `HubView` as a sheet — settings, news,
-/// notifications, and feedback, rather than surfacing every control
-/// directly here. The language toggle just left of it is the one
-/// exception, since it's a single tap between the app's only two
-/// languages and didn't earn a trip through Settings.
+/// "Menu" opens `HubView` as a sheet — settings, news, notifications, and
+/// feedback, rather than surfacing every control directly here. The
+/// language pill is the one exception, since it's a single tap between the
+/// app's only two languages and didn't earn a trip through Settings.
 struct AppHeaderView: View {
     @ObservedObject private var loc = LocalizationManager.shared
     @State private var isShowingHub = false
 
+    /// "CZ"/"EN" — deliberately not `AppLanguage.displayCode` ("CS"/"EN"),
+    /// which stays the ISO-style code used in the feedback-email
+    /// diagnostics (`DeviceInfo`); this is just how the header pill reads.
+    private var languagePillLabel: String {
+        loc.language == .cs ? "CZ" : "EN"
+    }
+
     var body: some View {
-        HStack(spacing: Theme.Spacing.md) {
+        HStack(spacing: Theme.Spacing.sm) {
             Image("BrandLogo")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 78, height: 62)
-
-            Text(L10n.tagline)
-                .font(Theme.Typography.Manrope.extraBold(size: 12, relativeTo: .caption))
-                .textCase(.uppercase)
-                .foregroundStyle(Theme.gold)
-                .lineLimit(2)
+                .frame(width: 73, height: 61)
 
             Spacer(minLength: 0)
 
             Button {
                 loc.language = loc.language == .cs ? .en : .cs
             } label: {
-                Text(loc.language.displayCode)
-                    .font(Theme.Typography.Manrope.semibold(size: 13, relativeTo: .caption))
+                Text(languagePillLabel)
+                    .font(Theme.Typography.Manrope.extraBold(size: 13, relativeTo: .caption))
                     .foregroundStyle(Theme.textPrimary)
-                    .frame(width: 36, height: 36)
-                    .background(Theme.hairline(0.08), in: Circle())
+                    .padding(.leading, 12)
+                    .padding(.trailing, 10)
+                    .padding(.vertical, 8)
+                    .background(Theme.hairline(0.08), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
             .buttonStyle(.plain)
             .accessibilityLabel(L10n.settingsLanguageTitle)
@@ -44,11 +47,13 @@ struct AppHeaderView: View {
             Button {
                 isShowingHub = true
             } label: {
-                Image(systemName: "line.3.horizontal")
-                    .font(.system(size: 15, weight: .semibold))
+                Text(L10n.hubTitle)
+                    .font(Theme.Typography.Manrope.extraBold(size: 13, relativeTo: .caption))
                     .foregroundStyle(Theme.textPrimary)
-                    .frame(width: 36, height: 36)
-                    .background(Theme.hairline(0.08), in: Circle())
+                    .padding(.leading, 12)
+                    .padding(.trailing, 10)
+                    .padding(.vertical, 8)
+                    .background(Theme.hairline(0.08), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
             .buttonStyle(.plain)
         }
