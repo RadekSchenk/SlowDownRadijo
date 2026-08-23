@@ -44,12 +44,12 @@ struct ShowProgressBar: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(remainingLabel)
-                    .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
+                    .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .subheadline))
                     .foregroundStyle(Theme.lavender)
 
                 if let nextShow {
                     Text(L10n.next(nextShow.name))
-                        .font(Theme.Typography.Manrope.bold(size: 14, relativeTo: .subheadline))
+                        .font(Theme.Typography.Manrope.bold(size: 16, relativeTo: .subheadline))
                         .foregroundStyle(Theme.textPrimary)
                         .lineLimit(1)
                 }

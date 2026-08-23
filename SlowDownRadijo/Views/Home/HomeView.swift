@@ -151,7 +151,7 @@ struct HomeView: View {
                         Text("--:--")
                     }
                 }
-                .font(Theme.Typography.Manrope.extraBold(size: 15, relativeTo: .subheadline))
+                .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
                 .foregroundStyle(Theme.liveRed)
             }
             .frame(width: 44)
@@ -202,7 +202,7 @@ struct HomeView: View {
                     .font(Theme.Typography.Manrope.extraBold(size: 24, relativeTo: .title2))
                     .foregroundStyle(Theme.textPrimary)
                 Text(L10n.last24h)
-                    .font(Theme.Typography.Manrope.regular(size: 12, relativeTo: .footnote))
+                    .font(Theme.Typography.Manrope.semibold(size: 15, relativeTo: .footnote))
                     .foregroundStyle(Theme.lavender)
             }
 

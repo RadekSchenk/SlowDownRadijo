@@ -106,8 +106,8 @@ enum L10n {
     /// (see `ShowDividerRow`) — "Starting" as in "this show started here".
     static var showStartingKicker: String {
         switch lang {
-        case .cs: return "Začíná"
-        case .en: return "Starting"
+        case .cs: return "Začátek pořadu"
+        case .en: return "Show start"
         }
     }
 
