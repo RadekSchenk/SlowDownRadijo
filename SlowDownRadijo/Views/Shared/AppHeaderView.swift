@@ -7,7 +7,9 @@ import SwiftUI
 ///
 /// The hamburger icon opens `HubView` as a sheet — settings, news,
 /// notifications, and feedback, rather than surfacing every control
-/// directly here.
+/// directly here. The language toggle just left of it is the one
+/// exception, since it's a single tap between the app's only two
+/// languages and didn't earn a trip through Settings.
 struct AppHeaderView: View {
     @ObservedObject private var loc = LocalizationManager.shared
     @State private var isShowingHub = false
@@ -26,6 +28,18 @@ struct AppHeaderView: View {
                 .lineLimit(2)
 
             Spacer(minLength: 0)
+
+            Button {
+                loc.language = loc.language == .cs ? .en : .cs
+            } label: {
+                Text(loc.language.displayCode)
+                    .font(Theme.Typography.Manrope.semibold(size: 13, relativeTo: .caption))
+                    .foregroundStyle(Theme.textPrimary)
+                    .frame(width: 36, height: 36)
+                    .background(Theme.hairline(0.08), in: Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(L10n.settingsLanguageTitle)
 
             Button {
                 isShowingHub = true

@@ -1,8 +1,8 @@
 import Foundation
 
 /// The two UI languages the app supports. Independent of the system
-/// Settings ▸ Language — the user picks this in-app via the header dropdown
-/// and it takes effect immediately, no restart.
+/// Settings ▸ Language — the user picks this in-app via the toggle in
+/// `AppHeaderView` and it takes effect immediately, no restart.
 enum AppLanguage: String, CaseIterable, Identifiable {
     case cs, en
 

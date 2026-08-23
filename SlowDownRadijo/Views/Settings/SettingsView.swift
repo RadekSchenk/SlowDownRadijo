@@ -1,9 +1,9 @@
 import SwiftUI
 
-/// Pushed from the hamburger menu — the appearance/language pickers that
-/// used to live as small header controls (moved here once there was real
-/// room for full labels), plus an autoplay toggle. Feedback moved to its
-/// own menu item (`FeedbackView`), always last in the menu.
+/// Pushed from the hamburger menu — the appearance picker plus an autoplay
+/// toggle. Language now lives back in `AppHeaderView` as a compact toggle
+/// next to the hamburger. Feedback moved to its own menu item
+/// (`FeedbackView`), always last in the menu.
 struct SettingsView: View {
     @ObservedObject private var loc = LocalizationManager.shared
     @ObservedObject private var appearanceManager = AppearanceManager.shared
@@ -30,7 +30,6 @@ struct SettingsView: View {
                 BackHeaderView(title: L10n.settingsTitle, onBack: { dismiss() })
                 autoplaySection
                 appearanceSection
-                languageSection
                 privacyPolicyRow
                 aboutFooter
             }
@@ -98,42 +97,6 @@ struct SettingsView: View {
                 RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
                     .strokeBorder(isSelected ? Color.clear : Theme.hairline(0.1), lineWidth: 1)
             )
-        }
-        .buttonStyle(.plain)
-    }
-
-    // MARK: - Language
-
-    private var languageSection: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-            sectionHeader(L10n.settingsLanguageTitle)
-
-            HStack(spacing: Theme.Spacing.sm) {
-                ForEach(AppLanguage.allCases) { language in
-                    languageOption(language)
-                }
-            }
-        }
-    }
-
-    private func languageOption(_ language: AppLanguage) -> some View {
-        let isSelected = loc.language == language
-        return Button {
-            loc.language = language
-        } label: {
-            Text(language.displayName)
-                .font(Theme.Typography.Manrope.semibold(size: 15, relativeTo: .subheadline))
-                .foregroundStyle(isSelected ? .white : Theme.textPrimary)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, Theme.Spacing.md)
-                .background(
-                    RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
-                        .fill(isSelected ? Theme.sunOrange : Color.clear)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
-                        .strokeBorder(isSelected ? Color.clear : Theme.hairline(0.1), lineWidth: 1)
-                )
         }
         .buttonStyle(.plain)
     }
