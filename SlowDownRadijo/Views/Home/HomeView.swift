@@ -70,58 +70,59 @@ struct HomeView: View {
         return nowPlaying.showArtwork
     }
 
-    /// The hero image, header, on-air/host badges, and play button + show
-    /// title all live in one `ZStack` — the image is a fixed-height band
-    /// (`HomeHeroBackground.height`, 300pt as of 2026-08-23 — reaches
-    /// roughly down to the waveform equalizer) starting at the very top of
-    /// the screen, and the header plus the first two rows of show info are
-    /// overlaid on top of it (the image's own bottom-edge gradient, in
-    /// `HomeHeroBackground`, is what keeps that overlaid text legible).
-    /// Everything else about the show (progress bar, sleep timer) sits
-    /// below in normal flow — see `remainingShowInfo`.
+    /// The header, on-air/host badges, and play button + show title sit in
+    /// one `VStack`, with the hero image behind them via `.background(...)`
+    /// rather than a `ZStack` — load-bearing, not a style choice: a
+    /// `ZStack` sizes itself to its *tallest* child, so with the hero fixed
+    /// at 300pt (taller than this content, ~245pt) it was reserving the
+    /// full 300pt in the scroll flow regardless of where the text actually
+    /// ended, leaving a large dead gap before `remainingShowInfo`.
+    /// `.background()` doesn't affect the layout size of the view it's
+    /// attached to, so the image can overflow past this VStack's bottom
+    /// edge — reaching down behind the waveform, per the 2026-08-23 height
+    /// bump — while `remainingShowInfo` still starts right after where the
+    /// title text actually ends, not after the image's full height.
     private var heroSection: some View {
-        ZStack(alignment: .top) {
+        // Spacing 0 + explicit per-child top padding, not a uniform
+        // `spacing:` — the header-to-badges gap (8) and the two
+        // "variation-3-card" internal gaps (badges-to-title,
+        // title-to-progress, both 20) are different Figma values, not
+        // one shared number.
+        VStack(alignment: .leading, spacing: 0) {
+            AppHeaderView()
+                // The hero image itself bleeds all the way to the screen's
+                // true top edge, behind the status bar — but the header
+                // content shouldn't start until below it. Matches Figma's
+                // "app-header" frame, which sits at a fixed y=40 (its own
+                // status-bar mockup's height), not at y=0.
+                .padding(.top, 40)
+
+            HStack(spacing: Theme.Spacing.sm) {
+                OnAirBadge()
+                Spacer(minLength: Theme.Spacing.sm)
+                if let hostName = nowPlaying.currentShow?.hostName {
+                    HostBadge(name: hostName, imageName: nowPlaying.currentShow?.hostImageName)
+                }
+            }
+            .padding(.top, Theme.Spacing.sm)
+
+            HStack(spacing: Theme.Spacing.md) {
+                PlayButton(state: nowPlaying.playbackState, action: nowPlaying.togglePlayPause, diameter: 54, iconSize: 20)
+
+                Text(nowPlaying.showName.uppercased())
+                    .font(Theme.Typography.Manrope.extraBold(size: 22, relativeTo: .title2))
+                    .foregroundStyle(Theme.textPrimary)
+                    .lineLimit(2)
+            }
+            .padding(.top, 20)
+        }
+        .background(alignment: .top) {
             HomeHeroBackground(image: heroImage)
                 // Bleeds past the VStack's own 20pt horizontal inset
                 // (applied at the top-level `body`) so the image reaches
                 // the true screen edges, while everything overlaid on top
                 // of it stays inset like every other row.
                 .padding(.horizontal, -20)
-
-            // Spacing 0 + explicit per-child top padding, not a uniform
-            // `spacing:` — the header-to-badges gap (8) and the two
-            // "variation-3-card" internal gaps (badges-to-title,
-            // title-to-progress, both 20) are different Figma values, not
-            // one shared number.
-            VStack(alignment: .leading, spacing: 0) {
-                AppHeaderView()
-                    // The hero image itself bleeds all the way to the
-                    // screen's true top edge, behind the status bar — but
-                    // the header content shouldn't start until below it.
-                    // Matches Figma's "app-header" frame, which sits at a
-                    // fixed y=40 (its own status-bar mockup's height), not
-                    // at y=0.
-                    .padding(.top, 40)
-
-                HStack(spacing: Theme.Spacing.sm) {
-                    OnAirBadge()
-                    Spacer(minLength: Theme.Spacing.sm)
-                    if let hostName = nowPlaying.currentShow?.hostName {
-                        HostBadge(name: hostName, imageName: nowPlaying.currentShow?.hostImageName)
-                    }
-                }
-                .padding(.top, Theme.Spacing.sm)
-
-                HStack(spacing: Theme.Spacing.md) {
-                    PlayButton(state: nowPlaying.playbackState, action: nowPlaying.togglePlayPause, diameter: 54, iconSize: 20)
-
-                    Text(nowPlaying.showName.uppercased())
-                        .font(Theme.Typography.Manrope.extraBold(size: 22, relativeTo: .title2))
-                        .foregroundStyle(Theme.textPrimary)
-                        .lineLimit(2)
-                }
-                .padding(.top, 20)
-            }
         }
     }
 
