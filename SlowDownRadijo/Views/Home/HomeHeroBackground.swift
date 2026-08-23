@@ -19,11 +19,22 @@ struct HomeHeroBackground: View {
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: proxy.size.width, height: proxy.size.height)
-                    // Scaled up before blurring so the blur's soft edge
-                    // falls outside the visible frame instead of showing a
-                    // faint halo at the image's true bounds.
-                    .scaleEffect(1.15)
-                    .blur(radius: 17)
+                    // No extra `.scaleEffect` here — it would visually
+                    // magnify the blur past its nominal radius (the blur is
+                    // rasterized first, then the scale enlarges those soft
+                    // pixels too). `.aspectRatio(.fill)` already overflows
+                    // the frame on its own whenever the source photo's
+                    // aspect ratio doesn't match this band's, which is
+                    // enough overflow for `.clipped()` to hide the blur's
+                    // soft edge without a separate scale step.
+                    // The Figma spec says `blur-[17px]`, but SwiftUI's
+                    // `.blur(radius:)` reads much stronger than a CSS blur
+                    // of the same nominal value against a real (non-studio)
+                    // source photo — 17 turned the show photo into an
+                    // unrecognizable color smear. Tuned down empirically by
+                    // comparing against the actual Figma screenshot until
+                    // faces read clearly again, matching the reference.
+                    .blur(radius: 5)
                     .clipped()
             }
             .frame(height: Self.height)
