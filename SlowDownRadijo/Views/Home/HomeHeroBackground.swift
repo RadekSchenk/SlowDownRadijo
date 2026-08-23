@@ -15,27 +15,43 @@ struct HomeHeroBackground: View {
     var body: some View {
         if let image {
             GeometryReader { proxy in
+                // Figma's own "Image" layer doesn't use a flat blur — it's a
+                // *progressive* (radial) blur effect: radius 0 at the
+                // center, ramping up to 34 toward the edges. The design-
+                // context export can't represent that (it flattens to a
+                // single `blur-[17px]`, exactly the midpoint of 0 and 34),
+                // which is why an earlier uniform `.blur(radius:)` pass
+                // either smeared the whole image or, tuned down, lost the
+                // intended sharp-center/soft-edge depth entirely. This
+                // reproduces the real effect: a sharp base image, with a
+                // second blurred copy masked in via a radial gradient so
+                // it's invisible at the center (revealing the sharp layer
+                // beneath) and fully opaque toward the corners.
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: proxy.size.width, height: proxy.size.height)
-                    // No extra `.scaleEffect` here — it would visually
-                    // magnify the blur past its nominal radius (the blur is
-                    // rasterized first, then the scale enlarges those soft
-                    // pixels too). `.aspectRatio(.fill)` already overflows
-                    // the frame on its own whenever the source photo's
-                    // aspect ratio doesn't match this band's, which is
-                    // enough overflow for `.clipped()` to hide the blur's
-                    // soft edge without a separate scale step.
-                    // The Figma spec says `blur-[17px]`, but SwiftUI's
-                    // `.blur(radius:)` reads much stronger than a CSS blur
-                    // of the same nominal value against a real (non-studio)
-                    // source photo — 17 turned the show photo into an
-                    // unrecognizable color smear. Tuned down empirically by
-                    // comparing against the actual Figma screenshot until
-                    // faces read clearly again, matching the reference.
-                    .blur(radius: 2)
                     .clipped()
+                    .overlay {
+                        Image(uiImage: image)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: proxy.size.width, height: proxy.size.height)
+                            .clipped()
+                            // Same "SwiftUI blur reads stronger than Figma's
+                            // nominal value" gap as before — Figma's 34 max
+                            // radius, applied literally, over-smeared the
+                            // edges. Tuned down empirically the same way.
+                            .blur(radius: 14)
+                            .mask {
+                                RadialGradient(
+                                    colors: [.clear, .black],
+                                    center: .center,
+                                    startRadius: proxy.size.width * 0.12,
+                                    endRadius: proxy.size.width * 0.62
+                                )
+                            }
+                    }
             }
             .frame(height: Self.height)
             .overlay {
