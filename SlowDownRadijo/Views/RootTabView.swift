@@ -47,27 +47,39 @@ struct RootTabView: View {
         _previewPlayer = StateObject(wrappedValue: PreviewPlayerService(radioPlayer: playerService))
     }
 
+    /// Rádio/Program/Vzkaz icons (`TabIconAntenna`/`TabIconCalendar`/
+    /// `TabIconMessageCircle`) and Favorites' `TabIconHeart` are template-
+    /// rendered SVG assets matching the Figma "bottom-nav" node (`2065:4350`)
+    /// exactly — Lucide icons (`antenna`/`calendar`/`message-circle`/`heart`
+    /// by literal `id`), not SF Symbols, confirmed by `get_design_context`
+    /// returning them as raw `<img>` sources rather than `<SFSymbol>`-
+    /// wrapped elements. That Figma frame is a 4-tab layout predating the
+    /// Favorites-tab promotion (heart there maps to a "Podpora" tab that no
+    /// longer exists in this app's structure) — reused its `heart` icon for
+    /// the current Favorites tab instead, since that's the closer semantic
+    /// match, and left Support's `gift` SF Symbol untouched since the frame
+    /// has no icon reference for that tab at all.
     var body: some View {
         TabView(selection: $selectedTab) {
             NavigationStack {
                 HomeView(nowPlaying: nowPlayingViewModel, history: historyViewModel)
                     .toolbar(.hidden, for: .navigationBar)
             }
-            .tabItem { Label(L10n.tabRadio, systemImage: "antenna.radiowaves.left.and.right") }
+            .tabItem { Label(L10n.tabRadio, image: "TabIconAntenna") }
             .tag(0)
 
             NavigationStack {
                 ProgramView(scheduleStore: scheduleStore)
                     .toolbar(.hidden, for: .navigationBar)
             }
-            .tabItem { Label(L10n.tabProgram, systemImage: "calendar") }
+            .tabItem { Label(L10n.tabProgram, image: "TabIconCalendar") }
             .tag(1)
 
             NavigationStack {
                 FavoritesView()
                     .toolbar(.hidden, for: .navigationBar)
             }
-            .tabItem { Label(L10n.tabFavorites, systemImage: "heart") }
+            .tabItem { Label(L10n.tabFavorites, image: "TabIconHeart") }
             .tag(2)
 
             NavigationStack {
@@ -76,7 +88,7 @@ struct RootTabView: View {
                 }
                 .toolbar(.hidden, for: .navigationBar)
             }
-            .tabItem { Label(L10n.tabMessage, systemImage: "message.circle") }
+            .tabItem { Label(L10n.tabMessage, image: "TabIconMessageCircle") }
             .tag(3)
 
             NavigationStack {
@@ -86,7 +98,7 @@ struct RootTabView: View {
             .tabItem { Label(L10n.tabSupport, systemImage: "gift") }
             .tag(4)
         }
-        .tint(Theme.sunOrange)
+        .tint(Theme.liveRed)
         .environmentObject(favoriteTrackStore)
         .environmentObject(previewPlayer)
         .onAppear {
