@@ -13,6 +13,10 @@ struct MessageView: View {
     /// only happens to refresh when something else forces a re-render.
     @ObservedObject private var recorder: VoiceMessageRecorder
     @ObservedObject private var loc = LocalizationManager.shared
+    /// Still used by the "Zpět na rádio" button in `sentView` after a
+    /// successful send — the header itself no longer has a back affordance
+    /// (see `AppHeaderView` below), since Vzkaz is a primary tab now, not a
+    /// pushed/dismissible screen.
     var onBack: () -> Void
 
     init(viewModel: VoiceMessageViewModel, onBack: @escaping () -> Void = {}) {
@@ -23,7 +27,7 @@ struct MessageView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            MessageHeaderView(onBack: handleBack)
+            AppHeaderView()
 
             Spacer(minLength: 0)
 
@@ -44,13 +48,6 @@ struct MessageView: View {
         } message: {
             Text(L10n.uploadFailedMessage)
         }
-    }
-
-    private func handleBack() {
-        if case .recording = viewModel.state {
-            viewModel.cancelRecording()
-        }
-        onBack()
     }
 
     @ViewBuilder

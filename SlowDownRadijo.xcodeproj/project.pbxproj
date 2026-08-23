@@ -78,7 +78,6 @@
 		98CE4DBD8D0286954B38615F /* Manrope-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1DD55775932816203A312CA9 /* Manrope-ExtraBold.ttf */; };
 		9F8B19A4B8ECB6EB2C250ABB /* NewsPost.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DC82166EB2B538C0565A55 /* NewsPost.swift */; };
 		ABCC45E5AE45F1965A09A6D2 /* Manrope-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D4863B328BC4D761671DC231 /* Manrope-Bold.ttf */; };
-		AE413F2E1CF88324467DD374 /* MessageHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC317E915CA924C579D345D /* MessageHeaderView.swift */; };
 		B3F69BBE9836D0289DEC62E1 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9F45C020F0FA2C48F203684 /* SettingsView.swift */; };
 		B678ECA3653A4478E049DC2F /* FavoriteTrackStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 264DEDF38592C9B0B92B86D3 /* FavoriteTrackStore.swift */; };
 		B6BBD02BB4C58439E895C33F /* VoiceMessageRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BADD47AE92FCB3825D65C65 /* VoiceMessageRecorder.swift */; };
@@ -212,7 +211,6 @@
 		E5EB3AD498A9DBD38A505F1B /* NotificationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsView.swift; sourceTree = "<group>"; };
 		E5FF8C9E35C7D05E19886C30 /* LocalizationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationManager.swift; sourceTree = "<group>"; };
 		EA30370E85EA8E17C80F01B5 /* PlayButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayButton.swift; sourceTree = "<group>"; };
-		EDC317E915CA924C579D345D /* MessageHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageHeaderView.swift; sourceTree = "<group>"; };
 		F7A43A86699B9373436B5D67 /* ScheduleStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleStore.swift; sourceTree = "<group>"; };
 		FB944480FA340A7F8CF3B6EE /* VoiceMessageUploadService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceMessageUploadService.swift; sourceTree = "<group>"; };
 		FE6083893F16481745309383 /* AppearanceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceManager.swift; sourceTree = "<group>"; };
@@ -286,7 +284,6 @@
 		1CE873CF17A0FCB081570035 /* Message */ = {
 			isa = PBXGroup;
 			children = (
-				EDC317E915CA924C579D345D /* MessageHeaderView.swift */,
 				72A53ABC9D26C0FEFCD3A623 /* MessageView.swift */,
 				C86A46F39FB47CC2000D00A6 /* RecordingVisualizerView.swift */,
 				6C6586899D71C60394AFCA32 /* UploadSpinnerRing.swift */,
@@ -610,7 +607,6 @@
 				8B0C184F62D55FFF69C21A01 /* ITunesArtworkService.swift in Sources */,
 				92F90E0A2E75446181E382F9 /* L10n.swift in Sources */,
 				2CABB348B5FF6B0C98D8CA93 /* LocalizationManager.swift in Sources */,
-				AE413F2E1CF88324467DD374 /* MessageHeaderView.swift in Sources */,
 				7E1BBDA27F5658EA53680597 /* MessageView.swift in Sources */,
 				8A786130476152AAE9DC6B87 /* NewsContentParser.swift in Sources */,
 				DCD839FB2B5D87DE94B5F036 /* NewsDetailView.swift in Sources */,
