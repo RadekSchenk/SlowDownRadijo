@@ -16,9 +16,11 @@ enum Theme {
     // Backgrounds — dark is the site's (and this app's) primary look, but
     // every color adapts so the app still works correctly in Light Mode
     // instead of forcing one appearance and ignoring the system setting.
-    // Dark value matches the "flat" Figma redesign's page background
-    // (`#1a1535`) exactly.
-    static let background = Color.adaptive(light: 0xF5F5F7, dark: 0x1A1535)
+    // Dark value matches the "Co hrálo" card redesign's frame background
+    // (`#120e25`, updated 2026-08-23 from the earlier `#1a1535`) — reused
+    // as the one dark-mode background across the whole app rather than
+    // just that one screen.
+    static let background = Color.adaptive(light: 0xF5F5F7, dark: 0x120E25)
     static let surface = Color.adaptive(light: 0xFFFFFF, dark: 0x1A1A1E)
     static let surfaceElevated = Color.adaptive(light: 0xEDEDF2, dark: 0x222226)
 
@@ -54,26 +56,33 @@ enum Theme {
     /// tinted alternative to a plain white-opacity gray, giving text a
     /// warmer, more "branded" look than generic gray would. Adaptive: the
     /// original light purple-gray only reads against the dark background;
-    /// Light Mode gets a deeper plum instead of going near-invisible.
-    static let lavender = Color.adaptive(light: 0x5C4F8A, dark: 0xB8AFDC)
+    /// Light Mode gets a deeper plum instead of going near-invisible. Dark
+    /// value matches the "Co hrálo" card redesign's muted text (`#8f89a9`,
+    /// updated 2026-08-23 from the brighter `#b8afdc`).
+    static let lavender = Color.adaptive(light: 0x5C4F8A, dark: 0x8F89A9)
     /// Warm gold used for small "not the main accent" highlights — the
     /// "PRÁVĚ HRAJE" kicker label and the Spotify CTA. Deliberately not
     /// Spotify's own green: the redesign keeps every accent in-house rather
     /// than borrowing a third party's brand color. Adaptive for the same
     /// reason as `lavender` above.
     static let gold = Color.adaptive(light: 0x8A5E12, dark: 0xD4A24C)
-    /// A legible accent purple for text/icons/borders (the "Najít na
-    /// Spotify" pill) — distinct from `brandPurple`, which is a *fixed*
-    /// color deliberately kept constant for the splash screen background
-    /// and decorative glows, where it's never read as foreground text
-    /// against a variable background. This one adapts so it stays
-    /// readable against `surface`/`background` in both appearances.
+    /// A legible accent purple for text/icons/borders — distinct from
+    /// `brandPurple`, which is a *fixed* color deliberately kept constant
+    /// for the splash screen background and decorative glows, where it's
+    /// never read as foreground text against a variable background. This
+    /// one adapts so it stays readable against `surface`/`background` in
+    /// both appearances. No longer used by the "Najít na Spotify" pill,
+    /// which reverted to `spotifyGreen` as of the 2026-08-23 redesign —
+    /// kept in case another screen needs a legible purple.
     static let purpleAccent = Color.adaptive(light: 0x433785, dark: 0xA78BFA)
 
-    /// Spotify's brand green — no longer used by the redesigned Spotify CTA
-    /// (see `gold` above), kept only in case a future screen wants the
-    /// recognizable brand color back.
-    static let spotifyGreen = Color(hex: 0x1ED760)
+    /// Spotify's brand green, used by the "Najít na Spotify" action chip
+    /// (`TrackDetailsRow`) — a filled, 10%-opacity tint chip rather than
+    /// legible-on-dark text, so the brand color reads fine without the
+    /// legibility problem the earlier `purpleAccent` swap was solving.
+    /// Updated 2026-08-23 to the "Co hrálo" redesign's exact value
+    /// (`#00ca47`, was `#1ed760`).
+    static let spotifyGreen = Color(hex: 0x00CA47)
 
     // Text
     static let textPrimary = Color.adaptive(light: 0x101010, dark: 0xFFFFFF)

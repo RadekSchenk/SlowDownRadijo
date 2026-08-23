@@ -102,6 +102,15 @@ enum L10n {
         }
     }
 
+    /// Kicker line above a show's name at a "Co hrálo" show-boundary row
+    /// (see `ShowDividerRow`) — "Starting" as in "this show started here".
+    static var showStartingKicker: String {
+        switch lang {
+        case .cs: return "Začíná"
+        case .en: return "Starting"
+        }
+    }
+
     static var historyEnd: String {
         switch lang {
         case .cs: return "To je vše za posledních 24 hodin"

@@ -171,7 +171,11 @@ struct HomeView: View {
                         .font(Theme.Typography.Manrope.regular(size: 13, relativeTo: .footnote))
                         .foregroundStyle(Theme.lavender)
                 } else {
-                    LazyVStack(spacing: Theme.Spacing.md) {
+                    // No inter-row spacing here — each row (HistoryRowView,
+                    // ShowDividerRow) draws its own trailing hairline with
+                    // top padding, so the divider sits flush against the
+                    // row above rather than floating in extra gap space.
+                    LazyVStack(spacing: 0) {
                         ForEach(Self.historyRows(from: tracks)) { row in
                             switch row {
                             case .track(let track):

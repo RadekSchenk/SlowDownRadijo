@@ -43,8 +43,14 @@ struct TrackDetailsRow: View {
     /// bubble tail pointing left, toward an adjacent time label — see
     /// `HistoryRowView`, the only caller that sets this (a time column sits
     /// to the left there; `FavoritesView`'s rows have no such neighbor, so
-    /// they stay a plain rounded card). `nil` draws no tail.
+    /// they stay a plain rounded card). `nil` draws no tail. Ignored when
+    /// `showsCardBackground` is `false`.
     var tailY: CGFloat?
+    /// `false` for the flat "Co hrálo" home-screen list (2026-08-23
+    /// redesign) — no card fill/border, rows just sit on the page
+    /// background separated by a hairline (see `HistoryRowView`).
+    /// `FavoritesView`'s free-floating cards keep the default `true`.
+    var showsCardBackground = true
     var favorite: FavoriteButtonState?
     var preview: PreviewButtonState?
 
@@ -92,11 +98,11 @@ struct TrackDetailsRow: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
-                        .font(Theme.Typography.Manrope.extraBold(size: 19, relativeTo: .headline))
+                        .font(Theme.Typography.Manrope.bold(size: 18, relativeTo: .headline))
                         .foregroundStyle(Theme.textPrimary)
                         .lineLimit(2)
                     Text(artist)
-                        .font(Theme.Typography.Manrope.semibold(size: 15, relativeTo: .subheadline))
+                        .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
                         .foregroundStyle(Theme.lavender)
                         .lineLimit(2)
                 }
@@ -113,60 +119,47 @@ struct TrackDetailsRow: View {
                 FlowLayout(spacing: Theme.Spacing.sm) {
                     if let favorite {
                         ActionPillButton(
-                            icon: favorite.isFavorite ? "heart.fill" : "heart",
                             label: favorite.isFavorite ? L10n.favoriteRemoveAction : L10n.favoriteAddAction,
                             tint: Theme.gold,
                             action: favorite.action
                         )
                     }
                     if let spotifyURL {
-                        ActionPillButton(icon: "arrow.up.right", label: L10n.spotifyFindAction, tint: Theme.purpleAccent) {
+                        ActionPillButton(label: L10n.spotifyFindAction, tint: Theme.spotifyGreen) {
                             openURL(spotifyURL)
                         }
                     }
                 }
             }
         }
-        .padding(Theme.Spacing.md)
-        .background(Theme.surface, in: CalloutCardShape(cornerRadius: Theme.Radius.card, tailY: tailY))
-        .overlay(
-            // `.allowsHitTesting(false)` is load-bearing: an overlaid Shape
-            // is hit-testable across its whole (geometric, not just drawn)
-            // area by default even when only stroked, which — sitting in
-            // front of the action pills below in z-order — silently
-            // swallowed every tap meant for them. Decorative-only border,
-            // so it must not intercept touches.
-            CalloutCardShape(cornerRadius: Theme.Radius.card, tailY: tailY)
-                .stroke(Theme.hairline(0.08), lineWidth: 1)
-                .allowsHitTesting(false)
-        )
+        .padding(showsCardBackground ? Theme.Spacing.md : 0)
+        .modifier(CardBackgroundModifier(isEnabled: showsCardBackground, cornerRadius: Theme.Radius.card, tailY: tailY))
     }
 
-    /// The artwork with a translucent play/pause badge overlaid on its
-    /// corner when a preview is available — tapping the artwork itself to
-    /// hear a clip, the way Spotify/Apple Music treat album art, rather
-    /// than a separate "Přehrát ukázku" pill competing for attention below.
+    /// The artwork with a translucent play/pause badge centered over it
+    /// when a preview is available — tapping the artwork itself to hear a
+    /// clip, the way Spotify/Apple Music treat album art, rather than a
+    /// separate "Přehrát ukázku" pill competing for attention below.
     @ViewBuilder
     private var artworkWithPreviewBadge: some View {
         if let preview {
             Button(action: preview.action) {
-                artwork(size: 72)
-                    .overlay(alignment: .bottomTrailing) {
+                artwork(size: 80)
+                    .overlay {
                         previewBadge(preview.playback)
-                            .padding(6)
                     }
             }
             .buttonStyle(.plain)
             .disabled(preview.playback == .loading)
         } else {
-            artwork(size: 72)
+            artwork(size: 80)
         }
     }
 
     private func previewBadge(_ playback: PreviewPlaybackState) -> some View {
         ZStack {
             Circle()
-                .fill(.black.opacity(0.55))
+                .fill(.black.opacity(0.5))
             Group {
                 switch playback {
                 case .idle:
@@ -179,11 +172,10 @@ struct TrackDetailsRow: View {
                     Image(systemName: "pause.fill")
                 }
             }
-            .font(.system(size: 13, weight: .bold))
+            .font(.system(size: 14, weight: .bold))
             .foregroundStyle(.white)
         }
-        .frame(width: 28, height: 28)
-        .shadow(color: .black.opacity(0.3), radius: 4, y: 2)
+        .frame(width: 36, height: 36)
     }
 
     private func artwork(size: CGFloat) -> some View {
@@ -191,6 +183,36 @@ struct TrackDetailsRow: View {
             .frame(width: size, height: size)
             .id(artworkURL)
             .transition(.opacity)
+    }
+}
+
+/// Applies `TrackDetailsRow`'s card fill/border when `isEnabled`, or does
+/// nothing when the caller wants the flat "Co hrálo" list look instead
+/// (see `showsCardBackground`).
+private struct CardBackgroundModifier: ViewModifier {
+    let isEnabled: Bool
+    let cornerRadius: CGFloat
+    let tailY: CGFloat?
+
+    func body(content: Content) -> some View {
+        if isEnabled {
+            content
+                .background(Theme.surface, in: CalloutCardShape(cornerRadius: cornerRadius, tailY: tailY))
+                .overlay(
+                    // `.allowsHitTesting(false)` is load-bearing: an
+                    // overlaid Shape is hit-testable across its whole
+                    // (geometric, not just drawn) area by default even when
+                    // only stroked, which — sitting in front of the action
+                    // pills below in z-order — silently swallowed every tap
+                    // meant for them. Decorative-only border, so it must
+                    // not intercept touches.
+                    CalloutCardShape(cornerRadius: cornerRadius, tailY: tailY)
+                        .stroke(Theme.hairline(0.08), lineWidth: 1)
+                        .allowsHitTesting(false)
+                )
+        } else {
+            content
+        }
     }
 }
 
@@ -231,10 +253,11 @@ private struct CalloutCardShape: Shape {
     }
 }
 
-/// A labeled, pill-shaped action button — icon + text, used for the
-/// preview/Spotify/favorite row below a `TrackDetailsRow`'s expanded card.
+/// A labeled, filled-tint action chip — no icon, just text on a 10%-opacity
+/// tint fill — used for the Spotify/favorite row below a `TrackDetailsRow`'s
+/// expanded card. Matches the "Co hrálo" card redesign (2026-08-23),
+/// replacing the earlier outlined capsule + icon.
 private struct ActionPillButton: View {
-    let icon: String
     let label: String
     var tint: Color = Theme.lavender
     var isLoading: Bool = false
@@ -246,9 +269,6 @@ private struct ActionPillButton: View {
                 if isLoading {
                     ProgressView()
                         .tint(tint)
-                } else {
-                    Image(systemName: icon)
-                        .font(.system(size: 13, weight: .semibold))
                 }
                 Text(label)
                     .font(Theme.Typography.Manrope.bold(size: 12, relativeTo: .caption))
@@ -256,11 +276,9 @@ private struct ActionPillButton: View {
                     .fixedSize()
             }
             .foregroundStyle(tint)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .overlay(
-                Capsule().strokeBorder(tint, lineWidth: 1)
-            )
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(tint.opacity(0.1), in: RoundedRectangle(cornerRadius: 4, style: .continuous))
         }
         .buttonStyle(.plain)
         .disabled(isLoading)
