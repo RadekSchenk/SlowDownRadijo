@@ -104,9 +104,17 @@ struct RootTabView: View {
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = UIColor(Theme.tabBarBackground)
         appearance.shadowColor = UIColor.white.withAlphaComponent(0.08)
-        let unselected: [NSAttributedString.Key: Any] = [.foregroundColor: UIColor(Theme.tabBarUnselected)]
+        // Tab item labels otherwise fall back to the system font — the one
+        // piece of chrome on every screen that isn't SwiftUI `Text`, so it
+        // was missing Manrope entirely until this was added.
+        let tabFont = Theme.Typography.Manrope.uiFont(weight: "SemiBold", size: 11)
+        let unselected: [NSAttributedString.Key: Any] = [
+            .foregroundColor: UIColor(Theme.tabBarUnselected),
+            .font: tabFont
+        ]
         appearance.stackedLayoutAppearance.normal.titleTextAttributes = unselected
         appearance.stackedLayoutAppearance.normal.iconColor = UIColor(Theme.tabBarUnselected)
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.font: tabFont]
         UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance
         // Belt-and-suspenders: newer iOS tab bar rendering doesn't always
@@ -117,8 +125,14 @@ struct RootTabView: View {
         let navAppearance = UINavigationBarAppearance()
         navAppearance.configureWithOpaqueBackground()
         navAppearance.backgroundColor = UIColor(Theme.background)
-        navAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
-        navAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+        navAppearance.titleTextAttributes = [
+            .foregroundColor: UIColor.white,
+            .font: Theme.Typography.Manrope.uiFont(weight: "Bold", size: 17)
+        ]
+        navAppearance.largeTitleTextAttributes = [
+            .foregroundColor: UIColor.white,
+            .font: Theme.Typography.Manrope.uiFont(weight: "ExtraBold", size: 34)
+        ]
         UINavigationBar.appearance().standardAppearance = navAppearance
         UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
     }

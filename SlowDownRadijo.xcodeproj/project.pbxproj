@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		00D5591692412CA25973953D /* ShowProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CF8B58E2E17FED3960B7AB /* ShowProgressBar.swift */; };
 		066501AAA12575B72C624059 /* FavoritesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8337C0918BE4F82E41E323DD /* FavoritesView.swift */; };
+		06ED8CD51BBBBCECA28C8075 /* Manrope-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C5DA8568A6F1BB914290114A /* Manrope-SemiBold.ttf */; };
 		082C715D2F52E5C9F9565A7C /* HistoryTrack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90B431CDF4A4EFCF8E422D28 /* HistoryTrack.swift */; };
 		083E1777286799A0388FD6E3 /* SlowDownRadijoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02708E92931556A0F4220DDB /* SlowDownRadijoApp.swift */; };
 		0AD5A5BFBE291B5B68887447 /* UploadSpinnerRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C6586899D71C60394AFCA32 /* UploadSpinnerRing.swift */; };
@@ -41,8 +42,10 @@
 		5732AE18E3553387301C26DC /* ICYMetadataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A15488474E47653BF13E3BF /* ICYMetadataService.swift */; };
 		58CE3563C31C37A90E70856C /* schedule.json in Resources */ = {isa = PBXBuildFile; fileRef = 71D9A5C726F15EF4EFD6CAAC /* schedule.json */; };
 		58D030DDEC5F218A907B778A /* Manrope-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D4863B328BC4D761671DC231 /* Manrope-Bold.ttf */; };
+		599E1040CD0CBCC043D334D6 /* Manrope-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B26E607347B3911B648DB65E /* Manrope-Medium.ttf */; };
 		5C05515C16307BC928F1FC18 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 115C3C27B735851EB291CCE1 /* Theme.swift */; };
 		5E38A5A586227D2EBB0463D1 /* Show.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DC0DD53F5302B6021C60A04 /* Show.swift */; };
+		62D7BA853927BAB4D2E76023 /* Manrope-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E5E20A4EF4EE7A6B6FB7F387 /* Manrope-Regular.ttf */; };
 		6370142E40F4B2457681EFAA /* NotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5EB3AD498A9DBD38A505F1B /* NotificationsView.swift */; };
 		669D511D857C1F0AF3CB3B69 /* NowPlayingWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D358E3DC746BA6BB9F1DCB6 /* NowPlayingWidgetView.swift */; };
 		6757DCD4A558606FA4151453 /* ProgramView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F111E16F56C41C03F39AEC /* ProgramView.swift */; };
@@ -74,6 +77,7 @@
 		92F90E0A2E75446181E382F9 /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4AF4F99AF9B78C5C8DB251E /* L10n.swift */; };
 		98CE4DBD8D0286954B38615F /* Manrope-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1DD55775932816203A312CA9 /* Manrope-ExtraBold.ttf */; };
 		9F8B19A4B8ECB6EB2C250ABB /* NewsPost.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DC82166EB2B538C0565A55 /* NewsPost.swift */; };
+		ABCC45E5AE45F1965A09A6D2 /* Manrope-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D4863B328BC4D761671DC231 /* Manrope-Bold.ttf */; };
 		AE413F2E1CF88324467DD374 /* MessageHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC317E915CA924C579D345D /* MessageHeaderView.swift */; };
 		B3F69BBE9836D0289DEC62E1 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9F45C020F0FA2C48F203684 /* SettingsView.swift */; };
 		B678ECA3653A4478E049DC2F /* FavoriteTrackStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 264DEDF38592C9B0B92B86D3 /* FavoriteTrackStore.swift */; };
@@ -98,6 +102,7 @@
 		EC45E5C3BA3A15F1CA6D5D36 /* HubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13BBF7A0C3DC9EDBAB44043D /* HubView.swift */; };
 		EF62FB2D0D232D8300961E14 /* SlowDownRadijoWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 878FB81C2F488B32161708F1 /* SlowDownRadijoWidgetBundle.swift */; };
 		EFB34607AE11B38EAEF9E3B6 /* AppHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2A6E76D5B25F1547D447F13 /* AppHeaderView.swift */; };
+		F2750120CDBC189990C35B67 /* Manrope-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1DD55775932816203A312CA9 /* Manrope-ExtraBold.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -567,6 +572,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				24435A147BD340C67E22288F /* Assets.xcassets in Resources */,
+				ABCC45E5AE45F1965A09A6D2 /* Manrope-Bold.ttf in Resources */,
+				F2750120CDBC189990C35B67 /* Manrope-ExtraBold.ttf in Resources */,
+				599E1040CD0CBCC043D334D6 /* Manrope-Medium.ttf in Resources */,
+				62D7BA853927BAB4D2E76023 /* Manrope-Regular.ttf in Resources */,
+				06ED8CD51BBBBCECA28C8075 /* Manrope-SemiBold.ttf in Resources */,
 				85FAEB2980FDEDC41E30C8A8 /* schedule.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

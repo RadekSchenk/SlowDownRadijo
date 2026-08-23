@@ -139,15 +139,9 @@ enum Theme {
     }
 
     enum Typography {
-        static let title = Font.system(.title, design: .rounded, weight: .bold)
-        static let headline = Font.system(.headline, design: .rounded, weight: .semibold)
-        static let body = Font.system(.body, design: .default)
-        static let caption = Font.system(.caption, design: .default)
-        static let nowPlayingTitle = Font.system(.title3, design: .rounded, weight: .bold)
-        static let nowPlayingSubtitle = Font.system(.subheadline, design: .default, weight: .medium)
-
-        /// Manrope — used only on the splash screen (see `SplashScreenView`),
-        /// per the Figma redesign. Bundled as static TTFs under
+        /// Manrope is used for every text in the app (the user's own
+        /// explicit choice, overriding both the Figma spec's Outfit/Inter
+        /// and a suggested SF Pro fallback). Bundled as static TTFs under
         /// `Resources/Fonts`; registered via `UIAppFonts` in Info.plist.
         /// `relativeTo:` keeps it Dynamic-Type-aware despite being a custom
         /// (non-system) font.
@@ -172,6 +166,18 @@ enum Theme {
             }
             static func extraBold(size: CGFloat, relativeTo style: Font.TextStyle = .body) -> Font {
                 .custom("ManropeExtraLight-ExtraBold", size: size, relativeTo: style)
+            }
+
+            /// UIKit bridge for the few chrome surfaces that predate
+            /// SwiftUI's `Text` and take an attributed-string `UIFont`
+            /// instead — `UITabBarAppearance`/`UINavigationBarAppearance`
+            /// (see `RootTabView.configureTabBarAppearance`). `weight` must
+            /// match one of the PostScript names above (Regular/Medium/
+            /// SemiBold/Bold/ExtraBold). Falls back to the system font so
+            /// this chrome never silently goes unstyled if the TTF can't be
+            /// found by name.
+            static func uiFont(weight: String, size: CGFloat) -> UIFont {
+                UIFont(name: "ManropeExtraLight-\(weight)", size: size) ?? .systemFont(ofSize: size, weight: .semibold)
             }
         }
     }

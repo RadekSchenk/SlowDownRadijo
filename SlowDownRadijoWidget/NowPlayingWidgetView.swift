@@ -1,11 +1,10 @@
 import SwiftUI
 import WidgetKit
 
-/// Deliberately uses system fonts rather than `Theme.Typography.Manrope` —
-/// the custom Manrope font files are registered via the host app's
-/// `UIAppFonts` Info.plist key, which this extension's own bundle doesn't
-/// share. `Theme`'s colors have no such dependency, so those are reused
-/// as-is for brand consistency.
+/// Uses `Theme.Typography.Manrope` like the host app — the widget
+/// extension registers the same bundled TTFs via its own `UIAppFonts`
+/// Info.plist key (see `project.yml`), since a `UIAppFonts` entry only
+/// covers the target it's declared on, not anything embedding that target.
 struct NowPlayingWidgetView: View {
     @Environment(\.widgetFamily) private var family
     let entry: NowPlayingEntry
@@ -29,12 +28,12 @@ struct NowPlayingWidgetView: View {
             onAirBadge
             Spacer(minLength: 0)
             Text(entry.show?.name ?? L10n.widgetFallbackTitle)
-                .font(.system(size: 15, weight: .bold, design: .rounded))
+                .font(Theme.Typography.Manrope.bold(size: 15, relativeTo: .subheadline))
                 .foregroundStyle(Theme.textPrimary)
                 .lineLimit(2)
             if let hostName = entry.show?.hostName {
                 Text(hostName.uppercased())
-                    .font(.system(size: 10, weight: .semibold, design: .rounded))
+                    .font(Theme.Typography.Manrope.semibold(size: 10, relativeTo: .caption2))
                     .foregroundStyle(Theme.gold)
                     .lineLimit(1)
             }
@@ -50,18 +49,18 @@ struct NowPlayingWidgetView: View {
             VStack(alignment: .leading, spacing: 6) {
                 onAirBadge
                 Text(entry.show?.name ?? L10n.widgetFallbackTitle)
-                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .font(Theme.Typography.Manrope.bold(size: 17, relativeTo: .headline))
                     .foregroundStyle(Theme.textPrimary)
                     .lineLimit(1)
 
                 if let title = entry.latestTitle, let artist = entry.latestArtist {
                     Text("\(title) · \(artist)")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .font(Theme.Typography.Manrope.medium(size: 12, relativeTo: .footnote))
                         .foregroundStyle(Theme.lavender)
                         .lineLimit(1)
                 } else if let hostName = entry.show?.hostName {
                     Text(hostName.uppercased())
-                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                        .font(Theme.Typography.Manrope.semibold(size: 11, relativeTo: .footnote))
                         .foregroundStyle(Theme.gold)
                         .lineLimit(1)
                 }
@@ -95,7 +94,7 @@ struct NowPlayingWidgetView: View {
                 .fill(Color(red: 0.85, green: 0.12, blue: 0.12))
                 .frame(width: 7, height: 7)
             Text(L10n.widgetOnAir)
-                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .font(Theme.Typography.Manrope.bold(size: 10, relativeTo: .caption2))
                 .foregroundStyle(Color(red: 0.85, green: 0.12, blue: 0.12))
         }
     }
