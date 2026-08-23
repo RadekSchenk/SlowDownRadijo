@@ -10,7 +10,7 @@ import SwiftUI
 struct HomeHeroBackground: View {
     let image: UIImage?
 
-    static let height: CGFloat = 300
+    static let height: CGFloat = 320
 
     var body: some View {
         if let image {
@@ -56,16 +56,18 @@ struct HomeHeroBackground: View {
             .frame(height: Self.height)
             .overlay {
                 // Three stacked gradients, matching the Figma source's
-                // exact stop percentages (re-verified 2026-08-23 against
-                // the Fill panel directly, since the CSS export's values
-                // had drifted from the file's current state): darken the
-                // right edge (behind the header buttons), darken the left
-                // edge (behind the logo), then darken the bottom so the
-                // image blends into the page background below rather than
+                // exact stop percentages (right-edge one re-verified again
+                // 2026-08-23, now 56%->100% — was 74%->100% just a couple
+                // commits ago; the user keeps tuning it directly in Figma,
+                // so always re-check against a fresh screenshot rather than
+                // trusting this comment's own history): darken the right
+                // edge (behind the header buttons), darken the left edge
+                // (behind the logo), then darken the bottom so the image
+                // blends into the page background below rather than
                 // cutting off sharply.
                 LinearGradient(
                     stops: [
-                        .init(color: Theme.background.opacity(0), location: 0.74),
+                        .init(color: Theme.background.opacity(0), location: 0.56),
                         .init(color: Theme.background, location: 1.0)
                     ],
                     startPoint: .leading,
