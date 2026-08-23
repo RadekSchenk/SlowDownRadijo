@@ -23,6 +23,11 @@ struct AppHeaderView: View {
 
     var body: some View {
         HStack(spacing: Theme.Spacing.sm) {
+            // `BrandLogo` is an appearance-aware asset (Assets.xcassets) —
+            // purple wordmark for Light (legible on the light page
+            // background), white wordmark (`BrandLogoDark.png`) for Dark.
+            // No `.dark`/`.light` branching needed here; the system picks
+            // the right one automatically.
             Image("BrandLogo")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
