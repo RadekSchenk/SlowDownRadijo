@@ -67,6 +67,10 @@ struct FavoritesView: View {
             title: favorite.title,
             artist: favorite.artist,
             spotifyURL: spotifySearchURL(artist: favorite.artist, title: favorite.title),
+            // 2pt matches the artwork radius used everywhere else (home
+            // screen's "Co hrálo", Program's schedule rows) — was still the
+            // default 8pt here, the one place that hadn't been unified yet.
+            cornerRadius: 2,
             preview: PreviewButtonState(
                 playback: previewPlayback(for: favorite),
                 action: { previewPlayer.toggle(artist: favorite.artist, title: favorite.title) }
