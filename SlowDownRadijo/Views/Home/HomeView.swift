@@ -205,11 +205,8 @@ struct HomeView: View {
     /// Styled exactly like a "Co hrálo" row (see `TrackDetailsRow`) — only
     /// the leading slot differs: equalizer + "Nyní" stacked instead of a
     /// clock time, but at the same 44pt width as the history rows' time
-    /// column so both lists line up. Note the bold/secondary lines are
-    /// intentionally swapped from a history row: here the *artist* is the
-    /// bold primary line and the track title is secondary, matching the
-    /// Figma now-playing card (history rows do the opposite — title bold,
-    /// artist secondary). Centered against the track row per the Figma spec.
+    /// column so both lists line up. Bold/secondary lines match every
+    /// history row: title bold/primary, artist secondary underneath.
     private var nowPlayingRow: some View {
         HStack(alignment: .center, spacing: 12) {
             VStack(spacing: 8) {
@@ -255,17 +252,17 @@ struct HomeView: View {
         )
     }
 
-    /// Bold primary line — the artist, falling back to the show name when
-    /// we don't have real track metadata yet.
+    /// Bold primary line — the track title, falling back to the show name
+    /// when we don't have real track metadata yet.
     private var primaryLine: String {
-        guard let artist = nowPlaying.track?.artist, !artist.isEmpty else {
+        guard let title = nowPlaying.track?.title, !title.isEmpty else {
             return nowPlaying.showName
         }
-        return artist
+        return title
     }
 
     private var secondaryLine: String {
-        nowPlaying.track?.title ?? ""
+        nowPlaying.track?.artist ?? ""
     }
 
     private var historySection: some View {

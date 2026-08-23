@@ -86,7 +86,7 @@ struct RootTabView: View {
             .tabItem { Label(L10n.tabSupport, systemImage: "gift") }
             .tag(4)
         }
-        .tint(Theme.sunOrange)
+        .tint(Theme.liveRed)
         .environmentObject(favoriteTrackStore)
         .environmentObject(previewPlayer)
         .onAppear {
