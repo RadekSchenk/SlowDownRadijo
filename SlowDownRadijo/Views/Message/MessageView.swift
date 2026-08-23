@@ -1,10 +1,8 @@
 import SwiftUI
 
-/// The "Vzkaz" tab: record a short voice message, then hand it to the
-/// system share sheet (see `ActivityShareSheet`) so the user can send it
-/// on to WhatsApp themselves — replaces the previous email-relay upload
-/// (2026-08-23), since WhatsApp has no public API for an app to deliver a
-/// file straight into a specific chat automatically.
+/// The "Vzkaz" tab: record a short voice message and upload it via
+/// `VoiceMessageUploadService` to the `send-voice-message` Supabase Edge
+/// Function, which relays it as an email — see `backend/README.md`.
 struct MessageView: View {
     @ObservedObject var viewModel: VoiceMessageViewModel
     /// `viewModel` only re-renders this view when its own `@Published`
@@ -20,16 +18,6 @@ struct MessageView: View {
     /// (see `AppHeaderView` below), since Vzkaz is a primary tab now, not a
     /// pushed/dismissible screen.
     var onBack: () -> Void
-
-    @State private var shareURL: URL?
-    @State private var isShowingShareSheet = false
-
-    /// Who the share-sheet hint below the send button tells the user to
-    /// pick inside WhatsApp — there's no way to pre-select a recipient for
-    /// a shared file (see `ActivityShareSheet`), so this is display-only.
-    /// **Currently the developer's own number for testing — swap to the
-    /// station's real WhatsApp number before shipping.**
-    private static let whatsAppRecipientDisplay = "+420 733 488 000"
 
     init(viewModel: VoiceMessageViewModel, onBack: @escaping () -> Void = {}) {
         self.viewModel = viewModel
@@ -64,12 +52,10 @@ struct MessageView: View {
         } message: {
             Text(L10n.micUnavailableMessage)
         }
-        .sheet(isPresented: $isShowingShareSheet) {
-            if let shareURL {
-                ActivityShareSheet(activityItems: [shareURL]) { completed in
-                    viewModel.finishSharing(completed: completed)
-                }
-            }
+        .alert(L10n.uploadFailedTitle, isPresented: $viewModel.uploadFailedAlert) {
+            Button(L10n.ok, role: .cancel) {}
+        } message: {
+            Text(L10n.uploadFailedMessage)
         }
     }
 
@@ -82,6 +68,8 @@ struct MessageView: View {
             recordingView
         case .recorded:
             recordedView
+        case .sending:
+            sendingView
         case .sent:
             sentView
         }
@@ -140,7 +128,7 @@ struct MessageView: View {
             }
 
             HStack(spacing: 10) {
-                Image(systemName: "square.and.arrow.up")
+                Image(systemName: "paperplane.fill")
                 Text(L10n.sendToRadio)
             }
             .font(Theme.Typography.Manrope.bold(size: 15, relativeTo: .subheadline))
@@ -286,14 +274,10 @@ struct MessageView: View {
                     .allowsHitTesting(false)
             )
 
-            VStack(spacing: Theme.Spacing.sm) {
-                Button {
-                    guard let url = viewModel.beginSharing() else { return }
-                    shareURL = url
-                    isShowingShareSheet = true
-                } label: {
+            VStack(spacing: Theme.Spacing.md) {
+                Button(action: viewModel.submit) {
                     HStack(spacing: 10) {
-                        Image(systemName: "square.and.arrow.up")
+                        Image(systemName: "paperplane.fill")
                         Text(L10n.sendToRadio)
                     }
                     .font(Theme.Typography.Manrope.bold(size: 15, relativeTo: .subheadline))
@@ -304,17 +288,6 @@ struct MessageView: View {
                 }
                 .buttonStyle(.plain)
 
-                // No API lets an app pre-select who a shared file goes to
-                // (see `ActivityShareSheet`) — this just tells the user who
-                // to pick once WhatsApp's own chat picker opens.
-                Text(L10n.whatsAppRecipientHint(Self.whatsAppRecipientDisplay))
-                    .font(Theme.Typography.Manrope.medium(size: 12, relativeTo: .caption))
-                    .foregroundStyle(Theme.lavender)
-                    .multilineTextAlignment(.center)
-                    .padding(.bottom, Theme.Spacing.xs)
-            }
-
-            VStack(spacing: Theme.Spacing.md) {
                 Button(action: viewModel.retry) {
                     Text(L10n.recordAgain)
                         .font(Theme.Typography.Manrope.bold(size: 15, relativeTo: .subheadline))
@@ -333,6 +306,46 @@ struct MessageView: View {
 
     private var playbackActiveSegmentCount: Int {
         Int(viewModel.recorder.playbackProgress * Double(VoiceMessageRecorder.waveformSegmentCount))
+    }
+
+    // MARK: - Sending
+
+    private var sendingView: some View {
+        VStack(spacing: Theme.Spacing.xl) {
+            VStack(spacing: 10) {
+                Text(L10n.sendingTitle)
+                    .font(Theme.Typography.Manrope.extraBold(size: 28, relativeTo: .title))
+                    .foregroundStyle(Theme.textPrimary)
+                Text(L10n.sendingSubtitle)
+                    .font(Theme.Typography.Manrope.medium(size: 15, relativeTo: .subheadline))
+                    .foregroundStyle(Theme.lavender)
+                    .multilineTextAlignment(.center)
+            }
+
+            RecordingVisualizerView(
+                primaryGlow: Theme.brandPurple,
+                secondaryGlow: Theme.sunOrange,
+                isPulsing: false,
+                ringRadii: []
+            ) {
+                ZStack {
+                    UploadSpinnerRing()
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 28, weight: .semibold))
+                        .foregroundStyle(Theme.textPrimary)
+                }
+            }
+
+            HStack(spacing: 10) {
+                Image(systemName: "paperplane.fill")
+                Text(L10n.sendingButtonLabel)
+            }
+            .font(Theme.Typography.Manrope.bold(size: 15, relativeTo: .subheadline))
+            .foregroundStyle(.white.opacity(0.25))
+            .frame(maxWidth: .infinity)
+            .frame(height: 56)
+            .background(Color(hex: 0x231B44), in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+        }
     }
 
     // MARK: - Sent

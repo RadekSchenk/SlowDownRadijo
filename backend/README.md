@@ -2,14 +2,8 @@
 
 Three things live in this Supabase project:
 
-1. `send-voice-message` — receives a recorded voice message and relays it
-   as an email attachment via [Resend](https://resend.com). **No longer
-   called by the app** (2026-08-23) — the Vzkaz tab now hands the
-   recording to the iOS share sheet instead, so the user can send it on to
-   WhatsApp themselves (see `ActivityShareSheet.swift`; no public API lets
-   an app deliver a file straight into a WhatsApp chat automatically).
-   Left deployed/documented here in case an email-relay path is wanted
-   again later — nothing currently invokes it.
+1. `send-voice-message` — receives a recorded voice message from the app and
+   relays it as an email attachment via [Resend](https://resend.com).
 2. `send-feedback` — receives an in-app feedback message (Menu ▸ Zpětná
    vazba) and relays it as a plain email via Resend, same pattern as
    `send-voice-message` above, sharing the same `RESEND_API_KEY` secret.

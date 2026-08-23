@@ -13,8 +13,9 @@ enum FeedbackUploadError: LocalizedError {
 }
 
 /// Sends an in-app feedback message to the `send-feedback` Supabase Edge
-/// Function, which relays it as an email via Resend. No credentials here:
-/// deployed with `--no-verify-jwt`, Resend key stays server-side.
+/// Function, which relays it as an email via Resend — mirrors
+/// `VoiceMessageUploadService`. No credentials here: deployed with
+/// `--no-verify-jwt`, Resend key stays server-side.
 enum FeedbackUploadService {
     static let endpoint = URL(string: "https://toqoqrshyutyezoyxvlj.supabase.co/functions/v1/send-feedback")!
 

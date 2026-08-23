@@ -1,9 +1,8 @@
 import AVFoundation
 
 /// Records a short voice message to a local temp file and can play it back
-/// for preview. The resulting file is handed to the system share sheet
-/// (see `ActivityShareSheet`, triggered from `MessageView`) once the user
-/// taps send, so they can pass it on to WhatsApp themselves.
+/// for preview. The resulting file is handed to `VoiceMessageUploadService`
+/// by `VoiceMessageViewModel` once the user taps send.
 @MainActor
 final class VoiceMessageRecorder: NSObject, ObservableObject {
     static let maxDuration: TimeInterval = 60
