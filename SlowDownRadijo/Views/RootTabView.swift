@@ -64,20 +64,27 @@ struct RootTabView: View {
             .tag(1)
 
             NavigationStack {
+                FavoritesView()
+                    .toolbar(.hidden, for: .navigationBar)
+            }
+            .tabItem { Label(L10n.tabFavorites, systemImage: "heart") }
+            .tag(2)
+
+            NavigationStack {
                 MessageView(viewModel: voiceMessageViewModel) {
                     selectedTab = 0
                 }
                 .toolbar(.hidden, for: .navigationBar)
             }
             .tabItem { Label(L10n.tabMessage, systemImage: "message.circle") }
-            .tag(2)
+            .tag(3)
 
             NavigationStack {
                 SupportView()
                     .toolbar(.hidden, for: .navigationBar)
             }
-            .tabItem { Label(L10n.tabSupport, systemImage: "heart") }
-            .tag(3)
+            .tabItem { Label(L10n.tabSupport, systemImage: "gift") }
+            .tag(4)
         }
         .tint(Theme.sunOrange)
         .environmentObject(favoriteTrackStore)

@@ -53,13 +53,6 @@ struct HubView: View {
                         }
                         .buttonStyle(.plain)
 
-                        NavigationLink {
-                            FavoritesView()
-                        } label: {
-                            HubRow(icon: "heart.fill", title: L10n.hubFavoritesRow, subtitle: L10n.hubFavoritesRowSubtitle)
-                        }
-                        .buttonStyle(.plain)
-
                         // Always last among the menu rows, per explicit request.
                         NavigationLink {
                             FeedbackView()

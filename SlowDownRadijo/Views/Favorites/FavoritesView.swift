@@ -1,19 +1,22 @@
 import SwiftUI
 
-/// Pushed from the hamburger menu — every track the user has hearted from
-/// "Co hrálo", styled like the home screen's history rows (see
-/// `TrackDetailsRow`), with a trash button (confirmed via alert) to remove
-/// one.
+/// A primary tab (2026-08-23: promoted out of the hamburger menu into the
+/// bottom tab bar) — every track the user has hearted from "Co hrálo",
+/// styled like the home screen's history rows (see `TrackDetailsRow`),
+/// with a trash button (confirmed via alert) to remove one.
 struct FavoritesView: View {
     @EnvironmentObject private var favorites: FavoriteTrackStore
     @EnvironmentObject private var previewPlayer: PreviewPlayerService
-    @Environment(\.dismiss) private var dismiss
     @State private var pendingDeletion: FavoriteTrack?
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
-                BackHeaderView(title: L10n.favoritesTitle, onBack: { dismiss() })
+                AppHeaderView()
+
+                Text(L10n.favoritesTitle)
+                    .font(Theme.Typography.Manrope.extraBold(size: 28, relativeTo: .title))
+                    .foregroundStyle(Theme.textPrimary)
 
                 if favorites.favorites.isEmpty {
                     emptyState
@@ -28,7 +31,6 @@ struct FavoritesView: View {
             .padding(Theme.Spacing.md)
         }
         .background(Theme.background.ignoresSafeArea())
-        .toolbar(.hidden, for: .navigationBar)
         .alert(
             L10n.favoritesDeleteTitle,
             isPresented: Binding(

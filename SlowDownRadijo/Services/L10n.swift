@@ -53,6 +53,16 @@ enum L10n {
         }
     }
 
+    /// Short tab-bar label — kept distinct from `favoritesTitle` ("Oblíbené
+    /// skladby"), which is the fuller on-page heading, matching how every
+    /// other tab pairs a one-word tab label with its own page title.
+    static var tabFavorites: String {
+        switch lang {
+        case .cs: return "Oblíbené"
+        case .en: return "Favorites"
+        }
+    }
+
     // MARK: - Home
 
     static var onAir: String { "ON-AIR" }
@@ -562,20 +572,6 @@ enum L10n {
 
     // MARK: - Favorites
 
-    static var hubFavoritesRow: String {
-        switch lang {
-        case .cs: return "Oblíbené skladby"
-        case .en: return "Favorite tracks"
-        }
-    }
-
-    static var hubFavoritesRowSubtitle: String {
-        switch lang {
-        case .cs: return "Skladby, které sis uložil"
-        case .en: return "Tracks you've saved"
-        }
-    }
-
     static var favoritesTitle: String {
         switch lang {
         case .cs: return "Oblíbené skladby"
@@ -634,8 +630,8 @@ enum L10n {
 
     static var favoritesIntroBody: String {
         switch lang {
-        case .cs: return "Kdykoliv klepneš na srdce, skladba se uloží do Oblíbených skladeb v menu, kde se k ní můžeš kdykoliv vrátit."
-        case .en: return "Whenever you tap the heart, the track is saved to Favorite tracks in the menu, where you can come back to it anytime."
+        case .cs: return "Kdykoliv klepneš na srdce, skladba se uloží do záložky Oblíbené, kde se k ní můžeš kdykoliv vrátit."
+        case .en: return "Whenever you tap the heart, the track is saved to the Favorites tab, where you can come back to it anytime."
         }
     }
 
