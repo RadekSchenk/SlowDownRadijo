@@ -55,15 +55,18 @@ struct HomeHeroBackground: View {
             }
             .frame(height: Self.height)
             .overlay {
-                // Three stacked gradients, matching the Figma source
-                // exactly: darken the right edge (behind the header
-                // buttons), darken the left edge (behind the logo), then
-                // darken the bottom so the image blends into the page
-                // background below rather than cutting off sharply.
+                // Three stacked gradients, matching the Figma source's
+                // exact stop percentages (re-verified 2026-08-23 against
+                // the Fill panel directly, since the CSS export's values
+                // had drifted from the file's current state): darken the
+                // right edge (behind the header buttons), darken the left
+                // edge (behind the logo), then darken the bottom so the
+                // image blends into the page background below rather than
+                // cutting off sharply.
                 LinearGradient(
                     stops: [
-                        .init(color: Theme.background.opacity(0), location: 0.708),
-                        .init(color: Theme.background, location: 0.963)
+                        .init(color: Theme.background.opacity(0), location: 0.74),
+                        .init(color: Theme.background, location: 1.0)
                     ],
                     startPoint: .leading,
                     endPoint: .trailing
@@ -71,7 +74,7 @@ struct HomeHeroBackground: View {
                 LinearGradient(
                     stops: [
                         .init(color: Theme.background, location: 0),
-                        .init(color: Theme.background.opacity(0), location: 0.538)
+                        .init(color: Theme.background.opacity(0), location: 0.54)
                     ],
                     startPoint: .leading,
                     endPoint: .trailing
