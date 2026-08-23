@@ -93,7 +93,7 @@ struct TrackDetailsRow: View {
 
     private var expandedBody: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-            HStack(alignment: .top, spacing: Theme.Spacing.md) {
+            HStack(alignment: .center, spacing: Theme.Spacing.md) {
                 artworkWithPreviewBadge
 
                 VStack(alignment: .leading, spacing: 4) {

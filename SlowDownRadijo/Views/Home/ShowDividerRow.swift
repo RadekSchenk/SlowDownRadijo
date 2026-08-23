@@ -29,10 +29,12 @@ struct ShowDividerRow: View {
                 Spacer(minLength: 0)
             }
 
+            // See HistoryRowView — 12pt on both sides matches the Figma
+            // row gap and keeps the hairline centered between rows.
             Rectangle()
                 .fill(Theme.hairline(0.12))
                 .frame(height: 1)
-                .padding(.top, Theme.Spacing.md)
+                .padding(.vertical, 12)
         }
     }
 }

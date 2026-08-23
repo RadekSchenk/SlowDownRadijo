@@ -55,10 +55,14 @@ struct HistoryRowView: View {
                     .padding(.horizontal, -8)
             )
 
+            // 12pt matches the Figma redesign's row gap exactly — applied
+            // on both sides of the hairline (not just above it) so the
+            // line sits centered in the gap between this row and the next,
+            // rather than hugging one of them.
             Rectangle()
                 .fill(Theme.hairline(0.12))
                 .frame(height: 1)
-                .padding(.top, Theme.Spacing.md)
+                .padding(.vertical, 12)
         }
     }
 
