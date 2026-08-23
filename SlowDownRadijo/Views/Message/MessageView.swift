@@ -26,20 +26,24 @@ struct MessageView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 0) {
             AppHeaderView()
                 // Matches the home screen's header offset exactly (see
                 // `HomeView.heroSection`) — fixed 40pt from the true top
-                // edge, not the system safe-area inset.
+                // edge, not the system safe-area inset, and the same 20pt
+                // horizontal inset as every other tab, independent of this
+                // screen's own wider 24pt content margin (applied to
+                // `content` directly below, not shared with the header).
                 .padding(.top, 40)
+                .padding(.horizontal, 20)
 
             Spacer(minLength: 0)
 
             content
+                .padding(.horizontal, Theme.Spacing.lg)
 
             Spacer(minLength: 0)
         }
-        .padding(.horizontal, Theme.Spacing.lg)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea(edges: .top)
         .background(Theme.background.ignoresSafeArea())
