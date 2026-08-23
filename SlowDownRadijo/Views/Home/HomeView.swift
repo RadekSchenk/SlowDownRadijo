@@ -213,17 +213,20 @@ struct HomeView: View {
         }
     }
 
-    /// `nil` until we have a real track (artist + title) to preview —
-    /// showing a play badge over placeholder/show artwork with nothing
-    /// real to play would be broken, not just unhelpful.
+    /// `nil` until we have a real track (artist + title) to preview, or if
+    /// iTunes has confirmed this one has no match (a jingle, station ID, DJ
+    /// mix block) — showing a play badge with nothing real to play would be
+    /// broken, not just unhelpful.
     private var nowPlayingPreview: PreviewButtonState? {
-        guard let track = nowPlaying.track, !track.artist.isEmpty, !track.title.isEmpty else { return nil }
+        guard let track = nowPlaying.track, !track.artist.isEmpty, !track.title.isEmpty,
+              !nowPlaying.currentTrackHasNoITunesMatch else { return nil }
         let key = FavoriteTrack.normalize(artist: track.artist, title: track.title)
         let playback: PreviewPlaybackState = previewPlayer.activeKey != key
             ? .idle
             : (previewPlayer.isLoading ? .loading : .playing)
         return PreviewButtonState(
             playback: playback,
+            progress: playback == .playing ? previewPlayer.progress : 0,
             action: { previewPlayer.toggle(artist: track.artist, title: track.title) }
         )
     }

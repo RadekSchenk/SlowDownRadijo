@@ -19,6 +19,9 @@ struct FavoriteButtonState {
 
 struct PreviewButtonState {
     let playback: PreviewPlaybackState
+    /// Fraction (0...1) through the preview clip — only meaningful (and
+    /// only drawn, as a ring around the badge) while `playback == .playing`.
+    var progress: Double = 0
     let action: () -> Void
 }
 
@@ -134,13 +137,18 @@ struct TrackDetailsRow: View {
     /// when a preview is available — tapping the artwork itself to hear a
     /// clip, the way Spotify/Apple Music treat album art, rather than a
     /// separate "Přehrát ukázku" pill competing for attention below.
+    /// `!hasNoITunesMatch` is load-bearing here, not just on the pills row
+    /// below: a confirmed non-match (jingle, station ID, DJ mix block)
+    /// genuinely has no preview clip, so showing the badge anyway used to
+    /// let the user tap it and watch it silently spin back to idle with no
+    /// explanation — fixed 2026-08-23.
     @ViewBuilder
     private var artworkWithPreviewBadge: some View {
-        if let preview {
+        if let preview, !hasNoITunesMatch {
             Button(action: preview.action) {
                 artwork(size: 80)
                     .overlay {
-                        previewBadge(preview.playback)
+                        previewBadge(preview.playback, progress: preview.progress)
                     }
             }
             .buttonStyle(.plain)
@@ -150,10 +158,26 @@ struct TrackDetailsRow: View {
         }
     }
 
-    private func previewBadge(_ playback: PreviewPlaybackState) -> some View {
+    private func previewBadge(_ playback: PreviewPlaybackState, progress: Double) -> some View {
         ZStack {
+            // Progress ring — only meaningful (and only drawn) while a clip
+            // is actually playing; a static full-opacity track underneath
+            // so the ring reads as "wearing down" rather than appearing out
+            // of nothing.
+            if playback == .playing {
+                Circle()
+                    .stroke(Color.white.opacity(0.25), lineWidth: 2.5)
+                Circle()
+                    .trim(from: 0, to: progress)
+                    .stroke(Theme.sunOrange, style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                    .animation(.linear(duration: 0.25), value: progress)
+            }
+
             Circle()
                 .fill(.black.opacity(0.5))
+                .frame(width: 36, height: 36)
+
             Group {
                 switch playback {
                 case .idle:
@@ -169,7 +193,7 @@ struct TrackDetailsRow: View {
             .font(.system(size: 14, weight: .bold))
             .foregroundStyle(.white)
         }
-        .frame(width: 36, height: 36)
+        .frame(width: 40, height: 40)
     }
 
     private func artwork(size: CGFloat) -> some View {

@@ -14,10 +14,15 @@ final class PreviewPlayerService: ObservableObject {
     /// instead of a plain play icon.
     @Published private(set) var activeKey: String?
     @Published private(set) var isLoading = false
+    /// Fraction (0...1) through the currently-playing clip — drives the
+    /// progress ring `TrackDetailsRow` draws around the preview badge.
+    /// Meaningless (stays 0) outside `.playing`.
+    @Published private(set) var progress: Double = 0
 
     private let radioPlayer: RadioPlayerService
     private var player: AVPlayer?
     private var endObserver: NSObjectProtocol?
+    private var timeObserver: Any?
     private var wasRadioPlayingBeforePreview = false
     private var loadTask: Task<Void, Never>?
 
@@ -28,6 +33,9 @@ final class PreviewPlayerService: ObservableObject {
     deinit {
         if let endObserver {
             NotificationCenter.default.removeObserver(endObserver)
+        }
+        if let timeObserver, let player {
+            player.removeTimeObserver(timeObserver)
         }
     }
 
@@ -43,6 +51,10 @@ final class PreviewPlayerService: ObservableObject {
         start(artist: artist, title: title, key: key)
     }
 
+    /// Also called when a preview clip finishes on its own (see the
+    /// `.AVPlayerItemDidPlayToEndTime` observer in `play(url:)`) — either
+    /// way, the live stream resumes automatically if it was playing before
+    /// the preview started.
     func stop() {
         loadTask?.cancel()
         loadTask = nil
@@ -50,9 +62,14 @@ final class PreviewPlayerService: ObservableObject {
             NotificationCenter.default.removeObserver(endObserver)
             self.endObserver = nil
         }
+        if let timeObserver, let player {
+            player.removeTimeObserver(timeObserver)
+        }
+        timeObserver = nil
         player?.pause()
         player = nil
         isLoading = false
+        progress = 0
         guard activeKey != nil else { return }
         activeKey = nil
         if wasRadioPlayingBeforePreview {
@@ -79,6 +96,12 @@ final class PreviewPlayerService: ObservableObject {
         }
     }
 
+    /// Ducks the live stream for the duration of the clip — pausing it here
+    /// (rather than something lower-level like an audio-session mix) so
+    /// `NowPlayingViewModel`'s `playbackState` reflects reality and the
+    /// play button on the home screen visibly shows paused while a preview
+    /// plays. `stop()` (called both on manual toggle-off and on natural
+    /// end-of-clip below) hands control back automatically.
     private func play(url: URL) {
         wasRadioPlayingBeforePreview = radioPlayer.state == .playing
         radioPlayer.pause()
@@ -87,6 +110,7 @@ final class PreviewPlayerService: ObservableObject {
         let newPlayer = AVPlayer(playerItem: item)
         player = newPlayer
         isLoading = false
+        progress = 0
 
         endObserver = NotificationCenter.default.addObserver(
             forName: .AVPlayerItemDidPlayToEndTime,
@@ -96,6 +120,17 @@ final class PreviewPlayerService: ObservableObject {
             Task { @MainActor [weak self] in
                 self?.stop()
             }
+        }
+
+        // Drives the progress ring — 10 times a second is smooth enough for
+        // a thin stroke without redrawing more than it needs to.
+        timeObserver = newPlayer.addPeriodicTimeObserver(
+            forInterval: CMTime(seconds: 0.1, preferredTimescale: 600),
+            queue: .main
+        ) { [weak self] time in
+            guard let self, let duration = self.player?.currentItem?.duration.seconds,
+                  duration.isFinite, duration > 0 else { return }
+            self.progress = min(max(time.seconds / duration, 0), 1)
         }
 
         newPlayer.play()

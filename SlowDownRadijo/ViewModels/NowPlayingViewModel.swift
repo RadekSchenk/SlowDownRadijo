@@ -18,6 +18,12 @@ final class NowPlayingViewModel: ObservableObject {
     /// DJ mix block that isn't a real "song"), in which case the UI should
     /// fall back to `currentShow`'s artwork.
     @Published private(set) var trackArtworkURL: URL?
+    /// True once the iTunes lookup for the *current* track has come back
+    /// with nothing (a jingle, station ID, DJ mix block — not a real
+    /// catalogable song). Mirrors `HistoryTrack.hasNoITunesMatch`; gates
+    /// the "Nyní" row's preview badge the same way (see `HomeView`) —
+    /// there's genuinely no clip to play, so the button shouldn't show.
+    @Published private(set) var currentTrackHasNoITunesMatch = false
     @Published private(set) var currentShow: Show?
     @Published private(set) var showArtwork: UIImage?
     /// Fraction (0...1) of `currentShow`'s scheduled block elapsed right now.
@@ -150,12 +156,17 @@ final class NowPlayingViewModel: ObservableObject {
         trackArtworkTask?.cancel()
         trackArtworkURL = nil
         trackArtworkImage = nil
+        currentTrackHasNoITunesMatch = false
 
         guard let track, !track.artist.isEmpty, !track.title.isEmpty else { return }
 
         trackArtworkTask = Task { [weak self] in
-            guard let url = await ITunesArtworkService.shared.artworkURL(artist: track.artist, title: track.title),
-                  !Task.isCancelled else { return }
+            guard let url = await ITunesArtworkService.shared.artworkURL(artist: track.artist, title: track.title) else {
+                guard !Task.isCancelled else { return }
+                await MainActor.run { self?.currentTrackHasNoITunesMatch = true }
+                return
+            }
+            guard !Task.isCancelled else { return }
 
             await MainActor.run {
                 withAnimation(.easeInOut(duration: 0.35)) {

@@ -44,6 +44,7 @@ struct HistoryRowView: View {
                     ),
                     preview: PreviewButtonState(
                         playback: previewPlayback,
+                        progress: previewPlayback == .playing ? previewPlayer.progress : 0,
                         action: { previewPlayer.toggle(artist: track.artist, title: track.title) }
                     )
                 )

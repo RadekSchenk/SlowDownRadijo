@@ -62,7 +62,8 @@ struct FavoritesView: View {
     }
 
     private func row(for favorite: FavoriteTrack) -> some View {
-        TrackDetailsRow(
+        let playback = previewPlayback(for: favorite)
+        return TrackDetailsRow(
             artworkURL: favorite.artworkURL,
             title: favorite.title,
             artist: favorite.artist,
@@ -72,7 +73,8 @@ struct FavoritesView: View {
             // default 8pt here, the one place that hadn't been unified yet.
             cornerRadius: 2,
             preview: PreviewButtonState(
-                playback: previewPlayback(for: favorite),
+                playback: playback,
+                progress: playback == .playing ? previewPlayer.progress : 0,
                 action: { previewPlayer.toggle(artist: favorite.artist, title: favorite.title) }
             )
         )
