@@ -63,13 +63,14 @@ struct HomeView: View {
     }
 
     /// The hero image, header, on-air/host badges, and play button + show
-    /// title all live in one `ZStack` — per Figma, the image is a fixed
-    /// 233pt band starting at the very top of the screen, and the header
-    /// plus the first two rows of show info are overlaid on top of it (the
-    /// image's own bottom-edge gradient, in `HomeHeroBackground`, is what
-    /// keeps that overlaid text legible). Everything else about the show
-    /// (progress bar, sleep timer) sits below in normal flow — see
-    /// `remainingShowInfo`.
+    /// title all live in one `ZStack` — the image is a fixed-height band
+    /// (`HomeHeroBackground.height`, 300pt as of 2026-08-23 — reaches
+    /// roughly down to the waveform equalizer) starting at the very top of
+    /// the screen, and the header plus the first two rows of show info are
+    /// overlaid on top of it (the image's own bottom-edge gradient, in
+    /// `HomeHeroBackground`, is what keeps that overlaid text legible).
+    /// Everything else about the show (progress bar, sleep timer) sits
+    /// below in normal flow — see `remainingShowInfo`.
     private var heroSection: some View {
         ZStack(alignment: .top) {
             HomeHeroBackground(image: heroImage)

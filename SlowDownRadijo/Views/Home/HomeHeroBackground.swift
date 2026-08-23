@@ -10,7 +10,7 @@ import SwiftUI
 struct HomeHeroBackground: View {
     let image: UIImage?
 
-    static let height: CGFloat = 233
+    static let height: CGFloat = 300
 
     var body: some View {
         if let image {
