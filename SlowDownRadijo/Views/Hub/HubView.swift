@@ -23,7 +23,18 @@ struct HubView: View {
                 VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
                     header
 
-                    VStack(spacing: Theme.Spacing.sm) {
+                    // Flat list (2026-08-23 redesign) — no per-row bordered
+                    // card anymore, rows sit directly on the page
+                    // background separated by hairlines, same "Line 5"
+                    // pattern as the home screen's "Co hrálo" list
+                    // (`Theme.lavender.opacity(0.2)`). `HubRow` draws its
+                    // own trailing divider; this just adds the leading one
+                    // to bound the list on both ends, matching Figma.
+                    VStack(spacing: 0) {
+                        Rectangle()
+                            .fill(Theme.lavender.opacity(0.2))
+                            .frame(height: 1)
+
                         // First and most prominent — see `whatsAppGreen` above.
                         Button {
                             openURL(Self.whatsAppURL)
@@ -102,6 +113,14 @@ struct HubView: View {
     }
 }
 
+/// A single menu row — icon, title/subtitle, trailing arrow. Icons/tints
+/// per call site are unchanged from before this redesign (WhatsApp keeps
+/// its own green, everything else keeps `Theme.sunOrange`); only the
+/// container styling changed: flat 84pt row (was a bordered, rounded
+/// card), icon chip corner radius 12→2 and tint opacity 12%→20%, bigger
+/// title/subtitle type, and the trailing chevron swapped for a bolder
+/// rightward arrow in `Theme.gold` (`#d4a24c` — matches the Figma asset's
+/// literal fill exactly) instead of `Theme.lavender`.
 private struct HubRow: View {
     let icon: String
     let title: String
@@ -109,32 +128,37 @@ private struct HubRow: View {
     var tint: Color = Theme.sunOrange
 
     var body: some View {
-        HStack(spacing: Theme.Spacing.md) {
-            Image(systemName: icon)
-                .font(.system(size: 20, weight: .semibold))
-                .foregroundStyle(tint)
-                .frame(width: 44, height: 44)
-                .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        VStack(spacing: 0) {
+            HStack(spacing: Theme.Spacing.md) {
+                Image(systemName: icon)
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundStyle(tint)
+                    .frame(width: 52, height: 52)
+                    .background(tint.opacity(0.2), in: RoundedRectangle(cornerRadius: 2, style: .continuous))
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(Theme.Typography.Manrope.bold(size: 16, relativeTo: .headline))
-                    .foregroundStyle(Theme.textPrimary)
-                Text(subtitle)
-                    .font(Theme.Typography.Manrope.regular(size: 12, relativeTo: .footnote))
-                    .foregroundStyle(Theme.lavender)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(Theme.Typography.Manrope.bold(size: 18, relativeTo: .headline))
+                        .foregroundStyle(Theme.textPrimary)
+                        .lineLimit(1)
+                    Text(subtitle)
+                        .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
+                        .tracking(0.14)
+                        .foregroundStyle(Theme.lavender)
+                        .lineLimit(1)
+                }
+
+                Spacer(minLength: Theme.Spacing.sm)
+
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(Theme.gold)
             }
+            .frame(height: 84)
 
-            Spacer()
-
-            Image(systemName: "chevron.right")
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(Theme.lavender)
+            Rectangle()
+                .fill(Theme.lavender.opacity(0.2))
+                .frame(height: 1)
         }
-        .padding(Theme.Spacing.md)
-        .overlay(
-            RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
-                .strokeBorder(Theme.hairline(0.1), lineWidth: 1)
-        )
     }
 }
