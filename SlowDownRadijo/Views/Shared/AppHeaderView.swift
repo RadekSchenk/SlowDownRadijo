@@ -14,11 +14,14 @@ struct AppHeaderView: View {
     @ObservedObject private var loc = LocalizationManager.shared
     @State private var isShowingHub = false
 
-    /// "CZ"/"EN" — deliberately not `AppLanguage.displayCode` ("CS"/"EN"),
-    /// which stays the ISO-style code used in the feedback-email
-    /// diagnostics (`DeviceInfo`); this is just how the header pill reads.
+    /// Shows the language a tap *switches to*, not the current one — so in
+    /// Czech the pill reads "EN" (tap to switch to English), and in
+    /// English it reads "CZ" (tap to switch to Czech). Also deliberately
+    /// not `AppLanguage.displayCode` ("CS"/"EN"), which stays the
+    /// ISO-style code used in the feedback-email diagnostics
+    /// (`DeviceInfo`); this is just how the header pill reads.
     private var languagePillLabel: String {
-        loc.language == .cs ? "CZ" : "EN"
+        loc.language == .cs ? "EN" : "CZ"
     }
 
     var body: some View {
