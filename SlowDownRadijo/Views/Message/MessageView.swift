@@ -40,6 +40,18 @@ struct MessageView: View {
             Spacer(minLength: 0)
 
             content
+                // Every state view below is a plain `VStack` with no
+                // explicit width, so its size is just its widest child's
+                // intrinsic width — inside this screen's own `.leading`-
+                // aligned outer `VStack`, that pins it to the left edge
+                // instead of centering it. `readyView` only happened to
+                // look right because one of its children (the "Odeslat"
+                // pill) already forces full width; `recordingView` has no
+                // such child, so it visibly hugged the left edge. Forcing
+                // full width here, once, fixes every state at once — each
+                // one's own default-`.center` `VStack` alignment then
+                // centers its children within it.
+                .frame(maxWidth: .infinity)
                 .padding(.horizontal, Theme.Spacing.lg)
 
             Spacer(minLength: 0)
