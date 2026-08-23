@@ -20,7 +20,9 @@ struct ShowCardView: View {
             .foregroundStyle(Theme.lavender)
             .frame(width: 56, alignment: .leading)
 
-            RemoteArtworkView(url: show.imageURL, cornerRadius: 12)
+            // 2pt matches the home screen's track artwork (`TrackDetailsRow`),
+            // not the previous 12pt — unified 2026-08-23.
+            RemoteArtworkView(url: show.imageURL, cornerRadius: 2)
                 .frame(width: 56, height: 56)
 
             VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
@@ -45,17 +47,15 @@ struct ShowCardView: View {
                     }
                 }
 
+                // Shares `ShowProgressTrack` with the home screen's
+                // `ShowProgressBar` — same flat-rectangle/liveRed styling,
+                // unified 2026-08-23 (was its own rounded sunOrange
+                // Capsule bar before). Deliberately not the full
+                // `ShowProgressBar` component: its remaining-time text,
+                // next-show line, and waveform equalizer belong to the
+                // home screen's now-playing detail, not a compact list row.
                 if isLive {
-                    GeometryReader { proxy in
-                        ZStack(alignment: .leading) {
-                            Capsule()
-                                .fill(Theme.hairline(0.08))
-                            Capsule()
-                                .fill(Theme.sunOrange)
-                                .frame(width: max(4, proxy.size.width * progress))
-                        }
-                    }
-                    .frame(height: 4)
+                    ShowProgressTrack(progress: progress)
                 }
             }
         }

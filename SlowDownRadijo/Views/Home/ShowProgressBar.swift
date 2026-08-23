@@ -29,7 +29,7 @@ struct ShowProgressBar: View {
                     if isPlaying {
                         NowPlayingWaveform(progress: progress, trackID: waveformTrackID)
                     }
-                    progressTrack
+                    ShowProgressTrack(progress: progress)
                 }
 
                 HStack {
@@ -56,21 +56,6 @@ struct ShowProgressBar: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-    }
-
-    private var progressTrack: some View {
-        GeometryReader { proxy in
-            ZStack(alignment: .leading) {
-                Rectangle()
-                    .fill(Theme.hairline(0.08))
-
-                Rectangle()
-                    .fill(Theme.liveRed)
-                    .frame(width: max(6, proxy.size.width * progress))
-                    .animation(.linear(duration: 0.6), value: progress)
-            }
-        }
-        .frame(height: 4)
     }
 
     private var remainingLabel: String {

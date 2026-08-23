@@ -78,6 +78,7 @@
 		98CE4DBD8D0286954B38615F /* Manrope-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1DD55775932816203A312CA9 /* Manrope-ExtraBold.ttf */; };
 		9F8B19A4B8ECB6EB2C250ABB /* NewsPost.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DC82166EB2B538C0565A55 /* NewsPost.swift */; };
 		ABCC45E5AE45F1965A09A6D2 /* Manrope-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D4863B328BC4D761671DC231 /* Manrope-Bold.ttf */; };
+		B28609B8CE2E55A43DEEEDCA /* ShowProgressTrack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53135256E63DFF2CCD332E69 /* ShowProgressTrack.swift */; };
 		B3F69BBE9836D0289DEC62E1 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9F45C020F0FA2C48F203684 /* SettingsView.swift */; };
 		B678ECA3653A4478E049DC2F /* FavoriteTrackStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 264DEDF38592C9B0B92B86D3 /* FavoriteTrackStore.swift */; };
 		B6BBD02BB4C58439E895C33F /* VoiceMessageRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BADD47AE92FCB3825D65C65 /* VoiceMessageRecorder.swift */; };
@@ -157,6 +158,7 @@
 		4C1714C7CB0A4E98D80D86D5 /* StatsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsResponse.swift; sourceTree = "<group>"; };
 		4D508971F5BA45331620FB53 /* DeviceInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceInfo.swift; sourceTree = "<group>"; };
 		510CA2B353BF9B8EB1856F02 /* RemotePlayedTrack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemotePlayedTrack.swift; sourceTree = "<group>"; };
+		53135256E63DFF2CCD332E69 /* ShowProgressTrack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowProgressTrack.swift; sourceTree = "<group>"; };
 		55EB0993837F40C17F84987B /* NewsDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsDetailView.swift; sourceTree = "<group>"; };
 		564A0A33D4EF7543E59E6825 /* NowPlayingEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingEntry.swift; sourceTree = "<group>"; };
 		57004A1C40BD06A347014176 /* NowPlayingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingViewModel.swift; sourceTree = "<group>"; };
@@ -389,6 +391,7 @@
 				D586E39AA7BC35C063E18F8F /* BackHeaderView.swift */,
 				1A17221357C04352A1BE1CD5 /* RemoteArtworkView.swift */,
 				7FC1874F9D061ECC0C1B095E /* SafariView.swift */,
+				53135256E63DFF2CCD332E69 /* ShowProgressTrack.swift */,
 				3080A7F705A91A1A384AE650 /* TrackDetailsRow.swift */,
 			);
 			path = Shared;
@@ -639,6 +642,7 @@
 				270ECF2790EB0CD7F02E48BE /* ShowCardView.swift in Sources */,
 				2830D208E2A411C2212BC668 /* ShowDividerRow.swift in Sources */,
 				00D5591692412CA25973953D /* ShowProgressBar.swift in Sources */,
+				B28609B8CE2E55A43DEEEDCA /* ShowProgressTrack.swift in Sources */,
 				3210C945C5FB168548C5D16D /* SleepTimerButton.swift in Sources */,
 				083E1777286799A0388FD6E3 /* SlowDownRadijoApp.swift in Sources */,
 				446F3002BB673D2133818D7C /* SocialLinksRow.swift in Sources */,
