@@ -24,6 +24,22 @@ struct HomeView: View {
 
     var body: some View {
         ScrollView {
+            // Scroll-offset probe: must be a direct top-of-content sibling,
+            // not a `.background()` on the VStack below — a GeometryReader
+            // inside `.background()` only gets measured once at initial
+            // layout and never again as the ScrollView actually scrolls (its
+            // `preference` value stays frozen at the appear-time value, and
+            // `onPreferenceChange` never re-fires), verified empirically by
+            // logging both placements side by side. Zero-height so it takes
+            // no visual space.
+            GeometryReader { proxy in
+                Color.clear.preference(
+                    key: HomeScrollOffsetKey.self,
+                    value: proxy.frame(in: .named("homeScroll")).minY
+                )
+            }
+            .frame(height: 0)
+
             // Explicit per-section top padding instead of a uniform
             // `spacing:` — `remainingShowInfo` needs a tighter 20pt gap
             // after the hero (matching the Figma "variation-3-card" auto
@@ -43,14 +59,6 @@ struct HomeView: View {
             }
             .padding(.horizontal, 20)
             .padding(.bottom, Theme.Spacing.xl)
-            .background {
-                GeometryReader { proxy in
-                    Color.clear.preference(
-                        key: HomeScrollOffsetKey.self,
-                        value: proxy.frame(in: .named("homeScroll")).minY
-                    )
-                }
-            }
         }
         .coordinateSpace(name: "homeScroll")
         .onPreferenceChange(HomeScrollOffsetKey.self) { scrollOffset = $0 }
