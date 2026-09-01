@@ -123,6 +123,13 @@
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/svet-podle-majkla-porad.jpg"
         },
         {
+          "id": "the-best-of-slow-down",
+          "name": "The Best of Slow Down",
+          "start": "14:00",
+          "end": "15:00",
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+        },
+        {
           "id": "africa-incorporated-s-chuck-diesal",
           "name": "Africa Incorporated s Chuck Diesal",
           "start": "15:00",
@@ -142,6 +149,13 @@
           "start": "17:00",
           "end": "18:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/bonus-beats-dj-larose-porad.jpg"
+        },
+        {
+          "id": "the-best-of-slow-down",
+          "name": "The Best of Slow Down",
+          "start": "18:00",
+          "end": "20:00",
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
         },
         {
           "id": "the-golden-era",
@@ -170,6 +184,13 @@
       "weekday": 3,
       "dayName": "Úterý",
       "shows": [
+        {
+          "id": "the-best-of-slow-down",
+          "name": "The Best of Slow Down",
+          "start": "00:00",
+          "end": "06:00",
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+        },
         {
           "id": "africa-incorporated-s-chuck-diesal",
           "name": "Africa Incorporated s Chuck Diesal",
@@ -253,6 +274,13 @@
           "start": "20:00",
           "end": "21:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/go-deeper-porad.jpg"
+        },
+        {
+          "id": "the-best-of-slow-down",
+          "name": "The Best of Slow Down",
+          "start": "21:00",
+          "end": "00:00",
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
         }
       ]
     },
@@ -260,6 +288,13 @@
       "weekday": 4,
       "dayName": "Středa",
       "shows": [
+        {
+          "id": "the-best-of-slow-down",
+          "name": "The Best of Slow Down",
+          "start": "00:00",
+          "end": "06:00",
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+        },
         {
           "id": "britsky-state-of-mind",
           "name": "Britský State of Mind",
@@ -336,6 +371,13 @@
           "start": "21:00",
           "end": "22:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Bone-Constructor-porad.jpg"
+        },
+        {
+          "id": "the-best-of-slow-down",
+          "name": "The Best of Slow Down",
+          "start": "22:00",
+          "end": "00:00",
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
         }
       ]
     },
@@ -516,6 +558,13 @@
           "start": "20:00",
           "end": "21:00",
           "imageURL": null
+        },
+        {
+          "id": "the-best-of-slow-down",
+          "name": "The Best of Slow Down",
+          "start": "21:00",
+          "end": "00:00",
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
         }
       ]
     },
@@ -571,6 +620,13 @@
           "start": "17:00",
           "end": "18:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Kuratorska-selekce-s-Philip-TBC_.jpg"
+        },
+        {
+          "id": "the-best-of-slow-down",
+          "name": "The Best of Slow Down",
+          "start": "18:00",
+          "end": "00:00",
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
         }
       ]
     }
