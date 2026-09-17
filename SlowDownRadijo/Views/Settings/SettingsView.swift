@@ -1,35 +1,24 @@
 import SwiftUI
 
-/// Pushed from the hamburger menu — the appearance picker plus an autoplay
-/// toggle. Language now lives back in `AppHeaderView` as a compact toggle
-/// next to the hamburger. Feedback moved to its own menu item
+/// Pushed from the hamburger menu — just an autoplay toggle now. Language
+/// and the appearance toggle both live in `AppHeaderView` as compact
+/// controls next to the hamburger. Feedback moved to its own menu item
 /// (`FeedbackView`), always last in the menu.
 struct SettingsView: View {
     @ObservedObject private var loc = LocalizationManager.shared
-    @ObservedObject private var appearanceManager = AppearanceManager.shared
     @AppStorage("autoplayEnabled") private var autoplayEnabled = true
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) private var systemColorScheme
     @State private var isShowingPrivacyPolicy = false
 
     // TODO: placeholder — point this at the real hosted page once
     // PRIVACY_POLICY.md is published (see repo root).
     private static let privacyPolicyURL = URL(string: "https://slowdownradijo.cz/ochrana-osobnich-udaju/")!
 
-    private var isEffectivelyDark: Bool {
-        switch appearanceManager.appearance {
-        case .system: return systemColorScheme == .dark
-        case .light: return false
-        case .dark: return true
-        }
-    }
-
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
                 BackHeaderView(title: L10n.settingsTitle, onBack: { dismiss() })
                 autoplaySection
-                appearanceSection
                 privacyPolicyRow
                 aboutFooter
             }
@@ -60,45 +49,6 @@ struct SettingsView: View {
                     .tint(Theme.sunOrange)
             }
         }
-    }
-
-    // MARK: - Appearance
-
-    private var appearanceSection: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-            sectionHeader(L10n.settingsAppearanceTitle)
-
-            HStack(spacing: Theme.Spacing.sm) {
-                appearanceOption(isDark: false, title: L10n.settingsAppearanceLight, icon: "sun.max.fill")
-                appearanceOption(isDark: true, title: L10n.settingsAppearanceDark, icon: "moon.fill")
-            }
-        }
-    }
-
-    private func appearanceOption(isDark: Bool, title: String, icon: String) -> some View {
-        let isSelected = isEffectivelyDark == isDark
-        return Button {
-            appearanceManager.appearance = isDark ? .dark : .light
-        } label: {
-            VStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.system(size: 22, weight: .semibold))
-                Text(title)
-                    .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
-            }
-            .foregroundStyle(isSelected ? .white : Theme.textPrimary)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, Theme.Spacing.lg)
-            .background(
-                RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
-                    .fill(isSelected ? Theme.sunOrange : Color.clear)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
-                    .strokeBorder(isSelected ? Color.clear : Theme.hairline(0.1), lineWidth: 1)
-            )
-        }
-        .buttonStyle(.plain)
     }
 
     // MARK: - Privacy policy

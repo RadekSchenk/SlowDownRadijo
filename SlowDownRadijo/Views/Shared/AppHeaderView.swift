@@ -8,11 +8,21 @@ import SwiftUI
 ///
 /// "Menu" opens `HubView` as a sheet — settings, news, notifications, and
 /// feedback, rather than surfacing every control directly here. The
-/// language pill is the one exception, since it's a single tap between the
-/// app's only two languages and didn't earn a trip through Settings.
+/// language pill and the appearance toggle are the exceptions, since
+/// they're each a single tap and didn't earn a trip through Settings.
 struct AppHeaderView: View {
     @ObservedObject private var loc = LocalizationManager.shared
+    @ObservedObject private var appearanceManager = AppearanceManager.shared
+    @Environment(\.colorScheme) private var systemColorScheme
     @State private var isShowingHub = false
+
+    private var isEffectivelyDark: Bool {
+        appearanceManager.isEffectivelyDark(currentSystemScheme: systemColorScheme)
+    }
+
+    private var appearanceIconName: String {
+        isEffectivelyDark ? "sun.max.fill" : "moon.fill"
+    }
 
     /// Shows the language a tap *switches to*, not the current one — so in
     /// Czech the pill reads "EN" (tap to switch to English), and in
@@ -37,6 +47,18 @@ struct AppHeaderView: View {
                 .frame(width: 73, height: 61)
 
             Spacer(minLength: 0)
+
+            Button {
+                appearanceManager.appearance = isEffectivelyDark ? .light : .dark
+            } label: {
+                Image(systemName: appearanceIconName)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(Theme.textPrimary)
+                    .frame(width: 34, height: 34)
+                    .background(Theme.hairline(0.08), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(L10n.settingsAppearanceTitle)
 
             Button {
                 loc.language = loc.language == .cs ? .en : .cs

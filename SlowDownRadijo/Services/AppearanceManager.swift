@@ -42,4 +42,15 @@ final class AppearanceManager: ObservableObject {
             appearance = .system
         }
     }
+
+    /// Resolves `.system` against the view's actual current color scheme,
+    /// so callers can decide what to show/toggle without duplicating this
+    /// switch themselves.
+    func isEffectivelyDark(currentSystemScheme: ColorScheme) -> Bool {
+        switch appearance {
+        case .system: return currentSystemScheme == .dark
+        case .light: return false
+        case .dark: return true
+        }
+    }
 }
