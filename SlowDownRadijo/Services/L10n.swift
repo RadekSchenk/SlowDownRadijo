@@ -142,12 +142,6 @@ enum L10n {
         }
     }
 
-    static func next(_ showName: String) -> String {
-        switch lang {
-        case .cs: return "Následuje: \(showName)"
-        case .en: return "Next up: \(showName)"
-        }
-    }
 
     /// "1h 29 min" / "1h 29m"
     static func durationShort(hours: Int, minutes: Int) -> String {

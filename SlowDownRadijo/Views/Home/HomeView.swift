@@ -178,7 +178,6 @@ struct HomeView: View {
                         show: show,
                         progress: nowPlaying.showProgress,
                         remainingMinutes: nowPlaying.showRemainingMinutes,
-                        nextShow: nowPlaying.nextShow,
                         isPlaying: nowPlaying.playbackState == .playing,
                         waveformTrackID: nowPlaying.track?.displayText ?? nowPlaying.showName
                     )

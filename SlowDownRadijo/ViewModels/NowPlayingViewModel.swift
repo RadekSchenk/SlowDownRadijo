@@ -29,9 +29,6 @@ final class NowPlayingViewModel: ObservableObject {
     /// Fraction (0...1) of `currentShow`'s scheduled block elapsed right now.
     @Published private(set) var showProgress: Double = 0
     @Published private(set) var showRemainingMinutes: Int = 0
-    /// What airs right after `currentShow`, so the progress bar can say
-    /// what's coming up next.
-    @Published private(set) var nextShow: Show?
 
     let player: RadioPlayerService
     private let metadataService: ICYMetadataService
@@ -196,11 +193,9 @@ final class NowPlayingViewModel: ObservableObject {
         if let show {
             showProgress = scheduleStore.progress(for: show, at: now)
             showRemainingMinutes = scheduleStore.remainingMinutes(for: show, at: now)
-            nextShow = scheduleStore.nextShow(after: show, from: now)
         } else {
             showProgress = 0
             showRemainingMinutes = 0
-            nextShow = nil
         }
     }
 
