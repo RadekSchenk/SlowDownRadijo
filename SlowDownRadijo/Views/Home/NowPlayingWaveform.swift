@@ -76,7 +76,10 @@ struct NowPlayingWaveform: View {
                 }
             }
         }
-        .frame(height: Self.height)
+        // Bottom-aligned inside the fixed 40pt box: the bars' feet stay on the
+        // progress track below no matter how tall the tallest bar is (a plain
+        // `.frame(height:)` would centre the row and make the gap breathe).
+        .frame(height: Self.height, alignment: .bottom)
         .onChange(of: trackID) { _, _ in
             // A new track: another phase and pulse speed, rising in afresh.
             pattern = Pattern.random()
@@ -95,7 +98,7 @@ struct NowPlayingWaveform: View {
                     .frame(height: max(Self.minimumBarHeight, Self.height * level * rise))
             }
         }
-        .frame(maxWidth: .infinity, alignment: .bottom)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
     }
 
     /// 0…1, how far a bar has risen: staggered left to right, smooth-out.
