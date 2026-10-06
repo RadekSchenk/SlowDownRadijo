@@ -198,7 +198,7 @@ struct HomeProgramSection: View {
                 .foregroundStyle(Theme.textPrimary)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(show.name)
+                Text(show.displayTitle)
                     .font(Theme.Typography.Manrope.extraBold(size: 21, relativeTo: .title3))
                     .foregroundStyle(Theme.textPrimary)
 
@@ -207,6 +207,15 @@ struct HomeProgramSection: View {
                         .font(Theme.Typography.Manrope.regular(size: 14, relativeTo: .subheadline))
                         .foregroundStyle(Theme.subtleText)
                 }
+            }
+
+            if let summary = show.summary {
+                // Figma: 14pt on a 22pt line height.
+                Text(summary)
+                    .font(Theme.Typography.Manrope.regular(size: 14, relativeTo: .subheadline))
+                    .lineSpacing(3)
+                    .foregroundStyle(Theme.subtleText)
+                    .lineLimit(2)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

@@ -14,6 +14,7 @@
         {
           "id": "groove-lab-s-don-hoblinon",
           "name": "Groove Lab s Don Hobliňon",
+          "title": "Groove Lab",
           "start": "08:00",
           "end": "10:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/11/Groove-Lab-s-Don-Hoblinon.jpg",
@@ -23,6 +24,7 @@
         {
           "id": "africa-incorporated-s-chuck-diesal",
           "name": "Africa Incorporated s Chuck Diesal",
+          "title": "Africa Incorporated",
           "start": "10:00",
           "end": "11:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Chuck-Diesal_.jpg",
@@ -48,6 +50,7 @@
         {
           "id": "kuratorska-selekce-s-philip-tbc",
           "name": "Kurátorská selekce s Philip TBC",
+          "title": "Kurátorská selekce",
           "start": "17:00",
           "end": "18:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Kuratorska-selekce-s-Philip-TBC_.jpg",
@@ -64,6 +67,7 @@
         {
           "id": "diggin-time-s-dj-magic",
           "name": "Diggin Time s DJ Magič",
+          "title": "Diggin Time",
           "start": "19:00",
           "end": "20:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/diggin-time-dj-magic-porad.jpg",
@@ -72,6 +76,7 @@
         {
           "id": "weekend-aftertaste-s-cube-positive",
           "name": "Weekend Aftertaste s cube positive",
+          "title": "Weekend Aftertaste",
           "start": "20:00",
           "end": "22:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/02/Weekend-Aftertaste-s-cube-positive.jpg",
@@ -101,6 +106,7 @@
         {
           "id": "kuratorska-selekce-s-philip-tbc",
           "name": "Kurátorská selekce s Philip TBC",
+          "title": "Kurátorská selekce",
           "start": "06:00",
           "end": "07:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Kuratorska-selekce-s-Philip-TBC_.jpg",
@@ -110,6 +116,7 @@
         {
           "id": "morning-coffee-s-dj-pufaz",
           "name": "Morning Coffee s DJ Pufaz",
+          "title": "Morning Coffee",
           "start": "07:00",
           "end": "09:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/01/dj-pufaz-porad-.jpg",
@@ -119,6 +126,7 @@
         {
           "id": "beat-brunch-s-jaro-cossiga",
           "name": "Beat Brunch s Jaro Cossiga",
+          "title": "Beat Brunch",
           "start": "09:00",
           "end": "12:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Jaro-beatbrunch-porad.jpg",
@@ -149,6 +157,7 @@
         {
           "id": "africa-incorporated-s-chuck-diesal",
           "name": "Africa Incorporated s Chuck Diesal",
+          "title": "Africa Incorporated",
           "start": "15:00",
           "end": "16:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Chuck-Diesal_.jpg",
@@ -165,6 +174,7 @@
         {
           "id": "bonus-beats-s-dj-larose",
           "name": "Bonus Beats s DJ LaRose",
+          "title": "Bonus Beats",
           "start": "17:00",
           "end": "18:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/bonus-beats-dj-larose-porad.jpg",
@@ -195,6 +205,7 @@
         {
           "id": "weekend-aftertaste-s-cube-positive",
           "name": "Weekend Aftertaste s cube positive",
+          "title": "Weekend Aftertaste",
           "start": "22:00",
           "end": "00:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/02/Weekend-Aftertaste-s-cube-positive.jpg",
@@ -217,6 +228,7 @@
         {
           "id": "africa-incorporated-s-chuck-diesal",
           "name": "Africa Incorporated s Chuck Diesal",
+          "title": "Africa Incorporated",
           "start": "06:00",
           "end": "07:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Chuck-Diesal_.jpg",
@@ -226,6 +238,7 @@
         {
           "id": "morning-coffee-s-dj-pufaz",
           "name": "Morning Coffee s DJ Pufaz",
+          "title": "Morning Coffee",
           "start": "07:00",
           "end": "09:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/01/dj-pufaz-porad-.jpg",
@@ -235,6 +248,7 @@
         {
           "id": "beat-brunch-s-jaro-cossiga",
           "name": "Beat Brunch s Jaro Cossiga",
+          "title": "Beat Brunch",
           "start": "09:00",
           "end": "12:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Jaro-beatbrunch-porad.jpg",
@@ -304,9 +318,11 @@
         {
           "id": "go-deeper-s-fatal-dna",
           "name": "Go Deeper s Fatal DNA",
+          "title": "Go Deeper",
           "start": "20:00",
           "end": "21:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/go-deeper-porad.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/go-deeper-porad.jpg",
+          "hostName": "Fatal DNA"
         },
         {
           "id": "the-best-of-slow-down",
@@ -340,6 +356,7 @@
         {
           "id": "morning-coffee-s-dj-pufaz",
           "name": "Morning Coffee s DJ Pufaz",
+          "title": "Morning Coffee",
           "start": "07:00",
           "end": "09:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/01/dj-pufaz-porad-.jpg",
@@ -349,6 +366,7 @@
         {
           "id": "beat-brunch-s-jaro-cossiga",
           "name": "Beat Brunch s Jaro Cossiga",
+          "title": "Beat Brunch",
           "start": "09:00",
           "end": "12:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Jaro-beatbrunch-porad.jpg",
@@ -372,6 +390,7 @@
         {
           "id": "mixtape-medley-s-dj-poem",
           "name": "Mixtape Medley s DJ Poem",
+          "title": "Mixtape Medley",
           "start": "14:00",
           "end": "15:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/MIxtape-Medley-s-DJ-Poem.jpg",
@@ -381,6 +400,7 @@
         {
           "id": "kuratorska-selekce-s-philip-tbc",
           "name": "Kurátorská selekce s Philip TBC",
+          "title": "Kurátorská selekce",
           "start": "15:00",
           "end": "16:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Kuratorska-selekce-s-Philip-TBC_.jpg",
@@ -404,6 +424,7 @@
         {
           "id": "diggin-time-s-dj-magic",
           "name": "Diggin Time s DJ Magič",
+          "title": "Diggin Time",
           "start": "20:00",
           "end": "21:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/diggin-time-dj-magic-porad.jpg",
@@ -412,6 +433,7 @@
         {
           "id": "kuratorska-selekce-s-bone-constructor",
           "name": "Kurátorská selekce s Bone Constructor",
+          "title": "Kurátorská selekce",
           "start": "21:00",
           "end": "22:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Bone-Constructor-porad.jpg",
@@ -441,6 +463,7 @@
         {
           "id": "bonus-beats-s-dj-larose",
           "name": "Bonus Beats s DJ LaRose",
+          "title": "Bonus Beats",
           "start": "05:00",
           "end": "06:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/bonus-beats-dj-larose-porad.jpg",
@@ -450,6 +473,7 @@
         {
           "id": "mixtape-medley-s-dj-poem",
           "name": "Mixtape Medley s DJ Poem",
+          "title": "Mixtape Medley",
           "start": "06:00",
           "end": "07:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/MIxtape-Medley-s-DJ-Poem.jpg",
@@ -459,6 +483,7 @@
         {
           "id": "morning-coffee-s-dj-pufaz",
           "name": "Morning Coffee s DJ Pufaz",
+          "title": "Morning Coffee",
           "start": "07:00",
           "end": "09:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/01/dj-pufaz-porad-.jpg",
@@ -468,6 +493,7 @@
         {
           "id": "beat-brunch-s-jaro-cossiga",
           "name": "Beat Brunch s Jaro Cossiga",
+          "title": "Beat Brunch",
           "start": "09:00",
           "end": "12:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Jaro-beatbrunch-porad.jpg",
@@ -498,6 +524,7 @@
         {
           "id": "africa-incorporated-s-chuck-diesal",
           "name": "Africa Incorporated s Chuck Diesal",
+          "title": "Africa Incorporated",
           "start": "15:00",
           "end": "16:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Chuck-Diesal_.jpg",
@@ -514,6 +541,7 @@
         {
           "id": "groove-lab-s-don-hoblinon",
           "name": "Groove Lab s Don Hobliňon",
+          "title": "Groove Lab",
           "start": "17:00",
           "end": "19:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/11/Groove-Lab-s-Don-Hoblinon.jpg",
@@ -530,6 +558,7 @@
         {
           "id": "like-it-slow-s-dj-aphect",
           "name": "Like it Slow s DJ Aphect",
+          "title": "Like it Slow",
           "start": "20:00",
           "end": "21:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/01/Like-it-Slow-s-DJ-Aphect-moderator.jpg",
@@ -559,6 +588,7 @@
         {
           "id": "africa-incorporated-s-chuck-diesal",
           "name": "Africa Incorporated s Chuck Diesal",
+          "title": "Africa Incorporated",
           "start": "06:00",
           "end": "07:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Chuck-Diesal_.jpg",
@@ -568,6 +598,7 @@
         {
           "id": "morning-coffee-s-dj-pufaz",
           "name": "Morning Coffee s DJ Pufaz",
+          "title": "Morning Coffee",
           "start": "07:00",
           "end": "09:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/01/dj-pufaz-porad-.jpg",
@@ -577,6 +608,7 @@
         {
           "id": "beat-brunch-s-jaro-cossiga",
           "name": "Beat Brunch s Jaro Cossiga",
+          "title": "Beat Brunch",
           "start": "09:00",
           "end": "12:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Jaro-beatbrunch-porad.jpg",
@@ -657,6 +689,7 @@
         {
           "id": "mixtape-medley-s-dj-poem",
           "name": "Mixtape Medley s DJ Poem",
+          "title": "Mixtape Medley",
           "start": "09:00",
           "end": "10:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/MIxtape-Medley-s-DJ-Poem.jpg",
@@ -666,6 +699,7 @@
         {
           "id": "africa-incorporated-s-chuck-diesal",
           "name": "Africa Incorporated s Chuck Diesal",
+          "title": "Africa Incorporated",
           "start": "10:00",
           "end": "11:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Chuck-Diesal_.jpg",
@@ -689,6 +723,7 @@
         {
           "id": "kuratorska-selekce-s-philip-tbc",
           "name": "Kurátorská selekce s Philip TBC",
+          "title": "Kurátorská selekce",
           "start": "17:00",
           "end": "18:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Kuratorska-selekce-s-Philip-TBC_.jpg",
