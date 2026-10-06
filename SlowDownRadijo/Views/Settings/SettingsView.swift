@@ -3,7 +3,7 @@ import SwiftUI
 /// Pushed from the hamburger menu — the autoplay toggle, the listening-stats
 /// controls and the privacy policy, as a divider-separated list like the
 /// home screen's "Pořady".
-/// Language and the light/dark toggle live in `AppHeaderView`; feedback
+/// Language lives in `AppHeaderView`; feedback
 /// and the news-notification toggle have their own homes in the menu.
 struct SettingsView: View {
     @ObservedObject private var loc = LocalizationManager.shared

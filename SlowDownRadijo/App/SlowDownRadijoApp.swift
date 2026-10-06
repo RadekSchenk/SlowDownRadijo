@@ -18,7 +18,6 @@ struct SlowDownRadijoApp: App {
 /// a delay) so its services start warming up immediately; the splash is
 /// purely a visual overlay.
 private struct AppRootView: View {
-    @ObservedObject private var appearanceManager = AppearanceManager.shared
     @State private var showSplash = true
 
     var body: some View {
@@ -30,7 +29,8 @@ private struct AppRootView: View {
                     .transition(.opacity)
             }
         }
-        .preferredColorScheme(appearanceManager.appearance.colorScheme)
+        // Dark only: no light mode, no appearance toggle.
+        .preferredColorScheme(.dark)
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
                 withAnimation(.easeOut(duration: 0.4)) {

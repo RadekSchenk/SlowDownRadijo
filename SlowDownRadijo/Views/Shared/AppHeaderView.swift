@@ -8,21 +8,11 @@ import SwiftUI
 ///
 /// "Menu" opens `HubView` as a sheet — settings, news, notifications, and
 /// feedback, rather than surfacing every control directly here. The
-/// language pill and the appearance toggle are the exceptions, since
-/// they're each a single tap and didn't earn a trip through Settings.
+/// language pill is the exception, since it's a single tap and didn't
+/// earn a trip through Settings.
 struct AppHeaderView: View {
     @ObservedObject private var loc = LocalizationManager.shared
-    @ObservedObject private var appearanceManager = AppearanceManager.shared
-    @Environment(\.colorScheme) private var systemColorScheme
     @State private var isShowingHub = false
-
-    private var isEffectivelyDark: Bool {
-        appearanceManager.isEffectivelyDark(currentSystemScheme: systemColorScheme)
-    }
-
-    private var appearanceIconName: String {
-        isEffectivelyDark ? "sun.max.fill" : "moon.fill"
-    }
 
     /// Shows the language a tap *switches to*, not the current one — so in
     /// Czech the pill reads "EN" (tap to switch to English), and in
@@ -36,22 +26,13 @@ struct AppHeaderView: View {
 
     var body: some View {
         HStack(spacing: Theme.Spacing.sm) {
-            // `BrandLogo` is an appearance-aware asset (Assets.xcassets) —
-            // purple wordmark for Light (legible on the light page
-            // background), white wordmark (`BrandLogoDark.png`) for Dark.
-            // No `.dark`/`.light` branching needed here; the system picks
-            // the right one automatically.
+            // `BrandLogo` is the white wordmark (the app is dark-only).
             Image("BrandLogo")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 73, height: 61)
 
             Spacer(minLength: 0)
-
-            HeaderIconButton(systemName: appearanceIconName) {
-                appearanceManager.appearance = isEffectivelyDark ? .light : .dark
-            }
-            .accessibilityLabel(L10n.settingsAppearanceTitle)
 
             Button {
                 loc.language = loc.language == .cs ? .en : .cs

@@ -45,8 +45,8 @@ struct SecondaryActionButton: View {
     }
 }
 
-/// Square icon button with the header pills' look — the light/dark toggle,
-/// back, and close buttons all share it.
+/// Square icon button with the header pills' look — the back and close
+/// buttons share it.
 struct HeaderIconButton: View {
     let systemName: String
     let action: () -> Void

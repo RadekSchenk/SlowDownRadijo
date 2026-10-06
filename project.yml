@@ -31,6 +31,9 @@ targets:
           - UIInterfaceOrientationPortrait
         UIBackgroundModes:
           - audio
+        # Dark only: the app has no light mode (also keeps system UI such as
+        # alerts, the keyboard and Safari sheets dark).
+        UIUserInterfaceStyle: Dark
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: false
         NSMicrophoneUsageDescription: "Slow Down Rádijo potřebuje mikrofon, abys mohl nahrát hlasový vzkaz pro rádio."

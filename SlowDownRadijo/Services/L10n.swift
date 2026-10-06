@@ -550,8 +550,8 @@ enum L10n {
 
     static var hubSettingsRowSubtitle: String {
         switch lang {
-        case .cs: return "Vzhled, jazyk"
-        case .en: return "Appearance, language"
+        case .cs: return "Přehrávání, statistiky, soukromí"
+        case .en: return "Playback, stats, privacy"
         }
     }
 
@@ -731,34 +731,6 @@ enum L10n {
         switch lang {
         case .cs: return "Appka spustí rádio hned po otevření, bez nutnosti klepnout na Přehrát."
         case .en: return "The app starts playing as soon as it opens, without tapping Play."
-        }
-    }
-
-    static var settingsAppearanceTitle: String {
-        switch lang {
-        case .cs: return "Vzhled"
-        case .en: return "Appearance"
-        }
-    }
-
-    static var settingsAppearanceSystem: String {
-        switch lang {
-        case .cs: return "Systém"
-        case .en: return "System"
-        }
-    }
-
-    static var settingsAppearanceLight: String {
-        switch lang {
-        case .cs: return "Světlý režim"
-        case .en: return "Light mode"
-        }
-    }
-
-    static var settingsAppearanceDark: String {
-        switch lang {
-        case .cs: return "Tmavý režim"
-        case .en: return "Dark mode"
         }
     }
 

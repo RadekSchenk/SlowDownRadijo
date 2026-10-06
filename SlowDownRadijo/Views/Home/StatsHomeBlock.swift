@@ -25,9 +25,13 @@ struct StatsHomeBlock: View {
                 }
 
                 HStack(spacing: 8) {
+                    // One line in Figma; with a four-digit rank in a big
+                    // community the pill grows, so this shrinks rather than wraps.
                     Text(L10n.statsLeaderboardScope)
                         .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .body))
                         .foregroundStyle(Theme.mutedText)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     rankPill(summary)
                 }

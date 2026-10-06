@@ -183,7 +183,16 @@ same user to a permanent account, so history carries over.
    session-less call the app uses to learn whether the stats UI is unlocked
    and to show the community total to people who haven't listened yet (zeros
    until the threshold is reached).
-5. **The stats UI switch.** `stats_config` has one row:
+5. **Run `supabase/sql/008_listening_hardening.sql`.** Basic protection of
+   the leaderboard and community total: a listener's total can never exceed
+   the real time since their account was created plus a 12 h allowance for
+   honest backlog (e.g. an outage), at most 120 uploads per hour (HTTP 429
+   beyond that — the app just retries), only schedule-like show ids, at most
+   24 shows per day, on top of the earlier 24 h/day cap. It can't tell a
+   radio left on around the clock from a person, and it doesn't stop mass
+   creation of anonymous accounts — CAPTCHA or App Attest would be the next
+   step.
+6. **The stats UI switch.** `stats_config` has one row:
    `min_listeners` (default 20) and `min_listener_seconds` (default 60) —
    the Statistiky tab appears for everyone once that many listeners have
    listened at least that long. For testing before then:
@@ -191,7 +200,7 @@ same user to a permanent account, so history carries over.
    update stats_config set force_enabled = true;   -- show the UI now
    update stats_config set force_enabled = false;  -- back to the threshold
    ```
-6. **Quick check** after the first minute of listening in the app:
+7. **Quick check** after the first minute of listening in the app:
    ```sql
    select * from listeners;                 -- one row, total_seconds ≈ 60+
    select * from listening_daily order by day desc;
