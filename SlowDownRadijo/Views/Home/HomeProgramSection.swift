@@ -171,11 +171,10 @@ struct HomeProgramSection: View {
             HStack {
                 Text(isShowingPastShows ? L10n.hidePreviousShows : L10n.showPreviousShows(count: pastShows.count))
                     .font(Theme.Typography.Manrope.medium(size: 13, relativeTo: .footnote))
-                    .underline()
                     .foregroundStyle(Theme.tabBarUnselected)
                 Spacer(minLength: Theme.Spacing.sm)
                 Image(systemName: "chevron.down")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(Theme.tabBarUnselected)
                     .rotationEffect(.degrees(isShowingPastShows ? 180 : 0))
             }
