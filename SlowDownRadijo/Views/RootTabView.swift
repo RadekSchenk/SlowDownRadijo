@@ -55,8 +55,11 @@ struct RootTabView: View {
             }
             // Figma's 3-tab redesign (node 12294:257) reuses the calendar
             // glyph for Rádio now that the schedule itself lives on the
-            // home screen — not a typo.
-            .tabItem { Label(L10n.tabRadio, systemImage: "calendar") }
+            // home screen — not a typo. `TabIconRadio` is a hand-matched
+            // Lucide "calendar" vector (same icon set the Figma layer
+            // names point to), not a direct export — see
+            // `Assets.xcassets/TabIconRadio.imageset`.
+            .tabItem { Label(L10n.tabRadio, image: "TabIconRadio") }
             .tag(0)
 
             if FeatureFlags.standaloneProgramTab {
@@ -83,14 +86,14 @@ struct RootTabView: View {
                 }
                 .toolbar(.hidden, for: .navigationBar)
             }
-            .tabItem { Label(L10n.tabMessage, systemImage: "message.circle") }
+            .tabItem { Label(L10n.tabMessage, image: "TabIconMessage") }
             .tag(3)
 
             NavigationStack {
                 SupportView()
                     .toolbar(.hidden, for: .navigationBar)
             }
-            .tabItem { Label(L10n.tabSupport, systemImage: "heart") }
+            .tabItem { Label(L10n.tabSupport, image: "TabIconSupport") }
             .tag(4)
         }
         .tint(Theme.liveRed)
