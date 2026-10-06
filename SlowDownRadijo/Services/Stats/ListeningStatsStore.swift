@@ -7,8 +7,9 @@ import UIKit
 /// * **Unlocking.** The listener's own stats are always there (zeros at first).
 ///   Only the community features — the leaderboard and the "everyone together"
 ///   total — wait until the server says enough people have listened
-///   (`public_stats().available`, 20 listeners by default). Once it has said
-///   yes, that is remembered on the phone and they never disappear again.
+///   (`public_stats().available`, 20 listeners by default). The app simply
+///   follows the server's latest answer; the last one is cached, so an offline
+///   start shows the same thing as before.
 /// * **Numbers.** The server snapshot (`get_my_stats`, cached for offline) plus
 ///   whatever this phone measured but hasn't uploaded yet, so "Dnes" keeps
 ///   ticking up live and is never behind.
@@ -16,15 +17,12 @@ import UIKit
 ///   anonymous account; only actually listening does.
 @MainActor
 final class ListeningStatsStore: ObservableObject {
-    /// The leaderboard and the community total are unlocked (enough listeners).
-    @Published private(set) var communityUnlocked: Bool
     @Published private(set) var snapshot: StatsSnapshot?
     @Published private(set) var publicStats: PublicStats?
     /// The last attempt to reach the server failed (offline, server trouble).
     @Published private(set) var loadFailed = false
     @Published private(set) var isLoading = false
 
-    private static let availableKey = "stats.available"
     private static let snapshotKey = "stats.snapshot"
     private static let publicKey = "stats.publicStats"
     private static let minimumRefreshGap: TimeInterval = 20
@@ -42,7 +40,8 @@ final class ListeningStatsStore: ObservableObject {
         }
         showLookup = lookup
 
-        communityUnlocked = UserDefaults.standard.bool(forKey: Self.availableKey)
+        // An earlier build remembered "unlocked" permanently under this key.
+        UserDefaults.standard.removeObject(forKey: "stats.available")
         snapshot = Self.loadCached(StatsSnapshot.self, key: Self.snapshotKey)
         publicStats = Self.loadCached(PublicStats.self, key: Self.publicKey)
 
@@ -86,7 +85,6 @@ final class ListeningStatsStore: ObservableObject {
               let stats = Self.decode(PublicStats.self, from: data) else { return }
         publicStats = stats
         Self.store(stats, key: Self.publicKey)
-        markAvailableIfNeeded(stats.available)
     }
 
     func refresh(force: Bool = false) async {
@@ -102,19 +100,12 @@ final class ListeningStatsStore: ObservableObject {
                let fresh = Self.decode(StatsSnapshot.self, from: data) {
                 snapshot = fresh
                 Self.store(fresh, key: Self.snapshotKey)
-                markAvailableIfNeeded(fresh.available)
             }
             loadFailed = false
             lastRefresh = Date()
         } catch {
             loadFailed = true
         }
-    }
-
-    private func markAvailableIfNeeded(_ available: Bool) {
-        guard available, !communityUnlocked else { return }
-        communityUnlocked = true
-        UserDefaults.standard.set(true, forKey: Self.availableKey)
     }
 
     private func clearLocalCache() {
@@ -125,6 +116,13 @@ final class ListeningStatsStore: ObservableObject {
     }
 
     // MARK: - Summary
+
+    /// The leaderboard and the community total are unlocked (enough
+    /// listeners). Follows the server's latest answer, falling back to the
+    /// cached one while offline.
+    var communityUnlocked: Bool {
+        publicStats?.available ?? snapshot?.available ?? false
+    }
 
     var summary: ListeningStatsSummary {
         makeSummary(now: Date())
