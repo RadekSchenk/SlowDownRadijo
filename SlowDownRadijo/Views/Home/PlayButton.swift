@@ -18,6 +18,10 @@ struct PlayButton: View {
                 Circle()
                     .fill(Theme.liveRed)
                     .frame(width: diameter, height: diameter)
+                    // Matches Figma's play-button drop shadow exactly
+                    // (`0px 6px 8px rgba(0,0,0,0.2)`) — CSS blur radius
+                    // roughly halves when translated to SwiftUI's `radius`.
+                    .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 6)
 
                 switch state {
                 case .connecting:

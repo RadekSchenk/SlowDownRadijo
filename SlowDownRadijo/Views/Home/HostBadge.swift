@@ -10,10 +10,11 @@ struct HostBadge: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            VStack(alignment: .trailing, spacing: 2) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(L10n.hostedByKicker)
                     .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .footnote))
                     .foregroundStyle(Theme.lavender)
+                    .tracking(0.14)
                 Text(name.uppercased())
                     .font(Theme.Typography.Manrope.bold(size: 14, relativeTo: .footnote))
                     .foregroundStyle(Theme.textPrimary)
@@ -24,7 +25,7 @@ struct HostBadge: View {
                 Image(imageName)
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 31, height: 31)
+                    .frame(width: 36, height: 36)
                     .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
             }
         }

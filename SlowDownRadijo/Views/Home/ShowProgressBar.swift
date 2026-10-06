@@ -34,7 +34,7 @@ struct ShowProgressBar: View {
 
                 HStack {
                     Text(show.start)
-                        .foregroundStyle(Theme.lavender)
+                        .foregroundStyle(Theme.tabBarUnselected)
                     Spacer()
                     Text(show.end)
                         .foregroundStyle(Theme.textPrimary)
@@ -45,7 +45,7 @@ struct ShowProgressBar: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(remainingLabel)
                     .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .subheadline))
-                    .foregroundStyle(Theme.lavender)
+                    .foregroundStyle(Theme.tabBarUnselected)
 
                 if let nextShow {
                     Text(L10n.next(nextShow.name))

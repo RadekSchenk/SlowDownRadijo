@@ -51,11 +51,11 @@ struct SleepTimerButton: View {
         } label: {
             HStack(spacing: 6) {
                 Image(systemName: "moon.zzz.fill")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: 14, weight: .bold))
                 Text(label)
-                    .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .footnote))
+                    .font(Theme.Typography.Manrope.bold(size: 16, relativeTo: .footnote))
             }
-            .foregroundStyle(Theme.lavender)
+            .foregroundStyle(Theme.textPrimary)
         }
         .buttonStyle(.plain)
         .onReceive(ticker) { now = $0 }

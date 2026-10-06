@@ -52,8 +52,11 @@ struct HomeView: View {
                 remainingShowInfo
                     .padding(.top, 20)
 
+                // Figma's "scroll-content" wrapper spaces its top-level
+                // sections (the now-playing card, this one) 32pt apart —
+                // not the 24pt used between `HomeView`'s other sub-sections.
                 HomeProgramSection(scheduleStore: scheduleStore, currentShow: nowPlaying.currentShow)
-                    .padding(.top, Theme.Spacing.lg)
+                    .padding(.top, Theme.Spacing.xl)
 
                 if FeatureFlags.nowPlayingHistoryAndFavorites {
                     nowPlayingSection

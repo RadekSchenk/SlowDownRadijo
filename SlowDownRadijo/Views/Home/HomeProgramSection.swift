@@ -76,14 +76,22 @@ struct HomeProgramSection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
-            Text(L10n.homeProgramHeading)
-                .font(Theme.Typography.Manrope.extraBold(size: 24, relativeTo: .title2))
-                .foregroundStyle(Theme.textPrimary)
+        // Figma's "Program — kompaktní seznam" wrapper has *no* gap of its
+        // own — only its first child ("Záhlaví programu": heading + day
+        // picker + divider) uses the 24pt internal gap. The disclosure and
+        // each schedule row carry their own vertical padding instead, so
+        // stacking them with an outer `spacing: 24` would double up on
+        // that and push everything too far apart.
+        VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+                Text(L10n.homeProgramHeading)
+                    .font(Theme.Typography.Manrope.extraBold(size: 24, relativeTo: .title2))
+                    .foregroundStyle(Theme.textPrimary)
 
-            dayPicker
+                dayPicker
 
-            divider
+                divider
+            }
 
             if !pastShows.isEmpty {
                 pastShowsDisclosure
@@ -126,20 +134,24 @@ struct HomeProgramSection: View {
             }
         } label: {
             VStack(spacing: 2) {
+                // Figma uses two distinct muted purples for the unselected
+                // chip, not one — `#a699b8` for the day label, `#807894`
+                // for the (lighter-weight) number below it.
                 Text(isToday ? L10n.today : L10n.shortDayName(weekday: weekday))
                     .font(
                         isSelected
                             ? Theme.Typography.Manrope.extraBold(size: 12)
                             : Theme.Typography.Manrope.regular(size: 12)
                     )
+                    .foregroundStyle(isSelected ? .white : Color(hex: 0xA699B8))
                 Text("\(Calendar.current.component(.day, from: date))")
                     .font(
                         isSelected
                             ? Theme.Typography.Manrope.extraBold(size: 28)
                             : Theme.Typography.Manrope.regular(size: 28)
                     )
+                    .foregroundStyle(isSelected ? .white : Color(hex: 0x807894))
             }
-            .foregroundStyle(isSelected ? .white : Theme.lavender)
             .frame(maxWidth: .infinity)
             .frame(height: 72)
             .background(
@@ -160,14 +172,14 @@ struct HomeProgramSection: View {
                 Text(isShowingPastShows ? L10n.hidePreviousShows : L10n.showPreviousShows(count: pastShows.count))
                     .font(Theme.Typography.Manrope.medium(size: 13, relativeTo: .footnote))
                     .underline()
-                    .foregroundStyle(Theme.lavender)
+                    .foregroundStyle(Theme.tabBarUnselected)
                 Spacer(minLength: Theme.Spacing.sm)
                 Image(systemName: "chevron.down")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(Theme.lavender)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(Theme.tabBarUnselected)
                     .rotationEffect(.degrees(isShowingPastShows ? 180 : 0))
             }
-            .padding(.vertical, Theme.Spacing.sm)
+            .padding(.vertical, 12)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -187,7 +199,7 @@ struct HomeProgramSection: View {
                 if let hostName = show.hostName {
                     Text(hostName)
                         .font(Theme.Typography.Manrope.regular(size: 14, relativeTo: .subheadline))
-                        .foregroundStyle(Theme.lavender)
+                        .foregroundStyle(Color(hex: 0xA699B8))
                 }
             }
         }
@@ -197,7 +209,7 @@ struct HomeProgramSection: View {
 
     private var divider: some View {
         Rectangle()
-            .fill(Theme.lavender.opacity(0.2))
+            .fill(Color(hex: 0x332B4D))
             .frame(height: 1)
     }
 }
