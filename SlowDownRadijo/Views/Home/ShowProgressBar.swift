@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Shows how far the current programme block has progressed: the big
 /// `NowPlayingWaveform` (while playing) sitting directly on top of a thin
-/// fill track, start/end clock times below that, then "Pořad končí za 1h
+/// fill track, start/end clock times above them, then "Pořad končí za 1h
 /// 29 min" / "Další: <next show>" further below. The waveform lives here
 /// (not as a sibling in `HomeView`) because Figma ties it tightly to the
 /// track — 4pt gap between them, vs. 12pt everywhere else in this block —
@@ -24,14 +24,8 @@ struct ShowProgressBar: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            VStack(spacing: 6) {
-                VStack(spacing: 4) {
-                    if isPlaying {
-                        NowPlayingWaveform(progress: progress, trackID: waveformTrackID)
-                    }
-                    ShowProgressTrack(progress: progress)
-                }
-
+            // Figma "progress-labels" sit *above* the track, 12pt apart.
+            VStack(spacing: 12) {
                 HStack {
                     Text(show.start)
                         .foregroundStyle(Theme.mutedText)
@@ -40,6 +34,13 @@ struct ShowProgressBar: View {
                         .foregroundStyle(Theme.textPrimary)
                 }
                 .font(Theme.Typography.Manrope.bold(size: 14, relativeTo: .subheadline))
+
+                VStack(spacing: 4) {
+                    if isPlaying {
+                        NowPlayingWaveform(progress: progress, trackID: waveformTrackID)
+                    }
+                    ShowProgressTrack(progress: progress)
+                }
             }
 
             VStack(alignment: .leading, spacing: 4) {

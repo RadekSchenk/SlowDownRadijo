@@ -42,7 +42,7 @@ struct HomeView: View {
             .frame(height: 0)
 
             // Explicit per-section top padding instead of a uniform
-            // `spacing:` — `remainingShowInfo` needs a tighter 20pt gap
+            // `spacing:` — `remainingShowInfo` needs a tighter 12pt gap
             // after the hero (matching the Figma "variation-3-card" auto
             // layout's own internal gap, see `heroSection`), while the
             // later sections keep the wider 24pt gap.
@@ -50,7 +50,7 @@ struct HomeView: View {
                 heroSection
 
                 remainingShowInfo
-                    .padding(.top, 20)
+                    .padding(.top, 12)
 
                 // Figma's "scroll-content" wrapper spaces its top-level
                 // sections (the now-playing card, this one) 32pt apart —
@@ -123,7 +123,7 @@ struct HomeView: View {
         // Spacing 0 + explicit per-child top padding, not a uniform
         // `spacing:` — the header-to-badges gap (8) and the two
         // "variation-3-card" internal gaps (badges-to-title,
-        // title-to-progress, both 20) are different Figma values, not
+        // title-to-progress, both 12) are different Figma values, not
         // one shared number.
         VStack(alignment: .leading, spacing: 0) {
             AppHeaderView()
@@ -146,12 +146,14 @@ struct HomeView: View {
             HStack(spacing: Theme.Spacing.md) {
                 PlayButton(state: nowPlaying.playbackState, action: nowPlaying.togglePlayPause, diameter: 54, iconSize: 20)
 
-                Text(nowPlaying.showName.uppercased())
+                // Figma: sentence case (not uppercased), 120% line height.
+                Text(nowPlaying.showName)
                     .font(Theme.Typography.Manrope.extraBold(size: 22, relativeTo: .title2))
                     .foregroundStyle(Theme.textPrimary)
                     .lineLimit(2)
+                    .manropeLineHeight(26.4, fontSize: 22)
             }
-            .padding(.top, 20)
+            .padding(.top, 12)
         }
         .background(alignment: .top) {
             HomeHeroBackground(image: heroImage, scrollOffset: scrollOffset)

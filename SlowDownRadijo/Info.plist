@@ -29,6 +29,7 @@
 	<string>Slow Down Rádijo potřebuje mikrofon, abys mohl nahrát hlasový vzkaz pro rádio.</string>
 	<key>UIAppFonts</key>
 	<array>
+		<string>Manrope-Light.ttf</string>
 		<string>Manrope-Regular.ttf</string>
 		<string>Manrope-Medium.ttf</string>
 		<string>Manrope-SemiBold.ttf</string>

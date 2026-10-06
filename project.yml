@@ -35,6 +35,7 @@ targets:
           NSAllowsArbitraryLoads: false
         NSMicrophoneUsageDescription: "Slow Down Rádijo potřebuje mikrofon, abys mohl nahrát hlasový vzkaz pro rádio."
         UIAppFonts:
+          - "Manrope-Light.ttf"
           - "Manrope-Regular.ttf"
           - "Manrope-Medium.ttf"
           - "Manrope-SemiBold.ttf"

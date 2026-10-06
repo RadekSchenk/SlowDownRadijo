@@ -154,6 +154,12 @@ enum Theme {
         /// rendering each file — Regular/Medium/SemiBold/Bold are visually
         /// distinct — so this isn't a case of four copies of one weight.
         enum Manrope {
+            /// Static wght-300 instance cut from Google Fonts' `Manrope[wght].ttf`
+            /// (same naming scheme as the other weights) — for Figma's big
+            /// thin numerals: programme times, day-picker dates.
+            static func light(size: CGFloat, relativeTo style: Font.TextStyle = .body) -> Font {
+                .custom("ManropeExtraLight-Light", size: size, relativeTo: style)
+            }
             static func regular(size: CGFloat, relativeTo style: Font.TextStyle = .body) -> Font {
                 .custom("ManropeExtraLight-Regular", size: size, relativeTo: style)
             }
@@ -182,6 +188,15 @@ enum Theme {
                 UIFont(name: "ManropeExtraLight-\(weight)", size: size) ?? .systemFont(ofSize: size, weight: .semibold)
             }
         }
+    }
+}
+
+extension View {
+    /// Matches a Figma fixed line height (e.g. 30pt text on a 38pt line) for
+    /// Manrope, whose natural line box is 1.366× the font size: trims or adds
+    /// the difference evenly above and below, the way CSS half-leading does.
+    func manropeLineHeight(_ lineHeight: CGFloat, fontSize: CGFloat) -> some View {
+        padding(.vertical, (lineHeight - fontSize * 1.366) / 2)
     }
 }
 

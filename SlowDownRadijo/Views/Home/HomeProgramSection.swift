@@ -134,9 +134,7 @@ struct HomeProgramSection: View {
             }
         } label: {
             VStack(spacing: 2) {
-                // Figma uses two distinct muted purples for the unselected
-                // chip, not one — `#a699b8` for the day label, `#807894`
-                // for the (lighter-weight) number below it.
+                // Unselected: `#a699b8` Regular label, `#807894` Light number.
                 Text(isToday ? L10n.today : L10n.shortDayName(weekday: weekday))
                     .font(
                         isSelected
@@ -148,9 +146,10 @@ struct HomeProgramSection: View {
                     .font(
                         isSelected
                             ? Theme.Typography.Manrope.extraBold(size: 28)
-                            : Theme.Typography.Manrope.regular(size: 28)
+                            : Theme.Typography.Manrope.light(size: 28)
                     )
                     .foregroundStyle(isSelected ? .white : Color(hex: 0x807894))
+                    .manropeLineHeight(34, fontSize: 28)
             }
             .frame(maxWidth: .infinity)
             .frame(height: 72)
@@ -170,13 +169,9 @@ struct HomeProgramSection: View {
         } label: {
             HStack {
                 Text(isShowingPastShows ? L10n.hidePreviousShows : L10n.showPreviousShows(count: pastShows.count))
-                    .font(Theme.Typography.Manrope.medium(size: 13, relativeTo: .footnote))
-                    .foregroundStyle(Theme.mutedText)
+                    .font(Theme.Typography.Manrope.bold(size: 16, relativeTo: .subheadline))
+                    .foregroundStyle(Theme.textPrimary)
                 Spacer(minLength: Theme.Spacing.sm)
-                // White, not Theme.mutedText — confirmed by
-                // rendering the Figma icon node in isolation, since this
-                // one exports as a flattened image with no readable color
-                // in the design-context output.
                 Image(systemName: "chevron.down")
                     .resizable()
                     .scaledToFit()
@@ -194,27 +189,27 @@ struct HomeProgramSection: View {
     private func compactRow(for show: Show) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(show.start)
-                .font(Theme.Typography.Manrope.regular(size: 30, relativeTo: .title))
+                .font(Theme.Typography.Manrope.light(size: 30, relativeTo: .title))
                 .foregroundStyle(Theme.textPrimary)
+                .manropeLineHeight(38, fontSize: 30)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(show.displayTitle)
                     .font(Theme.Typography.Manrope.extraBold(size: 21, relativeTo: .title3))
                     .foregroundStyle(Theme.textPrimary)
+                    .manropeLineHeight(27, fontSize: 21)
 
                 if let hostName = show.hostName {
                     Text(hostName)
-                        .font(Theme.Typography.Manrope.regular(size: 14, relativeTo: .subheadline))
-                        .foregroundStyle(Theme.subtleText)
+                        .font(Theme.Typography.Manrope.bold(size: 14, relativeTo: .subheadline))
+                        .foregroundStyle(Theme.textPrimary)
                 }
             }
 
             if let summary = show.summary {
-                // Figma: 14pt on a 22pt line height.
                 Text(summary)
-                    .font(Theme.Typography.Manrope.regular(size: 14, relativeTo: .subheadline))
-                    .lineSpacing(3)
-                    .foregroundStyle(Theme.subtleText)
+                    .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .subheadline))
+                    .foregroundStyle(Theme.mutedText)
                     .lineLimit(2)
             }
         }
