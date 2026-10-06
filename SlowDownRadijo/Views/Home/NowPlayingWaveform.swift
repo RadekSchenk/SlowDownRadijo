@@ -3,21 +3,23 @@ import SwiftUI
 /// Full-width, bottom-anchored equalizer shown under the play button and
 /// show name. Not real audio analysis — tapping the live stream's audio
 /// buffer for FFT was considered and deliberately skipped as too much
-/// risk/complexity for a decorative element (see project notes). Instead it
-/// behaves like an equalizer is expected to:
+/// risk/complexity for a decorative element (see project notes). It is
+/// meant to look orderly rather than random:
 ///
-/// * a **beat** (100–130 bpm, a different tempo for every track) kicks the
-///   bars up fast — a 60ms attack — and lets them fall back over ~220ms; each
-///   bar reacts with its own weight and a few milliseconds of jitter, and the
-///   four beats of a bar carry an accent pattern (strong, soft, medium, soft);
-/// * between the beats every bar **flutters** on three quick, uneven sine
-///   waves, so it never rests;
+/// * neighbouring bars are always similar — the shape is two smooth **hills**
+///   that drift slowly across the row, one to the right (every 3.6s) and a
+///   finer one to the left (every 2.4s);
+/// * the whole row **swells together** about once a second (a soft pulse, not
+///   a per-bar kick), so there is a visible rhythm without any jumping;
+/// * the row is a little lower at both ends, which keeps it tidy;
 /// * when it appears (and on every new track) the bars **rise from the left,
 ///   one after another**, 8ms apart over 400ms on the library's smooth-out
 ///   curve (transitions.dev P13/P18 — staggered rise).
 ///
-/// Everything is a pure function of time, so motion is continuous and nothing
-/// needs per-frame state. Bars are square-cornered; the played part is
+/// Each track gets its own phase of the hills and its own pulse speed
+/// (0.9–1.1s), so a new song looks a little different — but never chaotic.
+/// Everything is a pure function of time, so the motion is continuous and
+/// needs no per-frame state. Bars are square-cornered; the played part is
 /// `liveRed`, the rest `#b8afdc`.
 ///
 /// Only ever shown while actively playing — the caller (`ShowProgressBar`)
@@ -37,52 +39,24 @@ struct NowPlayingWaveform: View {
     private static let height: CGFloat = 40
     private static let minimumBarHeight: CGFloat = 3
 
-    private static let attack = 0.06
-    private static let release = 0.22
     private static let riseDuration = 0.40
     private static let riseStagger = 0.008
 
-    @State private var bars: [Bar] = NowPlayingWaveform.randomBars()
-    @State private var rhythm = Rhythm.random()
+    @State private var pattern = Pattern.random()
     @State private var startedAt = Date.timeIntervalSinceReferenceDate
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private struct Wave {
-        let frequency: Double
-        let phase: Double
-        let weight: Double
-    }
+    /// What differs from track to track.
+    private struct Pattern {
+        let phaseA: Double
+        let phaseB: Double
+        let swellPeriod: Double
 
-    private struct Bar {
-        let amplitude: Double
-        let waves: [Wave]
-        let beatWeight: Double
-        let beatJitter: Double
-    }
-
-    private struct Rhythm {
-        let period: Double
-        let accents: [Double]
-
-        static func random() -> Rhythm {
-            Rhythm(
-                period: .random(in: 0.46...0.60),
-                accents: [1.0, 0.55, 0.8, 0.55]
-            )
-        }
-    }
-
-    private static func randomBars() -> [Bar] {
-        (0..<barCount).map { _ in
-            Bar(
-                amplitude: .random(in: 0.6...1.0),
-                waves: [
-                    Wave(frequency: .random(in: 0.8...1.6), phase: .random(in: 0...(2 * .pi)), weight: 0.5),
-                    Wave(frequency: .random(in: 1.6...2.6), phase: .random(in: 0...(2 * .pi)), weight: 0.3),
-                    Wave(frequency: .random(in: 2.6...3.4), phase: .random(in: 0...(2 * .pi)), weight: 0.2),
-                ],
-                beatWeight: .random(in: 0.35...1.0),
-                beatJitter: .random(in: -0.035...0.035)
+        static func random() -> Pattern {
+            Pattern(
+                phaseA: .random(in: 0...1),
+                phaseB: .random(in: 0...1),
+                swellPeriod: .random(in: 0.9...1.1)
             )
         }
     }
@@ -94,7 +68,7 @@ struct NowPlayingWaveform: View {
     var body: some View {
         Group {
             if reduceMotion {
-                // A still frame, no beat and no rise.
+                // A still frame, no drift, pulse or rise.
                 waveform(time: 0, riseDone: true)
             } else {
                 TimelineView(.animation) { context in
@@ -104,9 +78,8 @@ struct NowPlayingWaveform: View {
         }
         .frame(height: Self.height)
         .onChange(of: trackID) { _, _ in
-            // A new track: a different tempo and pattern, rising in afresh.
-            bars = Self.randomBars()
-            rhythm = Rhythm.random()
+            // A new track: another phase and pulse speed, rising in afresh.
+            pattern = Pattern.random()
             startedAt = Date.timeIntervalSinceReferenceDate
         }
     }
@@ -114,9 +87,9 @@ struct NowPlayingWaveform: View {
     private func waveform(time: Double, riseDone: Bool) -> some View {
         let elapsedCount = elapsedBarCount
         return HStack(alignment: .bottom, spacing: 3) {
-            ForEach(bars.indices, id: \.self) { index in
+            ForEach(0..<Self.barCount, id: \.self) { index in
                 let rise = riseDone ? 1 : Self.rise(forBar: index, at: time - startedAt)
-                let level = Self.level(for: bars[index], rhythm: rhythm, at: time)
+                let level = Self.level(forBar: index, pattern: pattern, at: time)
                 Rectangle()
                     .fill(index < elapsedCount ? Theme.liveRed : Theme.equalizerUnplayed)
                     .frame(height: max(Self.minimumBarHeight, Self.height * level * rise))
@@ -132,31 +105,16 @@ struct NowPlayingWaveform: View {
         return 1 - pow(1 - clamped, 3)
     }
 
-    /// 0…1 height of one bar at `time`: fast flutter plus the beat kick.
-    private static func level(for bar: Bar, rhythm: Rhythm, at time: Double) -> Double {
-        let flutterSum = bar.waves.reduce(0.0) { sum, wave in
-            sum + sin(time * wave.frequency * 2 * .pi + wave.phase) * wave.weight
-        }
-        let flutter = 0.5 + 0.5 * flutterSum
-
-        let shifted = time + bar.beatJitter
-        let beatIndex = Int(floor(shifted / rhythm.period))
-        let sinceBeat = shifted - Double(beatIndex) * rhythm.period
-        let accent = rhythm.accents[((beatIndex % rhythm.accents.count) + rhythm.accents.count) % rhythm.accents.count]
-
-        // Fast attack out of whatever is left of the previous beat, then a
-        // slower exponential fall.
-        let leftover = exp(-(rhythm.period - attack) / release)
-        let envelope: Double
-        if sinceBeat < attack {
-            let ramp = sinceBeat / attack
-            envelope = leftover + (1 - leftover) * (1 - pow(1 - ramp, 2))
-        } else {
-            envelope = exp(-(sinceBeat - attack) / release)
-        }
-        let beat = envelope * accent * bar.beatWeight
-
-        let mixed = 0.35 * flutter + 0.65 * beat
-        return min(1, 0.10 + 0.90 * bar.amplitude * mixed)
+    /// 0…1 height of one bar: two drifting hills plus the shared swell, a
+    /// little lower toward both ends.
+    private static func level(forBar index: Int, pattern: Pattern, at time: Double) -> Double {
+        let x = Double(index) / Double(barCount - 1)
+        let hillA = 0.5 + 0.5 * sin(2 * .pi * (1.6 * x - time / 3.6 + pattern.phaseA))
+        let hillB = 0.5 + 0.5 * sin(2 * .pi * (3.1 * x + time / 2.4 + pattern.phaseB))
+        let pulse = 0.5 + 0.5 * cos(2 * .pi * time / pattern.swellPeriod)
+        let swell = pulse * pulse
+        let mixed = 0.45 * hillA + 0.30 * hillB + 0.25 * swell
+        let taper = 0.78 + 0.22 * sin(.pi * x)
+        return min(1, (0.12 + 0.88 * mixed) * taper)
     }
 }
