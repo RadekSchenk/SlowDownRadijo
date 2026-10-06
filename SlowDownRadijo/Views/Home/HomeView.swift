@@ -187,12 +187,12 @@ struct HomeView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    /// Skips `upcomingShows`' first element — that's the same show
+    /// Skips `remainingShowsToday`'s first element — that's the same show
     /// `ShowProgressBar`'s "Následuje: …" line already names, right above
     /// this section — so the list only adds shows that line doesn't
     /// already cover.
     private var upcomingShowsToDisplay: [Show] {
-        Array(nowPlaying.upcomingShows.dropFirst())
+        Array(nowPlaying.remainingShowsToday.dropFirst())
     }
 
     private var upcomingSection: some View {
