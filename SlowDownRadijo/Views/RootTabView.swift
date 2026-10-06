@@ -14,7 +14,7 @@ struct RootTabView: View {
     @StateObject private var statsStore: ListeningStatsStore
 
     /// The Statistiky page's tab tag (0 radio, 1–2 feature-flagged, 3 Vzkaz,
-    /// 4 Podpora). Its bar button only appears once the stats UI unlocks.
+    /// 4 Podpora).
     private static let statsTab = 5
 
     @State private var selectedTab = 0
@@ -134,10 +134,8 @@ struct RootTabView: View {
     /// Hand-built replacement for `TabView`'s own tab bar chrome — see the
     /// `.toolbar(.hidden, for: .tabBar)` comment above for why. Visible
     /// tabs are hardcoded (not derived from the `TabView` content above):
-    /// Rádio, Vzkaz, Podpora, plus Statistiky once `statsStore.isAvailable`
-    /// (enough listeners — see `ListeningStatsStore`). The two
-    /// feature-flagged pages are kept out of the nav entirely, not just
-    /// hidden from this bar.
+    /// Rádio, Vzkaz, Statistiky, Podpora. The two feature-flagged pages are
+    /// kept out of the nav entirely, not just hidden from this bar.
     private var bottomNav: some View {
         VStack(spacing: 0) {
             Rectangle()
@@ -149,15 +147,13 @@ struct RootTabView: View {
                 Spacer(minLength: 0)
                 tabBarButton(tag: 3, title: L10n.tabMessage, image: "TabIconMessage")
                 Spacer(minLength: 0)
-                if statsStore.isAvailable {
-                    tabBarButton(tag: Self.statsTab, title: L10n.tabStats, image: "TabIconStats")
-                    Spacer(minLength: 0)
-                }
+                tabBarButton(tag: Self.statsTab, title: L10n.tabStats, image: "TabIconStats")
+                Spacer(minLength: 0)
                 tabBarButton(tag: 4, title: L10n.tabSupport, image: "TabIconSupport")
             }
-            // Figma `bottom-nav`: 60pt side margins with three tabs, 24pt
-            // with four (space-between across the full width either way).
-            .padding(.horizontal, statsStore.isAvailable ? 24 : 60)
+            // Figma `bottom-nav`: four tabs, 24pt side margins, space-between
+            // across the full width.
+            .padding(.horizontal, 24)
             .padding(.top, 14)
             .padding(.bottom, 10)
         }

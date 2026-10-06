@@ -3,7 +3,8 @@ import SwiftUI
 /// "Statistiky poslechu — jemná gamifikace" (Figma node 12300:796): today and
 /// total listening plus the listener's place on the leaderboard. Sits between
 /// the now-playing card and "Pořady"; a tap opens the Statistiky tab.
-/// Only shown once the community is big enough (`ListeningStatsStore`).
+/// The leaderboard row appears once the community is big enough
+/// (`ListeningStatsStore.communityUnlocked`); the numbers are always there.
 struct StatsHomeBlock: View {
     @EnvironmentObject private var stats: ListeningStatsStore
     @ObservedObject private var loc = LocalizationManager.shared
@@ -24,16 +25,18 @@ struct StatsHomeBlock: View {
                     metric(label: L10n.statsTotal, seconds: summary.totalSeconds)
                 }
 
-                HStack(spacing: 8) {
-                    // One line in Figma; with a four-digit rank in a big
-                    // community the pill grows, so this shrinks rather than wraps.
-                    Text(L10n.statsLeaderboardScope)
-                        .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .body))
-                        .foregroundStyle(Theme.mutedText)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.75)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    rankPill(summary)
+                if stats.communityUnlocked {
+                    HStack(spacing: 8) {
+                        // One line in Figma; with a four-digit rank in a big
+                        // community the pill grows, so this shrinks rather than wraps.
+                        Text(L10n.statsLeaderboardScope)
+                            .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .body))
+                            .foregroundStyle(Theme.mutedText)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        rankPill(summary)
+                    }
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)

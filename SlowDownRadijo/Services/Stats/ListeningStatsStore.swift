@@ -4,10 +4,11 @@ import UIKit
 
 /// Everything the Statistiky tab and the home-screen block show, in one place.
 ///
-/// * **Unlocking.** The stats UI stays hidden until the server says enough
-///   people have listened (`public_stats().available`, 20 listeners by
-///   default). Once it has said yes, that is remembered on the phone and the
-///   UI never disappears again.
+/// * **Unlocking.** The listener's own stats are always there (zeros at first).
+///   Only the community features — the leaderboard and the "everyone together"
+///   total — wait until the server says enough people have listened
+///   (`public_stats().available`, 20 listeners by default). Once it has said
+///   yes, that is remembered on the phone and they never disappear again.
 /// * **Numbers.** The server snapshot (`get_my_stats`, cached for offline) plus
 ///   whatever this phone measured but hasn't uploaded yet, so "Dnes" keeps
 ///   ticking up live and is never behind.
@@ -15,7 +16,8 @@ import UIKit
 ///   anonymous account; only actually listening does.
 @MainActor
 final class ListeningStatsStore: ObservableObject {
-    @Published private(set) var isAvailable: Bool
+    /// The leaderboard and the community total are unlocked (enough listeners).
+    @Published private(set) var communityUnlocked: Bool
     @Published private(set) var snapshot: StatsSnapshot?
     @Published private(set) var publicStats: PublicStats?
     /// The last attempt to reach the server failed (offline, server trouble).
@@ -40,7 +42,7 @@ final class ListeningStatsStore: ObservableObject {
         }
         showLookup = lookup
 
-        isAvailable = UserDefaults.standard.bool(forKey: Self.availableKey)
+        communityUnlocked = UserDefaults.standard.bool(forKey: Self.availableKey)
         snapshot = Self.loadCached(StatsSnapshot.self, key: Self.snapshotKey)
         publicStats = Self.loadCached(PublicStats.self, key: Self.publicKey)
 
@@ -72,8 +74,8 @@ final class ListeningStatsStore: ObservableObject {
 
     // MARK: - Loading
 
-    /// Availability + community numbers (cheap, anonymous), then — if the UI
-    /// is unlocked and measuring is on — this listener's own snapshot.
+    /// Community unlock state + numbers (cheap, anonymous), then — if measuring
+    /// is on — this listener's own snapshot.
     func refreshAll(force: Bool = false) async {
         await refreshPublic()
         await refresh(force: force)
@@ -88,7 +90,7 @@ final class ListeningStatsStore: ObservableObject {
     }
 
     func refresh(force: Bool = false) async {
-        guard StatsConfig.isEnabled, isAvailable, !isLoading else { return }
+        guard StatsConfig.isEnabled, !isLoading else { return }
         if !force, Date().timeIntervalSince(lastRefresh) < Self.minimumRefreshGap { return }
 
         isLoading = true
@@ -110,8 +112,8 @@ final class ListeningStatsStore: ObservableObject {
     }
 
     private func markAvailableIfNeeded(_ available: Bool) {
-        guard available, !isAvailable else { return }
-        isAvailable = true
+        guard available, !communityUnlocked else { return }
+        communityUnlocked = true
         UserDefaults.standard.set(true, forKey: Self.availableKey)
     }
 

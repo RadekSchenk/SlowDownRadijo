@@ -1,5 +1,6 @@
--- Public, session-less summary for the app: "is the stats UI unlocked?" plus
--- the two community numbers every listener sees — total listening time of
+-- Public, session-less summary for the app: "are the community features
+-- (leaderboard, total of everyone) unlocked?" plus the two community numbers
+-- every listener sees — total listening time of
 -- everybody ("Celkem všichni Slow Down Riders") and how many listeners the
 -- leaderboard ranks. Lets someone who hasn't listened yet (so has no
 -- anonymous session) still see the community card.

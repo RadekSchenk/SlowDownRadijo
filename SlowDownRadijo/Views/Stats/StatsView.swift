@@ -56,7 +56,10 @@ struct StatsView: View {
             if statsEnabled {
                 StatsMetricCard(label: L10n.today, seconds: summary.todaySeconds, description: L10n.statsTodayDescription)
                 StatsMetricCard(label: L10n.statsTotal, seconds: summary.totalSeconds, description: L10n.statsTotalDescription)
-                StatsMetricCard(label: L10n.statsCommunityTitle, seconds: summary.communitySeconds, description: L10n.statsCommunityDescription)
+                // "Everyone together" and the leaderboard wait for a community.
+                if stats.communityUnlocked {
+                    StatsMetricCard(label: L10n.statsCommunityTitle, seconds: summary.communitySeconds, description: L10n.statsCommunityDescription)
+                }
             } else {
                 disabledCard
             }
@@ -86,7 +89,9 @@ struct StatsView: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             StatsHeading(L10n.statsLeaderboardTitle)
 
-            if let rank = summary.rank {
+            if !stats.communityUnlocked {
+                lockedLeaderboard
+            } else if let rank = summary.rank {
                 rankRow(rank: rank, of: summary.rankedListeners)
                 StatsBodyText(L10n.statsLeaderboardDescription(count: StatsFormat.number(summary.rankedListeners)))
                 Text(L10n.statsEncouragement)
@@ -104,6 +109,25 @@ struct StatsView: View {
 
             ListDivider()
         }
+    }
+
+    /// Before enough people have listened there is no leaderboard to show —
+    /// a teaser instead of a hole (and instead of "#1 of 1").
+    private var lockedLeaderboard: some View {
+        HStack(spacing: Theme.Spacing.md) {
+            Image("StatsTrophy")
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 23, height: 23)
+                .foregroundStyle(Theme.liveRed)
+                .frame(width: 48, height: 48)
+                .background(Theme.liveRed.opacity(0.1), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            StatsBodyText(L10n.statsLeaderboardLocked)
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.statsCard, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     private func rankRow(rank: Int, of total: Int) -> some View {

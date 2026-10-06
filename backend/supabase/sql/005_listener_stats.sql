@@ -57,16 +57,17 @@ create table if not exists listening_batches (
 create index if not exists listening_batches_listener_idx on listening_batches (listener_id);
 create index if not exists listening_batches_received_idx on listening_batches (received_at);
 
--- Single-row switchboard. The app asks `stats_available()` and only shows
--- the Statistiky tab / home block once enough people have listened.
+-- Single-row switchboard. The app asks `stats_available()` (via `public_stats()`)
+-- and only shows the leaderboard and the "everyone together" total once
+-- enough people have listened; a listener's own stats are always visible.
 create table if not exists stats_config (
   id boolean primary key default true check (id),
-  -- The stats UI appears once this many listeners ...
+  -- The community features unlock once this many listeners ...
   min_listeners integer not null default 20,
   -- ... have each listened at least this long (keeps accidental taps out
   -- of both the threshold and the leaderboard denominator).
   min_listener_seconds integer not null default 60,
-  -- Manual override for testing before the threshold is reached.
+  -- Manual override to unlock them for testing before the threshold.
   force_enabled boolean not null default false
 );
 insert into stats_config default values on conflict do nothing;

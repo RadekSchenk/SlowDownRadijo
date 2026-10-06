@@ -180,7 +180,7 @@ same user to a permanent account, so history carries over.
    The `delete` statements make the Supabase MCP connector ask for
    confirmation; running the file in the SQL Editor works without it.
 4. **Run `supabase/sql/007_public_stats.sql`.** It adds `public_stats()`, the
-   session-less call the app uses to learn whether the stats UI is unlocked
+   session-less call the app uses to learn whether the community features are unlocked
    and to show the community total to people who haven't listened yet (zeros
    until the threshold is reached).
 5. **Run `supabase/sql/008_listening_hardening.sql`.** Basic protection of
@@ -192,12 +192,14 @@ same user to a permanent account, so history carries over.
    radio left on around the clock from a person, and it doesn't stop mass
    creation of anonymous accounts — CAPTCHA or App Attest would be the next
    step.
-6. **The stats UI switch.** `stats_config` has one row:
-   `min_listeners` (default 20) and `min_listener_seconds` (default 60) —
-   the Statistiky tab appears for everyone once that many listeners have
-   listened at least that long. For testing before then:
+6. **The community switch.** A listener's own stats are always visible in the
+   app (zeros at first). `stats_config` has one row, `min_listeners`
+   (default 20) and `min_listener_seconds` (default 60); the **leaderboard
+   and the "Celkem všichni Slow Down Riders" total** unlock for everyone once
+   that many listeners have listened at least that long. For testing before
+   then:
    ```sql
-   update stats_config set force_enabled = true;   -- show the UI now
+   update stats_config set force_enabled = true;   -- unlock them now
    update stats_config set force_enabled = false;  -- back to the threshold
    ```
 7. **Quick check** after the first minute of listening in the app:
@@ -209,8 +211,8 @@ same user to a permanent account, so history carries over.
 ### Release checklist (privacy / App Review)
 
 - [ ] **`stats_config.force_enabled` must be `false`** before a release —
-      it is only a testing switch that shows the Statistiky UI to everyone
-      regardless of the listener threshold:
+      it is only a testing switch that unlocks the leaderboard and community
+      total for everyone regardless of the listener threshold:
       `update stats_config set force_enabled = false;`
 
 - [ ] `PRIVACY_POLICY.md` is published at the URL the app opens (Menu ▸
@@ -226,9 +228,10 @@ same user to a permanent account, so history carries over.
 - [ ] No ATT prompt is needed: nothing is shared with other companies or
       combined with their data for tracking or advertising.
 - [ ] Review notes: "Listening stats are measured under an anonymous
-      Supabase user (no sign-in). The Statistiky tab is hidden by a
-      server-side switch until 20 listeners exist, so the reviewer will not
-      see it; the on/off toggle and *Smazat moje statistiky* are always in
+      Supabase user (no sign-in). The Statistiky tab is always visible; the
+      leaderboard and the community total are hidden by a server-side switch
+      until 20 listeners exist, so the reviewer will see a placeholder there.
+      The on/off toggle and *Smazat moje statistiky* are always in
       Menu ▸ Nastavení."
 - [ ] When registration is added: accounts need **in-app account deletion**
       (guideline 5.1.1(v)), and offering Google/social sign-in requires also

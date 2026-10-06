@@ -1086,6 +1086,13 @@ enum L10n {
         }
     }
 
+    static var statsLeaderboardLocked: String {
+        switch lang {
+        case .cs: return "Žebříček se objeví, jakmile se v appce sejde dost posluchačů. Do té doby tu máš svůj vlastní čas s rádiem."
+        case .en: return "The leaderboard appears once enough listeners have joined the app. Until then, here’s your own time with the radio."
+        }
+    }
+
     static var statsRetry: String {
         switch lang {
         case .cs: return "Zkusit znovu"
