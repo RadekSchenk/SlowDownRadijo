@@ -51,11 +51,13 @@ struct HomeView: View {
                 remainingShowInfo
                     .padding(.top, 20)
 
-                nowPlayingSection
-                    .padding(.top, Theme.Spacing.lg)
+                if FeatureFlags.nowPlayingHistoryAndFavorites {
+                    nowPlayingSection
+                        .padding(.top, Theme.Spacing.lg)
 
-                historySection
-                    .padding(.top, Theme.Spacing.lg)
+                    historySection
+                        .padding(.top, Theme.Spacing.lg)
+                }
             }
             .padding(.horizontal, 20)
             .padding(.bottom, Theme.Spacing.xl)
@@ -70,10 +72,14 @@ struct HomeView: View {
         // top edge like the Figma spec.
         .ignoresSafeArea(edges: .top)
         .background(Theme.background.ignoresSafeArea())
-        .onAppear { history.loadIfNeeded() }
-        .refreshable { history.refresh() }
+        .onAppear {
+            if FeatureFlags.nowPlayingHistoryAndFavorites { history.loadIfNeeded() }
+        }
+        .refreshable {
+            if FeatureFlags.nowPlayingHistoryAndFavorites { history.refresh() }
+        }
         .onChange(of: favorites.favorites.count) { oldCount, newCount in
-            guard newCount > oldCount, !hasSeenFavoritesIntro else { return }
+            guard FeatureFlags.nowPlayingHistoryAndFavorites, newCount > oldCount, !hasSeenFavoritesIntro else { return }
             hasSeenFavoritesIntro = true
             isShowingFavoritesIntro = true
         }

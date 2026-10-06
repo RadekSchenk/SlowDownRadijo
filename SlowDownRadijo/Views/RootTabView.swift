@@ -63,12 +63,14 @@ struct RootTabView: View {
             .tabItem { Label(L10n.tabProgram, systemImage: "calendar") }
             .tag(1)
 
-            NavigationStack {
-                FavoritesView()
-                    .toolbar(.hidden, for: .navigationBar)
+            if FeatureFlags.nowPlayingHistoryAndFavorites {
+                NavigationStack {
+                    FavoritesView()
+                        .toolbar(.hidden, for: .navigationBar)
+                }
+                .tabItem { Label(L10n.tabFavorites, systemImage: "heart") }
+                .tag(2)
             }
-            .tabItem { Label(L10n.tabFavorites, systemImage: "heart") }
-            .tag(2)
 
             NavigationStack {
                 MessageView(viewModel: voiceMessageViewModel) {
