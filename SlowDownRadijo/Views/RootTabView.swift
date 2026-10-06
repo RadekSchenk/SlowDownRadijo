@@ -53,12 +53,6 @@ struct RootTabView: View {
                 HomeView(nowPlaying: nowPlayingViewModel, history: historyViewModel, scheduleStore: scheduleStore)
                     .toolbar(.hidden, for: .navigationBar)
             }
-            // Figma's 3-tab redesign (node 12294:257) reuses the calendar
-            // glyph for Rádio now that the schedule itself lives on the
-            // home screen — not a typo. `TabIconRadio`/`TabIconMessage`/
-            // `TabIconSupport` are exact SVG exports from that Figma frame
-            // — see `Assets.xcassets`.
-            .tabItem { Label(L10n.tabRadio, image: "TabIconRadio") }
             .tag(0)
 
             if FeatureFlags.standaloneProgramTab {
@@ -66,7 +60,6 @@ struct RootTabView: View {
                     ProgramView(scheduleStore: scheduleStore)
                         .toolbar(.hidden, for: .navigationBar)
                 }
-                .tabItem { Label(L10n.tabProgram, systemImage: "calendar") }
                 .tag(1)
             }
 
@@ -75,7 +68,6 @@ struct RootTabView: View {
                     FavoritesView()
                         .toolbar(.hidden, for: .navigationBar)
                 }
-                .tabItem { Label(L10n.tabFavorites, systemImage: "heart") }
                 .tag(2)
             }
 
@@ -85,21 +77,27 @@ struct RootTabView: View {
                 }
                 .toolbar(.hidden, for: .navigationBar)
             }
-            .tabItem { Label(L10n.tabMessage, image: "TabIconMessage") }
             .tag(3)
 
             NavigationStack {
                 SupportView()
                     .toolbar(.hidden, for: .navigationBar)
             }
-            .tabItem { Label(L10n.tabSupport, image: "TabIconSupport") }
             .tag(4)
         }
+        // The native tab bar centers/compresses its items instead of
+        // spreading them to Figma's `bottom-nav` spec (node 12294:257) —
+        // 60pt side margins, space-between across the full width — so it
+        // stays hidden and `bottomNav` below takes its place.
+        .toolbar(.hidden, for: .tabBar)
         .tint(Theme.liveRed)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            bottomNav
+        }
         .environmentObject(favoriteTrackStore)
         .environmentObject(previewPlayer)
         .onAppear {
-            configureTabBarAppearance()
+            configureNavigationBarAppearance()
             // Autoplay: a radio app should start making sound as soon as it
             // opens, not wait for a tap — unless the user turned it off.
             if !hasAutoplayed {
@@ -115,29 +113,53 @@ struct RootTabView: View {
         }
     }
 
-    private func configureTabBarAppearance() {
-        let appearance = UITabBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = UIColor(Theme.tabBarBackground)
-        appearance.shadowColor = UIColor.white.withAlphaComponent(0.08)
-        // Tab item labels otherwise fall back to the system font — the one
-        // piece of chrome on every screen that isn't SwiftUI `Text`, so it
-        // was missing Manrope entirely until this was added.
-        let tabFont = Theme.Typography.Manrope.uiFont(weight: "SemiBold", size: 11)
-        let unselected: [NSAttributedString.Key: Any] = [
-            .foregroundColor: UIColor(Theme.tabBarUnselected),
-            .font: tabFont
-        ]
-        appearance.stackedLayoutAppearance.normal.titleTextAttributes = unselected
-        appearance.stackedLayoutAppearance.normal.iconColor = UIColor(Theme.tabBarUnselected)
-        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.font: tabFont]
-        UITabBar.appearance().standardAppearance = appearance
-        UITabBar.appearance().scrollEdgeAppearance = appearance
-        // Belt-and-suspenders: newer iOS tab bar rendering doesn't always
-        // honor `stackedLayoutAppearance.normal` for unselected items, but
-        // this older, coarser property is still respected.
-        UITabBar.appearance().unselectedItemTintColor = UIColor(Theme.tabBarUnselected)
+    /// Hand-built replacement for `TabView`'s own tab bar chrome — see the
+    /// `.toolbar(.hidden, for: .tabBar)` comment above for why. Visible
+    /// tabs are hardcoded (not derived from the `TabView` content above)
+    /// since only 3 of its 5 possible pages are ever shown at once; the
+    /// other 2 are feature-flagged entirely out of the nav, not just
+    /// hidden from this bar.
+    private var bottomNav: some View {
+        VStack(spacing: 0) {
+            Rectangle()
+                .fill(Theme.hairline(0.08))
+                .frame(height: 1)
 
+            HStack {
+                tabBarButton(tag: 0, title: L10n.tabRadio, image: "TabIconRadio")
+                Spacer(minLength: 0)
+                tabBarButton(tag: 3, title: L10n.tabMessage, image: "TabIconMessage")
+                Spacer(minLength: 0)
+                tabBarButton(tag: 4, title: L10n.tabSupport, image: "TabIconSupport")
+            }
+            .padding(.horizontal, 60)
+            .padding(.top, 14)
+            .padding(.bottom, 10)
+        }
+        .background(Theme.tabBarBackground.ignoresSafeArea(edges: .bottom))
+    }
+
+    private func tabBarButton(tag: Int, title: String, image: String) -> some View {
+        let isSelected = selectedTab == tag
+        return Button {
+            selectedTab = tag
+        } label: {
+            VStack(spacing: 6) {
+                Image(image)
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
+                Text(title)
+                    .font(Theme.Typography.Manrope.extraBold(size: 12))
+            }
+            .foregroundStyle(isSelected ? Theme.liveRed : Theme.tabBarUnselected)
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+
+    private func configureNavigationBarAppearance() {
         let navAppearance = UINavigationBarAppearance()
         navAppearance.configureWithOpaqueBackground()
         navAppearance.backgroundColor = UIColor(Theme.background)
