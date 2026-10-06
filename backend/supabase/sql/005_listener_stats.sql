@@ -232,11 +232,14 @@ begin
 end;
 $$;
 
--- Functions are executable by PUBLIC by default; lock them down explicitly.
-revoke all on function stats_available() from public;
-revoke all on function record_listening(uuid, jsonb, text) from public;
-revoke all on function get_my_stats(date) from public;
-revoke all on function delete_my_listening_data() from public;
+-- Functions are executable by PUBLIC by default — and on Supabase `anon` and
+-- `authenticated` additionally get an explicit EXECUTE on every new function
+-- in `public` (default privileges), which `revoke ... from public` does not
+-- remove. So lock them down for each role by name.
+revoke all on function stats_available() from public, anon, authenticated;
+revoke all on function record_listening(uuid, jsonb, text) from public, anon, authenticated;
+revoke all on function get_my_stats(date) from public, anon, authenticated;
+revoke all on function delete_my_listening_data() from public, anon, authenticated;
 
 grant execute on function stats_available() to anon, authenticated;
 grant execute on function record_listening(uuid, jsonb, text) to authenticated;
