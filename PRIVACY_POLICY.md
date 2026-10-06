@@ -34,7 +34,7 @@ Obojí se odesílá přes zabezpečené API a doručuje e-mailem přes službu [
 
 ## Použité služby třetích stran
 
-- **Supabase** — databáze a serverová logika appky (historie přehraných skladeb, anonymní statistiky poslechu). Zpracovává pouze anonymní ID a sečtené sekundy poslechu popsané výše, žádné jméno ani e-mail. Data jsou uložena v regionu [DOPLNIT REGION PROJEKTU, např. EU – Frankfurt].
+- **Supabase** — databáze a serverová logika appky (historie přehraných skladeb, anonymní statistiky poslechu). Zpracovává pouze anonymní ID a sečtené sekundy poslechu popsané výše, žádné jméno ani e-mail. Data jsou uložena ve **Spojeném království (Londýn, region AWS eu-west-2)**. Spojené království má od Evropské komise rozhodnutí o odpovídající ochraně osobních údajů, takže přenos dat z EU je v souladu s GDPR bez dalších záruk.
 - **Resend** — doručení e-mailů (zpětná vazba, hlasové vzkazy) na adresu rádia.
 - **Apple iTunes Search API** — vyhledání obalu alba a krátké ukázky skladby podle názvu/interpreta; appka posílá jen text názvu a interpreta, nic osobního.
 - **slowdownradijo.cz** — appka čte veřejný obsah webu (rubrika Novinky) přes standardní WordPress rozhraní.

@@ -1,3 +1,4 @@
+import Combine
 import Foundation
 import UIKit
 
@@ -23,6 +24,15 @@ final class ListeningTracker {
 
     /// Used when the schedule has no show for this moment.
     static let unknownShowID = "_"
+
+    /// What the stats screen needs to hear about. `accrued` fires every few
+    /// seconds while playing (so "Dnes" ticks up live), `synced` after the
+    /// server acknowledged a batch, `deleted` after "Smazat moje statistiky".
+    enum Event {
+        case accrued, synced, deleted
+    }
+
+    let events = PassthroughSubject<Event, Never>()
 
     private static let storageKey = "stats.listeningQueue"
     private static let tickInterval: TimeInterval = 10
@@ -102,6 +112,13 @@ final class ListeningTracker {
         }
     }
 
+    /// Everything measured on this phone that the server may not have counted
+    /// yet — the in-flight batch plus what's still pending. The stats screen
+    /// adds this on top of the server snapshot so numbers are never behind.
+    var unsyncedRows: [ListeningRow] {
+        (queue.inflight?.rows ?? []) + queue.pending
+    }
+
     /// Called when Settings ▸ "Statistiky poslechu" is switched.
     func enabledPreferenceChanged() {
         accrue()
@@ -110,6 +127,7 @@ final class ListeningTracker {
             queue = Queue()
             carry = 0
             save()
+            events.send(.deleted)
         }
         refreshAccruingState()
     }
@@ -121,6 +139,7 @@ final class ListeningTracker {
         carry = 0
         save()
         try await StatsAPIClient.shared.deleteMyData()
+        events.send(.deleted)
     }
 
     // MARK: - Accrual
@@ -176,12 +195,13 @@ final class ListeningTracker {
             queue.pending.append(ListeningRow(day: day, showID: showID, seconds: whole))
         }
         save()
+        events.send(.accrued)
     }
 
     /// `yyyy-MM-dd` in the listener's own calendar and time zone — "Dnes"
     /// means today where they are. Explicitly Gregorian so a Buddhist or
     /// Japanese system calendar can't change the format.
-    private static func dayString(for date: Date) -> String {
+    static func dayString(for date: Date) -> String {
         let formatter = DateFormatter()
         formatter.calendar = Calendar(identifier: .gregorian)
         formatter.locale = Locale(identifier: "en_US_POSIX")
@@ -256,6 +276,7 @@ final class ListeningTracker {
         guard settled, queue.inflight?.id == batchID else { return }
         queue.inflight = nil
         save()
+        events.send(.synced)
     }
 
     // MARK: - Persistence

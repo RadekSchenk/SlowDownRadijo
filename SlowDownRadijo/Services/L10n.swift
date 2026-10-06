@@ -916,6 +916,239 @@ enum L10n {
         }
     }
 
+    // MARK: - Statistiky
+
+    static var tabStats: String {
+        switch lang {
+        case .cs: return "Statistiky"
+        case .en: return "Stats"
+        }
+    }
+
+    static var statsTitle: String {
+        switch lang {
+        case .cs: return "Statistiky"
+        case .en: return "Stats"
+        }
+    }
+
+    static var statsSubtitle: String {
+        switch lang {
+        case .cs: return "Tvůj čas s rádiem. Od dnešních minut až po místo mezi ostatními posluchači."
+        case .en: return "Your time with the radio. From today’s minutes to your place among the other listeners."
+        }
+    }
+
+    static var statsTotal: String {
+        switch lang {
+        case .cs: return "Celkem"
+        case .en: return "Total"
+        }
+    }
+
+    static var statsTodayDescription: String {
+        switch lang {
+        case .cs: return "Tolik času jsi dnes strávil/a poslechem Slow Down rádia v appce."
+        case .en: return "This is how long you listened to Slow Down Radio in the app today."
+        }
+    }
+
+    static var statsTotalDescription: String {
+        switch lang {
+        case .cs: return "Součet tvého zaznamenaného poslechu v appce napříč všemi dny."
+        case .en: return "The sum of your recorded listening in the app across all days."
+        }
+    }
+
+    static var statsCommunityTitle: String {
+        switch lang {
+        case .cs: return "Celkem všichni Slow Down Riders"
+        case .en: return "All Slow Down Riders combined"
+        }
+    }
+
+    static var statsCommunityDescription: String {
+        switch lang {
+        case .cs: return "Součet veškerého poslechu v appce napříč všemi dny od všech."
+        case .en: return "All listening in the app, across all days, from everyone."
+        }
+    }
+
+    static var statsLeaderboardTitle: String {
+        switch lang {
+        case .cs: return "Žebříček posluchačů"
+        case .en: return "Listener leaderboard"
+        }
+    }
+
+    static var statsLeaderboardScope: String {
+        switch lang {
+        case .cs: return "Žebříček posluchačů v appce"
+        case .en: return "Leaderboard of app listeners"
+        }
+    }
+
+    static var statsRankOf: String {
+        switch lang {
+        case .cs: return "z"
+        case .en: return "of"
+        }
+    }
+
+    static func statsLeaderboardDescription(count: String) -> String {
+        switch lang {
+        case .cs: return "Tvoje místo mezi \(count) posluchači podle zaznamenaného času poslechu v appce."
+        case .en: return "Your place among \(count) listeners, based on recorded listening time in the app."
+        }
+    }
+
+    static var statsEncouragement: String {
+        switch lang {
+        case .cs: return "Díky, že ladíš s námi. Tady nejde o závod, ale o společný čas s hudbou."
+        case .en: return "Thanks for tuning in with us. This isn’t a race — it’s time spent together with music."
+        }
+    }
+
+    static var statsTimelineTitle: String {
+        switch lang {
+        case .cs: return "Tvůj poslech v čase"
+        case .en: return "Your listening over time"
+        }
+    }
+
+    static var statsWeekCaption: String {
+        switch lang {
+        case .cs: return "za 7 dní"
+        case .en: return "last 7 days"
+        }
+    }
+
+    static var statsShowsTitle: String {
+        switch lang {
+        case .cs: return "Čas s jednotlivými pořady"
+        case .en: return "Time with each show"
+        }
+    }
+
+    static func statsShowsContext(total: String) -> String {
+        switch lang {
+        case .cs: return "Stejný týden · \(total)"
+        case .en: return "Same week · \(total)"
+        }
+    }
+
+    static var statsTopShowKicker: String {
+        switch lang {
+        case .cs: return "NEJVÍC POSLECHU"
+        case .en: return "MOST LISTENED"
+        }
+    }
+
+    static var statsExplainTitle: String {
+        switch lang {
+        case .cs: return "Co čísla znamenají?"
+        case .en: return "What do the numbers mean?"
+        }
+    }
+
+    static var statsExplainBody: String {
+        switch lang {
+        case .cs: return "Dnes je čas poslechu během dnešního dne. Celkem zahrnuje veškerý zaznamenaný poslech v appce; dnešní čas je jeho součástí."
+        case .en: return "Today is your listening time during today. Total includes all recorded listening in the app; today’s time is part of it."
+        }
+    }
+
+    static var statsPrivacyNote: String {
+        switch lang {
+        case .cs: return "Měříme jen čas poslechu pod anonymním ID. Vypnout to jde v nastavení."
+        case .en: return "We only measure listening time under an anonymous ID. You can turn it off in Settings."
+        }
+    }
+
+    static var statsUnknownShow: String {
+        switch lang {
+        case .cs: return "Mimo program"
+        case .en: return "Outside the schedule"
+        }
+    }
+
+    static var statsEmptyChart: String {
+        switch lang {
+        case .cs: return "Zatím tu nic není."
+        case .en: return "Nothing here yet."
+        }
+    }
+
+    static var statsEmptyShows: String {
+        switch lang {
+        case .cs: return "Až si něco poslechneš, uvidíš tu své oblíbené pořady."
+        case .en: return "Once you’ve listened to something, your favourite shows will show up here."
+        }
+    }
+
+    static var statsRankNoListening: String {
+        switch lang {
+        case .cs: return "Pusť si rádio a zjistíš, kde ses mezi posluchači ocitl/a."
+        case .en: return "Play the radio and you’ll see where you stand among the listeners."
+        }
+    }
+
+    static var statsRankNeedsMinute: String {
+        switch lang {
+        case .cs: return "Pořadí se ti ukáže po první minutě poslechu."
+        case .en: return "Your rank appears after your first minute of listening."
+        }
+    }
+
+    static var statsRankCalculating: String {
+        switch lang {
+        case .cs: return "Pořadí se právě počítá…"
+        case .en: return "Working out your rank…"
+        }
+    }
+
+    static var statsRankFailed: String {
+        switch lang {
+        case .cs: return "Pořadí se teď nepodařilo načíst."
+        case .en: return "Couldn’t load your rank right now."
+        }
+    }
+
+    static var statsRetry: String {
+        switch lang {
+        case .cs: return "Zkusit znovu"
+        case .en: return "Try again"
+        }
+    }
+
+    static var statsOfflineNote: String {
+        switch lang {
+        case .cs: return "Offline – pořadí se aktualizuje po připojení."
+        case .en: return "Offline – your rank updates once you’re back online."
+        }
+    }
+
+    static var statsDisabledMessage: String {
+        switch lang {
+        case .cs: return "Statistiky jsou vypnuté. Nic se neměří ani neukládá."
+        case .en: return "Stats are turned off. Nothing is measured or stored."
+        }
+    }
+
+    static var statsEnableAction: String {
+        switch lang {
+        case .cs: return "Zapnout"
+        case .en: return "Turn on"
+        }
+    }
+
+    static var statsHomeTitle: String {
+        switch lang {
+        case .cs: return "Tvoje statistiky poslechu"
+        case .en: return "Your listening stats"
+        }
+    }
+
     static var settingsPrivacyPolicy: String {
         switch lang {
         case .cs: return "Zásady ochrany osobních údajů"

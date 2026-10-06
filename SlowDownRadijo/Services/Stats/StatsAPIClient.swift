@@ -74,6 +74,21 @@ actor StatsAPIClient {
         _ = try await authenticatedRPC("record_listening", body: body)
     }
 
+    /// The raw `get_my_stats` JSON, or `nil` when this phone has no
+    /// anonymous session yet — i.e. it never listened long enough to upload
+    /// anything. Opening the stats screen must not create an account.
+    func fetchMyStats() async throws -> Data? {
+        loadStoredSessionIfNeeded()
+        guard session != nil else { return nil }
+        return try await authenticatedRPC("get_my_stats", body: Data("{}".utf8))
+    }
+
+    /// Public, session-less summary (`public_stats()`): whether the stats UI
+    /// is unlocked yet, plus the community numbers. Zeros until it is.
+    func fetchPublicStats() async throws -> Data {
+        try await send(path: "rest/v1/rpc/public_stats", body: Data("{}".utf8), bearer: nil)
+    }
+
     /// "Smazat moje statistiky" — removes the listener's rows server-side.
     func deleteMyData() async throws {
         _ = try await authenticatedRPC("delete_my_listening_data", body: Data("{}".utf8))
@@ -81,13 +96,16 @@ actor StatsAPIClient {
 
     // MARK: - Session
 
-    private func currentSession() async throws -> Session {
-        if !didLoadStoredSession {
-            didLoadStoredSession = true
-            if let data = KeychainStore.read(account: Self.sessionAccount) {
-                session = try? JSONDecoder().decode(Session.self, from: data)
-            }
+    private func loadStoredSessionIfNeeded() {
+        guard !didLoadStoredSession else { return }
+        didLoadStoredSession = true
+        if let data = KeychainStore.read(account: Self.sessionAccount) {
+            session = try? JSONDecoder().decode(Session.self, from: data)
         }
+    }
+
+    private func currentSession() async throws -> Session {
+        loadStoredSessionIfNeeded()
         if let session, session.expiresAt.timeIntervalSinceNow > 60 {
             return session
         }

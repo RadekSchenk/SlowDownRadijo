@@ -179,7 +179,11 @@ same user to a permanent account, so history carries over.
    seconds disappear from the total too. Old batch ids are pruned as well.
    The `delete` statements make the Supabase MCP connector ask for
    confirmation; running the file in the SQL Editor works without it.
-4. **The stats UI switch.** `stats_config` has one row:
+4. **Run `supabase/sql/007_public_stats.sql`.** It adds `public_stats()`, the
+   session-less call the app uses to learn whether the stats UI is unlocked
+   and to show the community total to people who haven't listened yet (zeros
+   until the threshold is reached).
+5. **The stats UI switch.** `stats_config` has one row:
    `min_listeners` (default 20) and `min_listener_seconds` (default 60) —
    the Statistiky tab appears for everyone once that many listeners have
    listened at least that long. For testing before then:
@@ -187,13 +191,18 @@ same user to a permanent account, so history carries over.
    update stats_config set force_enabled = true;   -- show the UI now
    update stats_config set force_enabled = false;  -- back to the threshold
    ```
-5. **Quick check** after the first minute of listening in the app:
+6. **Quick check** after the first minute of listening in the app:
    ```sql
    select * from listeners;                 -- one row, total_seconds ≈ 60+
    select * from listening_daily order by day desc;
    ```
 
 ### Release checklist (privacy / App Review)
+
+- [ ] **`stats_config.force_enabled` must be `false`** before a release —
+      it is only a testing switch that shows the Statistiky UI to everyone
+      regardless of the listener threshold:
+      `update stats_config set force_enabled = false;`
 
 - [ ] `PRIVACY_POLICY.md` is published at the URL the app opens (Menu ▸
       Nastavení ▸ Zásady ochrany osobních údajů) and at the privacy URL in

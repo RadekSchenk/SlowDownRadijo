@@ -11,6 +11,11 @@ struct RootTabView: View {
     @StateObject private var voiceMessageViewModel: VoiceMessageViewModel
     @StateObject private var favoriteTrackStore = FavoriteTrackStore()
     @StateObject private var previewPlayer: PreviewPlayerService
+    @StateObject private var statsStore: ListeningStatsStore
+
+    /// The Statistiky page's tab tag (0 radio, 1–2 feature-flagged, 3 Vzkaz,
+    /// 4 Podpora). Its bar button only appears once the stats UI unlocks.
+    private static let statsTab = 5
 
     @State private var selectedTab = 0
     /// `init()` isn't a safe place for the autoplay side effect — SwiftUI
@@ -45,13 +50,19 @@ struct RootTabView: View {
         _historyViewModel = StateObject(wrappedValue: HistoryViewModel(historyStore: historyStore))
         _voiceMessageViewModel = StateObject(wrappedValue: VoiceMessageViewModel(radioPlayer: playerService))
         _previewPlayer = StateObject(wrappedValue: PreviewPlayerService(radioPlayer: playerService))
+        _statsStore = StateObject(wrappedValue: ListeningStatsStore(scheduleStore: schedule))
     }
 
     var body: some View {
         TabView(selection: $selectedTab) {
             NavigationStack {
-                HomeView(nowPlaying: nowPlayingViewModel, history: historyViewModel, scheduleStore: scheduleStore)
-                    .toolbar(.hidden, for: .navigationBar)
+                HomeView(
+                    nowPlaying: nowPlayingViewModel,
+                    history: historyViewModel,
+                    scheduleStore: scheduleStore,
+                    onOpenStats: { selectedTab = Self.statsTab }
+                )
+                .toolbar(.hidden, for: .navigationBar)
             }
             .tag(0)
 
@@ -84,6 +95,12 @@ struct RootTabView: View {
                     .toolbar(.hidden, for: .navigationBar)
             }
             .tag(4)
+
+            NavigationStack {
+                StatsView()
+                    .toolbar(.hidden, for: .navigationBar)
+            }
+            .tag(Self.statsTab)
         }
         // The native tab bar centers/compresses its items instead of
         // spreading them to Figma's `bottom-nav` spec (node 12294:257) —
@@ -96,6 +113,7 @@ struct RootTabView: View {
         }
         .environmentObject(favoriteTrackStore)
         .environmentObject(previewPlayer)
+        .environmentObject(statsStore)
         .onAppear {
             configureNavigationBarAppearance()
             // Autoplay: a radio app should start making sound as soon as it
@@ -115,9 +133,10 @@ struct RootTabView: View {
 
     /// Hand-built replacement for `TabView`'s own tab bar chrome — see the
     /// `.toolbar(.hidden, for: .tabBar)` comment above for why. Visible
-    /// tabs are hardcoded (not derived from the `TabView` content above)
-    /// since only 3 of its 5 possible pages are ever shown at once; the
-    /// other 2 are feature-flagged entirely out of the nav, not just
+    /// tabs are hardcoded (not derived from the `TabView` content above):
+    /// Rádio, Vzkaz, Podpora, plus Statistiky once `statsStore.isAvailable`
+    /// (enough listeners — see `ListeningStatsStore`). The two
+    /// feature-flagged pages are kept out of the nav entirely, not just
     /// hidden from this bar.
     private var bottomNav: some View {
         VStack(spacing: 0) {
@@ -130,9 +149,15 @@ struct RootTabView: View {
                 Spacer(minLength: 0)
                 tabBarButton(tag: 3, title: L10n.tabMessage, image: "TabIconMessage")
                 Spacer(minLength: 0)
+                if statsStore.isAvailable {
+                    tabBarButton(tag: Self.statsTab, title: L10n.tabStats, image: "TabIconStats")
+                    Spacer(minLength: 0)
+                }
                 tabBarButton(tag: 4, title: L10n.tabSupport, image: "TabIconSupport")
             }
-            .padding(.horizontal, 60)
+            // Figma `bottom-nav`: 60pt side margins with three tabs, 24pt
+            // with four (space-between across the full width either way).
+            .padding(.horizontal, statsStore.isAvailable ? 24 : 60)
             .padding(.top, 14)
             .padding(.bottom, 10)
         }

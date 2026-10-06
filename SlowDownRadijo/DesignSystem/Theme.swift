@@ -36,6 +36,13 @@ enum Theme {
     static let subtleText = Color.adaptive(light: 0x6E6390, dark: 0xA699B8)
     /// Solid list-row divider (`#332b4d`).
     static let divider = Color.adaptive(light: 0xDDDAE6, dark: 0x332B4D)
+    /// Statistiky cards (`#1a1535` in Figma). Light mode lifts them to white
+    /// so they still read as cards on the pale page background.
+    static let statsCard = Color.adaptive(light: 0xFFFFFF, dark: 0x1A1535)
+    /// The smaller metric tiles on the home screen's stats block (`#241c3a`).
+    static let statsCardRaised = Color.adaptive(light: 0xEFEDF7, dark: 0x241C3A)
+    /// Non-peak bars of the weekly chart (`#665781`).
+    static let statsBarMuted = Color.adaptive(light: 0xB9AFD6, dark: 0x665781)
     /// The unselected tab label/icon color stayed at the old `lavender`
     /// dark value (`#b8afdc`) even after `lavender` itself moved to `#8f89a9`.
     static let tabBarUnselected = mutedText

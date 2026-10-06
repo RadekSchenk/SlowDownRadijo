@@ -11,6 +11,10 @@ struct HomeView: View {
     @ObservedObject private var loc = LocalizationManager.shared
     @EnvironmentObject private var favorites: FavoriteTrackStore
     @EnvironmentObject private var previewPlayer: PreviewPlayerService
+    @EnvironmentObject private var stats: ListeningStatsStore
+    @AppStorage(StatsConfig.enabledKey) private var statsEnabled = true
+    /// Tapping the stats block jumps to the Statistiky tab.
+    var onOpenStats: () -> Void = {}
 
     /// One-shot: flips true the first time a favorite is ever added, so the
     /// explainer sheet below only appears once, ever.
@@ -53,8 +57,13 @@ struct HomeView: View {
                     .padding(.top, 12)
 
                 // Figma's "scroll-content" wrapper spaces its top-level
-                // sections (the now-playing card, this one) 32pt apart —
+                // sections (now-playing card, stats, Pořady) 32pt apart —
                 // not the 24pt used between `HomeView`'s other sub-sections.
+                if stats.isAvailable && statsEnabled {
+                    StatsHomeBlock(onOpen: onOpenStats)
+                        .padding(.top, Theme.Spacing.xl)
+                }
+
                 HomeProgramSection(scheduleStore: scheduleStore, currentShow: nowPlaying.currentShow)
                     .padding(.top, Theme.Spacing.xl)
 
