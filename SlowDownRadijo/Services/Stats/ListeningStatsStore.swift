@@ -44,6 +44,7 @@ final class ListeningStatsStore: ObservableObject {
         UserDefaults.standard.removeObject(forKey: "stats.available")
         snapshot = Self.loadCached(StatsSnapshot.self, key: Self.snapshotKey)
         publicStats = Self.loadCached(PublicStats.self, key: Self.publicKey)
+        recordDebug("start: cached public available=\(publicStats.map { "\($0.available)" } ?? "none"), snapshot available=\(snapshot.map { "\($0.available)" } ?? "none")")
 
         ListeningTracker.shared.events
             .receive(on: DispatchQueue.main)
@@ -81,11 +82,29 @@ final class ListeningStatsStore: ObservableObject {
     }
 
     private func refreshPublic() async {
-        guard let data = try? await StatsAPIClient.shared.fetchPublicStats(),
-              let stats = Self.decode(PublicStats.self, from: data) else { return }
+        guard let data = try? await StatsAPIClient.shared.fetchPublicStats() else {
+            recordDebug("public_stats: request failed")
+            return
+        }
+        guard let stats = Self.decode(PublicStats.self, from: data) else {
+            recordDebug("public_stats: could not decode \(String(data: data, encoding: .utf8) ?? "?")")
+            return
+        }
         publicStats = stats
         Self.store(stats, key: Self.publicKey)
+        recordDebug("public_stats: available=\(stats.available), ranked=\(stats.rankedListeners)")
     }
+
+    /// One line for the DEBUG-only footer in Settings, so "why is the
+    /// leaderboard showing?" can be answered from the phone itself.
+    private func recordDebug(_ message: String) {
+        #if DEBUG
+        let time = Date().formatted(date: .omitted, time: .standard)
+        UserDefaults.standard.set("\(time) \(message)", forKey: Self.debugKey)
+        #endif
+    }
+
+    static let debugKey = "stats.debugLine"
 
     func refresh(force: Bool = false) async {
         guard StatsConfig.isEnabled, !isLoading else { return }

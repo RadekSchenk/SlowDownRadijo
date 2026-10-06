@@ -64,6 +64,12 @@ struct SettingsView: View {
                 }
 
                 aboutFooter
+
+                #if DEBUG
+                Text("DEBUG · \(UserDefaults.standard.string(forKey: ListeningStatsStore.debugKey) ?? "no stats line yet")")
+                    .font(Theme.Typography.Manrope.regular(size: 11, relativeTo: .caption2))
+                    .foregroundStyle(Theme.subtleText)
+                #endif
             }
             .padding(.horizontal, 20)
             .padding(.top, 20)
