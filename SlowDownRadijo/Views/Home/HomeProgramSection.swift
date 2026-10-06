@@ -90,12 +90,12 @@ struct HomeProgramSection: View {
 
                 dayPicker
 
-                divider
+                ListDivider()
             }
 
             if !pastShows.isEmpty {
                 pastShowsDisclosure
-                divider
+                ListDivider()
             }
 
             if displayedShows.isEmpty {
@@ -108,7 +108,7 @@ struct HomeProgramSection: View {
                     ForEach(Array(displayedShows.enumerated()), id: \.offset) { index, show in
                         compactRow(for: show)
                         if index < displayedShows.count - 1 {
-                            divider
+                            ListDivider()
                         }
                     }
                 }
@@ -213,9 +213,4 @@ struct HomeProgramSection: View {
         .padding(.vertical, 20)
     }
 
-    private var divider: some View {
-        Rectangle()
-            .fill(Theme.divider)
-            .frame(height: 1)
-    }
 }

@@ -112,7 +112,7 @@ struct MessageView: View {
             }
 
             VStack(spacing: 0) {
-                divider
+                ListDivider()
                 HStack(spacing: Theme.Spacing.md) {
                     Button(action: viewModel.togglePlayback) {
                         AccentCircle {
@@ -130,12 +130,12 @@ struct MessageView: View {
                         .monospacedDigit()
                 }
                 .padding(.vertical, 20)
-                divider
+                ListDivider()
             }
 
             VStack(spacing: 12) {
-                primaryButton(L10n.sendToRadio, systemImage: "paperplane.fill", action: viewModel.submit)
-                secondaryButton(L10n.recordAgain, action: viewModel.retry)
+                PrimaryActionButton(title: L10n.sendToRadio, systemImage: "paperplane.fill", action: viewModel.submit)
+                SecondaryActionButton(title: L10n.recordAgain, action: viewModel.retry)
             }
         }
     }
@@ -160,8 +160,8 @@ struct MessageView: View {
             }
 
             VStack(spacing: 12) {
-                primaryButton(L10n.backToRadio, action: onBack)
-                secondaryButton(L10n.recordAnotherMessage, action: viewModel.recordAnother)
+                PrimaryActionButton(title: L10n.backToRadio, action: onBack)
+                SecondaryActionButton(title: L10n.recordAnotherMessage, action: viewModel.recordAnother)
             }
         }
     }
@@ -251,42 +251,6 @@ struct MessageView: View {
             .foregroundStyle(Theme.textPrimary)
         }
         .buttonStyle(.plain)
-    }
-
-    private func primaryButton(_ title: String, systemImage: String? = nil, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack(spacing: Theme.Spacing.sm) {
-                if let systemImage {
-                    Image(systemName: systemImage)
-                }
-                Text(title)
-            }
-            .font(Theme.Typography.Manrope.extraBold(size: 16, relativeTo: .headline))
-            .foregroundStyle(.white)
-            .frame(maxWidth: .infinity)
-            .frame(height: 52)
-            .background(Theme.liveRed, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-        }
-        .buttonStyle(.plain)
-    }
-
-    /// The header's CZ/Menu pill treatment, stretched full width.
-    private func secondaryButton(_ title: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title)
-                .font(Theme.Typography.Manrope.extraBold(size: 16, relativeTo: .headline))
-                .foregroundStyle(Theme.textPrimary)
-                .frame(maxWidth: .infinity)
-                .frame(height: 52)
-                .background(Theme.hairline(0.08), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-        }
-        .buttonStyle(.plain)
-    }
-
-    private var divider: some View {
-        Rectangle()
-            .fill(Theme.divider)
-            .frame(height: 1)
     }
 
     // MARK: - Helpers

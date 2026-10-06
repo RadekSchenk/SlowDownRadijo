@@ -76,9 +76,7 @@ struct SupportView: View {
 
             VStack(spacing: 0) {
                 ForEach(SupportOption.all) { option in
-                    Rectangle()
-                        .fill(Theme.divider)
-                        .frame(height: 1)
+                    ListDivider()
                     SupportCardView(option: option) {
                         safariURL = option.url
                         isShowingSafari = true

@@ -575,20 +575,6 @@ enum L10n {
         }
     }
 
-    static var hubNotificationsRow: String {
-        switch lang {
-        case .cs: return "Notifikace"
-        case .en: return "Notifications"
-        }
-    }
-
-    static var hubNotificationsRowSubtitle: String {
-        switch lang {
-        case .cs: return "Upozornění na nové novinky"
-        case .en: return "Alerts for new posts"
-        }
-    }
-
     static var hubFeedbackRow: String {
         switch lang {
         case .cs: return "Zpětná vazba"
@@ -600,6 +586,13 @@ enum L10n {
         switch lang {
         case .cs: return "Napiš nám, co si myslíš"
         case .en: return "Tell us what you think"
+        }
+    }
+
+    static var close: String {
+        switch lang {
+        case .cs: return "Zavřít"
+        case .en: return "Close"
         }
     }
 
@@ -912,13 +905,6 @@ enum L10n {
     }
 
     // MARK: - Notifications
-
-    static var notificationsTitle: String {
-        switch lang {
-        case .cs: return "Notifikace"
-        case .en: return "Notifications"
-        }
-    }
 
     static var notificationsNewPostTitle: String {
         switch lang {

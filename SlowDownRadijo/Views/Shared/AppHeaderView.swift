@@ -48,16 +48,9 @@ struct AppHeaderView: View {
 
             Spacer(minLength: 0)
 
-            Button {
+            HeaderIconButton(systemName: appearanceIconName) {
                 appearanceManager.appearance = isEffectivelyDark ? .light : .dark
-            } label: {
-                Image(systemName: appearanceIconName)
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(Theme.textPrimary)
-                    .frame(width: 34, height: 34)
-                    .background(Theme.hairline(0.08), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
-            .buttonStyle(.plain)
             .accessibilityLabel(L10n.settingsAppearanceTitle)
 
             Button {
