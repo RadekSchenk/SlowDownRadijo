@@ -20,20 +20,24 @@ struct PlayButton: View {
                     ProgressView()
                         .progressViewStyle(.circular)
                         .tint(.white)
+                        .transition(.iconSwap)
                 case .playing:
                     Image(systemName: "pause.fill")
                         .font(.system(size: iconSize, weight: .bold))
                         .foregroundStyle(.white)
+                        .transition(.iconSwap)
                 default:
                     Image(systemName: "play.fill")
                         .font(.system(size: iconSize, weight: .bold))
                         .foregroundStyle(.white)
                         .offset(x: 1)
+                        .transition(.iconSwap)
                 }
             }
         }
         .buttonStyle(.plain)
         .disabled(state == .connecting)
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: state)
+        // Library P5 — icon swap: from 25% scale through a 2px blur, 250ms.
+        .animation(Motion.iconSwap, value: state)
     }
 }

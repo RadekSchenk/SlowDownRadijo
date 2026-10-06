@@ -62,12 +62,16 @@ struct StatsHomeBlock: View {
     private func rankPill(_ summary: ListeningStatsSummary) -> some View {
         HStack(alignment: .lastTextBaseline, spacing: 0) {
             if let rank = summary.rank {
-                Text("#\(rank)")
-                    .font(Theme.Typography.Manrope.extraBold(size: 17, relativeTo: .headline))
-                    .foregroundStyle(Theme.liveRed)
-                Text("  \(L10n.statsRankOf) \(StatsFormat.number(summary.rankedListeners))")
-                    .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .body))
-                    .foregroundStyle(Theme.mutedText)
+                PopNumberText(
+                    text: "#\(rank)",
+                    font: Theme.Typography.Manrope.extraBold(size: 17, relativeTo: .headline),
+                    color: Theme.liveRed
+                )
+                PopNumberText(
+                    text: "  \(L10n.statsRankOf) \(StatsFormat.number(summary.rankedListeners))",
+                    font: Theme.Typography.Manrope.semibold(size: 16, relativeTo: .body),
+                    color: Theme.mutedText
+                )
             } else {
                 Text("—")
                     .font(Theme.Typography.Manrope.extraBold(size: 17, relativeTo: .headline))

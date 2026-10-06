@@ -154,6 +154,9 @@ struct MessageView: View {
 
     private var sentView: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+            // Library P10 — success check.
+            SuccessCheck()
+
             VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                 statusBadge(L10n.sentBadge)
                 header(title: L10n.messageSent, subtitle: L10n.thankYouForMessage)

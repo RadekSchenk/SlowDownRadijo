@@ -134,13 +134,17 @@ struct StatsView: View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(alignment: .lastTextBaseline, spacing: 0) {
-                    Text("#\(rank)")
-                        .font(Theme.Typography.Manrope.extraBold(size: 48, relativeTo: .largeTitle))
-                        .foregroundStyle(Theme.liveRed)
-                        .manropeLineHeight(58, fontSize: 48)
-                    Text(" \(L10n.statsRankOf) \(StatsFormat.number(total))")
-                        .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .body))
-                        .foregroundStyle(Theme.mutedText)
+                    PopNumberText(
+                        text: "#\(rank)",
+                        font: Theme.Typography.Manrope.extraBold(size: 48, relativeTo: .largeTitle),
+                        color: Theme.liveRed
+                    )
+                    .manropeLineHeight(58, fontSize: 48)
+                    PopNumberText(
+                        text: " \(L10n.statsRankOf) \(StatsFormat.number(total))",
+                        font: Theme.Typography.Manrope.semibold(size: 16, relativeTo: .body),
+                        color: Theme.mutedText
+                    )
                 }
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
@@ -176,7 +180,13 @@ struct StatsView: View {
         } else if summary.totalSeconds < 60 {
             StatsBodyText(L10n.statsRankNeedsMinute)
         } else {
-            StatsBodyText(L10n.statsRankCalculating)
+            // Still working it out (library P15 — shimmer on text).
+            ShimmerText(
+                text: L10n.statsRankCalculating,
+                font: Theme.Typography.Manrope.regular(size: 14, relativeTo: .subheadline),
+                base: Theme.mutedText
+            )
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 

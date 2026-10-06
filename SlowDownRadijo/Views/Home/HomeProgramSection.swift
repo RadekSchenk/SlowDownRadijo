@@ -15,6 +15,9 @@ struct HomeProgramSection: View {
     let currentShow: Show?
 
     @State private var selectedWeekday: Int
+    /// The selected day's pill slides between days (library P16 — tabs with
+    /// a sliding active indicator).
+    @Namespace private var dayPill
     @State private var isShowingPastShows = false
 
     init(scheduleStore: ScheduleStore, currentShow: Show?) {
@@ -128,7 +131,7 @@ struct HomeProgramSection: View {
         let isSelected = weekday == selectedWeekday
         let isToday = weekday == todayWeekday
         return Button {
-            withAnimation(.easeInOut(duration: 0.2)) {
+            withAnimation(Motion.tabsSliding) {
                 selectedWeekday = weekday
                 isShowingPastShows = false
             }
@@ -153,24 +156,31 @@ struct HomeProgramSection: View {
             }
             .frame(maxWidth: .infinity)
             .frame(height: 72)
-            .background(
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(isSelected ? Color(hex: 0x29213F) : Color.clear)
-            )
+            .background {
+                if isSelected {
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(Color(hex: 0x29213F))
+                        .matchedGeometryEffect(id: "dayPill", in: dayPill)
+                }
+            }
         }
         .buttonStyle(.plain)
     }
 
     private var pastShowsDisclosure: some View {
         Button {
-            withAnimation(.easeInOut(duration: 0.2)) {
+            // Library P21 — accordion: 250ms smooth-out for panel and chevron.
+            withAnimation(Motion.accordion) {
                 isShowingPastShows.toggle()
             }
         } label: {
             HStack {
-                Text(isShowingPastShows ? L10n.hidePreviousShows : L10n.showPreviousShows(count: pastShows.count))
-                    .font(Theme.Typography.Manrope.bold(size: 16, relativeTo: .subheadline))
-                    .foregroundStyle(Theme.textPrimary)
+                PopNumberText(
+                    text: isShowingPastShows ? L10n.hidePreviousShows : L10n.showPreviousShows(count: pastShows.count),
+                    font: Theme.Typography.Manrope.bold(size: 16, relativeTo: .subheadline),
+                    color: Theme.textPrimary
+                )
+                .lineLimit(1)
                 Spacer(minLength: Theme.Spacing.sm)
                 Image(systemName: "chevron.down")
                     .resizable()

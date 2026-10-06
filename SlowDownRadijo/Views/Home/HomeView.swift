@@ -206,9 +206,11 @@ struct HomeView: View {
                 .font(Theme.Typography.Manrope.regular(size: 12, relativeTo: .footnote))
                 .foregroundStyle(Theme.statusError)
         case .connecting:
-            Text(L10n.connecting)
-                .font(Theme.Typography.Manrope.regular(size: 12, relativeTo: .footnote))
-                .foregroundStyle(Theme.lavender)
+            ShimmerText(
+                text: L10n.connecting,
+                font: Theme.Typography.Manrope.regular(size: 12, relativeTo: .footnote),
+                base: Theme.lavender
+            )
         default:
             EmptyView()
         }

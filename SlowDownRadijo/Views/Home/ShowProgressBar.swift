@@ -43,10 +43,14 @@ struct ShowProgressBar: View {
                 }
             }
 
-            Text(remainingLabel)
-                .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .subheadline))
-                .foregroundStyle(Theme.mutedText)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            // The minutes count down with the number pop-in (library P9).
+            PopNumberText(
+                text: remainingLabel,
+                font: Theme.Typography.Manrope.semibold(size: 16, relativeTo: .subheadline),
+                color: Theme.mutedText
+            )
+            .lineLimit(1)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 

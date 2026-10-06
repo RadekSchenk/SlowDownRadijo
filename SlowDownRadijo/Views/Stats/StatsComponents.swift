@@ -21,13 +21,16 @@ struct DurationText: View {
         .accessibilityLabel("\(parts.hours) h \(parts.minutes) m")
     }
 
+    /// The digits pop in when they change (library P9 — Number pop-in).
     private func number(_ text: String) -> some View {
-        Text(text)
-            .font(Theme.Typography.Manrope.extraBold(size: numberSize))
-            .foregroundStyle(Theme.textPrimary)
-            .lineLimit(1)
-            .minimumScaleFactor(0.5)
-            .manropeLineHeight(lineHeight, fontSize: numberSize)
+        PopNumberText(
+            text: text,
+            font: Theme.Typography.Manrope.extraBold(size: numberSize),
+            color: Theme.textPrimary
+        )
+        .lineLimit(1)
+        .minimumScaleFactor(0.5)
+        .manropeLineHeight(lineHeight, fontSize: numberSize)
     }
 
     private func unit(_ text: String) -> some View {
@@ -105,9 +108,10 @@ struct WeeklyChartCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .firstTextBaseline) {
-                Text(StatsFormat.duration(seconds: summary.weekSeconds))
-                    .font(Theme.Typography.Manrope.extraBold(size: 24, relativeTo: .title2))
-                    .foregroundStyle(Theme.textPrimary)
+                PopNumberText(
+                    text: StatsFormat.duration(seconds: summary.weekSeconds),
+                    font: Theme.Typography.Manrope.extraBold(size: 24, relativeTo: .title2)
+                )
                 Spacer(minLength: Theme.Spacing.sm)
                 Text(L10n.statsWeekCaption)
                     .font(Theme.Typography.Manrope.regular(size: 11, relativeTo: .caption2))
@@ -137,11 +141,13 @@ struct WeeklyChartCard: View {
             ? max(2, CGFloat(bar.seconds) / CGFloat(peak) * Self.peakBarHeight)
             : 2
         return VStack(spacing: 8) {
-            Text(StatsFormat.compactDuration(seconds: bar.seconds))
-                .font(Theme.Typography.Manrope.semibold(size: 9, relativeTo: .caption2))
-                .foregroundStyle(Theme.mutedText)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
+            PopNumberText(
+                text: StatsFormat.compactDuration(seconds: bar.seconds),
+                font: Theme.Typography.Manrope.semibold(size: 9, relativeTo: .caption2),
+                color: Theme.mutedText
+            )
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
 
             ZStack(alignment: .bottom) {
                 Color.clear.frame(width: 20, height: Self.scaleHeight)
@@ -155,6 +161,8 @@ struct WeeklyChartCard: View {
                 .fill(bar.isPeak ? Theme.liveRed : Theme.statsBarMuted)
                 .opacity(bar.seconds > 0 ? 1 : 0.4)
                 .frame(width: 20, height: height)
+                // Bars grow and shrink instead of jumping (library P4).
+                .animation(Motion.cardResize, value: height)
             }
 
             Text(bar.label)
@@ -207,10 +215,12 @@ struct TopShowCard: View {
     }
 
     private var badge: some View {
-        Text("\(StatsFormat.duration(seconds: share.seconds)) · \(StatsFormat.percent(share.fraction))")
-            .font(Theme.Typography.Manrope.extraBold(size: 12))
-            .foregroundStyle(Theme.liveRed)
-            .padding(.horizontal, 12)
+        PopNumberText(
+            text: "\(StatsFormat.duration(seconds: share.seconds)) · \(StatsFormat.percent(share.fraction))",
+            font: Theme.Typography.Manrope.extraBold(size: 12),
+            color: Theme.liveRed
+        )
+        .padding(.horizontal, 12)
             .padding(.vertical, 6)
             .background(Theme.liveRed.opacity(0.15), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).stroke(Theme.liveRed, lineWidth: 1))
@@ -256,12 +266,15 @@ struct ShowShareRow: View {
                 }
                 Spacer(minLength: Theme.Spacing.sm)
                 VStack(alignment: .trailing, spacing: 4) {
-                    Text(StatsFormat.duration(seconds: share.seconds))
-                        .font(Theme.Typography.Manrope.extraBold(size: 15, relativeTo: .subheadline))
-                        .foregroundStyle(Theme.textPrimary)
-                    Text(StatsFormat.percent(share.fraction))
-                        .font(Theme.Typography.Manrope.regular(size: 12, relativeTo: .caption))
-                        .foregroundStyle(Theme.mutedText)
+                    PopNumberText(
+                        text: StatsFormat.duration(seconds: share.seconds),
+                        font: Theme.Typography.Manrope.extraBold(size: 15, relativeTo: .subheadline)
+                    )
+                    PopNumberText(
+                        text: StatsFormat.percent(share.fraction),
+                        font: Theme.Typography.Manrope.regular(size: 12, relativeTo: .caption),
+                        color: Theme.mutedText
+                    )
                 }
             }
 
@@ -271,6 +284,7 @@ struct ShowShareRow: View {
                     Capsule()
                         .fill(Theme.mutedText)
                         .frame(width: max(3, proxy.size.width * CGFloat(share.fraction)))
+                        .animation(Motion.cardResize, value: share.fraction)
                 }
             }
             .frame(height: 3)

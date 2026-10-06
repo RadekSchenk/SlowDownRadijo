@@ -21,12 +21,16 @@ struct FeedbackView: View {
 
                 switch feedbackViewModel.state {
                 case .idle, .sending, .failed:
-                    feedbackForm
-                    if feedbackViewModel.state == .failed {
-                        Text(L10n.settingsFeedbackFailed)
-                            .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .footnote))
-                            .foregroundStyle(Theme.statusError)
+                    VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+                        feedbackForm
+                        if feedbackViewModel.state == .failed {
+                            Text(L10n.settingsFeedbackFailed)
+                                .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .footnote))
+                                .foregroundStyle(Theme.statusError)
+                        }
                     }
+                    // Library P12 — error shake when sending fails.
+                    .shake(when: feedbackViewModel.state == .failed)
                 case .sent:
                     sentConfirmation
                 }
@@ -72,6 +76,9 @@ struct FeedbackView: View {
 
     private var sentConfirmation: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+            // Library P10 — success check.
+            SuccessCheck()
+
             // Same badge as the Vzkaz tab's "ODESLÁNO".
             HStack(spacing: 8) {
                 Circle()
