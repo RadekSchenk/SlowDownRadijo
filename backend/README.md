@@ -169,10 +169,16 @@ same user to a permanent account, so history carries over.
 2. **Run `supabase/sql/005_listener_stats.sql`** in the SQL Editor. It is
    safe to re-run. Nothing needs deploying — the app talks to the SQL
    functions through Supabase's built-in REST layer.
-3. **Optional but promised in the privacy policy:** schedule the retention
-   jobs from the bottom of that SQL file (needs `pg_cron`, already enabled
-   for the collector above). They delete listeners unused for 24 months and
-   prune old batch ids.
+3. **Run `supabase/sql/006_community_archive.sql`** next. It adds the
+   anonymous `community_archive` counter and schedules the retention jobs
+   promised in the privacy policy (needs `pg_cron`, already enabled for the
+   collector above): listeners unused for 24 months are deleted and their
+   seconds are added to the archive, so "Celkem všichni Slow Down Riders"
+   never shrinks; they do leave the leaderboard. A listener who deletes their
+   own stats in the app (*Smazat moje statistiky*) is **not** archived — their
+   seconds disappear from the total too. Old batch ids are pruned as well.
+   The `delete` statements make the Supabase MCP connector ask for
+   confirmation; running the file in the SQL Editor works without it.
 4. **The stats UI switch.** `stats_config` has one row:
    `min_listeners` (default 20) and `min_listener_seconds` (default 60) —
    the Statistiky tab appears for everyone once that many listeners have

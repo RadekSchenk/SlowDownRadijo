@@ -247,13 +247,7 @@ grant execute on function get_my_stats(date) to authenticated;
 grant execute on function delete_my_listening_data() to authenticated;
 
 -- ---------------------------------------------------------------------
--- Optional housekeeping (run once if pg_cron is enabled — see backend/README.md):
---   * batch ids only need to outlive the app's retry window;
---   * listeners nobody has used for 24 months are removed, matching the
---     retention stated in PRIVACY_POLICY.md.
---
--- select cron.schedule('prune-listening-batches', '17 3 * * *',
---   $$ delete from listening_batches where received_at < now() - interval '7 days' $$);
--- select cron.schedule('prune-inactive-listeners', '23 3 * * 0',
---   $$ delete from listeners where coalesce(last_seen_at, created_at) < now() - interval '24 months' $$);
+-- Retention jobs (unused listeners after 24 months, old batch ids) live in
+-- 006_community_archive.sql, which also keeps the community total from
+-- shrinking when listeners are cleaned up. Run that file next.
 -- ---------------------------------------------------------------------

@@ -22,6 +22,7 @@ Jediný trvalý identifikátor, který aplikace používá, je **náhodné anony
 - Statistiky se v appce zobrazí, až když je v aplikaci dostatek posluchačů; měření ale probíhá od začátku.
 - **Právní základ:** oprávněný zájem provozovatele rádia znát poslechovost a nabídnout posluchačům statistiky (čl. 6 odst. 1 písm. f) GDPR).
 - **Doba uchování:** do smazání — kdykoli v appce (Menu ▸ Nastavení ▸ Smazat moje statistiky), nebo automaticky po 24 měsících, kdy appku nepoužiješ.
+- **Co po smazání zůstane:** když statistiky smažeš ručně, zmizí úplně, včetně tvého podílu na celkovém čase všech posluchačů. Při automatickém smazání po 24 měsících nepoužívání odstraníme celý tvůj záznam a ze žebříčku zmizíš; jen **celkový počet odposlouchaných sekund** se přičte do jednoho anonymního souhrnného čísla, aby celkový čas posluchačů neklesal. Toto číslo neobsahuje žádné ID ani jiný údaj, podle kterého by šlo kohokoli určit.
 - **Vypnutí:** v Menu ▸ Nastavení ▸ Statistiky poslechu. Po vypnutí se nic neměří ani neodesílá; už uložené údaje zůstanou, dokud je nesmažeš.
 - Pokud budeme v budoucnu nabízet volitelnou registraci, propojení dosavadních statistik s tvým profilem proběhne jen s tvým vědomím a tyto zásady aktualizujeme předem.
 
