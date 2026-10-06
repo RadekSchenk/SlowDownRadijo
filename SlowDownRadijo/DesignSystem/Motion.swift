@@ -179,6 +179,32 @@ private struct IconSwapEffect: ViewModifier {
     }
 }
 
+// MARK: - P22 · Reveal
+
+extension AnyTransition {
+    /// P22 — Toast open / close, as a generic reveal: fades in through a 2px
+    /// blur while growing from 97% out of its bottom edge.
+    static var reveal: AnyTransition {
+        .modifier(
+            active: RevealEffect(scale: 0.97, blur: Motion.blurSmall, opacity: 0),
+            identity: RevealEffect(scale: 1, blur: 0, opacity: 1)
+        )
+    }
+}
+
+private struct RevealEffect: ViewModifier {
+    let scale: CGFloat
+    let blur: CGFloat
+    let opacity: Double
+
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(scale, anchor: .bottom)
+            .blur(radius: blur)
+            .opacity(opacity)
+    }
+}
+
 // MARK: - P15 · Shimmer text
 
 /// P15 — Shimmer on text: a highlight band sweeps across the glyphs every

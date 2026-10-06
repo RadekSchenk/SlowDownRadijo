@@ -64,6 +64,10 @@ enum Theme {
     /// bars (`#2a263b`) — distinct from `surfaceElevated`, which reads too
     /// light against this specific waveform context.
     static let waveformMuted = Color(hex: 0x2A263B)
+    /// The *unplayed* part of the home equalizer and the progress track under
+    /// it (`#b8afdc`) — bright enough to show that something is there. The
+    /// Vzkaz recording waveform still uses the darker `waveformMuted`.
+    static let equalizerUnplayed = Color(hex: 0xB8AFDC)
 
     static let accentGradient = LinearGradient(
         colors: [sunYellow, sunOrange, sunRed],

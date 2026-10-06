@@ -38,9 +38,13 @@ struct ShowProgressBar: View {
                 VStack(spacing: 4) {
                     if isPlaying {
                         NowPlayingWaveform(progress: progress, trackID: waveformTrackID)
+                            .transition(.reveal)
                     }
                     ShowProgressTrack(progress: progress)
                 }
+                // The equalizer comes and goes with the play state; the rest
+                // of the card follows its height (library P4 / P22).
+                .animation(Motion.cardResize, value: isPlaying)
             }
 
             // The minutes count down with the number pop-in (library P9).
