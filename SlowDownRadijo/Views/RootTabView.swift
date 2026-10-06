@@ -23,10 +23,19 @@ struct RootTabView: View {
     /// edge instead of the design's 29pt — see `bottomNav`.
     private static let homeIndicatorZone: CGFloat = 19
 
+    /// The window's bottom safe-area inset: 34pt on iPhones with a home
+    /// indicator, 0 on those without. Read from UIKit — a `GeometryReader`
+    /// inside the `safeAreaInset` / an ignoring background reports 0 here.
+    /// `body` re-runs right after the first `.onAppear` (state changes), by
+    /// which time the window exists.
+    private var bottomSafeInset: CGFloat {
+        let windows = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap(\.windows)
+        return (windows.first(where: \.isKeyWindow) ?? windows.first)?.safeAreaInsets.bottom ?? 0
+    }
+
     @State private var selectedTab = 0
-    /// The window's bottom safe-area inset (34pt on iPhones with a home
-    /// indicator, 0 on those without), measured by `BottomSafeInsetKey`.
-    @State private var bottomSafeInset: CGFloat = 0
     /// `init()` isn't a safe place for the autoplay side effect — SwiftUI
     /// re-invokes it (e.g. when `AppRootView` re-renders as the splash
     /// dismisses), which previously spun up a second `RadioPlayerService`
@@ -120,15 +129,7 @@ struct RootTabView: View {
         .safeAreaInset(edge: .bottom, spacing: 0) {
             bottomNav
         }
-        // Read the inset from *outside* the inset above, where it still is the
-        // window's own safe area.
-        .background {
-            GeometryReader { proxy in
-                Color.clear.preference(key: BottomSafeInsetKey.self, value: proxy.safeAreaInsets.bottom)
-            }
-            .ignoresSafeArea()
-        }
-        .onPreferenceChange(BottomSafeInsetKey.self) { bottomSafeInset = $0 }
+
         .environmentObject(favoriteTrackStore)
         .environmentObject(previewPlayer)
         .environmentObject(statsStore)
@@ -220,14 +221,5 @@ struct RootTabView: View {
         ]
         UINavigationBar.appearance().standardAppearance = navAppearance
         UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
-    }
-}
-
-/// The window's bottom safe-area inset, reported from a background that
-/// ignores the safe area (see `RootTabView.body`).
-private struct BottomSafeInsetKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = max(value, nextValue())
     }
 }
