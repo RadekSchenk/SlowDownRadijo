@@ -91,16 +91,6 @@ enum L10n {
         }
     }
 
-    /// Section heading for the home screen's upcoming-shows list — deliberately
-    /// starts after the show `ShowProgressBar`'s "Následuje: …" line already
-    /// names, not from the very next one, so the two don't repeat each other.
-    static var comingUpHeading: String {
-        switch lang {
-        case .cs: return "Co hraje dál"
-        case .en: return "Coming up"
-        }
-    }
-
     static var coHralo: String {
         switch lang {
         case .cs: return "Co hrálo"
@@ -233,6 +223,39 @@ enum L10n {
         switch lang {
         case .cs: return "Pro tento den nemáme program."
         case .en: return "We don't have a schedule for this day."
+        }
+    }
+
+    /// Heading for the compact schedule embedded on the home screen —
+    /// deliberately not `tabProgram` ("Program"), which named the
+    /// now-hidden standalone tab this section replaces.
+    static var homeProgramHeading: String {
+        switch lang {
+        case .cs: return "Pořady"
+        case .en: return "Shows"
+        }
+    }
+
+    /// Day picker's label for today's chip, in place of its weekday
+    /// abbreviation.
+    static var today: String {
+        switch lang {
+        case .cs: return "Dnes"
+        case .en: return "Today"
+        }
+    }
+
+    static func showPreviousShows(count: Int) -> String {
+        switch lang {
+        case .cs: return "Zobrazit předchozí pořady (\(count))"
+        case .en: return "Show previous shows (\(count))"
+        }
+    }
+
+    static var hidePreviousShows: String {
+        switch lang {
+        case .cs: return "Skrýt předchozí pořady"
+        case .en: return "Hide previous shows"
         }
     }
 

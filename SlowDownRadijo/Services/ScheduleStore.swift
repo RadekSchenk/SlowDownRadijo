@@ -95,18 +95,6 @@ final class ScheduleStore: ObservableObject {
         return day(for: nextWeekday)?.shows.first
     }
 
-    /// Every show scheduled for the rest of today, after `show` (which
-    /// must be the one airing at `now`) — feeds the home screen's "Co
-    /// hraje dál" list, which deliberately stops at midnight rather than
-    /// spilling into tomorrow's lineup.
-    func remainingShowsToday(after show: Show, now: Date, calendar: Calendar = .current) -> [Show] {
-        let weekday = calendar.component(.weekday, from: now)
-        guard let today = day(for: weekday),
-              let startIndex = today.shows.firstIndex(where: { $0.id == show.id && $0.start == show.start })
-        else { return [] }
-        return Array(today.shows[(startIndex + 1)...])
-    }
-
     /// The absolute moment `show` ends, anchored to today's date (relative
     /// to `date`) — used by the sleep timer's "Konec pořadu" option. `nil`
     /// if `show.end` can't be parsed.

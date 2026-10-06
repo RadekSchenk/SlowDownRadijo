@@ -11,4 +11,11 @@ enum FeatureFlags {
     /// has no reason to exist without them. Turned off 2026-10-06 at
     /// RadekSchenk's request.
     static let nowPlayingHistoryAndFavorites = false
+
+    /// The standalone "Program" tab (`ProgramView`) — turned off
+    /// 2026-10-06 once `HomeProgramSection` put full day-by-day schedule
+    /// browsing directly on the home screen, making the separate tab
+    /// redundant. `ProgramView` itself is untouched, just unreachable from
+    /// the tab bar.
+    static let standaloneProgramTab = false
 }

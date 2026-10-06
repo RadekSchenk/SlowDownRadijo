@@ -50,18 +50,23 @@ struct RootTabView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             NavigationStack {
-                HomeView(nowPlaying: nowPlayingViewModel, history: historyViewModel)
+                HomeView(nowPlaying: nowPlayingViewModel, history: historyViewModel, scheduleStore: scheduleStore)
                     .toolbar(.hidden, for: .navigationBar)
             }
-            .tabItem { Label(L10n.tabRadio, systemImage: "antenna.radiowaves.left.and.right") }
+            // Figma's 3-tab redesign (node 12294:257) reuses the calendar
+            // glyph for Rádio now that the schedule itself lives on the
+            // home screen — not a typo.
+            .tabItem { Label(L10n.tabRadio, systemImage: "calendar") }
             .tag(0)
 
-            NavigationStack {
-                ProgramView(scheduleStore: scheduleStore)
-                    .toolbar(.hidden, for: .navigationBar)
+            if FeatureFlags.standaloneProgramTab {
+                NavigationStack {
+                    ProgramView(scheduleStore: scheduleStore)
+                        .toolbar(.hidden, for: .navigationBar)
+                }
+                .tabItem { Label(L10n.tabProgram, systemImage: "calendar") }
+                .tag(1)
             }
-            .tabItem { Label(L10n.tabProgram, systemImage: "calendar") }
-            .tag(1)
 
             if FeatureFlags.nowPlayingHistoryAndFavorites {
                 NavigationStack {
@@ -85,7 +90,7 @@ struct RootTabView: View {
                 SupportView()
                     .toolbar(.hidden, for: .navigationBar)
             }
-            .tabItem { Label(L10n.tabSupport, systemImage: "gift") }
+            .tabItem { Label(L10n.tabSupport, systemImage: "heart") }
             .tag(4)
         }
         .tint(Theme.liveRed)

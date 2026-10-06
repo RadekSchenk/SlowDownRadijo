@@ -7,6 +7,7 @@ import UIKit
 struct HomeView: View {
     @ObservedObject var nowPlaying: NowPlayingViewModel
     @ObservedObject var history: HistoryViewModel
+    @ObservedObject var scheduleStore: ScheduleStore
     @ObservedObject private var loc = LocalizationManager.shared
     @EnvironmentObject private var favorites: FavoriteTrackStore
     @EnvironmentObject private var previewPlayer: PreviewPlayerService
@@ -51,10 +52,8 @@ struct HomeView: View {
                 remainingShowInfo
                     .padding(.top, 20)
 
-                if !upcomingShowsToDisplay.isEmpty {
-                    upcomingSection
-                        .padding(.top, Theme.Spacing.lg)
-                }
+                HomeProgramSection(scheduleStore: scheduleStore, currentShow: nowPlaying.currentShow)
+                    .padding(.top, Theme.Spacing.lg)
 
                 if FeatureFlags.nowPlayingHistoryAndFavorites {
                     nowPlayingSection
@@ -185,39 +184,6 @@ struct HomeView: View {
             statusLabel
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    /// Skips `remainingShowsToday`'s first element — that's the same show
-    /// `ShowProgressBar`'s "Následuje: …" line already names, right above
-    /// this section — so the list only adds shows that line doesn't
-    /// already cover.
-    private var upcomingShowsToDisplay: [Show] {
-        Array(nowPlaying.remainingShowsToday.dropFirst())
-    }
-
-    private var upcomingSection: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-            Text(L10n.comingUpHeading)
-                .font(Theme.Typography.Manrope.extraBold(size: 24, relativeTo: .title2))
-                .foregroundStyle(Theme.textPrimary)
-
-            // `id: \.offset`, not `Show.id` — schedule blocks like "The
-            // Best of Slow Down" can repeat within these few upcoming
-            // slots and share an id, which would break ForEach's identity
-            // tracking (same workaround `ProgramView` already uses).
-            VStack(spacing: 0) {
-                ForEach(Array(upcomingShowsToDisplay.enumerated()), id: \.offset) { _, show in
-                    ShowCardView(show: show, isLive: false, progress: 0)
-                }
-            }
-            // `ShowCardView` is designed for `ProgramView`'s full-bleed
-            // list, so it carries its own 16pt horizontal inset. Here it
-            // sits inside `HomeView`'s 20pt page margin instead, so that
-            // inset is canceled out to keep this row's text flush with
-            // every other section on the page instead of sitting 16pt
-            // further in.
-            .padding(.horizontal, -16)
-        }
     }
 
     @ViewBuilder
