@@ -173,9 +173,16 @@ struct HomeProgramSection: View {
                     .font(Theme.Typography.Manrope.medium(size: 13, relativeTo: .footnote))
                     .foregroundStyle(Theme.tabBarUnselected)
                 Spacer(minLength: Theme.Spacing.sm)
+                // White, not Theme.tabBarUnselected — confirmed by
+                // rendering the Figma icon node in isolation, since this
+                // one exports as a flattened image with no readable color
+                // in the design-context output.
                 Image(systemName: "chevron.down")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(Theme.tabBarUnselected)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 16, height: 16)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.white)
                     .rotationEffect(.degrees(isShowingPastShows ? 180 : 0))
             }
             .padding(.vertical, 12)
