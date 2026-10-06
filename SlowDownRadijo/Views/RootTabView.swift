@@ -17,7 +17,16 @@ struct RootTabView: View {
     /// 4 Podpora).
     private static let statsTab = 5
 
+    /// Figma's `bottom-nav` is 70pt tall; below it the design reserves a
+    /// (hidden) 19pt strip for the home indicator. A real iPhone's bottom
+    /// safe area is 34pt, which would leave the labels 44pt above the screen
+    /// edge instead of the design's 29pt — see `bottomNav`.
+    private static let homeIndicatorZone: CGFloat = 19
+
     @State private var selectedTab = 0
+    /// The window's bottom safe-area inset (34pt on iPhones with a home
+    /// indicator, 0 on those without), measured by `BottomSafeInsetKey`.
+    @State private var bottomSafeInset: CGFloat = 0
     /// `init()` isn't a safe place for the autoplay side effect — SwiftUI
     /// re-invokes it (e.g. when `AppRootView` re-renders as the splash
     /// dismisses), which previously spun up a second `RadioPlayerService`
@@ -111,6 +120,15 @@ struct RootTabView: View {
         .safeAreaInset(edge: .bottom, spacing: 0) {
             bottomNav
         }
+        // Read the inset from *outside* the inset above, where it still is the
+        // window's own safe area.
+        .background {
+            GeometryReader { proxy in
+                Color.clear.preference(key: BottomSafeInsetKey.self, value: proxy.safeAreaInsets.bottom)
+            }
+            .ignoresSafeArea()
+        }
+        .onPreferenceChange(BottomSafeInsetKey.self) { bottomSafeInset = $0 }
         .environmentObject(favoriteTrackStore)
         .environmentObject(previewPlayer)
         .environmentObject(statsStore)
@@ -151,12 +169,19 @@ struct RootTabView: View {
                 Spacer(minLength: 0)
                 tabBarButton(tag: 4, title: L10n.tabSupport, image: "TabIconSupport")
             }
-            // Figma `bottom-nav`: four tabs, 24pt side margins, space-between
-            // across the full width.
-            .padding(.horizontal, 24)
-            .padding(.top, 14)
+            // Figma `bottom-nav` (node 12294:257), measured from the render:
+            // the bar has 16pt side padding and the tab row another 24pt, so
+            // the tabs sit 40pt from each edge with `space-between` across
+            // the rest (≈44pt gaps for four tabs). Tab row: 14pt from the
+            // frame top (1pt hairline + 13), 10pt below → 70pt in total.
+            .padding(.horizontal, 40)
+            .padding(.top, 13)
             .padding(.bottom, 10)
         }
+        // Trim the real safe area (34pt) down to the design's 19pt
+        // home-indicator strip: the negative padding lets the bar's bottom edge
+        // reach into the safe area, the background below fills the rest.
+        .padding(.bottom, bottomSafeInset > 0 ? Self.homeIndicatorZone - bottomSafeInset : 0)
         .background(Theme.tabBarBackground.ignoresSafeArea(edges: .bottom))
     }
 
@@ -173,6 +198,7 @@ struct RootTabView: View {
                     .frame(width: 24, height: 24)
                 Text(title)
                     .font(Theme.Typography.Manrope.extraBold(size: 12))
+                    .frame(height: 16)
             }
             .foregroundStyle(isSelected ? Theme.liveRed : Theme.tabBarUnselected)
         }
@@ -194,5 +220,14 @@ struct RootTabView: View {
         ]
         UINavigationBar.appearance().standardAppearance = navAppearance
         UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
+    }
+}
+
+/// The window's bottom safe-area inset, reported from a background that
+/// ignores the safe area (see `RootTabView.body`).
+private struct BottomSafeInsetKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
     }
 }
