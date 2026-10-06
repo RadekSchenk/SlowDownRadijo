@@ -55,10 +55,9 @@ struct RootTabView: View {
             }
             // Figma's 3-tab redesign (node 12294:257) reuses the calendar
             // glyph for Rádio now that the schedule itself lives on the
-            // home screen — not a typo. `TabIconRadio` is a hand-matched
-            // Lucide "calendar" vector (same icon set the Figma layer
-            // names point to), not a direct export — see
-            // `Assets.xcassets/TabIconRadio.imageset`.
+            // home screen — not a typo. `TabIconRadio`/`TabIconMessage`/
+            // `TabIconSupport` are exact SVG exports from that Figma frame
+            // — see `Assets.xcassets`.
             .tabItem { Label(L10n.tabRadio, image: "TabIconRadio") }
             .tag(0)
 
