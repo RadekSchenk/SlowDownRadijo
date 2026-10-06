@@ -32,6 +32,12 @@ final class NowPlayingViewModel: ObservableObject {
     /// What airs right after `currentShow`, so the progress bar can say
     /// what's coming up next.
     @Published private(set) var nextShow: Show?
+    /// The next few shows after `currentShow`, `nextShow` included as the
+    /// first element — feeds the home screen's "Co hraje dál" list. Kept
+    /// separate from `nextShow` (rather than just exposing the array and
+    /// having callers read `.first`) since `nextShow` predates it and
+    /// `ShowProgressBar`'s "Následuje: …" line only ever needs the one.
+    @Published private(set) var upcomingShows: [Show] = []
 
     let player: RadioPlayerService
     private let metadataService: ICYMetadataService
@@ -197,10 +203,12 @@ final class NowPlayingViewModel: ObservableObject {
             showProgress = scheduleStore.progress(for: show, at: now)
             showRemainingMinutes = scheduleStore.remainingMinutes(for: show, at: now)
             nextShow = scheduleStore.nextShow(after: show, from: now)
+            upcomingShows = scheduleStore.upcomingShows(after: show, now: now, count: 3)
         } else {
             showProgress = 0
             showRemainingMinutes = 0
             nextShow = nil
+            upcomingShows = []
         }
     }
 

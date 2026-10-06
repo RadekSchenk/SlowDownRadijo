@@ -91,6 +91,16 @@ enum L10n {
         }
     }
 
+    /// Section heading for the home screen's upcoming-shows list — deliberately
+    /// starts after the show `ShowProgressBar`'s "Následuje: …" line already
+    /// names, not from the very next one, so the two don't repeat each other.
+    static var comingUpHeading: String {
+        switch lang {
+        case .cs: return "Co hraje dál"
+        case .en: return "Coming up"
+        }
+    }
+
     static var coHralo: String {
         switch lang {
         case .cs: return "Co hrálo"

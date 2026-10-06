@@ -95,6 +95,43 @@ final class ScheduleStore: ObservableObject {
         return day(for: nextWeekday)?.shows.first
     }
 
+    /// The `count` shows scheduled after `show` (which must be the one
+    /// airing at `now`), in schedule order — e.g. `count: 3` returns the
+    /// very next show plus the two after that. Walks the week's schedule
+    /// directly, crossing from one day into the next (and the one after
+    /// that) as needed, rather than chaining `nextShow(after:from:)`
+    /// calls, which only reason about a single step and would need a
+    /// synthetic `date` to carry forward correctly across a day boundary.
+    func upcomingShows(after show: Show, now: Date, count: Int, calendar: Calendar = .current) -> [Show] {
+        guard count > 0 else { return [] }
+        var weekday = calendar.component(.weekday, from: now)
+        guard let currentDay = day(for: weekday),
+              let startIndex = currentDay.shows.firstIndex(where: { $0.id == show.id && $0.start == show.start })
+        else { return [] }
+
+        var result: [Show] = []
+        var dayShows = currentDay.shows
+        var index = startIndex + 1
+        var daysChecked = 0
+
+        // `daysChecked <= 7` bounds this to at most one lap of the week,
+        // in case the schedule is sparse enough that `count` can't be
+        // filled (e.g. a weekday with no data at all).
+        while result.count < count, daysChecked <= 7 {
+            if index < dayShows.count {
+                result.append(dayShows[index])
+                index += 1
+            } else {
+                weekday = weekday == 7 ? 1 : weekday + 1
+                daysChecked += 1
+                guard let nextDay = day(for: weekday) else { continue }
+                dayShows = nextDay.shows
+                index = 0
+            }
+        }
+        return result
+    }
+
     /// The absolute moment `show` ends, anchored to today's date (relative
     /// to `date`) — used by the sleep timer's "Konec pořadu" option. `nil`
     /// if `show.end` can't be parsed.
