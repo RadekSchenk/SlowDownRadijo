@@ -415,6 +415,13 @@ enum L10n {
         }
     }
 
+    static var sentBadge: String {
+        switch lang {
+        case .cs: return "ODESLÁNO"
+        case .en: return "SENT"
+        }
+    }
+
     static var messageRecorded: String {
         switch lang {
         case .cs: return "Vzkaz nahraný"

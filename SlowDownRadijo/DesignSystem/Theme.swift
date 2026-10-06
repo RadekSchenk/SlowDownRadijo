@@ -29,10 +29,16 @@ enum Theme {
     /// from the page content above it. Light-mode value matches
     /// `background`'s own light value, unchanged.
     static let tabBarBackground = Color.adaptive(light: 0xF5F5F7, dark: 0x1A1535)
-    /// Same story as `tabBarBackground`: the unselected tab label/icon
-    /// color stayed at the old `lavender` dark value (`#b8afdc`) even
-    /// after `lavender` itself moved to `#8f89a9`.
-    static let tabBarUnselected = Color.adaptive(light: 0x5C4F8A, dark: 0xB8AFDC)
+    /// Home screen's secondary text (`#b8afdc`) — "Pořad končí za…",
+    /// progress times, disclosure links, subtitles. Brighter than `lavender`.
+    static let mutedText = Color.adaptive(light: 0x5C4F8A, dark: 0xB8AFDC)
+    /// Quieter tertiary text (`#a699b8`) — names/details under a row title.
+    static let subtleText = Color.adaptive(light: 0x6E6390, dark: 0xA699B8)
+    /// Solid list-row divider (`#332b4d`).
+    static let divider = Color.adaptive(light: 0xDDDAE6, dark: 0x332B4D)
+    /// The unselected tab label/icon color stayed at the old `lavender`
+    /// dark value (`#b8afdc`) even after `lavender` itself moved to `#8f89a9`.
+    static let tabBarUnselected = mutedText
 
     // Brand
     /// Matches the Figma splash screen's background exactly (`#433785`) —
@@ -45,13 +51,9 @@ enum Theme {
     /// progress fill).
     static let sunOrange = Color(hex: 0xE8652B)
     static let sunRed = Color(hex: 0xE04A4F)
-    /// A second, distinct red — "live"/now-playing accent introduced by the
-    /// 2026-08-23 home-screen hero redesign (`#db304e`). Deliberately
-    /// scoped to now-playing-card surfaces only (`PlayButton`,
-    /// `ShowProgressBar`, `NowPlayingEqualizer`, `NowPlayingWaveform`) —
-    /// `sunOrange` remains the app-wide accent everywhere else (tab bar,
-    /// Settings, Vzkaz, Program, Support), so don't reach for this outside
-    /// the now-playing card without the design calling for it.
+    /// The action color (`#db304e`): play button, progress fill, selected
+    /// tab, and every primary control on Vzkaz and Podpora. `sunOrange` is
+    /// legacy — only screens not yet restyled to the home screen still use it.
     static let liveRed = Color(hex: 0xDB304E)
     /// Flat, muted fill for the *unplayed* portion of `NowPlayingWaveform`'s
     /// bars (`#2a263b`) — distinct from `surfaceElevated`, which is

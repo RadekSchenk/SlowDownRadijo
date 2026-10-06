@@ -143,7 +143,7 @@ struct HomeProgramSection: View {
                             ? Theme.Typography.Manrope.extraBold(size: 12)
                             : Theme.Typography.Manrope.regular(size: 12)
                     )
-                    .foregroundStyle(isSelected ? .white : Color(hex: 0xA699B8))
+                    .foregroundStyle(isSelected ? .white : Theme.subtleText)
                 Text("\(Calendar.current.component(.day, from: date))")
                     .font(
                         isSelected
@@ -171,9 +171,9 @@ struct HomeProgramSection: View {
             HStack {
                 Text(isShowingPastShows ? L10n.hidePreviousShows : L10n.showPreviousShows(count: pastShows.count))
                     .font(Theme.Typography.Manrope.medium(size: 13, relativeTo: .footnote))
-                    .foregroundStyle(Theme.tabBarUnselected)
+                    .foregroundStyle(Theme.mutedText)
                 Spacer(minLength: Theme.Spacing.sm)
-                // White, not Theme.tabBarUnselected — confirmed by
+                // White, not Theme.mutedText — confirmed by
                 // rendering the Figma icon node in isolation, since this
                 // one exports as a flattened image with no readable color
                 // in the design-context output.
@@ -205,7 +205,7 @@ struct HomeProgramSection: View {
                 if let hostName = show.hostName {
                     Text(hostName)
                         .font(Theme.Typography.Manrope.regular(size: 14, relativeTo: .subheadline))
-                        .foregroundStyle(Color(hex: 0xA699B8))
+                        .foregroundStyle(Theme.subtleText)
                 }
             }
         }
@@ -215,7 +215,7 @@ struct HomeProgramSection: View {
 
     private var divider: some View {
         Rectangle()
-            .fill(Color(hex: 0x332B4D))
+            .fill(Theme.divider)
             .frame(height: 1)
     }
 }
