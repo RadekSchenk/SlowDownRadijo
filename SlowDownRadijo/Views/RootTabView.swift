@@ -173,10 +173,10 @@ struct RootTabView: View {
             // Figma `bottom-nav` (node 12294:257), measured from the render:
             // the bar has 16pt side padding and the tab row another 24pt, so
             // the tabs sit 40pt from each edge with `space-between` across
-            // the rest (≈44pt gaps for four tabs). Tab row: 14pt from the
-            // frame top (1pt hairline + 13), 10pt below → 70pt in total.
+            // the rest (≈44pt gaps for four tabs). Tab row: 14pt padding above
+            // (below the 1pt hairline) and 10pt below the icons and labels.
             .padding(.horizontal, 40)
-            .padding(.top, 13)
+            .padding(.top, 14)
             .padding(.bottom, 10)
         }
         // Trim the real safe area (34pt) down to the design's 19pt
