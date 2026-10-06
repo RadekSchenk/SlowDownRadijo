@@ -54,10 +54,18 @@ final class NowPlayingViewModel: ObservableObject {
         self.scheduleStore = scheduleStore
         self.historyStore = historyStore
 
+        // Listening stats: credit playback time to whichever show is airing
+        // at each tick. Every way of playing goes through `player.state`, so
+        // this one hook covers the lock screen, headphones and CarPlay too.
+        ListeningTracker.shared.configure { [weak scheduleStore] in
+            scheduleStore?.currentShow()?.id
+        }
+
         player.$state
             .receive(on: DispatchQueue.main)
             .sink { [weak self] state in
                 self?.playbackState = state
+                ListeningTracker.shared.update(isPlaying: state == .playing)
             }
             .store(in: &cancellables)
 

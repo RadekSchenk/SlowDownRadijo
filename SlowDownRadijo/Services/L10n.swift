@@ -839,6 +839,83 @@ enum L10n {
         }
     }
 
+    static var settingsStatsTitle: String {
+        switch lang {
+        case .cs: return "Statistiky poslechu"
+        case .en: return "Listening stats"
+        }
+    }
+
+    static var settingsStatsDescription: String {
+        switch lang {
+        case .cs: return "Měříme jen čas, kdy rádio hraje, pod anonymním ID – bez jména a e-mailu. Díky tomu uvidíš své statistiky a své místo mezi posluchači."
+        case .en: return "We only measure how long the radio plays, under an anonymous ID – no name or e-mail. That's what powers your stats and your place among listeners."
+        }
+    }
+
+    static var settingsStatsDeleteTitle: String {
+        switch lang {
+        case .cs: return "Smazat moje statistiky"
+        case .en: return "Delete my stats"
+        }
+    }
+
+    static var settingsStatsDeleteDescription: String {
+        switch lang {
+        case .cs: return "Odstraní tvůj naměřený poslech z našeho serveru i z telefonu."
+        case .en: return "Removes your measured listening from our server and from this phone."
+        }
+    }
+
+    static var statsDeleteConfirmTitle: String {
+        switch lang {
+        case .cs: return "Smazat všechny tvoje statistiky?"
+        case .en: return "Delete all your stats?"
+        }
+    }
+
+    static var statsDeleteConfirmMessage: String {
+        switch lang {
+        case .cs: return "Nelze vrátit zpět. Měření případně začne znovu od nuly."
+        case .en: return "This can't be undone. If measuring is on, it starts again from zero."
+        }
+    }
+
+    static var statsDeleteConfirmAction: String {
+        switch lang {
+        case .cs: return "Smazat"
+        case .en: return "Delete"
+        }
+    }
+
+    static var statsDeleteCancel: String {
+        switch lang {
+        case .cs: return "Zrušit"
+        case .en: return "Cancel"
+        }
+    }
+
+    static var statsDeletedTitle: String {
+        switch lang {
+        case .cs: return "Statistiky smazány"
+        case .en: return "Stats deleted"
+        }
+    }
+
+    static var statsDeleteFailedTitle: String {
+        switch lang {
+        case .cs: return "Smazání se nepovedlo"
+        case .en: return "Couldn't delete"
+        }
+    }
+
+    static var statsDeleteFailedMessage: String {
+        switch lang {
+        case .cs: return "Zkus to znovu, až budeš připojený/á k internetu."
+        case .en: return "Try again when you're online."
+        }
+    }
+
     static var settingsPrivacyPolicy: String {
         switch lang {
         case .cs: return "Zásady ochrany osobních údajů"

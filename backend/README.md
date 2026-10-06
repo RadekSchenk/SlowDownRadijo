@@ -1,6 +1,7 @@
 # Slow Down Rádijo — backend
 
-Three things live in this Supabase project:
+Four things live in this Supabase project (the fourth, anonymous listener
+stats, has its own section further down):
 
 1. `send-voice-message` — receives a recorded voice message from the app and
    relays it as an email attachment via [Resend](https://resend.com).
@@ -153,6 +154,61 @@ played_at desc limit 5;` a few minutes after scheduling — should show
 real tracks appearing on their own.
 
 To stop/change it later: `select cron.unschedule('collect-now-playing-every-minute');`
+
+## Listener stats ("Statistiky"): one-time setup
+
+Per-listener listening time, the community total and the leaderboard. The
+app creates an **anonymous Supabase auth user** the first time someone has
+listened for a while (no name, no e-mail) and uploads small batches of
+"seconds listened per day and per show". Later, registration upgrades that
+same user to a permanent account, so history carries over.
+
+1. **Enable anonymous sign-ins:** Dashboard → Authentication → Sign In /
+   Providers → *Allow anonymous sign-ins*. (Supabase's default rate limit is
+   30 anonymous sign-ins per hour per IP; the app simply retries later.)
+2. **Run `supabase/sql/005_listener_stats.sql`** in the SQL Editor. It is
+   safe to re-run. Nothing needs deploying — the app talks to the SQL
+   functions through Supabase's built-in REST layer.
+3. **Optional but promised in the privacy policy:** schedule the retention
+   jobs from the bottom of that SQL file (needs `pg_cron`, already enabled
+   for the collector above). They delete listeners unused for 24 months and
+   prune old batch ids.
+4. **The stats UI switch.** `stats_config` has one row:
+   `min_listeners` (default 20) and `min_listener_seconds` (default 60) —
+   the Statistiky tab appears for everyone once that many listeners have
+   listened at least that long. For testing before then:
+   ```sql
+   update stats_config set force_enabled = true;   -- show the UI now
+   update stats_config set force_enabled = false;  -- back to the threshold
+   ```
+5. **Quick check** after the first minute of listening in the app:
+   ```sql
+   select * from listeners;                 -- one row, total_seconds ≈ 60+
+   select * from listening_daily order by day desc;
+   ```
+
+### Release checklist (privacy / App Review)
+
+- [ ] `PRIVACY_POLICY.md` is published at the URL the app opens (Menu ▸
+      Nastavení ▸ Zásady ochrany osobních údajů) and at the privacy URL in
+      App Store Connect — fill in the `[DOPLNIT …]` placeholders first
+      (date, Supabase region).
+- [ ] App Store Connect → App Privacy: add **Identifiers → User ID** and
+      **Usage Data → Product Interaction**; both *linked to the user's
+      identity (pseudonymous id)*, purposes *App Functionality* (+
+      *Analytics* for Product Interaction), *not used for tracking*. Keep the
+      existing entries (Other User Content, Audio Data, Diagnostics). This
+      mirrors `SlowDownRadijo/PrivacyInfo.xcprivacy`.
+- [ ] No ATT prompt is needed: nothing is shared with other companies or
+      combined with their data for tracking or advertising.
+- [ ] Review notes: "Listening stats are measured under an anonymous
+      Supabase user (no sign-in). The Statistiky tab is hidden by a
+      server-side switch until 20 listeners exist, so the reviewer will not
+      see it; the on/off toggle and *Smazat moje statistiky* are always in
+      Menu ▸ Nastavení."
+- [ ] When registration is added: accounts need **in-app account deletion**
+      (guideline 5.1.1(v)), and offering Google/social sign-in requires also
+      offering **Sign in with Apple** (guideline 4.8).
 
 ## Local development
 
