@@ -53,7 +53,9 @@ final class RadioPlayerService: NSObject, ObservableObject {
 
     override init() {
         super.init()
-        configureAudioSession()
+        // Category only: activating a non-mixable session here would stop
+        // other apps' audio the moment the app opens, even with autoplay off.
+        configureAudioSession(activate: false)
         configureRemoteCommands()
         NotificationCenter.default.addObserver(
             self,
@@ -145,12 +147,13 @@ final class RadioPlayerService: NSObject, ObservableObject {
     /// while recording a voice message; call this after it's done so
     /// background playback and lock-screen controls keep working correctly.
     func reactivatePlaybackAudioSession() {
-        configureAudioSession()
+        configureAudioSession(activate: true)
     }
 
     // MARK: - Playback lifecycle
 
     private func startPlayback() {
+        configureAudioSession(activate: true)
         enterConnecting()
         teardownPlayer()
 
@@ -309,11 +312,13 @@ final class RadioPlayerService: NSObject, ObservableObject {
 
     // MARK: - Audio session (background playback)
 
-    private func configureAudioSession() {
+    private func configureAudioSession(activate: Bool) {
         do {
             let session = AVAudioSession.sharedInstance()
             try session.setCategory(.playback, mode: .default, options: [])
-            try session.setActive(true)
+            if activate {
+                try session.setActive(true)
+            }
         } catch {
             print("AVAudioSession configuration error: \(error)")
         }
