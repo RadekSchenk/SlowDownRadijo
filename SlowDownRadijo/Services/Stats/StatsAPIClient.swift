@@ -89,9 +89,14 @@ actor StatsAPIClient {
         try await send(path: "rest/v1/rpc/public_stats", body: Data("{}".utf8), bearer: nil)
     }
 
-    /// "Smazat moje statistiky" — removes the listener's rows server-side.
+    /// "Smazat moje statistiky" — removes the listener's rows and anonymous
+    /// account server-side, then forgets the session here, so the next
+    /// listen starts under a new id rather than the deleted one.
     func deleteMyData() async throws {
         _ = try await authenticatedRPC("delete_my_listening_data", body: Data("{}".utf8))
+        session = nil
+        didLoadStoredSession = true
+        KeychainStore.delete(account: Self.sessionAccount)
     }
 
     // MARK: - Session

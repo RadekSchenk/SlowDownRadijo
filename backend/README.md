@@ -203,7 +203,13 @@ same user to a permanent account, so history carries over.
    and a listener counts towards the community threshold only once their
    record is at least a day old, so a burst of scripted sign-ups can't
    unlock the community features.
-8. **The community switch.** A listener's own stats are always visible in the
+8. **Run `supabase/sql/011_delete_auth_user.sql`.** *Smazat moje
+   statistiky* then deletes the anonymous auth user too (the app forgets its
+   session and starts over under a new id), and the 24-month cleanup removes
+   the anonymous auth users of the listeners it deletes. Registered accounts
+   are never touched. If Supabase ever refuses the `auth.users` delete, the
+   stats are still removed and Postgres logs "auth user not deleted".
+9. **The community switch.** A listener's own stats are always visible in the
    app (zeros at first). `stats_config` has one row, `min_listeners`
    (default 20) and `min_listener_seconds` (default 60); the **leaderboard
    and the "Celkem všichni Slow Down Riders" total** unlock for everyone once
@@ -213,7 +219,7 @@ same user to a permanent account, so history carries over.
    update stats_config set force_enabled = true;   -- unlock them now
    update stats_config set force_enabled = false;  -- back to the threshold
    ```
-9. **Quick check** after the first minute of listening in the app:
+10. **Quick check** after the first minute of listening in the app:
    ```sql
    select * from listeners;                 -- one row, total_seconds ≈ 60+
    select * from listening_daily order by day desc;
