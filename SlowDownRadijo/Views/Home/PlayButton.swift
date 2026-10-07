@@ -12,6 +12,14 @@ struct PlayButton: View {
     var diameter: CGFloat = 64
     var iconSize: CGFloat = 20
 
+    private var accessibilityLabel: String {
+        switch state {
+        case .connecting: return L10n.connecting
+        case .playing: return L10n.pauseRadio
+        default: return L10n.playRadio
+        }
+    }
+
     var body: some View {
         Button(action: action) {
             AccentCircle(diameter: diameter) {
@@ -37,6 +45,9 @@ struct PlayButton: View {
         }
         .buttonStyle(.plain)
         .disabled(state == .connecting)
+        // The bare SF Symbol would be read in the system language, not the
+        // app's; while connecting the spinner says nothing useful.
+        .accessibilityLabel(accessibilityLabel)
         // Library P5 — icon swap: from 25% scale through a 2px blur, 250ms.
         .animation(Motion.iconSwap, value: state)
     }

@@ -91,6 +91,21 @@ enum L10n {
         }
     }
 
+    /// VoiceOver labels for the play/pause button.
+    static var playRadio: String {
+        switch lang {
+        case .cs: return "Pustit rádio"
+        case .en: return "Play radio"
+        }
+    }
+
+    static var pauseRadio: String {
+        switch lang {
+        case .cs: return "Pozastavit rádio"
+        case .en: return "Pause radio"
+        }
+    }
+
     static var coHralo: String {
         switch lang {
         case .cs: return "Co hrálo"
