@@ -30,8 +30,16 @@ final class RadioPlayerService: NSObject, ObservableObject {
     private var player: AVPlayer?
     private var playerItem: AVPlayerItem?
     private var statusObservation: NSKeyValueObservation?
+    /// Follows whether audio is actually coming out (`timeControlStatus`),
+    /// so a stall that AVPlayer recovers from on its own brings the state
+    /// back to `.playing` — `item.status` stays `.readyToPlay` throughout.
+    private var timeControlObservation: NSKeyValueObservation?
     private var reconnectAttempt = 0
     private var reconnectTimer: Timer?
+    /// Gives up on `.connecting` after `connectTimeout` and reconnects,
+    /// instead of showing a spinner forever.
+    private var connectTimeoutTimer: Timer?
+    private static let connectTimeout: TimeInterval = 20
     private var stallObserver: NSObjectProtocol?
     private var sleepTimer: Timer?
 
@@ -48,6 +56,7 @@ final class RadioPlayerService: NSObject, ObservableObject {
     deinit {
         teardownPlayer()
         reconnectTimer?.invalidate()
+        connectTimeoutTimer?.invalidate()
         sleepTimer?.invalidate()
     }
 
@@ -70,6 +79,8 @@ final class RadioPlayerService: NSObject, ObservableObject {
     }
 
     func pause() {
+        connectTimeoutTimer?.invalidate()
+        connectTimeoutTimer = nil
         player?.pause()
         state = .paused
         updateNowPlayingPlaybackRate(0)
@@ -124,7 +135,7 @@ final class RadioPlayerService: NSObject, ObservableObject {
     // MARK: - Playback lifecycle
 
     private func startPlayback() {
-        state = .connecting
+        enterConnecting()
         teardownPlayer()
 
         let item = AVPlayerItem(url: Self.streamURL)
@@ -134,7 +145,47 @@ final class RadioPlayerService: NSObject, ObservableObject {
         playerItem = item
 
         observe(item: item)
+        observe(player: newPlayer)
         newPlayer.play()
+    }
+
+    /// `.connecting` with a deadline: if audio doesn't (re)start within
+    /// `connectTimeout`, treat it as a failure and reconnect.
+    private func enterConnecting() {
+        state = .connecting
+        connectTimeoutTimer?.invalidate()
+        connectTimeoutTimer = Timer.scheduledTimer(withTimeInterval: Self.connectTimeout, repeats: false) { [weak self] _ in
+            guard let self, self.state == .connecting else { return }
+            self.handleFailure()
+        }
+    }
+
+    private func observe(player: AVPlayer) {
+        timeControlObservation = player.observe(\.timeControlStatus, options: [.new]) { [weak self] observedPlayer, _ in
+            DispatchQueue.main.async {
+                guard let self, self.player === observedPlayer else { return }
+                switch observedPlayer.timeControlStatus {
+                case .playing:
+                    self.connectTimeoutTimer?.invalidate()
+                    self.connectTimeoutTimer = nil
+                    self.reconnectAttempt = 0
+                    if self.state != .playing {
+                        self.state = .playing
+                        self.updateNowPlayingPlaybackRate(1)
+                    }
+                case .waitingToPlayAtSpecifiedRate:
+                    // A stall mid-stream; AVPlayer keeps trying by itself.
+                    if self.state == .playing {
+                        self.enterConnecting()
+                    }
+                case .paused:
+                    // `pause()` and failures set the state themselves.
+                    break
+                @unknown default:
+                    break
+                }
+            }
+        }
     }
 
     private func observe(item: AVPlayerItem) {
@@ -158,7 +209,8 @@ final class RadioPlayerService: NSObject, ObservableObject {
             object: item,
             queue: .main
         ) { [weak self] _ in
-            self?.state = .connecting
+            guard let self, self.state == .playing else { return }
+            self.enterConnecting()
         }
 
         NotificationCenter.default.addObserver(
@@ -174,6 +226,8 @@ final class RadioPlayerService: NSObject, ObservableObject {
     }
 
     private func handleFailure() {
+        connectTimeoutTimer?.invalidate()
+        connectTimeoutTimer = nil
         state = .error(L10n.streamInterrupted)
         scheduleReconnect()
     }
@@ -190,6 +244,8 @@ final class RadioPlayerService: NSObject, ObservableObject {
     private func teardownPlayer() {
         statusObservation?.invalidate()
         statusObservation = nil
+        timeControlObservation?.invalidate()
+        timeControlObservation = nil
         if let observer = stallObserver {
             NotificationCenter.default.removeObserver(observer)
             stallObserver = nil
