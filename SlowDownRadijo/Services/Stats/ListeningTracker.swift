@@ -123,6 +123,19 @@ final class ListeningTracker {
         (queue.inflight?.rows ?? []) + queue.pending
     }
 
+    /// A batch was sent but the server's answer hasn't come back yet. The
+    /// server may already have counted it, so a fresh server snapshot plus
+    /// `unsyncedRows` could count it twice.
+    var hasUnconfirmedBatch: Bool {
+        queue.inflight != nil
+    }
+
+    /// Tries to settle the unconfirmed batch now; `.synced` follows on success.
+    func retryUnconfirmedBatch() {
+        guard queue.inflight != nil else { return }
+        flush(immediate: true)
+    }
+
     /// Called when Settings ▸ "Statistiky poslechu" is switched.
     func enabledPreferenceChanged() {
         StatsConfig.rememberPreference()

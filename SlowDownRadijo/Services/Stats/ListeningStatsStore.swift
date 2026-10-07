@@ -109,6 +109,13 @@ final class ListeningStatsStore: ObservableObject {
     func refresh(force: Bool = false) async {
         guard StatsConfig.isEnabled, !isLoading else { return }
         if !force, Date().timeIntervalSince(lastRefresh) < Self.minimumRefreshGap { return }
+        // Settle an unconfirmed upload first (its `.synced` triggers the
+        // refresh); until then the cached snapshot plus the local rows are
+        // the consistent picture.
+        if ListeningTracker.shared.hasUnconfirmedBatch {
+            ListeningTracker.shared.retryUnconfirmedBatch()
+            return
+        }
 
         isLoading = true
         defer { isLoading = false }
