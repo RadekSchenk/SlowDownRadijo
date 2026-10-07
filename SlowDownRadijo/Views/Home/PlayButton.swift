@@ -12,32 +12,43 @@ struct PlayButton: View {
     var diameter: CGFloat = 64
     var iconSize: CGFloat = 20
 
+    private var accessibilityLabel: String {
+        switch state {
+        case .connecting: return L10n.connecting
+        case .playing: return L10n.pauseRadio
+        default: return L10n.playRadio
+        }
+    }
+
     var body: some View {
         Button(action: action) {
-            ZStack {
-                Circle()
-                    .fill(Theme.liveRed)
-                    .frame(width: diameter, height: diameter)
-
+            AccentCircle(diameter: diameter) {
                 switch state {
                 case .connecting:
                     ProgressView()
                         .progressViewStyle(.circular)
                         .tint(.white)
+                        .transition(.iconSwap)
                 case .playing:
                     Image(systemName: "pause.fill")
                         .font(.system(size: iconSize, weight: .bold))
                         .foregroundStyle(.white)
+                        .transition(.iconSwap)
                 default:
                     Image(systemName: "play.fill")
                         .font(.system(size: iconSize, weight: .bold))
                         .foregroundStyle(.white)
                         .offset(x: 1)
+                        .transition(.iconSwap)
                 }
             }
         }
         .buttonStyle(.plain)
         .disabled(state == .connecting)
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: state)
+        // The bare SF Symbol would be read in the system language, not the
+        // app's; while connecting the spinner says nothing useful.
+        .accessibilityLabel(accessibilityLabel)
+        // Library P5 — icon swap: from 25% scale through a 2px blur, 250ms.
+        .animation(Motion.iconSwap, value: state)
     }
 }

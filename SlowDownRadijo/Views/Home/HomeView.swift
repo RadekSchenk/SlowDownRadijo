@@ -7,9 +7,13 @@ import UIKit
 struct HomeView: View {
     @ObservedObject var nowPlaying: NowPlayingViewModel
     @ObservedObject var history: HistoryViewModel
+    @ObservedObject var scheduleStore: ScheduleStore
     @ObservedObject private var loc = LocalizationManager.shared
     @EnvironmentObject private var favorites: FavoriteTrackStore
     @EnvironmentObject private var previewPlayer: PreviewPlayerService
+    @AppStorage(StatsConfig.enabledKey) private var statsEnabled = true
+    /// Tapping the stats block jumps to the Statistiky tab.
+    var onOpenStats: () -> Void = {}
 
     /// One-shot: flips true the first time a favorite is ever added, so the
     /// explainer sheet below only appears once, ever.
@@ -41,7 +45,7 @@ struct HomeView: View {
             .frame(height: 0)
 
             // Explicit per-section top padding instead of a uniform
-            // `spacing:` — `remainingShowInfo` needs a tighter 20pt gap
+            // `spacing:` — `remainingShowInfo` needs a tighter 12pt gap
             // after the hero (matching the Figma "variation-3-card" auto
             // layout's own internal gap, see `heroSection`), while the
             // later sections keep the wider 24pt gap.
@@ -49,13 +53,26 @@ struct HomeView: View {
                 heroSection
 
                 remainingShowInfo
-                    .padding(.top, 20)
+                    .padding(.top, 12)
 
-                nowPlayingSection
-                    .padding(.top, Theme.Spacing.lg)
+                // Figma's "scroll-content" wrapper spaces its top-level
+                // sections (now-playing card, stats, Pořady) 32pt apart —
+                // not the 24pt used between `HomeView`'s other sub-sections.
+                if statsEnabled {
+                    StatsHomeBlock(onOpen: onOpenStats)
+                        .padding(.top, Theme.Spacing.xl)
+                }
 
-                historySection
-                    .padding(.top, Theme.Spacing.lg)
+                HomeProgramSection(scheduleStore: scheduleStore, currentShow: nowPlaying.currentShow)
+                    .padding(.top, Theme.Spacing.xl)
+
+                if FeatureFlags.nowPlayingHistoryAndFavorites {
+                    nowPlayingSection
+                        .padding(.top, Theme.Spacing.lg)
+
+                    historySection
+                        .padding(.top, Theme.Spacing.lg)
+                }
             }
             .padding(.horizontal, 20)
             .padding(.bottom, Theme.Spacing.xl)
@@ -70,10 +87,14 @@ struct HomeView: View {
         // top edge like the Figma spec.
         .ignoresSafeArea(edges: .top)
         .background(Theme.background.ignoresSafeArea())
-        .onAppear { history.loadIfNeeded() }
-        .refreshable { history.refresh() }
+        .onAppear {
+            if FeatureFlags.nowPlayingHistoryAndFavorites { history.loadIfNeeded() }
+        }
+        .refreshable {
+            if FeatureFlags.nowPlayingHistoryAndFavorites { history.refresh() }
+        }
         .onChange(of: favorites.favorites.count) { oldCount, newCount in
-            guard newCount > oldCount, !hasSeenFavoritesIntro else { return }
+            guard FeatureFlags.nowPlayingHistoryAndFavorites, newCount > oldCount, !hasSeenFavoritesIntro else { return }
             hasSeenFavoritesIntro = true
             isShowingFavoritesIntro = true
         }
@@ -110,7 +131,7 @@ struct HomeView: View {
         // Spacing 0 + explicit per-child top padding, not a uniform
         // `spacing:` — the header-to-badges gap (8) and the two
         // "variation-3-card" internal gaps (badges-to-title,
-        // title-to-progress, both 20) are different Figma values, not
+        // title-to-progress, both 12) are different Figma values, not
         // one shared number.
         VStack(alignment: .leading, spacing: 0) {
             AppHeaderView()
@@ -133,12 +154,14 @@ struct HomeView: View {
             HStack(spacing: Theme.Spacing.md) {
                 PlayButton(state: nowPlaying.playbackState, action: nowPlaying.togglePlayPause, diameter: 54, iconSize: 20)
 
-                Text(nowPlaying.showName.uppercased())
+                // Figma: sentence case (not uppercased), 120% line height.
+                Text(nowPlaying.showName)
                     .font(Theme.Typography.Manrope.extraBold(size: 22, relativeTo: .title2))
                     .foregroundStyle(Theme.textPrimary)
                     .lineLimit(2)
+                    .manropeLineHeight(26.4, fontSize: 22)
             }
-            .padding(.top, 20)
+            .padding(.top, 12)
         }
         .background(alignment: .top) {
             HomeHeroBackground(image: heroImage, scrollOffset: scrollOffset)
@@ -163,7 +186,6 @@ struct HomeView: View {
                         show: show,
                         progress: nowPlaying.showProgress,
                         remainingMinutes: nowPlaying.showRemainingMinutes,
-                        nextShow: nowPlaying.nextShow,
                         isPlaying: nowPlaying.playbackState == .playing,
                         waveformTrackID: nowPlaying.track?.displayText ?? nowPlaying.showName
                     )
@@ -184,9 +206,11 @@ struct HomeView: View {
                 .font(Theme.Typography.Manrope.regular(size: 12, relativeTo: .footnote))
                 .foregroundStyle(Theme.statusError)
         case .connecting:
-            Text(L10n.connecting)
-                .font(Theme.Typography.Manrope.regular(size: 12, relativeTo: .footnote))
-                .foregroundStyle(Theme.lavender)
+            ShimmerText(
+                text: L10n.connecting,
+                font: Theme.Typography.Manrope.regular(size: 12, relativeTo: .footnote),
+                base: Theme.lavender
+            )
         default:
             EmptyView()
         }

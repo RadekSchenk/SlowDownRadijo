@@ -1,22 +1,12 @@
 {
-  "images" : [
+  "images": [
     {
-      "filename" : "SupportHerohero.png",
-      "idiom" : "universal"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "dark"
-        }
-      ],
-      "filename" : "SupportHeroheroDark.png",
-      "idiom" : "universal"
+      "filename": "SupportHerohero.png",
+      "idiom": "universal"
     }
   ],
-  "info" : {
-    "author" : "xcode",
-    "version" : 1
+  "info": {
+    "author": "xcode",
+    "version": 1
   }
 }

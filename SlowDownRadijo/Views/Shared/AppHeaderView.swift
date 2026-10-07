@@ -8,8 +8,8 @@ import SwiftUI
 ///
 /// "Menu" opens `HubView` as a sheet — settings, news, notifications, and
 /// feedback, rather than surfacing every control directly here. The
-/// language pill is the one exception, since it's a single tap between the
-/// app's only two languages and didn't earn a trip through Settings.
+/// language pill is the exception, since it's a single tap and didn't
+/// earn a trip through Settings.
 struct AppHeaderView: View {
     @ObservedObject private var loc = LocalizationManager.shared
     @State private var isShowingHub = false
@@ -26,11 +26,7 @@ struct AppHeaderView: View {
 
     var body: some View {
         HStack(spacing: Theme.Spacing.sm) {
-            // `BrandLogo` is an appearance-aware asset (Assets.xcassets) —
-            // purple wordmark for Light (legible on the light page
-            // background), white wordmark (`BrandLogoDark.png`) for Dark.
-            // No `.dark`/`.light` branching needed here; the system picks
-            // the right one automatically.
+            // `BrandLogo` is the white wordmark (the app is dark-only).
             Image("BrandLogo")
                 .resizable()
                 .aspectRatio(contentMode: .fit)

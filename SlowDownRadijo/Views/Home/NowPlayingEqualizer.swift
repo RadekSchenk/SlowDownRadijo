@@ -7,6 +7,7 @@ struct NowPlayingEqualizer: View {
     let isActive: Bool
 
     @State private var animate = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private struct Bar {
         let minHeight: CGFloat
@@ -27,8 +28,9 @@ struct NowPlayingEqualizer: View {
                 Capsule()
                     .fill(Theme.liveRed)
                     .frame(width: 3, height: animate ? bars[index].maxHeight : bars[index].minHeight)
+                    // Reduce Motion: the bars stand still at full height.
                     .animation(
-                        .easeInOut(duration: bars[index].duration)
+                        reduceMotion ? nil : .easeInOut(duration: bars[index].duration)
                             .repeatForever(autoreverses: true)
                             .delay(bars[index].delay),
                         value: animate
