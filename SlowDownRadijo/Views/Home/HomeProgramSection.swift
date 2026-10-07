@@ -23,14 +23,14 @@ struct HomeProgramSection: View {
     init(scheduleStore: ScheduleStore, currentShow: Show?) {
         self.scheduleStore = scheduleStore
         self.currentShow = currentShow
-        _selectedWeekday = State(initialValue: Calendar.current.component(.weekday, from: Date()))
+        _selectedWeekday = State(initialValue: ScheduleStore.stationCalendar.component(.weekday, from: Date()))
     }
 
     /// Computed fresh on every access, not cached as a `static let` — the
     /// app can stay open across midnight, and a cached value would freeze
     /// "today" at whatever day the process happened to launch on.
     private var todayWeekday: Int {
-        Calendar.current.component(.weekday, from: Date())
+        ScheduleStore.stationCalendar.component(.weekday, from: Date())
     }
 
     /// The next 7 calendar days starting today (not a fixed Monday-first
@@ -38,7 +38,7 @@ struct HomeProgramSection: View {
     /// show real day-of-month numbers while still keying into
     /// `schedule.json`'s weekday-indexed data.
     private var rollingWeek: [(date: Date, weekday: Int)] {
-        let calendar = Calendar.current
+        let calendar = ScheduleStore.stationCalendar
         let today = calendar.startOfDay(for: Date())
         return (0..<7).compactMap { offset in
             guard let date = calendar.date(byAdding: .day, value: offset, to: today) else { return nil }
@@ -145,7 +145,7 @@ struct HomeProgramSection: View {
                             : Theme.Typography.Manrope.regular(size: 12)
                     )
                     .foregroundStyle(isSelected ? .white : Theme.subtleText)
-                Text("\(Calendar.current.component(.day, from: date))")
+                Text("\(ScheduleStore.stationCalendar.component(.day, from: date))")
                     .font(
                         isSelected
                             ? Theme.Typography.Manrope.extraBold(size: 28)
