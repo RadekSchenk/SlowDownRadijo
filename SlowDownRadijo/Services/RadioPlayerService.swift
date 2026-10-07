@@ -47,10 +47,20 @@ final class RadioPlayerService: NSObject, ObservableObject {
     private var currentArtwork: UIImage?
     private var currentShowTitle: String = "Slow Down Rádijo"
 
+    /// Set when a call, Siri, an alarm or another app took the audio session
+    /// away from live playback, so the stream resumes when it's handed back.
+    private var wasPlayingBeforeInterruption = false
+
     override init() {
         super.init()
         configureAudioSession()
         configureRemoteCommands()
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(audioSessionInterrupted(_:)),
+            name: AVAudioSession.interruptionNotification,
+            object: AVAudioSession.sharedInstance()
+        )
     }
 
     deinit {
@@ -74,11 +84,13 @@ final class RadioPlayerService: NSObject, ObservableObject {
     }
 
     func play() {
+        wasPlayingBeforeInterruption = false
         reconnectAttempt = 0
         startPlayback()
     }
 
     func pause() {
+        wasPlayingBeforeInterruption = false
         connectTimeoutTimer?.invalidate()
         connectTimeoutTimer = nil
         player?.pause()
@@ -219,6 +231,36 @@ final class RadioPlayerService: NSObject, ObservableObject {
             name: .AVPlayerItemFailedToPlayToEndTime,
             object: item
         )
+    }
+
+    /// The system silences the player during an interruption without
+    /// telling `state`; mirror it as a pause (so the UI, lock screen and
+    /// listening stats stop claiming "playing") and resume afterwards if the
+    /// system says so.
+    @objc private func audioSessionInterrupted(_ notification: Notification) {
+        guard let info = notification.userInfo,
+              let rawType = info[AVAudioSessionInterruptionTypeKey] as? UInt,
+              let type = AVAudioSession.InterruptionType(rawValue: rawType) else { return }
+        let rawOptions = info[AVAudioSessionInterruptionOptionKey] as? UInt ?? 0
+        let shouldResume = AVAudioSession.InterruptionOptions(rawValue: rawOptions).contains(.shouldResume)
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            switch type {
+            case .began:
+                guard self.state == .playing || self.state == .connecting else { return }
+                self.pause()
+                self.wasPlayingBeforeInterruption = true
+            case .ended:
+                guard self.wasPlayingBeforeInterruption else { return }
+                self.wasPlayingBeforeInterruption = false
+                if shouldResume {
+                    self.play()
+                }
+            @unknown default:
+                break
+            }
+        }
     }
 
     @objc private func itemFailedToPlayToEndTime() {
