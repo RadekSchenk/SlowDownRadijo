@@ -68,6 +68,14 @@ supabase functions deploy send-feedback --no-verify-jwt
 required) — deliberate, since the app has no login system and any listener
 should be able to send a message.
 
+Because the endpoints are public, both are rate-limited (10 messages per
+sender per hour, 300 per relay per day) by `relay_allow()` from
+`supabase/sql/012_relay_rate_limit.sql` — run it once in the SQL Editor
+before (re)deploying. The sender is identified only by a SHA-256 hash of
+their IP, kept for a day. Without that file the functions log an error and
+send unlimited (fail open). The voice relay also accepts only MPEG-4 audio
+and always names the attachment `vzkaz.m4a`.
+
 Deploying prints the function's URL, something like:
 ```
 https://<project-ref>.supabase.co/functions/v1/send-voice-message

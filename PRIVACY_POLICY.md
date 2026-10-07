@@ -30,7 +30,7 @@ Jediný trvalý identifikátor, který aplikace používá, je **náhodné anony
 - **Zpětná vazba** — pokud v appce napíšeš zprávu vývojáři, spolu s textem se odešle i základní technický přehled (verze appky, verze systému, model zařízení, jazyk a vzhled aplikace), aby šlo případnou chybu skutečně dohledat. Nic z toho neobsahuje jméno, e-mail ani jiný osobní identifikátor, pokud ho sám nenapíšeš do textu zprávy.
 - **Hlasový vzkaz** — pokud si v appce nahraješ a odešleš hlasovou zprávu pro rádio, nahrávka se odešle na e-mail rádia za účelem případného odvysílání.
 
-Obojí se odesílá přes zabezpečené API a doručuje e-mailem přes službu [Resend](https://resend.com) — zprávy nejsou nikde veřejně publikovány ani sdíleny s třetími stranami mimo doručení e-mailu.
+Obojí se odesílá přes zabezpečené API a doručuje e-mailem přes službu [Resend](https://resend.com) — zprávy nejsou nikde veřejně publikovány ani sdíleny s třetími stranami mimo doručení e-mailu. Jako ochranu proti zneužití (hromadnému rozesílání) si server po dobu 24 hodin pamatuje jen jednosměrný otisk (hash) IP adresy odesílatele a počet odeslaných zpráv; pak se záznam smaže.
 
 ## Použité služby třetích stran
 
