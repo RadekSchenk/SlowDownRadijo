@@ -82,6 +82,7 @@ final class ListeningTracker {
     private var lastFlushAttempt = Date.distantPast
 
     private init() {
+        StatsConfig.restorePreferenceIfNeeded()
         if let data = UserDefaults.standard.data(forKey: Self.storageKey),
            let stored = try? JSONDecoder().decode(Queue.self, from: data) {
             queue = stored
@@ -124,6 +125,7 @@ final class ListeningTracker {
 
     /// Called when Settings ▸ "Statistiky poslechu" is switched.
     func enabledPreferenceChanged() {
+        StatsConfig.rememberPreference()
         accrue()
         if !StatsConfig.isEnabled {
             // Off means off: nothing measured, nothing unsent is kept, and

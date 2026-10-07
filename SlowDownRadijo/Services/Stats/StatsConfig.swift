@@ -15,4 +15,21 @@ enum StatsConfig {
     static var isEnabled: Bool {
         UserDefaults.standard.object(forKey: enabledKey) as? Bool ?? true
     }
+
+    /// The switch is mirrored into the Keychain, which — like the anonymous
+    /// session — survives deleting and reinstalling the app. Otherwise a
+    /// reinstall would quietly switch measuring back on under the same id.
+    private static let keychainAccount = "stats.enabled"
+
+    static func rememberPreference() {
+        KeychainStore.write(Data((isEnabled ? "1" : "0").utf8), account: keychainAccount)
+    }
+
+    /// After a reinstall `UserDefaults` is empty; take the choice from the
+    /// Keychain before anything is measured.
+    static func restorePreferenceIfNeeded() {
+        guard UserDefaults.standard.object(forKey: enabledKey) == nil,
+              let stored = KeychainStore.read(account: keychainAccount) else { return }
+        UserDefaults.standard.set(stored == Data("1".utf8), forKey: enabledKey)
+    }
 }
