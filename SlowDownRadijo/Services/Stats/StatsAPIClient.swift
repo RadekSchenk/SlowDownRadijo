@@ -93,6 +93,10 @@ actor StatsAPIClient {
     /// account server-side, then forgets the session here, so the next
     /// listen starts under a new id rather than the deleted one.
     func deleteMyData() async throws {
+        // No session means nothing was ever uploaded — nothing to delete,
+        // and asking would create an anonymous account just to delete it.
+        loadStoredSessionIfNeeded()
+        guard session != nil else { return }
         _ = try await authenticatedRPC("delete_my_listening_data", body: Data("{}".utf8))
         session = nil
         didLoadStoredSession = true
