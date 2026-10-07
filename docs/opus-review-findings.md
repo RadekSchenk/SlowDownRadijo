@@ -16,6 +16,24 @@ Postup podle `docs/opus-review-brief.md`.*
   záměrně veřejný `sb_publishable_…`. Hledal jsem `sb_secret`, `service_role`
   JWT, `re_…` a `sk_…`. V README jsou jen zástupné hodnoty `re_xxxx`.
 
+## Stav oprav (fáze 2)
+
+Všech 16 nálezů je opraveno, každý v samostatném commitu na této větvi.
+Nález 1 má navíc jeden navazující commit. Nic z toho není přeložené ani
+nasazené.
+
+- **Appka (1, 2, 4, 5, 9–16):** Swift jsem nepřekládal, je potřeba
+  ho přeložit v Xcode a vyzkoušet na zařízení: zaseknutí streamu, hovor
+  během přehrávání, časovač spánku při výpadku sítě, VoiceOver.
+- **SQL (3, 6, 7, 8):** nové soubory `009`–`012`, otestované na lokálním
+  Postgresu. Na ostrý projekt je musí v SQL Editoru spustit správce, a to
+  v pořadí podle `backend/README.md`. U `011` po nasazení zkontrolovat, že
+  v logu není „auth user not deleted“.
+- **Edge Functions (8):** typově zkontrolované přes `tsc`. Je potřeba je
+  znovu nasadit (`send-voice-message`, `send-feedback`). Kontrola formátu
+  vzkazu předpokládá, že nahrávka z appky začíná boxem `ftyp` (standard
+  u .m4a z `AVAudioRecorder`). Před vydáním odeslat jeden zkušební vzkaz.
+
 ## Přehled
 
 | Závažnost | Počet | Nálezy |
