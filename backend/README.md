@@ -192,7 +192,12 @@ same user to a permanent account, so history carries over.
    radio left on around the clock from a person, and it doesn't stop mass
    creation of anonymous accounts — CAPTCHA or App Attest would be the next
    step.
-6. **The community switch.** A listener's own stats are always visible in the
+6. **Run `supabase/sql/009_get_my_stats_privacy.sql`.** `get_my_stats` then
+   returns the community total, the ranked-listener count and the rank only
+   once the community features are unlocked (zeros / null before), exactly
+   like `public_stats()` — otherwise anyone with an anonymous session could
+   read a handful of early listeners' totals.
+7. **The community switch.** A listener's own stats are always visible in the
    app (zeros at first). `stats_config` has one row, `min_listeners`
    (default 20) and `min_listener_seconds` (default 60); the **leaderboard
    and the "Celkem všichni Slow Down Riders" total** unlock for everyone once
@@ -202,7 +207,7 @@ same user to a permanent account, so history carries over.
    update stats_config set force_enabled = true;   -- unlock them now
    update stats_config set force_enabled = false;  -- back to the threshold
    ```
-7. **Quick check** after the first minute of listening in the app:
+8. **Quick check** after the first minute of listening in the app:
    ```sql
    select * from listeners;                 -- one row, total_seconds ≈ 60+
    select * from listening_daily order by day desc;
