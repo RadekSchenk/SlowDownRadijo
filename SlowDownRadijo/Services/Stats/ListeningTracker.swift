@@ -76,6 +76,9 @@ final class ListeningTracker {
     private var carry: TimeInterval = 0
     private var timer: Timer?
     private var isFlushing = false
+    /// The upload in progress, so "delete" can wait for it and "off" can
+    /// cancel it.
+    private var flushTask: Task<Void, Never>?
     private var lastFlushAttempt = Date.distantPast
 
     private init() {
@@ -123,7 +126,9 @@ final class ListeningTracker {
     func enabledPreferenceChanged() {
         accrue()
         if !StatsConfig.isEnabled {
-            // Off means off: nothing measured, and nothing unsent is kept.
+            // Off means off: nothing measured, nothing unsent is kept, and
+            // an upload already under way is cancelled.
+            flushTask?.cancel()
             queue = Queue()
             carry = 0
             save()
@@ -138,6 +143,9 @@ final class ListeningTracker {
         queue = Queue()
         carry = 0
         save()
+        // A batch already on its way must land before the delete, or it
+        // would recreate the rows right after.
+        await flushTask?.value
         try await StatsAPIClient.shared.deleteMyData()
         events.send(.deleted)
     }
@@ -246,7 +254,7 @@ final class ListeningTracker {
             background.id = .invalid
         }
 
-        Task { [weak self] in
+        flushTask = Task { [weak self] in
             var batchIsSettled = false
             do {
                 try await StatsAPIClient.shared.recordListening(
@@ -273,6 +281,7 @@ final class ListeningTracker {
 
     private func finishFlush(batchID: UUID, settled: Bool) {
         isFlushing = false
+        flushTask = nil
         guard settled, queue.inflight?.id == batchID else { return }
         queue.inflight = nil
         save()
