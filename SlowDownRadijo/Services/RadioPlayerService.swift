@@ -212,9 +212,9 @@ final class RadioPlayerService: NSObject, ObservableObject {
             DispatchQueue.main.async {
                 switch observedItem.status {
                 case .readyToPlay:
+                    // Ready isn't audible yet (still buffering): `.playing`
+                    // comes from `timeControlStatus` once audio really runs.
                     self?.reconnectAttempt = 0
-                    self?.state = .playing
-                    self?.updateNowPlayingPlaybackRate(1)
                 case .failed:
                     self?.handleFailure()
                 default:
