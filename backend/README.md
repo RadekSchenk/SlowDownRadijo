@@ -197,7 +197,13 @@ same user to a permanent account, so history carries over.
    once the community features are unlocked (zeros / null before), exactly
    like `public_stats()` — otherwise anyone with an anonymous session could
    read a handful of early listeners' totals.
-7. **The community switch.** A listener's own stats are always visible in the
+7. **Run `supabase/sql/010_new_account_limits.sql`.** Closes two gaps in
+   008: a brand-new account starts with a 15-minute allowance (growing with
+   the account's age up to the 12 h backlog), not the full 12 h at once,
+   and a listener counts towards the community threshold only once their
+   record is at least a day old, so a burst of scripted sign-ups can't
+   unlock the community features.
+8. **The community switch.** A listener's own stats are always visible in the
    app (zeros at first). `stats_config` has one row, `min_listeners`
    (default 20) and `min_listener_seconds` (default 60); the **leaderboard
    and the "Celkem všichni Slow Down Riders" total** unlock for everyone once
@@ -207,7 +213,7 @@ same user to a permanent account, so history carries over.
    update stats_config set force_enabled = true;   -- unlock them now
    update stats_config set force_enabled = false;  -- back to the threshold
    ```
-8. **Quick check** after the first minute of listening in the app:
+9. **Quick check** after the first minute of listening in the app:
    ```sql
    select * from listeners;                 -- one row, total_seconds ≈ 60+
    select * from listening_daily order by day desc;
