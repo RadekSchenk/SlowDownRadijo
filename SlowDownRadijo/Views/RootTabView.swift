@@ -50,25 +50,35 @@ struct RootTabView: View {
     /// way `hasAutoplayed` guards autoplay — see `NewsNotificationManager`.
     @State private var hasCheckedNewsNotifications = false
 
-    init() {
-        let schedule = ScheduleStore()
-        let playerService = RadioPlayerService()
-        let metadata = ICYMetadataService()
-        let historyStore = PlayHistoryStore()
+    /// The services the state objects share, built on first access only.
+    /// SwiftUI may call `init()` again, but it evaluates each `StateObject`
+    /// autoclosure just once — so nothing is constructed eagerly here (a
+    /// stray `RadioPlayerService` re-activated the audio session and added
+    /// remote-command targets; a stray `ICYMetadataService` was never freed).
+    @MainActor
+    private final class SharedServices {
+        lazy var schedule = ScheduleStore()
+        lazy var player = RadioPlayerService()
+        lazy var metadata = ICYMetadataService()
+        lazy var historyStore = PlayHistoryStore()
+    }
 
-        _scheduleStore = StateObject(wrappedValue: schedule)
-        _player = StateObject(wrappedValue: playerService)
-        _metadataService = StateObject(wrappedValue: metadata)
+    init() {
+        let services = SharedServices()
+
+        _scheduleStore = StateObject(wrappedValue: services.schedule)
+        _player = StateObject(wrappedValue: services.player)
+        _metadataService = StateObject(wrappedValue: services.metadata)
         _nowPlayingViewModel = StateObject(wrappedValue: NowPlayingViewModel(
-            player: playerService,
-            metadataService: metadata,
-            scheduleStore: schedule,
-            historyStore: historyStore
+            player: services.player,
+            metadataService: services.metadata,
+            scheduleStore: services.schedule,
+            historyStore: services.historyStore
         ))
-        _historyViewModel = StateObject(wrappedValue: HistoryViewModel(historyStore: historyStore))
-        _voiceMessageViewModel = StateObject(wrappedValue: VoiceMessageViewModel(radioPlayer: playerService))
-        _previewPlayer = StateObject(wrappedValue: PreviewPlayerService(radioPlayer: playerService))
-        _statsStore = StateObject(wrappedValue: ListeningStatsStore(scheduleStore: schedule))
+        _historyViewModel = StateObject(wrappedValue: HistoryViewModel(historyStore: services.historyStore))
+        _voiceMessageViewModel = StateObject(wrappedValue: VoiceMessageViewModel(radioPlayer: services.player))
+        _previewPlayer = StateObject(wrappedValue: PreviewPlayerService(radioPlayer: services.player))
+        _statsStore = StateObject(wrappedValue: ListeningStatsStore(scheduleStore: services.schedule))
     }
 
     var body: some View {
