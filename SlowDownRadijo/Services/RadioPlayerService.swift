@@ -85,12 +85,16 @@ final class RadioPlayerService: NSObject, ObservableObject {
 
     func play() {
         wasPlayingBeforeInterruption = false
+        cancelReconnect()
         reconnectAttempt = 0
         startPlayback()
     }
 
     func pause() {
         wasPlayingBeforeInterruption = false
+        // A reconnect scheduled after a dropout must not restart the stream
+        // the listener (or the sleep timer) just paused.
+        cancelReconnect()
         connectTimeoutTimer?.invalidate()
         connectTimeoutTimer = nil
         player?.pause()
@@ -272,6 +276,11 @@ final class RadioPlayerService: NSObject, ObservableObject {
         connectTimeoutTimer = nil
         state = .error(L10n.streamInterrupted)
         scheduleReconnect()
+    }
+
+    private func cancelReconnect() {
+        reconnectTimer?.invalidate()
+        reconnectTimer = nil
     }
 
     private func scheduleReconnect() {
