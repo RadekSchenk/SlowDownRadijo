@@ -1,6 +1,6 @@
 # Zásady ochrany osobních údajů — Slow Down Rádijo (aplikace)
 
-*Poslední aktualizace: [DOPLNIT DATUM PŘED ZVEŘEJNĚNÍM]*
+*Poslední aktualizace: 14. října 2026*
 
 Tento dokument popisuje, jaké údaje aplikace Slow Down Rádijo pro iOS (a Android, pokud vznikne) zpracovává. Aplikaci provozuje **Slow Down Radio s.r.o.**, IČO 23309440, se sídlem Jeseniova 1575/69, Žižkov, 130 00 Praha 3 (kontakt: info@slowdownradijo.cz). Technickou stránku aplikace a zpětnou vazbu má na starosti jsem@radekschenk.cz.
 
@@ -13,7 +13,8 @@ Aplikace používá nanejvýš dvě **náhodná anonymní ID**, která spolu nej
 ## Jaké údaje aplikace zpracovává
 
 **Uloženo pouze v telefonu (nikam se neodesílá):**
-- Oblíbené skladby, historie "Co hrálo", nastavení jazyka/vzhledu/notifikací — vše zůstává lokálně na zařízení a lze to kdykoliv smazat odinstalováním aplikace.
+- Nastavení aplikace (jazyk, automatické přehrávání, statistiky, upozornění na novinky), tvoje volba u anonymního měření a seznam pořadů, na jejichž začátek chceš upozornit — vše zůstává lokálně v telefonu a smaže se odinstalováním aplikace.
+- **Upozornění na začátek pořadů** naplánuje přímo tvůj telefon (místní oznámení iOS). Nikam se neodesílá, které pořady sleduješ, a nepoužíváme k tomu žádnou službu pro push notifikace.
 
 **Statistiky poslechu (zapnuté ve výchozím stavu, lze vypnout):**
 - Aplikace měří, **kolik sekund rádio v appce skutečně hraje** — za každý kalendářní den (podle času v tvém telefonu) a za každý pořad zvlášť. Měří se jen přehrávání, ne to, co se na obrazovce prohlížíš.
@@ -41,8 +42,9 @@ Aplikace používá nanejvýš dvě **náhodná anonymní ID**, která spolu nej
 - **Po odvolání souhlasu** appka přestane cokoli odesílat a zahodí své analytické ID; pokud souhlas znovu udělíš, vznikne nové ID, které se se starým nedá spojit.
 
 **Odesíláno na vyžádání uživatele:**
-- **Zpětná vazba** — pokud v appce napíšeš zprávu vývojáři, spolu s textem se odešle i základní technický přehled (verze appky, verze systému, model zařízení, jazyk a vzhled aplikace), aby šlo případnou chybu skutečně dohledat. Nic z toho neobsahuje jméno, e-mail ani jiný osobní identifikátor, pokud ho sám nenapíšeš do textu zprávy.
+- **Zpětná vazba** — pokud v appce napíšeš zprávu vývojáři, spolu s textem se odešle i základní technický přehled (verze appky, verze systému, model zařízení a jazyk aplikace), aby šlo případnou chybu skutečně dohledat. Nic z toho neobsahuje jméno, e-mail ani jiný osobní identifikátor, pokud ho sám nenapíšeš do textu zprávy.
 - **Hlasový vzkaz** — pokud si v appce nahraješ a odešleš hlasovou zprávu pro rádio, nahrávka se odešle na e-mail rádia za účelem případného odvysílání.
+- **Právní základ:** tvůj souhlas, který dáváš tím, že zprávu nebo vzkaz sám odešleš (čl. 6 odst. 1 písm. a) GDPR). **Doba uchování:** zprávy a nahrávky mažeme, jakmile je přestaneme potřebovat, nejpozději po 12 měsících; nahrávka, která zazní ve vysílání, se může stát součástí archivu pořadu.
 
 Obojí se odesílá přes zabezpečené API a doručuje e-mailem přes službu [Resend](https://resend.com) — zprávy nejsou nikde veřejně publikovány ani sdíleny s třetími stranami mimo doručení e-mailu. Jako ochranu proti zneužití (hromadnému rozesílání) si server po dobu 24 hodin pamatuje jen jednosměrný otisk (hash) IP adresy odesílatele a počet odeslaných zpráv; pak se záznam smaže.
 
@@ -53,6 +55,8 @@ Obojí se odesílá přes zabezpečené API a doručuje e-mailem přes službu [
 - **Resend** — doručení e-mailů (zpětná vazba, hlasové vzkazy) na adresu rádia.
 - **Apple iTunes Search API** — vyhledání obalu alba a krátké ukázky skladby podle názvu/interpreta; appka posílá jen text názvu a interpreta, nic osobního.
 - **slowdownradijo.cz** — appka čte veřejný obsah webu (rubrika Novinky) přes standardní WordPress rozhraní.
+- **Spotify** — když klepneš na právě hrající skladbu, otevře se vyhledávání této skladby na Spotify (v aplikaci Spotify nebo v prohlížeči). Spotify se tak dozví jen název skladby a interpreta; další zpracování už se řídí zásadami Spotify. Bez klepnutí appka se Spotify nekomunikuje.
+- **Platformy podpory (Herohero, Patreon, Forendors)** a **sociální sítě** — appka na ně jen odkazuje. Pokud odkaz otevřeš, řídí se zpracování údajů zásadami daného webu.
 
 ## Mikrofon
 
@@ -72,7 +76,7 @@ Aplikace není cílená na děti a vědomě neshromažďuje údaje od dětí mla
 
 ## Změny těchto zásad
 
-Tento dokument může být čas od času aktualizován. Aktuální verze je vždy dostupná na [DOPLNIT URL].
+Tento dokument může být čas od času aktualizován. Aktuální verze je vždy dostupná na https://slowdownradijo.cz/ochrana-osobnich-udaju/.
 
 ## Kontakt
 
