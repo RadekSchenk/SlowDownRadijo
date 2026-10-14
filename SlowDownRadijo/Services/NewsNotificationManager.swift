@@ -22,7 +22,10 @@ enum NewsNotificationManager {
 
     static func checkForNewPost() async {
         guard isEnabled else { return }
-        let granted = await requestAuthorizationIfNeeded()
+        // Never asks at launch: permission is asked in context (the news
+        // switch, a show's bell); until then new posts just aren't announced.
+        let status = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
+        let granted = status == .authorized || status == .provisional
 
         guard let posts = try? await NewsService.fetchRecent(limit: 1), let latest = posts.first else { return }
 
@@ -47,9 +50,9 @@ enum NewsNotificationManager {
         try? await UNUserNotificationCenter.current().add(request)
     }
 
-    /// Called both from the periodic check above and directly when the
-    /// user flips the toggle on in `NewsListView`, so permission gets
-    /// asked for right away rather than waiting for the next new post.
+    /// Called from `NewsListView` — when it opens with the switch on (the
+    /// default) and when the switch is flipped on — so permission is asked
+    /// where it makes sense, not at launch.
     @discardableResult
     static func requestAuthorizationIfNeeded() async -> Bool {
         let center = UNUserNotificationCenter.current()

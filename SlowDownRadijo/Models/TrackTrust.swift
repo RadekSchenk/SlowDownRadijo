@@ -18,20 +18,23 @@ import Foundation
 /// when it started (we saw it change, or the server logged its start), it
 /// started within the last `maximumAge`, and — for hosted shows — not
 /// before the show itself began.
+///
+/// Shared with the widget, so this file knows only plain strings; the
+/// `NowPlayingTrack` conveniences live next to that type.
 enum TrackTrust {
     /// Longer than almost any real song in the data (99.8% are shorter);
     /// a title unchanged for longer than this is stuck.
     static let maximumAge: TimeInterval = 10 * 60
 
     /// Noise and placeholders — never a song, whatever the timing.
-    static func isRealSong(_ track: NowPlayingTrack, shows: [Show]) -> Bool {
-        let artist = normalized(track.artist)
-        let title = normalized(track.title)
+    static func isRealSong(artist rawArtist: String, title rawTitle: String, shows: [Show]) -> Bool {
+        let artist = normalized(rawArtist)
+        let title = normalized(rawTitle)
         guard !artist.isEmpty, !title.isEmpty, artist != title else { return false }
 
         // Station noise.
         if artist.contains("slowdown") || artist == "promo" || title == "promo" { return false }
-        if isDomain(track.artist) || isDomain(track.title) { return false }
+        if isDomain(rawArtist) || isDomain(rawTitle) { return false }
 
         // The show or its host standing in for a song.
         let keys = placeholderKeys(for: shows)
@@ -48,11 +51,6 @@ enum TrackTrust {
         guard now.timeIntervalSince(start) < maximumAge else { return false }
         if let showStart, start < showStart { return false }
         return true
-    }
-
-    /// Same song? Compares the way the server stores it.
-    static func matches(_ track: NowPlayingTrack, artist: String, title: String) -> Bool {
-        normalized(track.artist) == normalized(artist) && normalized(track.title) == normalized(title)
     }
 
     /// Lowercase, without diacritics, letters and digits only:

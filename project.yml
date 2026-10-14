@@ -1,6 +1,7 @@
 name: SlowDownRadijo
 options:
   bundleIdPrefix: cz.slowdownradijo
+  developmentLanguage: cs
   deploymentTarget:
     iOS: "17.0"
   createIntermediateGroups: true
@@ -31,6 +32,11 @@ targets:
       path: SlowDownRadijo/Info.plist
       properties:
         CFBundleDisplayName: "Slow Down Radijo"
+        CFBundleLocalizations:
+          - cs
+          - en
+        # HTTPS only (exempt) — answers App Store Connect's export question.
+        ITSAppUsesNonExemptEncryption: false
         UILaunchScreen:
           UIColorName: "LaunchBackground"
           UIImageName: "LaunchLogo"
@@ -43,6 +49,7 @@ targets:
         UIUserInterfaceStyle: Dark
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: false
+        # Translated in Resources/{cs,en}.lproj/InfoPlist.strings.
         NSMicrophoneUsageDescription: "Slow Down Rádijo potřebuje mikrofon, abys mohl nahrát hlasový vzkaz pro rádio."
         UIAppFonts:
           - "Manrope-Light.ttf"
@@ -77,6 +84,7 @@ targets:
       - path: SlowDownRadijo/Models/Show.swift
       - path: SlowDownRadijo/Services/ScheduleStore.swift
       - path: SlowDownRadijo/Models/RemotePlayedTrack.swift
+      - path: SlowDownRadijo/Models/TrackTrust.swift
       - path: SlowDownRadijo/DesignSystem/Theme.swift
       - path: SlowDownRadijo/Resources/schedule.json
       - path: SlowDownRadijo/Resources/Assets.xcassets

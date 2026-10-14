@@ -30,6 +30,9 @@ struct NewsListView: View {
         .onAppear {
             viewModel.loadIfNeeded()
             Analytics.shared.screen(.news)
+            if newsNotificationsEnabled {
+                Task { await NewsNotificationManager.requestAuthorizationIfNeeded() }
+            }
         }
         .refreshable { await viewModel.refresh() }
         .onChange(of: newsNotificationsEnabled) { _, isEnabled in
