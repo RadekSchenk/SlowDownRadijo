@@ -37,6 +37,11 @@ private struct AppRootView: View {
         }
         // Dark only: no light mode, no appearance toggle.
         .preferredColorScheme(.dark)
+        // Text grows with the system setting up to XXXL, the largest of the
+        // standard sizes; the accessibility sizes beyond it pushed several
+        // fixed-width rows (and with them whole pages) past the screen's
+        // edges. Checked with the screenshot tests at L, XXXL and AX sizes.
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
         .task {
             try? await Task.sleep(for: Self.hold)
             withAnimation(.easeOut(duration: 0.3)) {
