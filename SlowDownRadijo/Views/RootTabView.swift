@@ -114,7 +114,15 @@ struct RootTabView: View {
             if !hasAutoplayed {
                 hasAutoplayed = true
                 if autoplayEnabled {
-                    player.play(trigger: .autoplay)
+                    // Once the launch cover has faded: starting the stream
+                    // activates the audio session, which can hold up the
+                    // main thread — and with it the first frames — for a
+                    // moment. The stream takes longer than this to connect
+                    // anyway.
+                    Task {
+                        try? await Task.sleep(for: .milliseconds(300))
+                        player.play(trigger: .autoplay)
+                    }
                 }
             }
             if !hasCheckedNewsNotifications {

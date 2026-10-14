@@ -23,8 +23,10 @@ private struct AppRootView: View {
     @State private var showSplash = true
 
     /// Just long enough for the home screen to lay out under the cover;
-    /// the app itself is ready by then (the schedule ships in the bundle).
-    private static let hold: Duration = .milliseconds(250)
+    /// the app itself is ready by then (the schedule ships in the bundle,
+    /// and the slower start-up work waits until after it — see
+    /// `RootTabView`'s autoplay and `PlayHistoryStore`).
+    private static let hold: Duration = .milliseconds(80)
 
     var body: some View {
         ZStack {
@@ -40,7 +42,7 @@ private struct AppRootView: View {
         .appTextSizeLimit()
         .task {
             try? await Task.sleep(for: Self.hold)
-            withAnimation(.easeOut(duration: 0.3)) {
+            withAnimation(.easeOut(duration: 0.2)) {
                 showSplash = false
             }
         }
