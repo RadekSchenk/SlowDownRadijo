@@ -94,40 +94,19 @@ struct RootTabView: View {
         // bar under it kept the highlight stuck on Rádio. Each page is built
         // on its first visit and then kept alive (scroll position, state),
         // only the selected one is shown.
-        ZStack {
-            tabPage(0) {
-                HomeView(
-                    nowPlaying: nowPlayingViewModel,
-                    history: historyViewModel,
-                    scheduleStore: scheduleStore,
-                    onOpenStats: { selectedTab = Self.statsTab }
-                )
-            }
+        //
+        // The pages and the bar are stacked, not overlapped: nothing of a
+        // page may reach under the bar, or it takes the bar's taps.
+        VStack(spacing: 0) {
+            pages
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .toastOverlay()
 
-            if FeatureFlags.standaloneProgramTab {
-                tabPage(1) { ProgramView(scheduleStore: scheduleStore) }
-            }
-
-            if FeatureFlags.nowPlayingHistoryAndFavorites {
-                tabPage(2) { FavoritesView() }
-            }
-
-            tabPage(3) {
-                MessageView(viewModel: voiceMessageViewModel) {
-                    selectedTab = 0
-                }
-            }
-
-            tabPage(4) { SupportView() }
-
-            tabPage(Self.statsTab) { StatsView() }
-        }
-        .toastOverlay()
-        .tint(Theme.liveRed)
-        .safeAreaInset(edge: .bottom, spacing: 0) {
             bottomNav
         }
-
+        // The bar reaches the screen's bottom edge itself (see `bottomNav`).
+        .ignoresSafeArea(.container, edges: .bottom)
+        .tint(Theme.liveRed)
         .environmentObject(favoriteTrackStore)
         .environmentObject(previewPlayer)
         .environmentObject(statsStore)
@@ -174,21 +153,53 @@ struct RootTabView: View {
         }
     }
 
+    /// The tab pages, one above the other; see `tabPage`.
+    private var pages: some View {
+        ZStack {
+            tabPage(0) {
+                HomeView(
+                    nowPlaying: nowPlayingViewModel,
+                    history: historyViewModel,
+                    scheduleStore: scheduleStore,
+                    onOpenStats: { selectedTab = Self.statsTab }
+                )
+            }
+
+            if FeatureFlags.standaloneProgramTab {
+                tabPage(1) { ProgramView(scheduleStore: scheduleStore) }
+            }
+
+            if FeatureFlags.nowPlayingHistoryAndFavorites {
+                tabPage(2) { FavoritesView() }
+            }
+
+            tabPage(3) {
+                MessageView(viewModel: voiceMessageViewModel) {
+                    selectedTab = 0
+                }
+            }
+
+            tabPage(4) { SupportView() }
+
+            tabPage(Self.statsTab) { StatsView() }
+        }
+    }
+
     /// One page of the tab container: built on its first visit, then kept
     /// in the hierarchy and only shown while selected.
     @ViewBuilder
     private func tabPage<Content: View>(_ tag: Int, @ViewBuilder content: () -> Content) -> some View {
         if visitedTabs.contains(tag) || selectedTab == tag {
             let isSelected = selectedTab == tag
-            NavigationStack {
-                content()
-                    .toolbar(.hidden, for: .navigationBar)
-            }
-            .environment(\.tabReselectCount, reselectCounts[tag, default: 0])
-            .opacity(isSelected ? 1 : 0)
-            .allowsHitTesting(isSelected)
-            .accessibilityHidden(!isSelected)
-            .zIndex(isSelected ? 1 : 0)
+            // No `NavigationStack`: the pages push nothing (the menu has its
+            // own), and a UIKit navigation view only adds a layer that can
+            // catch touches.
+            content()
+                .environment(\.tabReselectCount, reselectCounts[tag, default: 0])
+                .opacity(isSelected ? 1 : 0)
+                .allowsHitTesting(isSelected)
+                .accessibilityHidden(!isSelected)
+                .zIndex(isSelected ? 1 : 0)
         }
     }
 
@@ -221,11 +232,11 @@ struct RootTabView: View {
             .padding(.top, 14)
             .padding(.bottom, 10)
         }
-        // Trim the real safe area (34pt) down to the design's 19pt
-        // home-indicator strip: the negative padding lets the bar's bottom edge
-        // reach into the safe area, the background below fills the rest.
-        .padding(.bottom, bottomSafeInset > 0 ? Self.homeIndicatorZone - bottomSafeInset : 0)
-        .background(Theme.tabBarBackground.ignoresSafeArea(edges: .bottom))
+        // The bar runs to the screen's bottom edge (`body` ignores the bottom
+        // safe area); below the tabs it keeps the design's 19pt home-indicator
+        // strip instead of the real 34pt safe area.
+        .padding(.bottom, bottomSafeInset > 0 ? Self.homeIndicatorZone : 0)
+        .background(Theme.tabBarBackground)
     }
 
     private static func analyticsScreen(for tab: Int) -> AnalyticsScreen {
@@ -257,6 +268,8 @@ struct RootTabView: View {
                     .frame(height: 16)
             }
             .foregroundStyle(isSelected ? Theme.liveRed : Theme.tabBarUnselected)
+            // The whole tab is tappable, not just the icon and label glyphs.
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
