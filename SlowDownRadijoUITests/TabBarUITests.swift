@@ -17,26 +17,29 @@ final class TabBarUITests: XCTestCase {
     }
 
     func testBisectState() {
-        for flags in [["bare"], ["minimal"]] {
+        for flags in [["minimalButton"], ["minimal", "noInset"], ["noInset"], ["minimal"]] {
             app.terminate()
             app = XCUIApplication()
             app.launchArguments = ["-autoplayEnabled", "NO"] + flags.flatMap { ["-diag." + $0, "YES"] }
             app.launch()
             sleep(4)
-            if flags == ["bare"] {
-                let button = app.buttons["diag.bare.button"]
-                print("[state] bare button exists=\(button.waitForExistence(timeout: 10))")
-                print("[state] bare before: \(app.staticTexts["diag.bare.text"].label)")
+            if flags == ["minimalButton"] {
+                let button = app.buttons["diag.root.button"]
+                print("[state] root button exists=\(button.waitForExistence(timeout: 10))")
+                print("[state] root before: \(app.staticTexts["diag.root.text"].label)")
                 button.tap()
                 sleep(2)
-                print("[state] bare after: \(app.staticTexts["diag.bare.text"].label)")
-            } else {
-                print("[state] minimal before: \(app.staticTexts["diag.minimal.text"].label)")
+                print("[state] root after: \(app.staticTexts["diag.root.text"].label)")
+            } else if flags.contains("minimal") {
+                print("[state] \(flags) before: \(app.staticTexts["diag.minimal.text"].label)")
                 app.buttons["tab.3"].tap()
                 sleep(2)
-                print("[state] minimal after: \(app.staticTexts["diag.minimal.text"].label) tab3=\(String(describing: app.buttons["tab.3"].value))")
+                print("[state] \(flags) after: \(app.staticTexts["diag.minimal.text"].label)")
+            } else {
+                app.buttons["tab.3"].tap()
+                sleep(2)
+                print("[state] \(flags) full: page3=\(app.descendants(matching: .any)["page.3"].exists) tab3=\(String(describing: app.buttons["tab.3"].value))")
             }
-            attachScreenshot(named: "state \(flags)")
         }
     }
 

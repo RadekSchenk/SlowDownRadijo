@@ -97,7 +97,14 @@ struct RootTabView: View {
 
     @ViewBuilder
     var body: some View {
-        if Diag.on("minimal") {
+        if Diag.on("minimalButton") {
+            VStack(spacing: 40) {
+                Text("root \(selectedTab)")
+                    .accessibilityIdentifier("diag.root.text")
+                Button("Bump root") { selectedTab += 1 }
+                    .accessibilityIdentifier("diag.root.button")
+            }
+        } else if Diag.on("minimal") {
             VStack(spacing: 0) {
                 Color.black.overlay(
                     Text("selected \(selectedTab) counter \(diagCounter.taps)")
@@ -289,7 +296,7 @@ struct RootTabView: View {
         // The bar runs to the screen's bottom edge (`body` ignores the bottom
         // safe area); below the tabs it keeps the design's 19pt home-indicator
         // strip instead of the real 34pt safe area.
-        .padding(.bottom, bottomSafeInset > 0 ? Self.homeIndicatorZone : 0)
+        .padding(.bottom, (Diag.on("noInset") ? 34 : bottomSafeInset) > 0 ? Self.homeIndicatorZone : 0)
         .background(Theme.tabBarBackground)
         #if DEBUG
         .simultaneousGesture(TapGesture().onEnded { debugBarTouches += 1 })
