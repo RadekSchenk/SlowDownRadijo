@@ -24,16 +24,11 @@ struct RootTabView: View {
     private static let homeIndicatorZone: CGFloat = 19
 
     /// The window's bottom safe-area inset: 34pt on iPhones with a home
-    /// indicator, 0 on those without. Read from UIKit — a `GeometryReader`
-    /// inside the `safeAreaInset` / an ignoring background reports 0 here.
-    /// `body` re-runs right after the first `.onAppear` (state changes), by
-    /// which time the window exists.
-    private var bottomSafeInset: CGFloat {
-        let windows = UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .flatMap(\.windows)
-        return (windows.first(where: \.isKeyWindow) ?? windows.first)?.safeAreaInsets.bottom ?? 0
-    }
+    /// indicator, 0 on those without. Read from UIKit once, in `.onAppear`,
+    /// and kept in state: reading it inside `body` (as this view once did)
+    /// stopped SwiftUI from updating this view on iOS 26 — taps landed, but
+    /// the selected tab never changed on screen.
+    @State private var bottomSafeInset: CGFloat = 0
 
     @State private var selectedTab = 0
     /// Pages built so far (see `tabPage`).
@@ -41,13 +36,6 @@ struct RootTabView: View {
     /// Taps on the already selected tab, per tab: each one scrolls that
     /// page back to the top (`.scrollsToTopOnTabReselect()`).
     @State private var reselectCounts: [Int: Int] = [:]
-    #if DEBUG
-    /// Tab-bar taps, for the UI tests' diagnostics.
-    @State private var debugTabTaps = 0
-    @State private var debugBarTouches = 0
-    @ObservedObject private var diagCounter = DiagCounter.shared
-    @State private var debugHitInfo = "not probed"
-    #endif
     /// `init()` isn't a safe place for the autoplay side effect — SwiftUI
     /// re-invokes it (e.g. when `AppRootView` re-renders as the splash
     /// dismisses), which previously spun up a second `RadioPlayerService`
@@ -95,30 +83,7 @@ struct RootTabView: View {
         _statsStore = StateObject(wrappedValue: ListeningStatsStore(scheduleStore: services.schedule))
     }
 
-    @ViewBuilder
     var body: some View {
-        if Diag.on("minimalButton") {
-            VStack(spacing: 40) {
-                Text("root \(selectedTab)")
-                    .accessibilityIdentifier("diag.root.text")
-                Button("Bump root") { selectedTab += 1 }
-                    .accessibilityIdentifier("diag.root.button")
-            }
-        } else if Diag.on("minimal") {
-            VStack(spacing: 0) {
-                Color.black.overlay(
-                    Text("selected \(selectedTab) counter \(diagCounter.taps)")
-                        .foregroundStyle(.white)
-                        .accessibilityIdentifier("diag.minimal.text")
-                )
-                bottomNav
-            }
-        } else {
-            fullBody
-        }
-    }
-
-    private var fullBody: some View {
         // Our own tab container instead of `TabView`: the bottom bar is
         // hand-built (Figma `bottom-nav`), and on iOS 26 a hidden system tab
         // bar under it kept the highlight stuck on Rádio. Each page is built
@@ -130,33 +95,18 @@ struct RootTabView: View {
         VStack(spacing: 0) {
             pages
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .diag(!Diag.on("noToast")) { $0.toastOverlay() }
+                .toastOverlay()
 
             bottomNav
         }
         // The bar reaches the screen's bottom edge itself (see `bottomNav`).
         .ignoresSafeArea(.container, edges: .bottom)
-        #if DEBUG
-        .overlay(alignment: .topTrailing) {
-            Color.clear
-                .frame(width: 1, height: 1)
-                .accessibilityElement()
-                .accessibilityLabel(debugHitInfo)
-                .accessibilityValue("barTouches=\(debugBarTouches)")
-                .accessibilityIdentifier("debug.hit")
-        }
-        .task {
-            for _ in 0..<20 {
-                try? await Task.sleep(for: .seconds(2))
-                probeHits()
-            }
-        }
-        #endif
         .tint(Theme.liveRed)
         .environmentObject(favoriteTrackStore)
         .environmentObject(previewPlayer)
         .environmentObject(statsStore)
-        .diag(!Diag.on("noOnAppear")) { $0.onAppear {
+        .onAppear {
+            bottomSafeInset = Self.windowBottomInset()
             configureNavigationBarAppearance()
             // Autoplay: a radio app should start making sound as soon as it
             // opens, not wait for a tap — unless the user turned it off.
@@ -172,10 +122,10 @@ struct RootTabView: View {
             }
             ShowReminderStore.shared.reschedule()
             Analytics.shared.screen(.home)
-        } }
+        }
         // A tap on a "Právě začíná" notification: home, and the radio for
         // "Poslouchat".
-        .diag(!Diag.on("noOnReceive")) { $0.onReceive(ShowReminderStore.shared.$openRequest.compactMap { $0 }) { request in
+        .onReceive(ShowReminderStore.shared.$openRequest.compactMap { $0 }) { request in
             ShowReminderStore.shared.finishOpenRequest(request)
             guard request.id != handledOpenRequestID else { return }
             handledOpenRequestID = request.id
@@ -184,11 +134,8 @@ struct RootTabView: View {
             if request.listen, player.state != .playing {
                 player.play(trigger: .notification)
             }
-        } }
-        .diag(!Diag.on("noOnChange")) { $0.onChange(of: selectedTab) { old, tab in
-            #if DEBUG
-            print("[tabbar] selectedTab \(old) -> \(tab)")
-            #endif
+        }
+        .onChange(of: selectedTab) { _, tab in
             let isFirstVisit = visitedTabs.insert(tab).inserted
             Analytics.shared.screen(Self.analyticsScreen(for: tab))
             if tab == Self.statsTab {
@@ -199,7 +146,7 @@ struct RootTabView: View {
                     Task { await statsStore.refreshAll() }
                 }
             }
-        } }
+        }
     }
 
     /// The tab pages, one above the other; see `tabPage`.
@@ -296,39 +243,17 @@ struct RootTabView: View {
         // The bar runs to the screen's bottom edge (`body` ignores the bottom
         // safe area); below the tabs it keeps the design's 19pt home-indicator
         // strip instead of the real 34pt safe area.
-        .padding(.bottom, (Diag.on("noInset") ? 34 : bottomSafeInset) > 0 ? Self.homeIndicatorZone : 0)
+        .padding(.bottom, bottomSafeInset > 0 ? Self.homeIndicatorZone : 0)
         .background(Theme.tabBarBackground)
-        #if DEBUG
-        .simultaneousGesture(TapGesture().onEnded { debugBarTouches += 1 })
-        #endif
     }
 
-    #if DEBUG
-    /// Which UIKit view would get a touch on the tab bar, and on the page —
-    /// for the UI tests' diagnostics.
-    private func probeHits() {
+    /// See `bottomSafeInset`. Never call from `body`.
+    private static func windowBottomInset() -> CGFloat {
         let windows = UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }
             .flatMap(\.windows)
-        let windowList = windows.map { "\(type(of: $0))(level \($0.windowLevel.rawValue), hidden \($0.isHidden), key \($0.isKeyWindow), \($0.frame.integral))" }
-        guard let window = windows.first(where: \.isKeyWindow) ?? windows.first else {
-            debugHitInfo = "no window"
-            return
-        }
-        let height = window.bounds.height
-        let points: [(String, CGPoint)] = [("bar", CGPoint(x: 151, y: height - 52)), ("page", CGPoint(x: 200, y: 300))]
-        let hits = points.map { name, point -> String in
-            var chain: [String] = []
-            var view = window.hitTest(point, with: nil)
-            while let current = view, chain.count < 8 {
-                chain.append("\(type(of: current))\(current.frame.integral)")
-                view = current.superview
-            }
-            return "\(name)@\(Int(point.y)): " + chain.joined(separator: " < ")
-        }
-        debugHitInfo = "windows: " + windowList.joined(separator: "; ") + " || " + hits.joined(separator: " || ")
+        return (windows.first(where: \.isKeyWindow) ?? windows.first)?.safeAreaInsets.bottom ?? 0
     }
-    #endif
 
     private static func analyticsScreen(for tab: Int) -> AnalyticsScreen {
         switch tab {
@@ -342,11 +267,6 @@ struct RootTabView: View {
     private func tabBarButton(tag: Int, title: String, image: String) -> some View {
         let isSelected = selectedTab == tag
         return Button {
-            #if DEBUG
-            debugTabTaps += 1
-            DiagCounter.shared.taps += 1
-            print("[tabbar] tap tag=\(tag) selected=\(selectedTab) taps=\(debugTabTaps)")
-            #endif
             if isSelected {
                 reselectCounts[tag, default: 0] += 1
             } else {
@@ -370,9 +290,6 @@ struct RootTabView: View {
         .buttonStyle(.plain)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityIdentifier("tab.\(tag)")
-        #if DEBUG
-        .accessibilityValue("selected=\(selectedTab) taps=\(debugTabTaps)")
-        #endif
     }
 
     private func configureNavigationBarAppearance() {
@@ -389,35 +306,5 @@ struct RootTabView: View {
         ]
         UINavigationBar.appearance().standardAppearance = navAppearance
         UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
-    }
-}
-
-/// Diagnostics: tab taps counted outside SwiftUI state.
-final class DiagCounter: ObservableObject {
-    static let shared = DiagCounter()
-    @Published var taps = 0
-}
-
-/// Temporary switches for tracking down the tab bar bug in the UI tests
-/// (launch arguments like `-diag.noToast YES`). Always off outside DEBUG.
-enum Diag {
-    static func on(_ name: String) -> Bool {
-        #if DEBUG
-        return UserDefaults.standard.bool(forKey: "diag." + name)
-        #else
-        return false
-        #endif
-    }
-}
-
-extension View {
-    /// Applies `transform` only when `enabled` (diagnostics, see `Diag`).
-    @ViewBuilder
-    func diag<Result: View>(_ enabled: Bool, _ transform: (Self) -> Result) -> some View {
-        if enabled {
-            transform(self)
-        } else {
-            self
-        }
     }
 }

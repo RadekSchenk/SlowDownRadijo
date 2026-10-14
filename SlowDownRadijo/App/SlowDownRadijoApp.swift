@@ -5,9 +5,7 @@ struct SlowDownRadijoApp: App {
     init() {
         NewsNotificationManager.configureForegroundPresentation()
         ShowReminderStore.registerNotificationCategory()
-        if !Diag.on("noAnalytics") {
-            Analytics.shared.configure()
-        }
+        Analytics.shared.configure()
     }
 
     var body: some Scene {
@@ -30,11 +28,7 @@ private struct AppRootView: View {
 
     var body: some View {
         ZStack {
-            if Diag.on("bare") {
-                DiagBareView()
-            } else {
-                RootTabView()
-            }
+            RootTabView()
 
             if showSplash {
                 SplashScreenView()
@@ -48,21 +42,6 @@ private struct AppRootView: View {
             withAnimation(.easeOut(duration: 0.3)) {
                 showSplash = false
             }
-        }
-    }
-}
-
-/// Diagnostics only (`-diag.bare YES`): the simplest possible view with its
-/// own state, in RootTabView's place.
-private struct DiagBareView: View {
-    @State private var count = 0
-
-    var body: some View {
-        VStack(spacing: 40) {
-            Text("bare \(count)")
-                .accessibilityIdentifier("diag.bare.text")
-            Button("Bump") { count += 1 }
-                .accessibilityIdentifier("diag.bare.button")
         }
     }
 }

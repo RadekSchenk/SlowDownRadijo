@@ -56,12 +56,8 @@ jobs:
             -scheme SlowDownRadijo \
             -destination "id=${{ steps.sim.outputs.udid }}" \
             -resultBundlePath TestResults.xcresult \
-            -only-testing:SlowDownRadijoUITests/TabBarUITests/testBisectState \
             CODE_SIGNING_ALLOWED=NO \
             | tee xcodebuild.log | grep -E "error:|warning: .*RootTabView|Test Case|Executed|\*\* TEST|failed|passed" || true
-          echo "::group::Test output"
-          grep -E "\[(uitest|bisect|state|tabbar)\]|error:|passed|failed" xcodebuild.log | grep -v "hierarchy" | head -300
-          echo "::endgroup::"
           grep -q "\*\* TEST SUCCEEDED \*\*" xcodebuild.log
 
       - name: Export screenshots
@@ -70,13 +66,6 @@ jobs:
           mkdir -p screenshots
           xcrun xcresulttool export attachments --path TestResults.xcresult --output-path screenshots || true
           ls -la screenshots | head -40
-          for f in screenshots/*.png; do
-            sips -s format jpeg -s formatOptions 40 -Z 500 "$f" --out "${f%.png}.jpg" >/dev/null 2>&1 || continue
-            echo "===== IMAGE $f"
-            base64 -i "${f%.png}.jpg" | tr -d '\n'
-            echo
-            echo "===== END IMAGE"
-          done
 
       - uses: actions/upload-artifact@v4
         if: always()

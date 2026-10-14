@@ -1,8 +1,8 @@
 import XCTest
 
 /// Drives the real app in the simulator: the hand-built tab bar has to
-/// switch both the page and the highlight, and a second tap on the current
-/// tab has to scroll its page back to the top.
+/// switch both the page and the highlight, sit where the design puts it,
+/// and a second tap on the current tab has to scroll its page to the top.
 final class TabBarUITests: XCTestCase {
     private let tabs = [0, 3, 5, 4]
     private var app: XCUIApplication!
@@ -16,102 +16,21 @@ final class TabBarUITests: XCTestCase {
         XCTAssertTrue(app.buttons["tab.0"].waitForExistence(timeout: 20), "tab bar never appeared\n\(app.debugDescription)")
     }
 
-    func testBisectState() {
-        for flags in [["minimalButton"], ["minimal", "noInset"], ["noInset"], ["minimal"]] {
-            app.terminate()
-            app = XCUIApplication()
-            app.launchArguments = ["-autoplayEnabled", "NO"] + flags.flatMap { ["-diag." + $0, "YES"] }
-            app.launch()
-            sleep(4)
-            if flags == ["minimalButton"] {
-                let button = app.buttons["diag.root.button"]
-                print("[state] root button exists=\(button.waitForExistence(timeout: 10))")
-                print("[state] root before: \(app.staticTexts["diag.root.text"].label)")
-                button.tap()
-                sleep(2)
-                print("[state] root after: \(app.staticTexts["diag.root.text"].label)")
-            } else if flags.contains("minimal") {
-                print("[state] \(flags) before: \(app.staticTexts["diag.minimal.text"].label)")
-                app.buttons["tab.3"].tap()
-                sleep(2)
-                print("[state] \(flags) after: \(app.staticTexts["diag.minimal.text"].label)")
-            } else {
-                app.buttons["tab.3"].tap()
-                sleep(2)
-                print("[state] \(flags) full: page3=\(app.descendants(matching: .any)["page.3"].exists) tab3=\(String(describing: app.buttons["tab.3"].value))")
-            }
-        }
-    }
-
-    /// Relaunches with one part switched off at a time and reports whether
-    /// a tab tap then reaches the screen.
-    func testBisect() {
-        let variants: [[String]] = [
-            [],
-            ["noOnReceive"],
-            ["noOnChange"],
-            ["noToast"],
-            ["noOnAppear"],
-            ["noAnalytics"],
-            ["noOnReceive", "noOnChange", "noToast", "noOnAppear", "noAnalytics"],
-            ["minimal"],
-            ["minimal", "noAnalytics"],
-        ]
-        for flags in variants {
-            app.terminate()
-            app = XCUIApplication()
-            app.launchArguments = ["-autoplayEnabled", "NO"] + flags.flatMap { ["-diag." + $0, "YES"] }
-            app.launch()
-            _ = app.buttons["tab.3"].waitForExistence(timeout: 20)
-            sleep(3)
-            app.buttons["tab.3"].tap()
-            sleep(2)
-            let page3 = app.descendants(matching: .any)["page.3"].exists
-            let probe = app.descendants(matching: .any)["debug.hit"]
-            print("[bisect] flags=\(flags) page3=\(page3) tab3=\(String(describing: app.buttons["tab.3"].value)) probe=\(probe.exists ? String(probe.label.prefix(80)) : "none")")
-        }
-    }
-
-    func testDiagnostics() {
-        sleep(5)
-        let probe = app.descendants(matching: .any)["debug.hit"]
-        print("[uitest] probe: \(probe.label)")
-        let tab3 = app.buttons["tab.3"]
-        tab3.tap()
-        sleep(1)
-        print("[uitest] after element tap: \(String(describing: tab3.value)) probe value=\(String(describing: probe.value))")
-        let center = tab3.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
-        center.tap()
-        sleep(1)
-        print("[uitest] after coordinate tap: \(String(describing: tab3.value)) probe value=\(String(describing: probe.value))")
-        let statsBlock = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Your listening stats")).firstMatch
-        print("[uitest] stats block exists=\(statsBlock.exists) hittable=\(statsBlock.exists && statsBlock.isHittable)")
-        if statsBlock.exists {
-            statsBlock.tap()
-            sleep(2)
-            print("[uitest] after stats block tap: page5=\(app.descendants(matching: .any)["page.5"].exists) page0=\(app.descendants(matching: .any)["page.0"].exists) tab5=\(String(describing: app.buttons["tab.5"].value))")
-        }
-        let play = app.buttons["play.fill"]
-        print("[uitest] play exists=\(play.exists)")
-        if play.exists {
-            play.tap()
-            sleep(2)
-            print("[uitest] after play tap: play.fill exists=\(app.buttons["play.fill"].exists)")
-        }
-        print("[uitest] probe again: \(probe.label)")
-        attachScreenshot(named: "diagnostics")
-    }
-
     func testEveryTabSwitchesPageAndHighlight() {
         assertOnly(selected: 0)
         for tag in [3, 5, 4, 0, 5, 3] {
-            let button = app.buttons["tab.\(tag)"]
-            print("[uitest] before tap \(tag): frame=\(button.frame) hittable=\(button.isHittable) value=\(String(describing: button.value))")
-            button.tap()
-            sleep(1)
-            print("[uitest] after tap \(tag): value=\(String(describing: button.value)) selected=\(button.isSelected)")
-            print("[uitest] hierarchy after tap \(tag):\n\(app.debugDescription)")
+            app.buttons["tab.\(tag)"].tap()
             assertOnly(selected: tag)
+        }
+    }
+
+    /// The tabs' labels end 29pt above the screen's bottom edge (19pt
+    /// home-indicator strip + 10pt padding, Figma `bottom-nav`).
+    func testTabBarSitsAtTheDesignedHeight() {
+        let screenHeight = app.windows.firstMatch.frame.height
+        for tag in tabs {
+            let bottom = app.buttons["tab.\(tag)"].frame.maxY
+            XCTAssertEqual(bottom, screenHeight - 29, accuracy: 1, "tab \(tag) ends at \(bottom), screen \(screenHeight)")
         }
     }
 
@@ -126,14 +45,19 @@ final class TabBarUITests: XCTestCase {
         waitForExpectations(timeout: 5)
     }
 
+    func testStatsBlockOpensStatsTab() {
+        let statsBlock = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@ OR label BEGINSWITH %@", "Your listening stats", "Tvoje statistiky")).firstMatch
+        XCTAssertTrue(statsBlock.waitForExistence(timeout: 10))
+        statsBlock.tap()
+        assertOnly(selected: 5)
+    }
+
     private func assertOnly(selected tag: Int, file: StaticString = #filePath, line: UInt = #line) {
-        let page = app.descendants(matching: .any)["page.\(tag)"]
-        let shown = page.waitForExistence(timeout: 5)
+        let shown = app.descendants(matching: .any)["page.\(tag)"].waitForExistence(timeout: 5)
         attachScreenshot(named: "tab \(tag)")
         XCTAssertTrue(shown, "page \(tag) not shown\n\(app.debugDescription)", file: file, line: line)
         for other in tabs {
-            let button = app.buttons["tab.\(other)"]
-            XCTAssertEqual(button.isSelected, other == tag, "tab \(other) highlight wrong while on \(tag)\n\(app.debugDescription)", file: file, line: line)
+            XCTAssertEqual(app.buttons["tab.\(other)"].isSelected, other == tag, "tab \(other) highlight wrong while on \(tag)", file: file, line: line)
             if other != tag {
                 XCTAssertFalse(app.descendants(matching: .any)["page.\(other)"].exists, "page \(other) still shown", file: file, line: line)
             }
