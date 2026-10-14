@@ -12,7 +12,7 @@ on:
       - "SlowDownRadijoWidget/**"
       - "project.yml"
       - ".github/workflows/ui-tests.yml"
-      - ".github/screenshots.env"
+      - ".github/screenshots.conf"
   workflow_dispatch:
 
 jobs:
@@ -79,7 +79,7 @@ jobs:
             screenshots
             xcodebuild.log
 
-  # Screens at the text sizes and language in .github/screenshots.env,
+  # Screens at the text sizes and language in .github/screenshots.conf,
   # printed into the log as small JPEGs (base64) and uploaded full size.
   screenshots:
     # Only when asked: a commit message containing [screenshots].
@@ -92,7 +92,7 @@ jobs:
       - name: Settings
         id: cfg
         run: |
-          . .github/screenshots.env
+          . .github/screenshots.conf
           echo "text_sizes=${TEXT_SIZES:-UICTContentSizeCategoryL}" >> "$GITHUB_OUTPUT"
           echo "language=${LANGUAGE:-cs}" >> "$GITHUB_OUTPUT"
           echo "device=${DEVICE:-iPhone 17 Pro}" >> "$GITHUB_OUTPUT"
