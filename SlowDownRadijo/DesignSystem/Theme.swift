@@ -110,7 +110,6 @@ enum Theme {
     /// (`#00ca47`, was `#1ed760`).
     static let spotifyGreen = Color(hex: 0x00CA47)
 
-
     // Text
     static let textPrimary = Color(hex: 0xFFFFFF)
     static let textSecondary = Color(hex: 0xFFFFFF, alpha: 0.6)
