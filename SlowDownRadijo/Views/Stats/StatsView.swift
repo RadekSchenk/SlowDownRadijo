@@ -33,6 +33,7 @@ struct StatsView: View {
                 .padding(.bottom, 36)
             }
             .padding(.horizontal, 20)
+            .scrollsToTopOnTabReselect()
         }
         .ignoresSafeArea(edges: .top)
         .background(Theme.background.ignoresSafeArea())

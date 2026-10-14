@@ -37,6 +37,7 @@ struct MessageView: View {
             }
             .padding(.horizontal, 20)
             .padding(.bottom, Theme.Spacing.xl)
+            .scrollsToTopOnTabReselect()
         }
         .ignoresSafeArea(edges: .top)
         .background(Theme.background.ignoresSafeArea())

@@ -38,6 +38,9 @@ struct RootTabView: View {
     @State private var selectedTab = 0
     /// Pages built so far (see `tabPage`).
     @State private var visitedTabs: Set<Int> = [0]
+    /// Taps on the already selected tab, per tab: each one scrolls that
+    /// page back to the top (`.scrollsToTopOnTabReselect()`).
+    @State private var reselectCounts: [Int: Int] = [:]
     /// `init()` isn't a safe place for the autoplay side effect — SwiftUI
     /// re-invokes it (e.g. when `AppRootView` re-renders as the splash
     /// dismisses), which previously spun up a second `RadioPlayerService`
@@ -181,6 +184,7 @@ struct RootTabView: View {
                 content()
                     .toolbar(.hidden, for: .navigationBar)
             }
+            .environment(\.tabReselectCount, reselectCounts[tag, default: 0])
             .opacity(isSelected ? 1 : 0)
             .allowsHitTesting(isSelected)
             .accessibilityHidden(!isSelected)
@@ -236,7 +240,11 @@ struct RootTabView: View {
     private func tabBarButton(tag: Int, title: String, image: String) -> some View {
         let isSelected = selectedTab == tag
         return Button {
-            selectedTab = tag
+            if isSelected {
+                reselectCounts[tag, default: 0] += 1
+            } else {
+                selectedTab = tag
+            }
         } label: {
             VStack(spacing: 6) {
                 Image(image)

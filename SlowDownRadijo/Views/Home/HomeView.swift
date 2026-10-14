@@ -61,6 +61,7 @@ struct HomeView: View {
             }
             .padding(.horizontal, 20)
             .padding(.bottom, Theme.Spacing.xl)
+            .scrollsToTopOnTabReselect()
         }
         // Like every other tab: the header starts 40pt below the true top
         // edge (see `StatsView`).
