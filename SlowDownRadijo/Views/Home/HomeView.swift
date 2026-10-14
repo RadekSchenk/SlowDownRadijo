@@ -83,34 +83,34 @@ struct HomeView: View {
     }
 
     /// Figma "variation-3-card" (node 12318:5166): the show card with its
-    /// equalizer, then the title and host, the programme progress and the
-    /// player row — the remaining time and sleep timer on the left, the
-    /// play button on the right.
+    /// equalizer, then the ON-AIR badge, title and host (centred), the
+    /// programme progress and the player row — the remaining time and
+    /// sleep timer on the left, the play button on the right.
     private var nowPlayingHeader: some View {
-        VStack(alignment: .leading, spacing: 32) {
+        VStack(alignment: .leading, spacing: 16) {
             NowPlayingCard(
                 artwork: heroImage,
                 isPlaying: nowPlaying.playbackState == .playing
             )
 
-            // "Player details": the title block, then 16pt to the controls.
-            VStack(alignment: .leading, spacing: 16) {
-                showTitle
+            // Card, "Player details" title block and controls: all 16pt apart.
+            showTitle
 
-                playerControls
-            }
+            playerControls
         }
-        // Figma: 16pt above the card. The section is drawn 431pt tall, a
-        // few points less than its content, so nothing extra goes below
-        // before the 32pt gap to the stats.
+        // Figma: 16pt above the card; the section (458pt) ends with the
+        // player row, then the 32pt gap to the stats.
         .padding(.top, 16)
     }
 
     private var showTitle: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(spacing: 8) {
+            OnAirBadge()
+
             Text(nowPlaying.showName)
                 .font(Theme.Typography.Manrope.extraBold(size: 20, relativeTo: .title3))
                 .foregroundStyle(Theme.textPrimary)
+                .multilineTextAlignment(.center)
                 .manropeLineHeight(24, fontSize: 20)
 
             if let hostName = nowPlaying.currentShow?.hostName {
@@ -119,10 +119,11 @@ struct HomeView: View {
                 Text("\(L10n.hostedByKicker) \(hostName)")
                     .font(Theme.Typography.Manrope.semibold(size: 12, relativeTo: .caption))
                     .foregroundStyle(Theme.mutedText)
+                    .multilineTextAlignment(.center)
                     .manropeLineHeight(16.8, fontSize: 12)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity)
         .accessibilityElement(children: .combine)
     }
 

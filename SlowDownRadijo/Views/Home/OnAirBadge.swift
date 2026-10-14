@@ -1,8 +1,9 @@
 import SwiftUI
 
-/// Red "ON-AIR" pill with a continuously pulsing dot — always animates
-/// while visible, independent of whether local playback is actually
-/// running (it reflects the schedule, not our player state).
+/// Red "ON-AIR" pill with a continuously pulsing dot (home screen above
+/// the show title, Pořady list on the airing show) — always animates while
+/// visible, independent of whether local playback is actually running (it
+/// reflects the schedule, not our player state).
 struct OnAirBadge: View {
     private static let red = Color(hex: 0xD91F1F)
 
