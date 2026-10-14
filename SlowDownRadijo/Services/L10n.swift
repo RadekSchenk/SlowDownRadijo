@@ -919,6 +919,24 @@ enum L10n {
         }
     }
 
+    /// Under an earlier song on the home screen: "před 6 min".
+    static func playedAgo(minutes: Int) -> String {
+        let minutes = max(minutes, 1)
+        let duration = remaining(hours: minutes / 60, minutes: minutes % 60)
+        switch lang {
+        case .cs: return "před \(duration)"
+        case .en: return "\(duration) ago"
+        }
+    }
+
+    /// After the last earlier song on the home screen.
+    static var noEarlierSongs: String {
+        switch lang {
+        case .cs: return "Starší skladby z tohoto pořadu tu nemáme"
+        case .en: return "No earlier songs from this show here"
+        }
+    }
+
     // MARK: - Settings
 
     static var settingsTitle: String {
