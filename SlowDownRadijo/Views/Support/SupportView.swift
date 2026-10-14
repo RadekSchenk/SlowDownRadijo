@@ -17,7 +17,7 @@ struct SupportView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 AppHeaderView()
-                    .padding(.top, 40)
+                    .padding(.top, AppHeaderView.topInset)
 
                 VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
                     intro

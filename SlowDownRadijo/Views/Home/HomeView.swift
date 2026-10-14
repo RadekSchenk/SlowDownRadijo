@@ -30,7 +30,7 @@ struct HomeView: View {
         ScrollView {
             VStack(spacing: 0) {
                 AppHeaderView()
-                    .padding(.top, 40)
+                    .padding(.top, AppHeaderView.topInset)
 
                 nowPlayingHeader
 
@@ -82,8 +82,8 @@ struct HomeView: View {
             .padding(.bottom, Theme.Spacing.xl)
             .scrollsToTopOnTabReselect()
         }
-        // Like every other tab: the header starts 40pt below the true top
-        // edge (see `StatsView`).
+        // Like every other tab: the header starts `AppHeaderView.topInset`
+        // below the true top edge (see `StatsView`).
         .ignoresSafeArea(edges: .top)
         .background(Theme.background.ignoresSafeArea())
         .onAppear {

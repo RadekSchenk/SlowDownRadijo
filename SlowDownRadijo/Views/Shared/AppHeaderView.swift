@@ -10,6 +10,11 @@ import SwiftUI
 /// feedback and the language switch, rather than surfacing every control
 /// directly here.
 struct AppHeaderView: View {
+    /// Every tab puts the header this far below the true top edge of the
+    /// screen (Figma: the 48pt status bar), not at the system safe-area
+    /// inset, so it sits at the same height on every tab.
+    static let topInset: CGFloat = 48
+
     @ObservedObject private var loc = LocalizationManager.shared
     @State private var isShowingHub = false
 
