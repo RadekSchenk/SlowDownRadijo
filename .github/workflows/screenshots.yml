@@ -4,6 +4,11 @@
 name: Screenshots
 
 on:
+  # Push a change to .github/screenshots.env to take a set (the workflow
+  # can't be started by hand until it is on the default branch).
+  push:
+    paths:
+      - ".github/screenshots.env"
   workflow_dispatch:
     inputs:
       text_sizes:
@@ -23,6 +28,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Settings
+        id: cfg
+        run: |
+          TEXT_SIZES="${{ inputs.text_sizes }}"
+          LANGUAGE="${{ inputs.language }}"
+          DEVICE="${{ inputs.device }}"
+          if [ -z "$TEXT_SIZES" ] && [ -f .github/screenshots.env ]; then . .github/screenshots.env; fi
+          echo "text_sizes=${TEXT_SIZES:-UICTContentSizeCategoryL}" >> "$GITHUB_OUTPUT"
+          echo "language=${LANGUAGE:-cs}" >> "$GITHUB_OUTPUT"
+          echo "device=${DEVICE:-iPhone 17 Pro}" >> "$GITHUB_OUTPUT"
+
       - name: Generate the Xcode project
         run: |
           brew install xcodegen
@@ -31,7 +47,7 @@ jobs:
       - name: Pick a simulator
         id: sim
         run: |
-          UDID=$(xcrun simctl list devices available -j | DEVICE="${{ inputs.device }}" python3 -c '
+          UDID=$(xcrun simctl list devices available -j | DEVICE="${{ steps.cfg.outputs.device }}" python3 -c '
           import json, os, sys, re
           data = json.load(sys.stdin)["devices"]
           want = os.environ["DEVICE"]
@@ -62,10 +78,10 @@ jobs:
       - name: Capture
         run: |
           mkdir -p shots
-          for size in ${{ inputs.text_sizes }}; do
+          for size in ${{ steps.cfg.outputs.text_sizes }}; do
             rm -rf "Result-$size.xcresult"
-            SCREENSHOT_TEXT_SIZE="$size" SCREENSHOT_LANGUAGE="${{ inputs.language }}" \
-            TEST_RUNNER_SCREENSHOT_TEXT_SIZE="$size" TEST_RUNNER_SCREENSHOT_LANGUAGE="${{ inputs.language }}" \
+            SCREENSHOT_TEXT_SIZE="$size" SCREENSHOT_LANGUAGE="${{ steps.cfg.outputs.language }}" \
+            TEST_RUNNER_SCREENSHOT_TEXT_SIZE="$size" TEST_RUNNER_SCREENSHOT_LANGUAGE="${{ steps.cfg.outputs.language }}" \
             xcodebuild test-without-building \
               -project SlowDownRadijo.xcodeproj \
               -scheme SlowDownRadijo \
