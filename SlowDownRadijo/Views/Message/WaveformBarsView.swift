@@ -2,9 +2,8 @@ import SwiftUI
 
 /// Recording waveform spanning the full max duration: bars behind the
 /// current position show real mic amplitude, bars ahead sit at a fixed
-/// minimum — so it doubles as progress toward the time limit. Styled like
-/// the home screen's `NowPlayingWaveform` (full width, bottom-aligned,
-/// `liveRed` vs. `waveformMuted`).
+/// minimum — so it doubles as progress toward the time limit (full width,
+/// bottom-aligned, `liveRed` vs. `waveformMuted`).
 struct WaveformBarsView: View {
     let levels: [Float]
     let activeCount: Int

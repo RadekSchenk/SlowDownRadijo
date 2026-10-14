@@ -19,41 +19,14 @@ struct HomeView: View {
     /// explainer sheet below only appears once, ever.
     @AppStorage("hasSeenFavoritesIntro") private var hasSeenFavoritesIntro = false
     @State private var isShowingFavoritesIntro = false
-    /// The page content's vertical offset within the `ScrollView`, read via
-    /// a `GeometryReader` probe + `HomeScrollOffsetKey` pinned to the
-    /// `"homeScroll"` named coordinate space below — positive while
-    /// pulled down past the top, negative while scrolled down through the
-    /// page. Feeds `HomeHeroBackground`'s stretch/parallax effect.
-    @State private var scrollOffset: CGFloat = 0
 
     var body: some View {
         ScrollView {
-            // Scroll-offset probe: must be a direct top-of-content sibling,
-            // not a `.background()` on the VStack below — a GeometryReader
-            // inside `.background()` only gets measured once at initial
-            // layout and never again as the ScrollView actually scrolls (its
-            // `preference` value stays frozen at the appear-time value, and
-            // `onPreferenceChange` never re-fires), verified empirically by
-            // logging both placements side by side. Zero-height so it takes
-            // no visual space.
-            GeometryReader { proxy in
-                Color.clear.preference(
-                    key: HomeScrollOffsetKey.self,
-                    value: proxy.frame(in: .named("homeScroll")).minY
-                )
-            }
-            .frame(height: 0)
-
-            // Explicit per-section top padding instead of a uniform
-            // `spacing:` — `remainingShowInfo` needs a tighter 12pt gap
-            // after the hero (matching the Figma "variation-3-card" auto
-            // layout's own internal gap, see `heroSection`), while the
-            // later sections keep the wider 24pt gap.
             VStack(spacing: 0) {
-                heroSection
+                AppHeaderView()
+                    .padding(.top, 40)
 
-                remainingShowInfo
-                    .padding(.top, 12)
+                nowPlayingHeader
 
                 // Figma's "scroll-content" wrapper spaces its top-level
                 // sections (now-playing card, stats, Pořady) 32pt apart —
@@ -77,14 +50,8 @@ struct HomeView: View {
             .padding(.horizontal, 20)
             .padding(.bottom, Theme.Spacing.xl)
         }
-        .coordinateSpace(name: "homeScroll")
-        .onPreferenceChange(HomeScrollOffsetKey.self) { scrollOffset = $0 }
-        // Needs to live on the `ScrollView` itself, not a descendant — a
-        // nested `.ignoresSafeArea(edges: .top)` inside a `ScrollView`
-        // doesn't actually bleed past the status bar (the ScrollView still
-        // insets its content by the safe area first), which is why the
-        // hero previously left a gap above it instead of reaching the true
-        // top edge like the Figma spec.
+        // Like every other tab: the header starts 40pt below the true top
+        // edge (see `StatsView`).
         .ignoresSafeArea(edges: .top)
         .background(Theme.background.ignoresSafeArea())
         .onAppear {
@@ -115,87 +82,57 @@ struct HomeView: View {
         return nowPlaying.showArtwork
     }
 
-    /// The header, on-air/host badges, and play button + show title sit in
-    /// one `VStack`, with the hero image behind them via `.background(...)`
-    /// rather than a `ZStack` — load-bearing, not a style choice: a
-    /// `ZStack` sizes itself to its *tallest* child, so with the hero fixed
-    /// at 300pt (taller than this content, ~245pt) it was reserving the
-    /// full 300pt in the scroll flow regardless of where the text actually
-    /// ended, leaving a large dead gap before `remainingShowInfo`.
-    /// `.background()` doesn't affect the layout size of the view it's
-    /// attached to, so the image can overflow past this VStack's bottom
-    /// edge — reaching down behind the waveform, per the 2026-08-23 height
-    /// bump — while `remainingShowInfo` still starts right after where the
-    /// title text actually ends, not after the image's full height.
-    private var heroSection: some View {
-        // Spacing 0 + explicit per-child top padding, not a uniform
-        // `spacing:` — the header-to-badges gap (8) and the two
-        // "variation-3-card" internal gaps (badges-to-title,
-        // title-to-progress, both 12) are different Figma values, not
-        // one shared number.
-        VStack(alignment: .leading, spacing: 0) {
-            AppHeaderView()
-                // The hero image itself bleeds all the way to the screen's
-                // true top edge, behind the status bar — but the header
-                // content shouldn't start until below it. Matches Figma's
-                // "app-header" frame, which sits at a fixed y=40 (its own
-                // status-bar mockup's height), not at y=0.
-                .padding(.top, 40)
+    /// Figma "variation-3-card" (node 12318:288): the show card with its
+    /// equalizer, then the programme progress and the player row — the
+    /// remaining time and sleep timer on the left, the play button on the
+    /// right.
+    private var nowPlayingHeader: some View {
+        VStack(alignment: .leading, spacing: 32) {
+            NowPlayingCard(
+                title: nowPlaying.showName,
+                hostName: nowPlaying.currentShow?.hostName,
+                artwork: heroImage,
+                isPlaying: nowPlaying.playbackState == .playing
+            )
 
-            HStack(spacing: Theme.Spacing.sm) {
-                OnAirBadge()
-                Spacer(minLength: Theme.Spacing.sm)
-                if let hostName = nowPlaying.currentShow?.hostName {
-                    HostBadge(name: hostName, imageName: nowPlaying.currentShow?.hostImageName)
+            VStack(alignment: .leading, spacing: 12) {
+                if let show = nowPlaying.currentShow {
+                    ShowProgressBar(show: show, progress: nowPlaying.showProgress)
                 }
-            }
-            .padding(.top, Theme.Spacing.sm)
 
-            HStack(spacing: Theme.Spacing.md) {
-                PlayButton(state: nowPlaying.playbackState, action: nowPlaying.togglePlayPause, diameter: 54, iconSize: 20)
+                HStack(spacing: 20) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        if nowPlaying.currentShow != nil {
+                            // The minutes count down with the number pop-in
+                            // (library P9).
+                            PopNumberText(
+                                text: remainingLabel,
+                                font: Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline),
+                                color: Theme.mutedText
+                            )
+                            .lineLimit(1)
+                        }
+                        SleepTimerButton(player: nowPlaying.player, currentShowEndDate: nowPlaying.currentShowEndDate)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
-                // Figma: sentence case (not uppercased), 120% line height.
-                Text(nowPlaying.showName)
-                    .font(Theme.Typography.Manrope.extraBold(size: 22, relativeTo: .title2))
-                    .foregroundStyle(Theme.textPrimary)
-                    .lineLimit(2)
-                    .manropeLineHeight(26.4, fontSize: 22)
+                    PlayButton(state: nowPlaying.playbackState, action: nowPlaying.togglePlayPause, diameter: 46, iconSize: 17)
+                }
+
+                statusLabel
             }
-            .padding(.top, 12)
         }
-        .background(alignment: .top) {
-            HomeHeroBackground(image: heroImage, scrollOffset: scrollOffset)
-                // Bleeds past the VStack's own 20pt horizontal inset
-                // (applied at the top-level `body`) so the image reaches
-                // the true screen edges, while everything overlaid on top
-                // of it stays inset like every other row.
-                .padding(.horizontal, -20)
-        }
+        // Figma: 16pt above the card; the section is 514pt tall, about
+        // 14pt more than its content, before the 32pt gap to the stats.
+        .padding(.top, 16)
+        .padding(.bottom, 14)
     }
 
-    private var remainingShowInfo: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-            if let show = nowPlaying.currentShow {
-                // 12pt matches the Figma "show-progress" container's own
-                // gap for its three top-level children — the
-                // waveform+track+labels group (inside ShowProgressBar),
-                // the remaining-time block (also inside ShowProgressBar),
-                // and this sleep-timer link.
-                VStack(alignment: .leading, spacing: 12) {
-                    ShowProgressBar(
-                        show: show,
-                        progress: nowPlaying.showProgress,
-                        remainingMinutes: nowPlaying.showRemainingMinutes,
-                        isPlaying: nowPlaying.playbackState == .playing,
-                        waveformTrackID: nowPlaying.track?.displayText ?? nowPlaying.showName
-                    )
-                    SleepTimerButton(player: nowPlaying.player, currentShowEndDate: nowPlaying.currentShowEndDate)
-                }
-            }
-
-            statusLabel
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
+    private var remainingLabel: String {
+        let minutes = nowPlaying.showRemainingMinutes
+        guard minutes > 0 else { return L10n.showEndingNow }
+        guard minutes >= 60 else { return L10n.showEndsIn(L10n.minutesShort(minutes)) }
+        return L10n.showEndsIn(L10n.durationShort(hours: minutes / 60, minutes: minutes % 60))
     }
 
     @ViewBuilder
@@ -383,15 +320,5 @@ struct HomeView: View {
 private extension Array {
     subscript(safe index: Int) -> Element? {
         indices.contains(index) ? self[index] : nil
-    }
-}
-
-/// Reports the scroll content's `minY` within the `"homeScroll"` named
-/// coordinate space — see `HomeView.body`'s `GeometryReader` probe and
-/// `HomeHeroBackground`'s stretch/parallax effect.
-private struct HomeScrollOffsetKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
     }
 }

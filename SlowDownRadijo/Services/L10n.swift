@@ -67,7 +67,7 @@ enum L10n {
 
     static var onAir: String { "ON-AIR" }
 
-    /// Kicker line above the host's name in `HostBadge`.
+    /// "Moderuje JARO COSSIGA" under the show title in `NowPlayingCard`.
     static var hostedByKicker: String {
         switch lang {
         case .cs: return "Moderuje"

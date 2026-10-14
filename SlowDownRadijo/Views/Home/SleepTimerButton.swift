@@ -54,9 +54,10 @@ struct SleepTimerButton: View {
                 // has no "zzz" sleep marks, confirmed by rendering it in
                 // isolation.
                 Image(systemName: "moon.fill")
-                    .font(.system(size: 14, weight: .bold))
+                    .font(.system(size: 13, weight: .bold))
+                    .frame(width: 15, height: 15)
                 Text(label)
-                    .font(Theme.Typography.Manrope.bold(size: 16, relativeTo: .footnote))
+                    .font(Theme.Typography.Manrope.bold(size: 12, relativeTo: .footnote))
             }
             .foregroundStyle(Theme.textPrimary)
         }
