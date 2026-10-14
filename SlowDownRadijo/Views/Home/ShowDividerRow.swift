@@ -8,6 +8,8 @@ import SwiftUI
 /// part of the same flat list rather than a visually distinct element.
 struct ShowDividerRow: View {
     let show: Show
+    /// Re-renders on a language switch (the show name changes with it).
+    @ObservedObject private var loc = LocalizationManager.shared
 
     var body: some View {
         VStack(spacing: 0) {
@@ -21,7 +23,7 @@ struct ShowDividerRow: View {
                     Text(L10n.showStartingKicker)
                         .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .footnote))
                         .foregroundStyle(Theme.lavender)
-                    Text(show.name)
+                    Text(show.localizedName)
                         .font(Theme.Typography.Manrope.bold(size: 18, relativeTo: .headline))
                         .foregroundStyle(Theme.gold)
                         .lineLimit(1)

@@ -9,6 +9,8 @@ struct ShowCardView: View {
     let show: Show
     let isLive: Bool
     let progress: Double
+    /// Re-renders on a language switch (the show name changes with it).
+    @ObservedObject private var loc = LocalizationManager.shared
 
     var body: some View {
         HStack(alignment: .center, spacing: Theme.Spacing.md) {
@@ -27,7 +29,7 @@ struct ShowCardView: View {
 
             VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 HStack(spacing: Theme.Spacing.sm) {
-                    Text(show.name)
+                    Text(show.localizedName)
                         .font(Theme.Typography.Manrope.extraBold(size: 16, relativeTo: .subheadline))
                         .foregroundStyle(Theme.textPrimary)
                         .lineLimit(2)

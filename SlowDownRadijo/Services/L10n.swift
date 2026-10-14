@@ -12,6 +12,8 @@ import Foundation
 enum L10n {
     private static var lang: AppLanguage { LocalizationManager.shared.language }
 
+    static var isEnglish: Bool { lang == .en }
+
     // MARK: - Shared
 
     static var tagline: String {
@@ -1250,5 +1252,23 @@ enum L10n {
         case .cs: return "Upozornit, když na rádiu vyjde nová novinka."
         case .en: return "Get notified when a new post is published."
         }
+    }
+}
+
+// Lives here rather than in `Show.swift`, which the widget also compiles
+// without `L10n`.
+extension Show {
+    /// The description in the app's language (English falls back to Czech).
+    var localizedSummary: String? {
+        L10n.isEnglish ? (summaryEn ?? summary) : summary
+    }
+
+    /// `name` with its Czech " s <host>" ("with") in English, e.g. "Beat
+    /// Brunch with Jaro Cossiga". Shows with a `title` are exactly the ones
+    /// whose `name` carries that suffix; the titles themselves stay as the
+    /// station names them.
+    var localizedName: String {
+        guard L10n.isEnglish, title != nil, let range = name.range(of: " s ") else { return name }
+        return name.replacingCharacters(in: range, with: " with ")
     }
 }

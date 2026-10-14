@@ -95,11 +95,11 @@ final class NowPlayingViewModel: ObservableObject {
     }
 
     var displayTitle: String {
-        track?.displayText ?? currentShow?.name ?? "Slow Down Rádijo"
+        track?.displayText ?? currentShow?.localizedName ?? "Slow Down Rádijo"
     }
 
     var showName: String {
-        currentShow?.name ?? "Slow Down Rádijo"
+        currentShow?.localizedName ?? "Slow Down Rádijo"
     }
 
     /// For the sleep timer's "Konec pořadu" option.

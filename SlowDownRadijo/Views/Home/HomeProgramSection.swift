@@ -216,7 +216,7 @@ struct HomeProgramSection: View {
                 }
             }
 
-            if let summary = show.summary {
+            if let summary = show.localizedSummary {
                 Text(summary)
                     .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .subheadline))
                     .foregroundStyle(Theme.mutedText)
