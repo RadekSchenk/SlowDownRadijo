@@ -9,11 +9,16 @@ import UIKit
 /// Only songs from the show on air, and only while they follow on from
 /// each other: the list stops at the first gap of more than a quarter of
 /// an hour, so a swipe never jumps from the song playing now to one from an
-/// hour ago. Dragging right goes back in time (the way Spotify's player
-/// goes to the previous track); left of the song playing now there's
-/// nothing. Left alone for 10 seconds it slides back to the song playing
-/// now. Only a sideways drag moves it, so it doesn't fight the page's
-/// vertical scroll. With Reduce Motion the songs crossfade.
+/// hour ago. Swiping right goes back in time (the way Spotify's player goes
+/// to the previous track). Left alone for 10 seconds it slides back to the
+/// song playing now.
+///
+/// A paging horizontal `ScrollView`, not a drag gesture: the system sorts
+/// sideways swipes from the page's vertical scroll (a drag gesture here
+/// kept the page from scrolling when the finger started on the song), and
+/// a swipe never counts as a tap on the song. The line takes the height of
+/// the song showing, so a long earlier song doesn't leave a gap under a
+/// short one.
 struct SongHistoryLine: View {
     let current: NowPlayingTrack
     /// When the show on air began.
@@ -24,56 +29,59 @@ struct SongHistoryLine: View {
     let showID: String?
 
     @Environment(\.openURL) private var openURL
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var earlier: [RecentSong] = []
-    /// 0 is the song playing now, 1…`earlier.count` earlier ones, then the
-    /// end note.
-    @State private var index = 0
-    @State private var dragOffset: CGFloat = 0
-    /// Decided on a drag's first movement: sideways drags browse, others
-    /// are left to the page.
-    @State private var isSidewaysDrag: Bool?
-    /// Which way the last move went, for the push transition.
-    @State private var goingBack = true
-    /// Bumped on every touch, restarting the return-to-now countdown.
-    @State private var interactions = 0
-    /// True from a drag's first movement until just after it ends. The
-    /// finger lifts over the song it dragged, which would count as a tap
-    /// on it and open Spotify; a drag is never a tap.
-    @State private var isDragging = false
+    /// The page showing: 0 is the song playing now, 1…`earlier.count` the
+    /// earlier ones, then the end note.
+    @State private var visible: Int? = 0
+    /// Each page's height, by page.
+    @State private var heights: [Int: CGFloat] = [:]
 
-    private var pageCount: Int { earlier.isEmpty ? 1 : earlier.count + 2 }
+    private var pageIDs: [Int] { earlier.isEmpty ? [0] : Array(0...(earlier.count + 1)) }
 
     var body: some View {
-        ZStack {
-            page(at: index)
-                .id(index)
-                .transition(reduceMotion ? .opacity : .push(from: goingBack ? .leading : .trailing))
+        ScrollView(.horizontal) {
+            // Oldest on the left, the song playing now on the right.
+            HStack(alignment: .top, spacing: 0) {
+                ForEach(pageIDs.reversed(), id: \.self) { id in
+                    page(id)
+                        .frame(maxWidth: .infinity)
+                        .containerRelativeFrame(.horizontal)
+                        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { heights[id] = $0 }
+                }
+            }
+            .scrollTargetLayout()
         }
-        .frame(maxWidth: .infinity)
-        .offset(x: reduceMotion ? 0 : dragOffset)
-        .opacity(1 - min(abs(dragOffset) / 300, 0.4))
-        .contentShape(Rectangle())
-        .simultaneousGesture(drag)
+        .scrollTargetBehavior(.paging)
+        .scrollPosition(id: $visible, anchor: .center)
+        .defaultScrollAnchor(.trailing)
+        .scrollIndicators(.hidden)
+        .scrollDisabled(earlier.isEmpty)
+        .frame(height: heights[visible ?? 0] ?? heights[0])
+        .animation(.smooth(duration: 0.3), value: visible)
         .task(id: current) {
-            if index != 0 { go(to: 0) }
+            showNow()
             earlier = await RecentSongs.load(before: current, since: showStart, shows: shows)
         }
-        .task(id: interactions) {
-            guard index != 0 else { return }
+        .task(id: visible) {
+            guard (visible ?? 0) != 0 else { return }
             try? await Task.sleep(for: .seconds(10))
-            guard !Task.isCancelled, index != 0 else { return }
-            go(to: 0)
+            guard !Task.isCancelled else { return }
+            showNow()
         }
     }
 
+    private func showNow() {
+        guard (visible ?? 0) != 0 else { return }
+        withAnimation(.smooth(duration: 0.5)) { visible = 0 }
+    }
+
     @ViewBuilder
-    private func page(at index: Int) -> some View {
-        if index == 0 {
+    private func page(_ id: Int) -> some View {
+        if id == 0 {
             songLink(artist: current.artist, title: current.title)
-        } else if index <= earlier.count {
-            let song = earlier[index - 1]
+        } else if id <= earlier.count {
+            let song = earlier[id - 1]
             VStack(spacing: 4) {
                 songLink(artist: song.artist, title: song.title)
                 TimelineView(.periodic(from: .now, by: 30)) { context in
@@ -88,7 +96,6 @@ struct SongHistoryLine: View {
                 .foregroundStyle(Theme.mutedText)
                 .multilineTextAlignment(.center)
                 .manropeLineHeight(22.4, fontSize: 16)
-                .accessibilityAdjustableAction(adjust)
         }
     }
 
@@ -96,7 +103,6 @@ struct SongHistoryLine: View {
     /// word; text and mark open a Spotify search for artist + title.
     private func songLink(artist: String, title: String) -> some View {
         Button {
-            guard !isDragging else { return }
             if let url = spotifySearchURL(artist: artist, title: title) {
                 Analytics.shared.track(.spotifyOpened(showID: showID))
                 openURL(url)
@@ -120,61 +126,6 @@ struct SongHistoryLine: View {
         .buttonStyle(.plain)
         .accessibilityLabel("\(artist) – \(title)")
         .accessibilityHint(L10n.spotifyFindAction)
-        // VoiceOver: swipe up / down to step through the songs.
-        .accessibilityAdjustableAction(adjust)
-    }
-
-    private func adjust(_ direction: AccessibilityAdjustmentDirection) {
-        switch direction {
-        case .decrement: go(to: min(index + 1, pageCount - 1))
-        case .increment: go(to: max(index - 1, 0))
-        @unknown default: break
-        }
-    }
-
-    private var drag: some Gesture {
-        DragGesture(minimumDistance: 12)
-            .onChanged { value in
-                if isSidewaysDrag == nil {
-                    isSidewaysDrag = abs(value.translation.width) > abs(value.translation.height)
-                    isDragging = true
-                    interactions += 1
-                }
-                guard isSidewaysDrag == true, pageCount > 1 else { return }
-                let width = value.translation.width
-                // Past either end it gives a little, then pulls back.
-                let pastEnd = (width > 0 && index == pageCount - 1) || (width < 0 && index == 0)
-                dragOffset = pastEnd ? width / 4 : width
-            }
-            .onEnded { value in
-                defer {
-                    isSidewaysDrag = nil
-                    // After the button has seen the lift (it may come
-                    // either side of this).
-                    Task {
-                        try? await Task.sleep(for: .milliseconds(300))
-                        isDragging = false
-                    }
-                }
-                guard isSidewaysDrag == true, pageCount > 1 else { return }
-                let width = value.predictedEndTranslation.width
-                if width > 60 {
-                    go(to: min(index + 1, pageCount - 1))
-                } else if width < -60 {
-                    go(to: max(index - 1, 0))
-                } else {
-                    go(to: index)
-                }
-            }
-    }
-
-    private func go(to target: Int) {
-        goingBack = target > index
-        interactions += 1
-        withAnimation(reduceMotion ? .easeInOut(duration: 0.25) : .spring(duration: 0.35, bounce: 0.15)) {
-            index = target
-            dragOffset = 0
-        }
     }
 
     /// Figma's 19 × 19.6 Spotify mark with the 8pt gap before it built in,
