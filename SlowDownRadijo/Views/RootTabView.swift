@@ -94,7 +94,19 @@ struct RootTabView: View {
         _statsStore = StateObject(wrappedValue: ListeningStatsStore(scheduleStore: services.schedule))
     }
 
+    @ViewBuilder
     var body: some View {
+        if Diag.on("minimal") {
+            VStack(spacing: 0) {
+                Color.black.overlay(Text("selected \(selectedTab)").foregroundStyle(.white))
+                bottomNav
+            }
+        } else {
+            fullBody
+        }
+    }
+
+    private var fullBody: some View {
         // Our own tab container instead of `TabView`: the bottom bar is
         // hand-built (Figma `bottom-nav`), and on iOS 26 a hidden system tab
         // bar under it kept the highlight stuck on Rádio. Each page is built
@@ -106,7 +118,7 @@ struct RootTabView: View {
         VStack(spacing: 0) {
             pages
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .toastOverlay()
+                .diag(!Diag.on("noToast")) { $0.toastOverlay() }
 
             bottomNav
         }
@@ -132,7 +144,7 @@ struct RootTabView: View {
         .environmentObject(favoriteTrackStore)
         .environmentObject(previewPlayer)
         .environmentObject(statsStore)
-        .onAppear {
+        .diag(!Diag.on("noOnAppear")) { $0.onAppear {
             configureNavigationBarAppearance()
             // Autoplay: a radio app should start making sound as soon as it
             // opens, not wait for a tap — unless the user turned it off.
@@ -148,10 +160,10 @@ struct RootTabView: View {
             }
             ShowReminderStore.shared.reschedule()
             Analytics.shared.screen(.home)
-        }
+        } }
         // A tap on a "Právě začíná" notification: home, and the radio for
         // "Poslouchat".
-        .onReceive(ShowReminderStore.shared.$openRequest.compactMap { $0 }) { request in
+        .diag(!Diag.on("noOnReceive")) { $0.onReceive(ShowReminderStore.shared.$openRequest.compactMap { $0 }) { request in
             ShowReminderStore.shared.finishOpenRequest(request)
             guard request.id != handledOpenRequestID else { return }
             handledOpenRequestID = request.id
@@ -160,8 +172,8 @@ struct RootTabView: View {
             if request.listen, player.state != .playing {
                 player.play(trigger: .notification)
             }
-        }
-        .onChange(of: selectedTab) { old, tab in
+        } }
+        .diag(!Diag.on("noOnChange")) { $0.onChange(of: selectedTab) { old, tab in
             #if DEBUG
             print("[tabbar] selectedTab \(old) -> \(tab)")
             #endif
@@ -175,7 +187,7 @@ struct RootTabView: View {
                     Task { await statsStore.refreshAll() }
                 }
             }
-        }
+        } }
     }
 
     /// The tab pages, one above the other; see `tabPage`.
@@ -364,5 +376,29 @@ struct RootTabView: View {
         ]
         UINavigationBar.appearance().standardAppearance = navAppearance
         UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
+    }
+}
+
+/// Temporary switches for tracking down the tab bar bug in the UI tests
+/// (launch arguments like `-diag.noToast YES`). Always off outside DEBUG.
+enum Diag {
+    static func on(_ name: String) -> Bool {
+        #if DEBUG
+        return UserDefaults.standard.bool(forKey: "diag." + name)
+        #else
+        return false
+        #endif
+    }
+}
+
+extension View {
+    /// Applies `transform` only when `enabled` (diagnostics, see `Diag`).
+    @ViewBuilder
+    func diag<Result: View>(_ enabled: Bool, _ transform: (Self) -> Result) -> some View {
+        if enabled {
+            transform(self)
+        } else {
+            self
+        }
     }
 }

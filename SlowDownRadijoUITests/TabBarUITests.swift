@@ -16,6 +16,35 @@ final class TabBarUITests: XCTestCase {
         XCTAssertTrue(app.buttons["tab.0"].waitForExistence(timeout: 20), "tab bar never appeared\n\(app.debugDescription)")
     }
 
+    /// Relaunches with one part switched off at a time and reports whether
+    /// a tab tap then reaches the screen.
+    func testBisect() {
+        let variants: [[String]] = [
+            [],
+            ["noOnReceive"],
+            ["noOnChange"],
+            ["noToast"],
+            ["noOnAppear"],
+            ["noAnalytics"],
+            ["noOnReceive", "noOnChange", "noToast", "noOnAppear", "noAnalytics"],
+            ["minimal"],
+            ["minimal", "noAnalytics"],
+        ]
+        for flags in variants {
+            app.terminate()
+            app = XCUIApplication()
+            app.launchArguments = ["-autoplayEnabled", "NO"] + flags.flatMap { ["-diag." + $0, "YES"] }
+            app.launch()
+            _ = app.buttons["tab.3"].waitForExistence(timeout: 20)
+            sleep(3)
+            app.buttons["tab.3"].tap()
+            sleep(2)
+            let page3 = app.descendants(matching: .any)["page.3"].exists
+            let probe = app.descendants(matching: .any)["debug.hit"]
+            print("[bisect] flags=\(flags) page3=\(page3) tab3=\(String(describing: app.buttons["tab.3"].value)) probe=\(probe.exists ? String(probe.label.prefix(80)) : "none")")
+        }
+    }
+
     func testDiagnostics() {
         sleep(5)
         let probe = app.descendants(matching: .any)["debug.hit"]
