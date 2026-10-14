@@ -1,19 +1,19 @@
 import SwiftUI
 
 /// Persistent masthead used at the top of every tab (Figma "app-header",
-/// node 12341:1628): the Menu pill on the left, the ON-AIR badge on the
-/// right and the brand mark centred between them — replacing the native
-/// navigation bar title across the whole app (see `RootTabView`, which
-/// hides the system nav bar).
+/// node 12341:1628): the Menu pill on the left and the ON-AIR badge on the
+/// right — replacing the native navigation bar title across the whole app
+/// (see `RootTabView`, which hides the system nav bar). The brand mark is
+/// no longer part of it: the home page carries it, between these two.
 ///
 /// "Menu" opens `HubView` as a sheet — settings, news, notifications,
 /// feedback and the language switch, rather than surfacing every control
 /// directly here.
 struct AppHeaderView: View {
     /// Every tab puts the header this far below the true top edge of the
-    /// screen (Figma: the 48pt status bar), not at the system safe-area
+    /// screen (Figma: the 40pt status bar), not at the system safe-area
     /// inset, so it sits at the same height on every tab.
-    static let topInset: CGFloat = 48
+    static let topInset: CGFloat = 40
 
     @ObservedObject private var loc = LocalizationManager.shared
     @State private var isShowingHub = false
@@ -23,17 +23,6 @@ struct AppHeaderView: View {
             menuButton
             Spacer(minLength: 0)
             OnAirBadge()
-        }
-        // Centred on the screen whatever the two sides measure. Figma lets
-        // the 55pt mark stand 10pt above and below the pill row, into the
-        // header's padding, so it doesn't make the header taller.
-        .overlay {
-            // `BrandLogo` is the white wordmark (the app is dark-only).
-            Image("BrandLogo")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 66, height: 55)
-                .accessibilityHidden(true)
         }
         // Matches the Figma "app-header" frame's own auto-layout padding
         // (20 horizontal — already provided by every tab root's own outer
