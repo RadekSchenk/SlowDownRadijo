@@ -38,6 +38,10 @@ struct SongHistoryLine: View {
     @State private var goingBack = true
     /// Bumped on every touch, restarting the return-to-now countdown.
     @State private var interactions = 0
+    /// True from a drag's first movement until just after it ends. The
+    /// finger lifts over the song it dragged, which would count as a tap
+    /// on it and open Spotify; a drag is never a tap.
+    @State private var isDragging = false
 
     private var pageCount: Int { earlier.isEmpty ? 1 : earlier.count + 2 }
 
@@ -92,6 +96,7 @@ struct SongHistoryLine: View {
     /// word; text and mark open a Spotify search for artist + title.
     private func songLink(artist: String, title: String) -> some View {
         Button {
+            guard !isDragging else { return }
             if let url = spotifySearchURL(artist: artist, title: title) {
                 Analytics.shared.track(.spotifyOpened(showID: showID))
                 openURL(url)
@@ -132,6 +137,7 @@ struct SongHistoryLine: View {
             .onChanged { value in
                 if isSidewaysDrag == nil {
                     isSidewaysDrag = abs(value.translation.width) > abs(value.translation.height)
+                    isDragging = true
                     interactions += 1
                 }
                 guard isSidewaysDrag == true, pageCount > 1 else { return }
@@ -141,7 +147,15 @@ struct SongHistoryLine: View {
                 dragOffset = pastEnd ? width / 4 : width
             }
             .onEnded { value in
-                defer { isSidewaysDrag = nil }
+                defer {
+                    isSidewaysDrag = nil
+                    // After the button has seen the lift (it may come
+                    // either side of this).
+                    Task {
+                        try? await Task.sleep(for: .milliseconds(300))
+                        isDragging = false
+                    }
+                }
                 guard isSidewaysDrag == true, pageCount > 1 else { return }
                 let width = value.predictedEndTranslation.width
                 if width > 60 {
