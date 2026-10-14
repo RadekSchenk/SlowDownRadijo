@@ -154,12 +154,12 @@ struct CardSideEqualizer: View {
 
     /// `date` nil draws the resting pose.
     private func bars(at date: Date?) -> some View {
-        let intensity = date.map { intensity(at: $0) } ?? 0
+        let blend = date.map { intensity(at: $0) } ?? 0
         let time = date?.timeIntervalSinceReferenceDate ?? 0
         return Canvas { context, size in
             for index in Self.bars.indices {
                 let bar = Self.bars[index]
-                let height = Self.height(of: index, at: time, intensity: intensity)
+                let height = Self.height(of: index, at: time, intensity: blend)
                 let rect = CGRect(x: bar.x, y: (size.height - height) / 2, width: Self.barWidth, height: height)
                 var barContext = context
                 barContext.opacity = bar.opacity
