@@ -72,28 +72,42 @@ enum NewsNotificationManager {
         UNUserNotificationCenter.current().delegate = ForegroundPresenter.shared
     }
 
+    /// Uses the completion-handler callbacks, not the `async` ones: an
+    /// `async` delegate method runs off the main thread and iOS then calls
+    /// its own completion there too, which UIKit answers with an assertion
+    /// crash (seen when opening a show notification). Here the work and the
+    /// completion both happen on the main thread.
     private final class ForegroundPresenter: NSObject, UNUserNotificationCenterDelegate {
         static let shared = ForegroundPresenter()
 
         func userNotificationCenter(
             _ center: UNUserNotificationCenter,
-            willPresent notification: UNNotification
-        ) async -> UNNotificationPresentationOptions {
-            [.banner, .sound, .badge]
+            willPresent notification: UNNotification,
+            withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+        ) {
+            completionHandler([.banner, .sound, .badge])
         }
 
         /// A tap on a show-start notification (`ShowReminderStore`): the
         /// home tab, and the radio too for "Poslouchat".
         func userNotificationCenter(
             _ center: UNUserNotificationCenter,
-            didReceive response: UNNotificationResponse
-        ) async {
-            guard response.notification.request.content.categoryIdentifier == ShowReminderStore.categoryID else { return }
+            didReceive response: UNNotificationResponse,
+            withCompletionHandler completionHandler: @escaping () -> Void
+        ) {
+            let content = response.notification.request.content
+            guard content.categoryIdentifier == ShowReminderStore.categoryID else {
+                completionHandler()
+                return
+            }
             let listen = response.actionIdentifier == ShowReminderStore.listenActionID
-            let showID = response.notification.request.content.userInfo["showID"] as? String
-            await MainActor.run {
-                ShowReminderStore.shared.openedShowID = showID
-                ShowReminderStore.shared.openRequest = listen ? .listen : .open
+            let showID = content.userInfo["showID"] as? String
+            DispatchQueue.main.async {
+                MainActor.assumeIsolated {
+                    ShowReminderStore.shared.openedShowID = showID
+                    ShowReminderStore.shared.openRequest = listen ? .listen : .open
+                }
+                completionHandler()
             }
         }
     }
