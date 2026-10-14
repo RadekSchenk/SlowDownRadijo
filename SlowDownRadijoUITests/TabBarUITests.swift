@@ -16,6 +16,30 @@ final class TabBarUITests: XCTestCase {
         XCTAssertTrue(app.buttons["tab.0"].waitForExistence(timeout: 20), "tab bar never appeared\n\(app.debugDescription)")
     }
 
+    func testBisectState() {
+        for flags in [["bare"], ["minimal"]] {
+            app.terminate()
+            app = XCUIApplication()
+            app.launchArguments = ["-autoplayEnabled", "NO"] + flags.flatMap { ["-diag." + $0, "YES"] }
+            app.launch()
+            sleep(4)
+            if flags == ["bare"] {
+                let button = app.buttons["diag.bare.button"]
+                print("[state] bare button exists=\(button.waitForExistence(timeout: 10))")
+                print("[state] bare before: \(app.staticTexts["diag.bare.text"].label)")
+                button.tap()
+                sleep(2)
+                print("[state] bare after: \(app.staticTexts["diag.bare.text"].label)")
+            } else {
+                print("[state] minimal before: \(app.staticTexts["diag.minimal.text"].label)")
+                app.buttons["tab.3"].tap()
+                sleep(2)
+                print("[state] minimal after: \(app.staticTexts["diag.minimal.text"].label) tab3=\(String(describing: app.buttons["tab.3"].value))")
+            }
+            attachScreenshot(named: "state \(flags)")
+        }
+    }
+
     /// Relaunches with one part switched off at a time and reports whether
     /// a tab tap then reaches the screen.
     func testBisect() {

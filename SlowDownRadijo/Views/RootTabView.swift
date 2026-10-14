@@ -45,6 +45,7 @@ struct RootTabView: View {
     /// Tab-bar taps, for the UI tests' diagnostics.
     @State private var debugTabTaps = 0
     @State private var debugBarTouches = 0
+    @ObservedObject private var diagCounter = DiagCounter.shared
     @State private var debugHitInfo = "not probed"
     #endif
     /// `init()` isn't a safe place for the autoplay side effect — SwiftUI
@@ -98,7 +99,11 @@ struct RootTabView: View {
     var body: some View {
         if Diag.on("minimal") {
             VStack(spacing: 0) {
-                Color.black.overlay(Text("selected \(selectedTab)").foregroundStyle(.white))
+                Color.black.overlay(
+                    Text("selected \(selectedTab) counter \(diagCounter.taps)")
+                        .foregroundStyle(.white)
+                        .accessibilityIdentifier("diag.minimal.text")
+                )
                 bottomNav
             }
         } else {
@@ -332,6 +337,7 @@ struct RootTabView: View {
         return Button {
             #if DEBUG
             debugTabTaps += 1
+            DiagCounter.shared.taps += 1
             print("[tabbar] tap tag=\(tag) selected=\(selectedTab) taps=\(debugTabTaps)")
             #endif
             if isSelected {
@@ -377,6 +383,12 @@ struct RootTabView: View {
         UINavigationBar.appearance().standardAppearance = navAppearance
         UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
     }
+}
+
+/// Diagnostics: tab taps counted outside SwiftUI state.
+final class DiagCounter: ObservableObject {
+    static let shared = DiagCounter()
+    @Published var taps = 0
 }
 
 /// Temporary switches for tracking down the tab bar bug in the UI tests
