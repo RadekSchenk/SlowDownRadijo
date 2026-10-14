@@ -2,16 +2,14 @@ import SwiftUI
 import UIKit
 
 /// The home screen's "Programme preview" (Figma "variation-3-card", node
-/// 12318:5168): the current show's artwork as a 230 × 230 card under a
-/// dark scrim, flanked by `CardSideEqualizer`. The title and host sit
+/// 12318:5168): the current show's artwork as a 230 × 230 card, flanked
+/// by `CardSideEqualizer` — no scrim, as no text sits on it any more. The title and host sit
 /// below it (`HomeView`). The card is centred; the equalizer keeps Figma's
 /// exact offsets from it, so on wider phones the extra room stays empty
 /// rather than stretching.
 struct NowPlayingCard: View {
     let artwork: UIImage?
     let isPlaying: Bool
-    /// Off for artwork with its own lettering (`Show.artworkHasText`).
-    var showsScrim = true
 
     static let cardSize = CGSize(width: 230, height: 230)
 
@@ -29,25 +27,10 @@ struct NowPlayingCard: View {
     }
 
     private var card: some View {
-        ZStack {
-            artworkLayer
-
-            // "gradient-scrim": clear until 45%, then into near-black.
-            if showsScrim {
-                LinearGradient(
-                    stops: [
-                        .init(color: Self.scrim.opacity(0), location: 0.45),
-                        .init(color: Self.scrim.opacity(0.79), location: 0.80),
-                        .init(color: Self.scrim.opacity(0.96), location: 1),
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            }
-        }
-        .frame(width: Self.cardSize.width, height: Self.cardSize.height)
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-        .accessibilityHidden(true)
+        artworkLayer
+            .frame(width: Self.cardSize.width, height: Self.cardSize.height)
+            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .accessibilityHidden(true)
     }
 
     @ViewBuilder
@@ -65,8 +48,6 @@ struct NowPlayingCard: View {
         }
     }
 
-    /// `rgba(13, 13, 15, …)` in Figma.
-    private static let scrim = Color(hex: 0x0D0D0F)
 }
 
 /// The bars either side of `NowPlayingCard` (Figma "Equalizer", node
