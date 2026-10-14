@@ -15,6 +15,7 @@ struct ReminderBellButton: View {
     @ObservedObject private var loc = LocalizationManager.shared
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var ringCount = 0
+    @State private var taps = 0
 
     var body: some View {
         let isOn = reminders.isFollowing(show)
@@ -44,6 +45,11 @@ struct ReminderBellButton: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        // A firmer tick when a reminder is set, a light one when removed —
+        // only for taps on this bell, not changes made elsewhere.
+        .sensoryFeedback(trigger: taps) { _, _ in
+            reminders.isFollowing(show) ? .success : .impact(weight: .light)
+        }
         .accessibilityLabel(L10n.reminderBellLabel(show: show.displayTitle))
         .accessibilityAddTraits(isOn ? [.isSelected] : [])
     }
@@ -52,6 +58,7 @@ struct ReminderBellButton: View {
         let outcome = await reminders.toggle(show)
         switch outcome {
         case .enabled:
+            taps += 1
             Analytics.shared.track(.showReminderChanged(showID: show.id, isOn: true, source: "bell"))
             if !reduceMotion { ringCount += 1 }
             ToastCenter.shared.show(.init(
@@ -59,6 +66,7 @@ struct ReminderBellButton: View {
                 message: L10n.reminderOnToast(show: show.displayTitle, next: reminders.nextAiringLabel(for: show))
             ))
         case .disabled:
+            taps += 1
             Analytics.shared.track(.showReminderChanged(showID: show.id, isOn: false, source: "bell"))
             ToastCenter.shared.show(.init(
                 systemImage: "bell.slash",

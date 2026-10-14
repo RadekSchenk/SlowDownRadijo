@@ -76,6 +76,9 @@ struct SleepTimerButton: View {
     @State private var isShowingSheet = false
     /// The option behind the running timer, highlighted in the sheet.
     @State private var activeOption: SleepTimerOption?
+    /// Choices made in the sheet, for the haptic tick (not the timer
+    /// running out on its own).
+    @State private var choices = 0
     @State private var now = Date()
 
     private let ticker = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -111,9 +114,11 @@ struct SleepTimerButton: View {
                 onCancel: {
                     player.cancelSleepTimer()
                     activeOption = nil
+                    choices += 1
                 }
             )
         }
+        .sensoryFeedback(.selection, trigger: choices)
     }
 
     private var label: String {
@@ -130,6 +135,7 @@ struct SleepTimerButton: View {
             return
         }
         activeOption = option
+        choices += 1
         Analytics.shared.track(.sleepTimerSet(option: option.analyticsName))
     }
 

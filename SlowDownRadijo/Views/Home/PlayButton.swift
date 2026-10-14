@@ -12,6 +12,9 @@ struct PlayButton: View {
     var diameter: CGFloat = 64
     var iconSize: CGFloat = 20
 
+    /// Taps, for the haptic tick.
+    @State private var taps = 0
+
     private var accessibilityLabel: String {
         switch state {
         case .connecting: return L10n.connecting
@@ -21,7 +24,10 @@ struct PlayButton: View {
     }
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            taps += 1
+            action()
+        } label: {
             AccentCircle(diameter: diameter) {
                 switch state {
                 case .connecting:
@@ -50,5 +56,6 @@ struct PlayButton: View {
         .accessibilityLabel(accessibilityLabel)
         // Library P5 — icon swap: from 25% scale through a 2px blur, 250ms.
         .animation(Motion.iconSwap, value: state)
+        .sensoryFeedback(.impact(weight: .medium), trigger: taps)
     }
 }

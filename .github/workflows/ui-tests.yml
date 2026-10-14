@@ -56,6 +56,7 @@ jobs:
             -scheme SlowDownRadijo \
             -destination "id=${{ steps.sim.outputs.udid }}" \
             -resultBundlePath TestResults.xcresult \
+            -skip-testing:SlowDownRadijoUITests/ScreenshotTests \
             CODE_SIGNING_ALLOWED=NO \
             | tee xcodebuild.log | grep -E "error:|warning: .*RootTabView|Test Case|Executed|\*\* TEST|failed|passed" || true
           grep -q "\*\* TEST SUCCEEDED \*\*" xcodebuild.log

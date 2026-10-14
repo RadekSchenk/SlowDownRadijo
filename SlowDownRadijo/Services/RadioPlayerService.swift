@@ -57,9 +57,11 @@ final class RadioPlayerService: NSObject, ObservableObject {
     private var stallObserver: NSObjectProtocol?
     private var sleepTimer: Timer?
 
-    private var currentTrack: NowPlayingTrack?
+    /// What the lock screen, Control Center and CarPlay show — set by
+    /// `NowPlayingViewModel`.
+    private var nowPlayingTitle = "Slow Down Rádijo"
+    private var nowPlayingSubtitle = "Slow Down Rádijo"
     private var currentArtwork: UIImage?
-    private var currentShowTitle: String = "Slow Down Rádijo"
 
     /// Set when a call, Siri, an alarm or another app took the audio session
     /// away from live playback, so the stream resumes when it's handed back.
@@ -147,9 +149,9 @@ final class RadioPlayerService: NSObject, ObservableObject {
 
     /// Called by the view model whenever the parsed now-playing metadata or
     /// current-show artwork changes, so lock screen / Control Center stay in sync.
-    func updateNowPlaying(track: NowPlayingTrack?, showTitle: String, artwork: UIImage?) {
-        currentTrack = track
-        currentShowTitle = showTitle
+    func updateNowPlaying(title: String, subtitle: String, artwork: UIImage?) {
+        nowPlayingTitle = title
+        nowPlayingSubtitle = subtitle
         currentArtwork = artwork
         publishNowPlayingInfo()
     }
@@ -438,13 +440,12 @@ final class RadioPlayerService: NSObject, ObservableObject {
 
     private func publishNowPlayingInfo() {
         var info: [String: Any] = [:]
-        info[MPMediaItemPropertyTitle] = currentTrack?.displayText ?? currentShowTitle
-        info[MPMediaItemPropertyArtist] = "Slow Down Rádijo"
+        info[MPMediaItemPropertyTitle] = nowPlayingTitle
+        info[MPMediaItemPropertyArtist] = nowPlayingSubtitle
         info[MPNowPlayingInfoPropertyIsLiveStream] = true
         info[MPNowPlayingInfoPropertyPlaybackRate] = state == .playing ? 1.0 : 0.0
 
-        // We don't have per-track album art for a live stream, so we fall
-        // back to the current programme block's artwork, as specced.
+        // The show's photo, as on the home screen card.
         if let artwork = currentArtwork {
             let mpArtwork = MPMediaItemArtwork(boundsSize: artwork.size) { _ in artwork }
             info[MPMediaItemPropertyArtwork] = mpArtwork

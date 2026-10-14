@@ -84,6 +84,13 @@ final class NowPlayingViewModel: ObservableObject {
             }
             .store(in: &cancellables)
 
+        // The lock screen's "Hosted by" follows the app's language.
+        LocalizationManager.shared.$language
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.publishNowPlaying() }
+            .store(in: &cancellables)
+
         metadataService.$currentTrack
             .receive(on: DispatchQueue.main)
             .sink { [weak self] newTrack in
@@ -203,6 +210,7 @@ final class NowPlayingViewModel: ObservableObject {
         withAnimation(.easeInOut(duration: 0.35)) {
             verifiedTrack = trusted
         }
+        publishNowPlaying()
     }
 
     /// Asks `played_tracks` (logged every minute by `collect-now-playing`)
@@ -298,10 +306,22 @@ final class NowPlayingViewModel: ObservableObject {
         }
     }
 
+    /// The lock screen, Control Center and CarPlay show what the home
+    /// screen shows: the song only when `TrackTrust` vouches for it (never
+    /// the raw stream title — promos, show placeholders, stuck songs), with
+    /// the show below; otherwise the show and its host. Always the show's
+    /// own photo, as on the home card.
     private func publishNowPlaying() {
-        // Prefer the track's own artwork; fall back to the show's, since a
-        // live stream doesn't always resolve to a real per-track match
-        // (e.g. DJ mix blocks).
-        player.updateNowPlaying(track: track, showTitle: showName, artwork: trackArtworkImage ?? showArtwork)
+        let showTitle = currentShow?.displayTitle ?? "Slow Down Rádijo"
+        let title: String
+        let subtitle: String
+        if let song = verifiedTrack {
+            title = "\(song.artist) – \(song.title)"
+            subtitle = showTitle
+        } else {
+            title = showTitle
+            subtitle = currentShow?.hostName.map { "\(L10n.hostedByKicker) \($0)" } ?? "Slow Down Rádijo"
+        }
+        player.updateNowPlaying(title: title, subtitle: subtitle, artwork: showArtwork)
     }
 }
