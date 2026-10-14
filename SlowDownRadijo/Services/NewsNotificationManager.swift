@@ -81,5 +81,18 @@ enum NewsNotificationManager {
         ) async -> UNNotificationPresentationOptions {
             [.banner, .sound, .badge]
         }
+
+        /// A tap on a show-start notification (`ShowReminderStore`): the
+        /// home tab, and the radio too for "Poslouchat".
+        func userNotificationCenter(
+            _ center: UNUserNotificationCenter,
+            didReceive response: UNNotificationResponse
+        ) async {
+            guard response.notification.request.content.categoryIdentifier == ShowReminderStore.categoryID else { return }
+            let listen = response.actionIdentifier == ShowReminderStore.listenActionID
+            await MainActor.run {
+                ShowReminderStore.shared.openRequest = listen ? .listen : .open
+            }
+        }
     }
 }

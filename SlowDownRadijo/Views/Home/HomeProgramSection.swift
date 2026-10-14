@@ -198,10 +198,18 @@ struct HomeProgramSection: View {
 
     private func compactRow(for show: Show) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(show.start)
-                .font(Theme.Typography.Manrope.light(size: 30, relativeTo: .title))
-                .foregroundStyle(Theme.textPrimary)
-                .manropeLineHeight(38, fontSize: 30)
+            // Figma "Čas a fotografie": the time on the left; the reminder
+            // bell takes the right end.
+            HStack {
+                Text(show.start)
+                    .font(Theme.Typography.Manrope.light(size: 30, relativeTo: .title))
+                    .foregroundStyle(Theme.textPrimary)
+                    .manropeLineHeight(38, fontSize: 30)
+                Spacer(minLength: Theme.Spacing.sm)
+                ReminderBellButton(show: show)
+                    // Optically flush with the row's right edge.
+                    .padding(.trailing, -10)
+            }
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(show.displayTitle)

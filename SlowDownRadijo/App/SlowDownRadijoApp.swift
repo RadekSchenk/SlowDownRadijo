@@ -4,6 +4,7 @@ import SwiftUI
 struct SlowDownRadijoApp: App {
     init() {
         NewsNotificationManager.configureForegroundPresentation()
+        ShowReminderStore.registerNotificationCategory()
     }
 
     var body: some Scene {

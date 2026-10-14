@@ -66,6 +66,8 @@ struct HubView: View {
             .background(Theme.background.ignoresSafeArea())
             .toolbar(.hidden, for: .navigationBar)
         }
+        // Toasts from screens pushed in the menu (Settings ▸ show reminders).
+        .toastOverlay()
     }
 
     private var header: some View {

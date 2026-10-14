@@ -130,6 +130,7 @@ struct RootTabView: View {
             }
             .tag(Self.statsTab)
         }
+        .toastOverlay()
         // The native tab bar centers/compresses its items instead of
         // spreading them to Figma's `bottom-nav` spec (node 12294:257) —
         // 60pt side margins, space-between across the full width — so it
@@ -157,6 +158,16 @@ struct RootTabView: View {
                 hasCheckedNewsNotifications = true
                 Task { await NewsNotificationManager.checkForNewPost() }
             }
+            ShowReminderStore.shared.reschedule()
+        }
+        // A tap on a "Právě začíná" notification: home, and the radio for
+        // "Poslouchat".
+        .onReceive(ShowReminderStore.shared.$openRequest.compactMap { $0 }) { request in
+            selectedTab = 0
+            if request == .listen, player.state != .playing {
+                player.play()
+            }
+            ShowReminderStore.shared.openRequest = nil
         }
     }
 

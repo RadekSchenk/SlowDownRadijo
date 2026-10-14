@@ -262,6 +262,119 @@ enum L10n {
         }
     }
 
+    // MARK: - Show reminders
+
+    /// Notification title when a followed show starts; the body is its name.
+    static var showStartingTitle: String {
+        switch lang {
+        case .cs: return "Právě začíná"
+        case .en: return "On air now"
+        }
+    }
+
+    /// The notification's action button.
+    static var listenAction: String {
+        switch lang {
+        case .cs: return "Poslouchat"
+        case .en: return "Listen"
+        }
+    }
+
+    static var tomorrow: String {
+        switch lang {
+        case .cs: return "zítra"
+        case .en: return "tomorrow"
+        }
+    }
+
+    /// "dnes v 09:00" / "zítra v 09:00" / "Út v 09:00".
+    static func nextAiring(day: String, time: String) -> String {
+        switch lang {
+        case .cs: return "\(day) v \(time)"
+        case .en: return "\(day) at \(time)"
+        }
+    }
+
+    /// Toast after turning a show's reminder on.
+    static func reminderOnToast(show: String, next: String?) -> String {
+        switch lang {
+        case .cs:
+            let base = "Dáme ti vědět, až začne \(show)."
+            return next.map { "\(base) Nejbližší: \($0)." } ?? base
+        case .en:
+            let base = "We'll let you know when \(show) starts."
+            return next.map { "\(base) Next: \($0)." } ?? base
+        }
+    }
+
+    static func reminderOffToast(show: String) -> String {
+        switch lang {
+        case .cs: return "Upozornění na \(show) vypnuto."
+        case .en: return "\(show) reminders off."
+        }
+    }
+
+    static var notificationsBlockedToast: String {
+        switch lang {
+        case .cs: return "Notifikace má appka v nastavení iOS vypnuté."
+        case .en: return "Notifications are turned off for the app in iOS settings."
+        }
+    }
+
+    static var openSettingsAction: String {
+        switch lang {
+        case .cs: return "Nastavení"
+        case .en: return "Settings"
+        }
+    }
+
+    /// VoiceOver label of the bell next to a show.
+    static func reminderBellLabel(show: String) -> String {
+        switch lang {
+        case .cs: return "Upozornit na začátek pořadu \(show)"
+        case .en: return "Remind me when \(show) starts"
+        }
+    }
+
+    static var showRemindersTitle: String {
+        switch lang {
+        case .cs: return "Upozornění na pořady"
+        case .en: return "Show reminders"
+        }
+    }
+
+    static var showRemindersIntro: String {
+        switch lang {
+        case .cs: return "Pošleme ti upozornění ve chvíli, kdy vybraný pořad začíná. Zapnout ho jde i zvonečkem v seznamu Pořady."
+        case .en: return "We'll notify you the moment a chosen show starts. You can also use the bell in the Shows list."
+        }
+    }
+
+    /// Subtitle of the Settings row.
+    static func showRemindersSummary(count: Int) -> String {
+        switch lang {
+        case .cs:
+            switch count {
+            case 0: return "Vypnuto"
+            case 1: return "Zapnuto u 1 pořadu"
+            default: return "Zapnuto u \(count) pořadů"
+            }
+        case .en:
+            switch count {
+            case 0: return "Off"
+            case 1: return "On for 1 show"
+            default: return "On for \(count) shows"
+            }
+        }
+    }
+
+    static var turnOffAllReminders: String {
+        switch lang {
+        case .cs: return "Vypnout všechna upozornění"
+        case .en: return "Turn off all reminders"
+        }
+    }
+
     // MARK: - Program
 
     static var noProgramForDay: String {
