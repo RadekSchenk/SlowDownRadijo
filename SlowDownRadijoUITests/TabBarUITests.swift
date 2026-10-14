@@ -4,7 +4,9 @@ import XCTest
 /// switch both the page and the highlight, sit where the design puts it,
 /// and a second tap on the current tab has to scroll its page to the top.
 final class TabBarUITests: XCTestCase {
-    private let tabs = [0, 3, 5, 4]
+    /// Left to right as the bar shows them: Rádio, Statistiky, Vzkaz,
+    /// Podpora (Figma 12318:5147).
+    private let tabs = [0, 5, 3, 4]
     private var app: XCUIApplication!
 
     override func setUp() {
@@ -26,6 +28,11 @@ final class TabBarUITests: XCTestCase {
             app.buttons["tab.\(tag)"].tap()
             assertOnly(selected: tag)
         }
+    }
+
+    func testTabsAreInTheDesignedOrder() {
+        let xs = tabs.map { app.buttons["tab.\($0)"].frame.midX }
+        XCTAssertEqual(xs, xs.sorted(), "tabs out of order, expected \(tabs) left to right, got x \(xs)")
     }
 
     /// The tabs' labels end 29pt above the screen's bottom edge (19pt
