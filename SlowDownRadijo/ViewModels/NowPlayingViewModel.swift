@@ -271,6 +271,12 @@ final class NowPlayingViewModel: ObservableObject {
 
     private func loadShowArtwork(for show: Show?) {
         showArtworkTask?.cancel()
+        // A bundled photo is there at once, no download.
+        if let name = show?.artworkName, let image = UIImage(named: name) {
+            showArtwork = image
+            publishNowPlaying()
+            return
+        }
         guard let url = show?.imageURL else {
             showArtwork = nil
             publishNowPlaying()

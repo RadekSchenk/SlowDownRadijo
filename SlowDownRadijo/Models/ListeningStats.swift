@@ -40,9 +40,8 @@ struct ListeningStatsSummary {
         let name: String
         let hostName: String?
         let imageURL: URL?
-        /// "The Best of Slow Down" has a bundled hero photo instead of a
-        /// real per-show image — same special case as the home hero.
-        let usesBundledHeroImage: Bool
+        /// Bundled photo (`Show.artworkName`), preferred over `imageURL`.
+        let artworkName: String?
         let seconds: Int
         let fraction: Double
     }

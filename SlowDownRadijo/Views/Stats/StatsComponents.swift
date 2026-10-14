@@ -191,8 +191,8 @@ struct TopShowCard: View {
 
     @ViewBuilder
     private var artwork: some View {
-        if share.usesBundledHeroImage {
-            Image("TheBestOfSlowDownHero")
+        if let name = share.artworkName {
+            Image(name)
                 .resizable()
                 .scaledToFill()
         } else {

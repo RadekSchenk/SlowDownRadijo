@@ -71,16 +71,11 @@ struct HomeView: View {
         }
     }
 
-    /// The current show's artwork — except "The Best of Slow Down", a
-    /// rotation filler block whose own `imageURL` (still used as-is for
-    /// lock-screen art via `NowPlayingViewModel.publishNowPlaying`) is a
-    /// generic branded card, not a real per-show photo. For the in-app hero
-    /// it uses a dedicated bundled photo (`TheBestOfSlowDownHero`) instead.
+    /// The current show's photo: bundled (`Show.artworkName`) where the
+    /// show has one, else downloaded from `imageURL` — see
+    /// `NowPlayingViewModel.loadShowArtwork`.
     private var heroImage: UIImage? {
-        if nowPlaying.currentShow?.name == "The Best of Slow Down" {
-            return UIImage(named: "TheBestOfSlowDownHero")
-        }
-        return nowPlaying.showArtwork
+        nowPlaying.showArtwork
     }
 
     /// Figma "variation-3-card" (node 12318:5166): the show card with its

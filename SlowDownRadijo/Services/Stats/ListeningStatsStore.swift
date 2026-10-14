@@ -204,7 +204,7 @@ final class ListeningStatsStore: ObservableObject {
                     name: show?.displayTitle ?? L10n.statsUnknownShow,
                     hostName: show?.hostName,
                     imageURL: show?.imageURL,
-                    usesBundledHeroImage: id == "the-best-of-slow-down",
+                    artworkName: show?.artworkName,
                     seconds: seconds,
                     fraction: weekSeconds > 0 ? Double(seconds) / Double(weekSeconds) : 0
                 )
