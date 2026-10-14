@@ -42,6 +42,7 @@ struct AppHeaderView: View {
         .padding(.vertical, Theme.Spacing.md)
         .sheet(isPresented: $isShowingHub) {
             HubView()
+                .appTextSizeLimit()
         }
     }
 
@@ -63,9 +64,6 @@ struct AppHeaderView: View {
             }
             .buttonStyle(.plain)
         }
-        // Like a navigation bar: the pills stop growing at XXXL (only the
-        // pills — the menu sheet keeps the full text size).
-        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
 
     private func pill(_ title: String) -> some View {

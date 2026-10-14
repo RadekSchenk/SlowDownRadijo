@@ -117,6 +117,7 @@ struct SleepTimerButton: View {
                     choices += 1
                 }
             )
+            .appTextSizeLimit()
         }
         .sensoryFeedback(.selection, trigger: choices)
     }

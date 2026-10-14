@@ -99,12 +99,14 @@ struct HomeView: View {
         }
         .sheet(isPresented: $isShowingFavoritesIntro) {
             FavoritesIntroView()
+                .appTextSizeLimit()
         }
         // "Not really" on the review card: straight to the feedback form.
         .sheet(isPresented: $isShowingFeedback) {
             NavigationStack {
                 FeedbackView()
             }
+            .appTextSizeLimit()
         }
     }
 
