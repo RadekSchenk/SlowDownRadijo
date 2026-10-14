@@ -243,7 +243,7 @@ struct HomeView: View {
     private var playerControls: some View {
         VStack(alignment: .leading, spacing: 12) {
             if let show = nowPlaying.currentShow {
-                ShowProgressBar(show: show, progress: nowPlaying.showProgress)
+                ShowProgressBar(show: show, progress: nowPlaying.showProgress, isPlaying: nowPlaying.playbackState == .playing)
             }
 
             HStack(spacing: 20) {
