@@ -25,6 +25,9 @@ final class NowPlayingViewModel: ObservableObject {
     /// there's genuinely no clip to play, so the button shouldn't show.
     @Published private(set) var currentTrackHasNoITunesMatch = false
     @Published private(set) var currentShow: Show?
+    /// `track`, but only while `TrackTrust` is sure it's a real song playing
+    /// right now — what the home screen shows under the host.
+    @Published private(set) var verifiedTrack: NowPlayingTrack?
     @Published private(set) var showArtwork: UIImage?
     /// Fraction (0...1) of `currentShow`'s scheduled block elapsed right now.
     @Published private(set) var showProgress: Double = 0
@@ -42,6 +45,13 @@ final class NowPlayingViewModel: ObservableObject {
     /// Downloaded bytes for `trackArtworkURL`, used for MPNowPlayingInfoCenter
     /// (which needs actual image data, not a URL).
     private var trackArtworkImage: UIImage?
+    /// When the current `track` really started, if we know: we saw the
+    /// metadata change to it, or the server logged its start. `nil` right
+    /// after launch until one of those confirms it.
+    private var trackConfirmedStart: Date?
+    private var lastServerCheck = Date.distantPast
+    private var serverCheckTask: Task<Void, Never>?
+    private lazy var allShows: [Show] = scheduleStore.days.flatMap(\.shows)
 
     init(
         player: RadioPlayerService,
@@ -82,6 +92,7 @@ final class NowPlayingViewModel: ObservableObject {
         showRefreshTimer = Timer.scheduledTimer(withTimeInterval: 20, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
                 self?.updateShowState()
+                self?.updateVerifiedTrack()
             }
         }
 
@@ -92,6 +103,7 @@ final class NowPlayingViewModel: ObservableObject {
         showRefreshTimer?.invalidate()
         showArtworkTask?.cancel()
         trackArtworkTask?.cancel()
+        serverCheckTask?.cancel()
     }
 
     var displayTitle: String {
@@ -119,6 +131,13 @@ final class NowPlayingViewModel: ObservableObject {
     /// again as the newest "Co hrálo" row.
     private func handleTrackChange(_ newTrack: NowPlayingTrack?) {
         guard newTrack != track else { return }
+
+        // A change we watched happen dates the new title; the first title
+        // after launch could have been there for an hour, so it waits for
+        // the server's log to say when it started.
+        trackConfirmedStart = (track != nil && newTrack != nil) ? Date() : nil
+        serverCheckTask?.cancel()
+        lastServerCheck = .distantPast
 
         if let endedTrack = track, let startedAt = trackStartedAt,
            !endedTrack.artist.isEmpty, !endedTrack.title.isEmpty {
@@ -155,6 +174,49 @@ final class NowPlayingViewModel: ObservableObject {
         }
         loadTrackArtwork(for: newTrack)
         publishNowPlaying()
+        updateVerifiedTrack()
+    }
+
+    /// Re-run on every track change and every 20s, so a title that gets
+    /// stuck disappears once it's older than `TrackTrust.maximumAge`.
+    private func updateVerifiedTrack() {
+        let now = Date()
+        var trusted: NowPlayingTrack?
+        if let track, TrackTrust.isRealSong(track, shows: allShows) {
+            if let start = trackConfirmedStart {
+                let showStart = currentShow?.hostName == nil
+                    ? nil
+                    : currentShow.flatMap { scheduleStore.startDate(for: $0, relativeTo: now) }
+                if TrackTrust.isCurrent(start: start, now: now, showStart: showStart) {
+                    trusted = track
+                }
+            } else if now.timeIntervalSince(lastServerCheck) >= 60 {
+                checkServerStart(for: track)
+            }
+        }
+        guard trusted != verifiedTrack else { return }
+        withAnimation(.easeInOut(duration: 0.35)) {
+            verifiedTrack = trusted
+        }
+    }
+
+    /// Asks `played_tracks` (logged every minute by `collect-now-playing`)
+    /// when the current title started. Retried each minute until it shows
+    /// up there.
+    private func checkServerStart(for track: NowPlayingTrack) {
+        lastServerCheck = Date()
+        serverCheckTask?.cancel()
+        serverCheckTask = Task { [weak self] in
+            guard let rows = try? await RemoteHistoryService.fetchPage(
+                before: nil,
+                windowStart: Date().addingTimeInterval(-3 * 3600),
+                limit: 1
+            ), let latest = rows.first, !Task.isCancelled else { return }
+            guard let self, self.track == track,
+                  TrackTrust.matches(track, artist: latest.artist, title: latest.title) else { return }
+            self.trackConfirmedStart = latest.playedAt
+            self.updateVerifiedTrack()
+        }
     }
 
     private func loadTrackArtwork(for track: NowPlayingTrack?) {

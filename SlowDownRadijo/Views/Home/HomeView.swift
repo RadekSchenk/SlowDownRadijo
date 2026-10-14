@@ -11,6 +11,7 @@ struct HomeView: View {
     @ObservedObject private var loc = LocalizationManager.shared
     @EnvironmentObject private var favorites: FavoriteTrackStore
     @EnvironmentObject private var previewPlayer: PreviewPlayerService
+    @Environment(\.openURL) private var openURL
     @AppStorage(StatsConfig.enabledKey) private var statsEnabled = true
     /// Tapping the stats block jumps to the Statistiky tab.
     var onOpenStats: () -> Void = {}
@@ -115,16 +116,65 @@ struct HomeView: View {
 
             if let hostName = nowPlaying.currentShow?.hostName {
                 // Figma sets this line in Inter; the app uses Manrope
-                // throughout (see `Theme.Typography`).
-                Text("\(L10n.hostedByKicker) \(hostName)")
-                    .font(Theme.Typography.Manrope.semibold(size: 12, relativeTo: .caption))
-                    .foregroundStyle(Theme.mutedText)
-                    .multilineTextAlignment(.center)
-                    .manropeLineHeight(16.8, fontSize: 12)
+                // throughout (see `Theme.Typography`). The divider under it
+                // is exactly as wide as this line (`fixedSize` sizes the
+                // stack to the text, the divider fills that width).
+                VStack(spacing: 8) {
+                    Text("\(L10n.hostedByKicker) \(hostName)")
+                        .font(Theme.Typography.Manrope.semibold(size: 12, relativeTo: .caption))
+                        .foregroundStyle(Theme.mutedText)
+                        .multilineTextAlignment(.center)
+                        .manropeLineHeight(16.8, fontSize: 12)
+
+                    if nowPlaying.verifiedTrack != nil {
+                        Rectangle()
+                            .fill(Theme.divider)
+                            .frame(height: 1)
+                            .transition(.opacity)
+                    }
+                }
+                .fixedSize(horizontal: true, vertical: false)
+            } else if nowPlaying.verifiedTrack != nil {
+                // No host line to measure: Figma's own 110pt.
+                Rectangle()
+                    .fill(Theme.divider)
+                    .frame(width: 110, height: 1)
+                    .transition(.opacity)
+            }
+
+            if let track = nowPlaying.verifiedTrack {
+                nowPlayingTrackLink(track)
+                    .transition(.reveal)
             }
         }
         .frame(maxWidth: .infinity)
-        .accessibilityElement(children: .combine)
+        .animation(Motion.cardResize, value: nowPlaying.verifiedTrack)
+    }
+
+    /// The song playing now (only when `TrackTrust` vouches for it):
+    /// "Artist – Title" in Spotify green with the Spotify mark; text and
+    /// mark both open a Spotify search for artist + title.
+    private func nowPlayingTrackLink(_ track: NowPlayingTrack) -> some View {
+        Button {
+            if let url = track.spotifySearchURL { openURL(url) }
+        } label: {
+            HStack(spacing: 8) {
+                Text("\(track.artist) – \(track.title)")
+                    .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
+                    .foregroundStyle(Theme.spotifyTextGreen)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .manropeLineHeight(19.6, fontSize: 14)
+                    .contentTransition(.opacity)
+
+                Image("SpotifyIcon")
+                    .resizable()
+                    .frame(width: 19, height: 19.623)
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("\(track.artist) – \(track.title)")
+        .accessibilityHint(L10n.spotifyFindAction)
     }
 
     /// "Listening controls": progress with times, then the player row.

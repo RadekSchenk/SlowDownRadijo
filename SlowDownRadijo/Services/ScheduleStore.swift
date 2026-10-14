@@ -107,6 +107,13 @@ final class ScheduleStore: ObservableObject {
     /// The absolute moment `show` ends, anchored to today's date (relative
     /// to `date`) — used by the sleep timer's "Konec pořadu" option. `nil`
     /// if `show.end` can't be parsed.
+    /// The absolute moment `show` started, anchored to today's date
+    /// (relative to `date`). `nil` if `show.start` can't be parsed.
+    func startDate(for show: Show, relativeTo date: Date = Date(), calendar: Calendar = ScheduleStore.stationCalendar) -> Date? {
+        guard let start = Self.minutes(from: show.start) else { return nil }
+        return calendar.date(byAdding: .minute, value: start, to: calendar.startOfDay(for: date))
+    }
+
     func endDate(for show: Show, relativeTo date: Date = Date(), calendar: Calendar = ScheduleStore.stationCalendar) -> Date? {
         guard let rawEnd = Self.minutes(from: show.end) else { return nil }
         let totalMinutes = rawEnd == 0 ? 1440 : rawEnd
