@@ -2,9 +2,10 @@ import SwiftUI
 import UIKit
 
 /// The home screen's "Programme preview" (Figma "variation-3-card", node
-/// 12318:5168): the current show's artwork as a 230 × 230 card, flanked
-/// by `CardSideEqualizer` — no scrim, as no text sits on it any more. The title and host sit
-/// below it (`HomeView`). The card is centred; the equalizer keeps Figma's
+/// 12341:1649): the current show's artwork as a 230 × 230 card, flanked
+/// by `CardSideEqualizer` — no scrim, as no text sits on it any more. The
+/// title, host and song sit above it, the player controls below
+/// (`HomeView`). The card is centred; the equalizer keeps Figma's
 /// exact offsets from it, so on wider phones the extra room stays empty
 /// rather than stretching.
 struct NowPlayingCard: View {
@@ -56,8 +57,8 @@ struct NowPlayingCard: View {
 extension NowPlayingCard {
     /// Like the cover art in Spotify: scrolling the page up shrinks the
     /// card and its equalizer, fades them out and lets them lag a little
-    /// behind the scroll, so the show title and everything below slide
-    /// over them. Scrolling back reverses it; pulling down to refresh
+    /// behind the scroll, so the player controls and everything below
+    /// slide over them. Scrolling back reverses it; pulling down to refresh
     /// leaves the card as it is. With Reduce Motion it only fades.
     ///
     /// The page must name its scroll content `scrollContentSpace`: the
@@ -74,8 +75,10 @@ private struct ScrollCollapse: ViewModifier {
     /// Scroll distance over which the card goes from full size to gone.
     private static let distance: CGFloat = 240
     private static let smallestScale: CGFloat = 0.8
-    /// Share of the scroll the card holds back: it moves at 60% speed.
-    private static let lag: CGFloat = 0.4
+    /// Share of the scroll the card holds back: it moves at 70% speed —
+    /// little enough that the controls 32pt below only reach it once it
+    /// has faded by half.
+    private static let lag: CGFloat = 0.3
 
     func body(content: Content) -> some View {
         content.visualEffect { [reduceMotion] view, proxy in

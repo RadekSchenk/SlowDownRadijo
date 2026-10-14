@@ -118,55 +118,57 @@ struct HomeView: View {
         nowPlaying.showArtwork
     }
 
-    /// Figma "variation-3-card" (node 12318:5166): the show card with its
-    /// equalizer, then the ON-AIR badge, title and host (centred), the
-    /// programme progress and the player row — the remaining time and
-    /// sleep timer on the left, the play button on the right.
+    /// Figma "variation-3-card" (node 12341:1637): the ON-AIR badge, title,
+    /// host and song (centred) first, then the show card with its
+    /// equalizer, the programme progress and the player row — the
+    /// remaining time and sleep timer on the left, the play button on the
+    /// right. The section starts right under the header and ends with the
+    /// player row, then the 32pt gap to the stats.
     private var nowPlayingHeader: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 0) {
+            showTitle
+
+            // Figma: 12pt to the "Hlavička" frame, which starts with 16pt
+            // of its own above the card.
             NowPlayingCard(
                 artwork: heroImage,
                 isPlaying: nowPlaying.playbackState == .playing
             )
             .collapsesOnScroll()
-
-            // Card, "Player details" title block and controls: all 16pt apart.
-            showTitle
+            .padding(.top, 28)
 
             playerControls
+                .padding(.top, 32)
         }
-        // Figma: 16pt above the card; the section (458pt) ends with the
-        // player row, then the 32pt gap to the stats.
-        .padding(.top, 16)
     }
 
     private var showTitle: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 10) {
             OnAirBadge()
 
             // Here only, the show's own title without " s <host>" ("Kurátorská
             // selekce", not "… s Philip TBC") — the host has its own line
             // below. Everywhere else keeps the full name.
             Text(nowPlaying.currentShow?.displayTitle ?? nowPlaying.showName)
-                .font(Theme.Typography.Manrope.extraBold(size: 20, relativeTo: .title3))
+                .font(Theme.Typography.Manrope.extraBold(size: 30, relativeTo: .title))
                 .foregroundStyle(Theme.textPrimary)
                 .multilineTextAlignment(.center)
-                .manropeLineHeight(24, fontSize: 20)
+                .manropeLineHeight(36, fontSize: 30)
 
             if let hostName = nowPlaying.currentShow?.hostName {
                 // Figma sets this line in Inter; the app uses Manrope
                 // throughout (see `Theme.Typography`). The divider under it
                 // is exactly as wide as this line: it's drawn in the text's
-                // own bounds, 8pt below it. (Not `fixedSize`, which kept a
+                // own bounds, 10pt below it. (Not `fixedSize`, which kept a
                 // long line from wrapping at large text sizes and pushed the
                 // page wider than the screen.)
                 let showsDivider = nowPlaying.verifiedTrack != nil
                 Text("\(L10n.hostedByKicker) \(hostName)")
-                    .font(Theme.Typography.Manrope.semibold(size: 12, relativeTo: .caption))
+                    .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .callout))
                     .foregroundStyle(Theme.mutedText)
                     .multilineTextAlignment(.center)
-                    .manropeLineHeight(16.8, fontSize: 12)
-                    .padding(.bottom, showsDivider ? 9 : 0)
+                    .manropeLineHeight(22.4, fontSize: 16)
+                    .padding(.bottom, showsDivider ? 11 : 0)
                     .overlay(alignment: .bottom) {
                         if showsDivider {
                             Rectangle()
@@ -176,10 +178,10 @@ struct HomeView: View {
                         }
                     }
             } else if nowPlaying.verifiedTrack != nil {
-                // No host line to measure: Figma's own 110pt.
+                // No host line to measure: Figma's own 144pt.
                 Rectangle()
                     .fill(Theme.divider)
-                    .frame(width: 110, height: 1)
+                    .frame(width: 144, height: 1)
                     .transition(.opacity)
             }
 
@@ -204,11 +206,11 @@ struct HomeView: View {
         } label: {
             HStack(spacing: 8) {
                 Text("\(track.artist) – \(track.title)")
-                    .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
+                    .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .callout))
                     .foregroundStyle(Theme.textPrimary)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
-                    .manropeLineHeight(19.6, fontSize: 14)
+                    .manropeLineHeight(22.4, fontSize: 16)
                     .contentTransition(.opacity)
 
                 Image("SpotifyIcon")
