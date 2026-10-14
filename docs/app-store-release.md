@@ -19,18 +19,12 @@
 
 ## 2. Rizika při schvalování
 
-- ⚠️ **Záložka Podpora (pravidlo 3.1.1).** Ukazuje ceny členství
-  (8 €, 170 Kč, 160 Kč), výhody a odkazy na Herohero/Patreon/Forendors. Apple
-  může takové odkazy na placená členství mimo In-App Purchase odmítnout.
-  Možnosti:
-  1. nechat a v poznámce pro recenzenta vysvětlit, že jde o podporu rádia a výhody
-     se v appce nečerpají (může projít, nemusí);
-  2. **bezpečnější:** bez cen a výhod, jen text „Rádio můžeš podpořit na webu“
-     a jedno tlačítko na `slowdownradijo.cz/podpora`, otevřené v Safari;
-  3. první verzi poslat bez záložky Podpora a přidat ji později.
-- ⚠️ **Práva k vysílání.** Recenzent se může zeptat, jestli máte právo stream
-  šířit. Do poznámek uvést, že appka je oficiální appka rádia a hraje jeho
-  vlastní stream (OSA/Intergram licence má rádio pro web).
+- ✅ **Záložka Podpora (pravidlo 3.1.1)** – *rozhodnuto 14. 10. 2026: nechat,
+  jak je, a vysvětlit recenzentovi* (viz poznámka níže). Ukazuje ceny členství,
+  výhody a odkazy na Herohero/Patreon/Forendors. Kdyby Apple přesto odmítl,
+  záložku zjednodušit na jedno tlačítko „Podpořte nás na webu“ bez cen a výhod.
+- ✅ **Práva k vysílání** – vysvětleno v poznámce pro recenzenta: oficiální
+  appka rádia, vlastní stream, licence OSA/Intergram.
 - ✅ Mikrofon se žádá jen při nahrávání vzkazu; popis česky i anglicky.
 - ✅ Notifikace se nežádají při spuštění, jen v kontextu (zvoneček u pořadu,
   Novinky).
@@ -79,15 +73,32 @@
 
 **Klíčová slova**: rádio,radio,stream,Praha,hudba,živě,nezávislé,soul,jazz,hip hop
 
-**Poznámka pro recenzenta (anglicky)**
+**Poznámka pro recenzenta (anglicky)** – vložit do App Review Information ▸ Notes
 
-> Official app of Slow Down Rádijo, an independent radio station in Prague.
-> No account is needed. The app plays the station's own live stream. The
-> microphone is used only when the listener records a voice message for the
-> station (Message tab), which is sent to the station by e-mail. Notifications
-> are local reminders when a followed show starts. Anonymous usage analytics
-> (PostHog, EU) run only after opt-in. The UI language can be switched with the
-> CZ/EN button in the header.
+> This is the official app of Slow Down Rádijo, an independent radio station
+> based in Prague, published by the station's operator, Slow Down Radio s.r.o.
+>
+> Streaming rights: the app plays only the station's own live stream, the same
+> stream the station broadcasts on its website (slowdownradijo.cz). The station
+> holds the music licences for online broadcasting from the Czech collecting
+> societies OSA (authors) and Intergram (performers and producers).
+>
+> Support tab: listeners can choose to support the station through its existing
+> pages on Herohero, Patreon or Forendors, which open in a browser view. These
+> are voluntary memberships supporting the radio station itself. They do not
+> unlock any content or features in the app: the app is fully free and every
+> feature is available to everyone. The perks (recordings, behind-the-scenes
+> posts, contests, a merch discount) are delivered outside the app by those
+> platforms. No purchases or payments take place in the app.
+>
+> No account or login is needed. The microphone is used only when the listener
+> records a voice message for the station (Message tab); the recording is sent
+> to the station by e-mail. Notifications are local reminders when a followed
+> show starts, and news from the station. Anonymous usage analytics (PostHog,
+> EU) run only after the listener opts in; no advertising identifier is used.
+>
+> The interface is in Czech and English; switch with the CZ/EN button at the
+> top of the screen.
 
 ## 4. Štítky soukromí (App Privacy)
 
