@@ -10,7 +10,7 @@ import UIKit
 /// documented in `docs/analytics-events.md`.
 ///
 /// **Consent first.** Nothing is sent until the listener says yes — the
-/// gentle card on the home screen (`AnalyticsConsentCard`) or the switch in
+/// gentle card on the home screen (`AnalyticsConsentCard` in `HomePromptCard.swift`) or the switch in
 /// Settings. PostHog starts opted out and is opted in only then.
 ///
 /// **What it isn't.** Listening time per listener and show already lives in

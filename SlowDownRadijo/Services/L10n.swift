@@ -1033,6 +1033,34 @@ enum L10n {
         }
     }
 
+    static var reviewPromptTitle: String {
+        switch lang {
+        case .cs: return "Jak se ti s appkou poslouchá?"
+        case .en: return "Enjoying the app?"
+        }
+    }
+
+    static var reviewPromptBody: String {
+        switch lang {
+        case .cs: return "Líbí se ti Slow Down Rádijo v mobilu? Tvoje odpověď nám pomůže."
+        case .en: return "Do you like Slow Down Rádijo on your phone? Your answer helps us."
+        }
+    }
+
+    static var reviewPromptYes: String {
+        switch lang {
+        case .cs: return "Líbí"
+        case .en: return "I like it"
+        }
+    }
+
+    static var reviewPromptNo: String {
+        switch lang {
+        case .cs: return "Moc ne"
+        case .en: return "Not really"
+        }
+    }
+
     static var analyticsConsentDecline: String {
         switch lang {
         case .cs: return "Ne, díky"

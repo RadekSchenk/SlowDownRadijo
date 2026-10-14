@@ -1,3 +1,4 @@
+import StoreKit
 import SwiftUI
 import UIKit
 
@@ -13,6 +14,9 @@ struct HomeView: View {
     @EnvironmentObject private var previewPlayer: PreviewPlayerService
     @Environment(\.openURL) private var openURL
     @ObservedObject private var analytics = Analytics.shared
+    @ObservedObject private var reviewPrompt = ReviewPrompt.shared
+    @Environment(\.requestReview) private var requestReview
+    @State private var isShowingFeedback = false
     @AppStorage(StatsConfig.enabledKey) private var statsEnabled = true
     /// Tapping the stats block jumps to the Statistiky tab.
     var onOpenStats: () -> Void = {}
@@ -42,6 +46,21 @@ struct HomeView: View {
                     AnalyticsConsentCard { granted in
                         withAnimation(Motion.cardResize) {
                             analytics.setConsent(granted)
+                        }
+                    }
+                    .padding(.top, Theme.Spacing.xl)
+                    .transition(.reveal)
+                } else if reviewPrompt.shouldAsk {
+                    // Liked → the App Store's own rating dialog (iOS decides
+                    // whether it appears); not → the feedback form.
+                    ReviewPromptCard { liked in
+                        withAnimation(Motion.cardResize) {
+                            reviewPrompt.answered(liked: liked)
+                        }
+                        if liked {
+                            requestReview()
+                        } else {
+                            isShowingFeedback = true
                         }
                     }
                     .padding(.top, Theme.Spacing.xl)
@@ -80,6 +99,12 @@ struct HomeView: View {
         }
         .sheet(isPresented: $isShowingFavoritesIntro) {
             FavoritesIntroView()
+        }
+        // "Not really" on the review card: straight to the feedback form.
+        .sheet(isPresented: $isShowingFeedback) {
+            NavigationStack {
+                FeedbackView()
+            }
         }
     }
 

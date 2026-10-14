@@ -64,6 +64,7 @@ final class PlaybackAnalytics {
                 reconnects += 1
             }
             playingSince = now
+            startReviewCredit(at: now)
             failureReported = false
 
         case .error:
@@ -93,9 +94,33 @@ final class PlaybackAnalytics {
     }
 
     private func pausePlayingClock(at now: Date) {
+        creditReviewPrompt(at: now)
+        reviewCreditedUntil = nil
+        reviewTimer?.invalidate()
+        reviewTimer = nil
         if let since = playingSince {
             heardSeconds += now.timeIntervalSince(since)
             playingSince = nil
         }
+    }
+
+    /// Listening time for `ReviewPrompt` (local only, nothing is sent):
+    /// credited every minute while playing, so a session that never
+    /// "ends" (the app is closed while playing) still counts.
+    private var reviewCreditedUntil: Date?
+    private var reviewTimer: Timer?
+
+    private func startReviewCredit(at now: Date) {
+        reviewCreditedUntil = now
+        reviewTimer?.invalidate()
+        reviewTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
+            Task { @MainActor [weak self] in self?.creditReviewPrompt(at: Date()) }
+        }
+    }
+
+    private func creditReviewPrompt(at now: Date) {
+        guard let since = reviewCreditedUntil else { return }
+        ReviewPrompt.shared.addListening(seconds: now.timeIntervalSince(since), at: now)
+        reviewCreditedUntil = now
     }
 }
