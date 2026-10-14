@@ -200,6 +200,18 @@ struct RootTabView: View {
                 .allowsHitTesting(isSelected)
                 .accessibilityHidden(!isSelected)
                 .zIndex(isSelected ? 1 : 0)
+                #if DEBUG
+                // Lets the UI tests see which page is on screen.
+                .overlay(alignment: .topLeading) {
+                    if isSelected {
+                        Color.clear
+                            .frame(width: 1, height: 1)
+                            .accessibilityElement()
+                            .accessibilityLabel("page \(tag)")
+                            .accessibilityIdentifier("page.\(tag)")
+                    }
+                }
+                #endif
         }
     }
 
@@ -273,6 +285,7 @@ struct RootTabView: View {
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .accessibilityIdentifier("tab.\(tag)")
     }
 
     private func configureNavigationBarAppearance() {

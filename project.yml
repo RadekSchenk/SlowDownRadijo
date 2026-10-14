@@ -70,6 +70,22 @@ targets:
         embed: true
       - package: PostHog
 
+  # Drives the app in the simulator (tab bar); run by
+  # .github/workflows/ui-tests.yml, or Cmd+U in Xcode.
+  SlowDownRadijoUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: SlowDownRadijoUITests
+    dependencies:
+      - target: SlowDownRadijo
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: cz.slowdownradijo.app.UITests
+        TEST_TARGET_NAME: SlowDownRadijo
+        GENERATE_INFOPLIST_FILE: "YES"
+        TARGETED_DEVICE_FAMILY: "1"
+
   # Home Screen widget — small/medium "what's on now" tile. Self-contained,
   # no App Group: it reads its own bundled copy of schedule.json and makes
   # its own lightweight Supabase call for the latest track, rather than
@@ -109,3 +125,17 @@ targets:
         CURRENT_PROJECT_VERSION: "1"
         SKIP_INSTALL: "YES"
         TARGETED_DEVICE_FAMILY: "1"
+
+schemes:
+  SlowDownRadijo:
+    build:
+      targets:
+        SlowDownRadijo: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - SlowDownRadijoUITests
+    archive:
+      config: Release
