@@ -95,10 +95,14 @@ struct HomeProgramSection: View {
 
                 ListDivider()
             }
+            .movesWithScroll()
 
             if !pastShows.isEmpty {
-                pastShowsDisclosure
-                ListDivider()
+                VStack(spacing: 0) {
+                    pastShowsDisclosure
+                    ListDivider()
+                }
+                .movesWithScroll()
             }
 
             if displayedShows.isEmpty {
@@ -109,10 +113,14 @@ struct HomeProgramSection: View {
             } else {
                 VStack(spacing: 0) {
                     ForEach(Array(displayedShows.enumerated()), id: \.offset) { index, show in
-                        compactRow(for: show)
-                        if index < displayedShows.count - 1 {
-                            ListDivider()
+                        // Each row with its divider, so they move as one.
+                        VStack(spacing: 0) {
+                            compactRow(for: show)
+                            if index < displayedShows.count - 1 {
+                                ListDivider()
+                            }
                         }
+                        .movesWithScroll()
                     }
                 }
             }
