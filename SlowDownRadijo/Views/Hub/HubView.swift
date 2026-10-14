@@ -11,7 +11,7 @@ import SwiftUI
 ///
 /// The language switch sits right under the title, not in Settings:
 /// someone who doesn't read Czech has to find it without reading the
-/// menu, so each language is named in itself ("English"), next to a globe.
+/// menu, so each language is named in itself ("English").
 struct HubView: View {
     @ObservedObject private var loc = LocalizationManager.shared
     @Environment(\.dismiss) private var dismiss
@@ -92,20 +92,13 @@ struct HubView: View {
     }
 
     private var languageSwitch: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "globe")
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(Theme.mutedText)
-                .accessibilityHidden(true)
-
-            HStack(spacing: 2) {
-                ForEach(AppLanguage.allCases) { language in
-                    languageOption(language)
-                }
+        HStack(spacing: 2) {
+            ForEach(AppLanguage.allCases) { language in
+                languageOption(language)
             }
-            .padding(3)
-            .background(Theme.statsCard, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
+        .padding(3)
+        .background(Theme.statsCard, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
         .accessibilityElement(children: .contain)
         .accessibilityLabel(L10n.settingsLanguageTitle)
     }
