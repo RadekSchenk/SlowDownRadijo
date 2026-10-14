@@ -18,6 +18,9 @@ struct ShowProgressBar: View {
     /// The glow's breath, in step with the ON-AIR dot.
     @State private var pulse = false
 
+    /// Figma "Progress track": 6pt.
+    private static let height: CGFloat = 6
+
     var body: some View {
         VStack(spacing: 10) {
             HStack {
@@ -44,7 +47,7 @@ struct ShowProgressBar: View {
     /// Motion the fill just shows and the glow stays steady.
     private var track: some View {
         GeometryReader { proxy in
-            let fillWidth = max(6, proxy.size.width * (hasRisen ? progress : 0))
+            let fillWidth = max(Self.height, proxy.size.width * (hasRisen ? progress : 0))
 
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: 3, style: .continuous)
@@ -53,7 +56,11 @@ struct ShowProgressBar: View {
                 RoundedRectangle(cornerRadius: 3, style: .continuous)
                     .fill(Theme.liveRed)
                     .frame(width: fillWidth)
-
+            }
+            .frame(height: Self.height)
+            // An overlay, so the 12pt glow spills over the 6pt track
+            // instead of making it (and the gaps around it) taller.
+            .overlay(alignment: .leading) {
                 Circle()
                     .fill(Theme.liveRed)
                     .frame(width: 12, height: 12)
@@ -66,7 +73,7 @@ struct ShowProgressBar: View {
             }
             .animation(Motion.smoothOut(0.6), value: progress)
         }
-        .frame(height: 6)
+        .frame(height: Self.height)
         .onAppear {
             if reduceMotion {
                 hasRisen = true
