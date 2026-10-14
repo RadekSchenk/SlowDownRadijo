@@ -7,7 +7,7 @@
 import { allowRelay } from "../_shared/rate-limit.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-const RECIPIENT_EMAIL = "jsem@radekschenk.cz";
+const RECIPIENT_EMAIL = "info@slowdownradijo.cz";
 // A 1-minute mono AAC clip at the app's recording settings is well under
 // 1 MB — 5 MB leaves headroom without letting the endpoint be used to
 // relay arbitrarily large attachments.
