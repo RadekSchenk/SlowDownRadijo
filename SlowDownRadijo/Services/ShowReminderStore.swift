@@ -26,16 +26,18 @@ final class ShowReminderStore: ObservableObject {
     }
 
     /// What a tap on a show notification asked for — `RootTabView` acts on
-    /// it (home tab, and playback for "Poslouchat") and clears it.
-    enum OpenRequest {
-        case open
-        case listen
+    /// it (home tab, and playback for "Poslouchat") and then calls
+    /// `finishOpenRequest(_:)`. Each tap gets its own id, so a request is
+    /// handled once however often the view re-subscribes.
+    struct OpenRequest: Equatable {
+        let id = UUID()
+        let listen: Bool
+        /// The show whose notification was tapped (for analytics).
+        let showID: String?
     }
 
     @Published private(set) var followedIDs: Set<String>
-    @Published var openRequest: OpenRequest?
-    /// The show whose notification was tapped (for analytics).
-    var openedShowID: String?
+    @Published private(set) var openRequest: OpenRequest?
 
     nonisolated static let categoryID = "SHOW_START"
     nonisolated static let listenActionID = "LISTEN"
@@ -70,6 +72,23 @@ final class ShowReminderStore: ObservableObject {
     }
 
     /// Registers the "Poslouchat" action. Call once at app start.
+    func requestOpen(listen: Bool, showID: String?) {
+        openRequest = OpenRequest(listen: listen, showID: showID)
+    }
+
+    /// Clears a handled request on the next turn of the main queue.
+    /// `@Published` delivers a new value *before* storing it, so clearing it
+    /// right inside that delivery would be overwritten by the value being
+    /// set — the request would then stay and be delivered again on every
+    /// re-subscription (it kept snapping the tab bar back to Rádio).
+    func finishOpenRequest(_ request: OpenRequest) {
+        DispatchQueue.main.async {
+            if self.openRequest?.id == request.id {
+                self.openRequest = nil
+            }
+        }
+    }
+
     nonisolated static func registerNotificationCategory() {
         let listen = UNNotificationAction(
             identifier: listenActionID,

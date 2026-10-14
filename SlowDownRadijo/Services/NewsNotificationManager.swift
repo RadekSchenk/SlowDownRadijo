@@ -107,8 +107,7 @@ enum NewsNotificationManager {
             let showID = content.userInfo["showID"] as? String
             DispatchQueue.main.async {
                 MainActor.assumeIsolated {
-                    ShowReminderStore.shared.openedShowID = showID
-                    ShowReminderStore.shared.openRequest = listen ? .listen : .open
+                    ShowReminderStore.shared.requestOpen(listen: listen, showID: showID)
                 }
                 completionHandler()
             }

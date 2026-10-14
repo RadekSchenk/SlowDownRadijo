@@ -49,6 +49,8 @@ struct RootTabView: View {
     /// Guards the once-per-launch "Novinky" notification check the same
     /// way `hasAutoplayed` guards autoplay — see `NewsNotificationManager`.
     @State private var hasCheckedNewsNotifications = false
+    /// The last notification tap acted on (see `ShowReminderStore.OpenRequest`).
+    @State private var handledOpenRequestID: UUID?
 
     /// The services the state objects share, built on first access only.
     /// SwiftUI may call `init()` again, but it evaluates each `StateObject`
@@ -164,15 +166,14 @@ struct RootTabView: View {
         // A tap on a "Právě začíná" notification: home, and the radio for
         // "Poslouchat".
         .onReceive(ShowReminderStore.shared.$openRequest.compactMap { $0 }) { request in
+            ShowReminderStore.shared.finishOpenRequest(request)
+            guard request.id != handledOpenRequestID else { return }
+            handledOpenRequestID = request.id
             selectedTab = 0
-            Analytics.shared.track(.showNotificationOpened(
-                showID: ShowReminderStore.shared.openedShowID,
-                listen: request == .listen
-            ))
-            if request == .listen, player.state != .playing {
+            Analytics.shared.track(.showNotificationOpened(showID: request.showID, listen: request.listen))
+            if request.listen, player.state != .playing {
                 player.play(trigger: .notification)
             }
-            ShowReminderStore.shared.openRequest = nil
         }
         .onChange(of: selectedTab) { _, tab in
             Analytics.shared.screen(Self.analyticsScreen(for: tab))
