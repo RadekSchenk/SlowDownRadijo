@@ -80,7 +80,6 @@ struct HomeView: View {
             }
             .padding(.horizontal, 20)
             .padding(.bottom, Theme.Spacing.xl)
-            .coordinateSpace(.named(NowPlayingCard.scrollContentSpace))
             .scrollsToTopOnTabReselect()
         }
         // Like every other tab: the header starts 40pt below the true top
@@ -127,6 +126,7 @@ struct HomeView: View {
     private var nowPlayingHeader: some View {
         VStack(alignment: .leading, spacing: 0) {
             showTitle
+                .fadesOutUnderTopEdge()
 
             // Figma: 12pt to the "Hlavička" frame, which starts with 16pt
             // of its own above the card.
@@ -134,7 +134,7 @@ struct HomeView: View {
                 artwork: heroImage,
                 isPlaying: nowPlaying.playbackState == .playing
             )
-            .collapsesOnScroll()
+            .fadesOutUnderTopEdge(shrinkingTo: 0.8)
             .padding(.top, 28)
 
             playerControls
