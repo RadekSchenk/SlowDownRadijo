@@ -213,12 +213,11 @@ struct StatsView: View {
                         .font(Theme.Typography.Manrope.regular(size: 13, relativeTo: .footnote))
                         .foregroundStyle(Theme.mutedText)
 
-                    TopShowCard(share: top)
-
+                    // The top show leads the same list, a step louder.
                     VStack(spacing: 0) {
-                        let others = Array(summary.shows.dropFirst().prefix(7))
-                        ForEach(Array(others.enumerated()), id: \.element.id) { index, share in
-                            if index > 0 { ListDivider() }
+                        ShowShareRow(share: top, isTop: true)
+                        ForEach(Array(summary.shows.dropFirst().prefix(7)), id: \.id) { share in
+                            ListDivider()
                             ShowShareRow(share: share)
                         }
                     }
