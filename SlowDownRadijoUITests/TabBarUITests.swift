@@ -19,7 +19,12 @@ final class TabBarUITests: XCTestCase {
     func testEveryTabSwitchesPageAndHighlight() {
         assertOnly(selected: 0)
         for tag in [3, 5, 4, 0, 5, 3] {
-            app.buttons["tab.\(tag)"].tap()
+            let button = app.buttons["tab.\(tag)"]
+            print("[uitest] before tap \(tag): frame=\(button.frame) hittable=\(button.isHittable) value=\(String(describing: button.value))")
+            button.tap()
+            sleep(1)
+            print("[uitest] after tap \(tag): value=\(String(describing: button.value)) selected=\(button.isSelected)")
+            print("[uitest] hierarchy after tap \(tag):\n\(app.debugDescription)")
             assertOnly(selected: tag)
         }
     }

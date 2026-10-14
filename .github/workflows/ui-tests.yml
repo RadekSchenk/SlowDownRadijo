@@ -58,6 +58,9 @@ jobs:
             -resultBundlePath TestResults.xcresult \
             CODE_SIGNING_ALLOWED=NO \
             | tee xcodebuild.log | grep -E "error:|warning: .*RootTabView|Test Case|Executed|\*\* TEST|failed|passed" || true
+          echo "::group::Test output"
+          sed -n "/Test Suite 'All tests' started/,\$p" xcodebuild.log | head -1500
+          echo "::endgroup::"
           grep -q "\*\* TEST SUCCEEDED \*\*" xcodebuild.log
 
       - name: Export screenshots
@@ -66,6 +69,7 @@ jobs:
           mkdir -p screenshots
           xcrun xcresulttool export attachments --path TestResults.xcresult --output-path screenshots || true
           ls -la screenshots | head -40
+          for f in screenshots/*.txt; do echo "===== $f"; head -c 20000 "$f"; echo; done
 
       - uses: actions/upload-artifact@v4
         if: always()

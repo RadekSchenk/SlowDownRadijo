@@ -41,6 +41,10 @@ struct RootTabView: View {
     /// Taps on the already selected tab, per tab: each one scrolls that
     /// page back to the top (`.scrollsToTopOnTabReselect()`).
     @State private var reselectCounts: [Int: Int] = [:]
+    #if DEBUG
+    /// Tab-bar taps, for the UI tests' diagnostics.
+    @State private var debugTabTaps = 0
+    #endif
     /// `init()` isn't a safe place for the autoplay side effect — SwiftUI
     /// re-invokes it (e.g. when `AppRootView` re-renders as the splash
     /// dismisses), which previously spun up a second `RadioPlayerService`
@@ -139,7 +143,10 @@ struct RootTabView: View {
                 player.play(trigger: .notification)
             }
         }
-        .onChange(of: selectedTab) { _, tab in
+        .onChange(of: selectedTab) { old, tab in
+            #if DEBUG
+            print("[tabbar] selectedTab \(old) -> \(tab)")
+            #endif
             let isFirstVisit = visitedTabs.insert(tab).inserted
             Analytics.shared.screen(Self.analyticsScreen(for: tab))
             if tab == Self.statsTab {
@@ -263,6 +270,10 @@ struct RootTabView: View {
     private func tabBarButton(tag: Int, title: String, image: String) -> some View {
         let isSelected = selectedTab == tag
         return Button {
+            #if DEBUG
+            debugTabTaps += 1
+            print("[tabbar] tap tag=\(tag) selected=\(selectedTab) taps=\(debugTabTaps)")
+            #endif
             if isSelected {
                 reselectCounts[tag, default: 0] += 1
             } else {
@@ -286,6 +297,9 @@ struct RootTabView: View {
         .buttonStyle(.plain)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityIdentifier("tab.\(tag)")
+        #if DEBUG
+        .accessibilityValue("selected=\(selectedTab) taps=\(debugTabTaps)")
+        #endif
     }
 
     private func configureNavigationBarAppearance() {
