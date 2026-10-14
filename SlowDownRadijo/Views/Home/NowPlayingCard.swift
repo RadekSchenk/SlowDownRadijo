@@ -2,24 +2,23 @@ import SwiftUI
 import UIKit
 
 /// The home screen's "Programme preview" (Figma "variation-3-card", node
-/// 12318:773): the current show's artwork as a 230 × 360 card with its
-/// title and host over a dark scrim, flanked by `CardSideEqualizer`. The
-/// card is centred; the equalizer keeps Figma's exact offsets from it, so
-/// on wider phones the extra room stays empty rather than stretching.
+/// 12318:5168): the current show's artwork as a 230 × 230 card under a
+/// dark scrim, flanked by `CardSideEqualizer`. The title and host sit
+/// below it (`HomeView`). The card is centred; the equalizer keeps Figma's
+/// exact offsets from it, so on wider phones the extra room stays empty
+/// rather than stretching.
 struct NowPlayingCard: View {
-    let title: String
-    let hostName: String?
     let artwork: UIImage?
     let isPlaying: Bool
 
-    static let cardSize = CGSize(width: 230, height: 360)
+    static let cardSize = CGSize(width: 230, height: 230)
 
     var body: some View {
         ZStack(alignment: .top) {
             CardSideEqualizer(isActive: isPlaying)
-                // Figma: the "Equalizer" frame sits 84.8pt below the
-                // preview's top edge.
-                .padding(.top, 84.8)
+                // Figma: the "Equalizer" frame sits 45pt below the
+                // preview's top edge, centred on the card.
+                .padding(.top, 45)
 
             card
         }
@@ -28,7 +27,7 @@ struct NowPlayingCard: View {
     }
 
     private var card: some View {
-        ZStack(alignment: .bottomLeading) {
+        ZStack {
             artworkLayer
 
             // "gradient-scrim": clear until 45%, then into near-black.
@@ -41,31 +40,10 @@ struct NowPlayingCard: View {
                 startPoint: .top,
                 endPoint: .bottom
             )
-
-            VStack(alignment: .leading, spacing: 8) {
-                Text(title)
-                    .font(Theme.Typography.Manrope.extraBold(size: 20, relativeTo: .title3))
-                    .foregroundStyle(Theme.textPrimary)
-                    .lineLimit(3)
-                    .manropeLineHeight(24, fontSize: 20)
-
-                if let hostName {
-                    // Figma sets this line in Inter; the app uses Manrope
-                    // throughout (see `Theme.Typography`).
-                    Text("\(L10n.hostedByKicker) \(hostName.uppercased())")
-                        .font(Theme.Typography.Manrope.semibold(size: 12, relativeTo: .caption))
-                        .foregroundStyle(Theme.mutedText)
-                        .lineLimit(1)
-                        .manropeLineHeight(16.8, fontSize: 12)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 12)
-            .padding(.bottom, 16)
         }
         .frame(width: Self.cardSize.width, height: Self.cardSize.height)
         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-        .accessibilityElement(children: .combine)
+        .accessibilityHidden(true)
     }
 
     @ViewBuilder
@@ -88,7 +66,7 @@ struct NowPlayingCard: View {
 }
 
 /// The bars either side of `NowPlayingCard` (Figma "Equalizer", node
-/// 12318:775), driven by the design's own keyframes: 16 steps of 250ms,
+/// 12318:5183), driven by the design's own keyframes: 16 steps of 250ms,
 /// ease-in-out, looping every 4s. Each bar grows and shrinks around the
 /// frame's vertical centre. Only the five bars on each side that Figma
 /// shows are drawn — the ones behind the card are at 0% opacity there.

@@ -82,50 +82,78 @@ struct HomeView: View {
         return nowPlaying.showArtwork
     }
 
-    /// Figma "variation-3-card" (node 12318:288): the show card with its
-    /// equalizer, then the programme progress and the player row — the
-    /// remaining time and sleep timer on the left, the play button on the
-    /// right.
+    /// Figma "variation-3-card" (node 12318:5166): the show card with its
+    /// equalizer, then the title and host, the programme progress and the
+    /// player row — the remaining time and sleep timer on the left, the
+    /// play button on the right.
     private var nowPlayingHeader: some View {
         VStack(alignment: .leading, spacing: 32) {
             NowPlayingCard(
-                title: nowPlaying.showName,
-                hostName: nowPlaying.currentShow?.hostName,
                 artwork: heroImage,
                 isPlaying: nowPlaying.playbackState == .playing
             )
 
-            VStack(alignment: .leading, spacing: 12) {
-                if let show = nowPlaying.currentShow {
-                    ShowProgressBar(show: show, progress: nowPlaying.showProgress)
-                }
+            // "Player details": the title block, then 16pt to the controls.
+            VStack(alignment: .leading, spacing: 16) {
+                showTitle
 
-                HStack(spacing: 20) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        if nowPlaying.currentShow != nil {
-                            // The minutes count down with the number pop-in
-                            // (library P9).
-                            PopNumberText(
-                                text: remainingLabel,
-                                font: Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline),
-                                color: Theme.mutedText
-                            )
-                            .lineLimit(1)
-                        }
-                        SleepTimerButton(player: nowPlaying.player, currentShowEndDate: nowPlaying.currentShowEndDate)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-
-                    PlayButton(state: nowPlaying.playbackState, action: nowPlaying.togglePlayPause, diameter: 46, iconSize: 17)
-                }
-
-                statusLabel
+                playerControls
             }
         }
-        // Figma: 16pt above the card; the section is 514pt tall, about
-        // 14pt more than its content, before the 32pt gap to the stats.
+        // Figma: 16pt above the card. The section is drawn 431pt tall, a
+        // few points less than its content, so nothing extra goes below
+        // before the 32pt gap to the stats.
         .padding(.top, 16)
-        .padding(.bottom, 14)
+    }
+
+    private var showTitle: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(nowPlaying.showName)
+                .font(Theme.Typography.Manrope.extraBold(size: 20, relativeTo: .title3))
+                .foregroundStyle(Theme.textPrimary)
+                .manropeLineHeight(24, fontSize: 20)
+
+            if let hostName = nowPlaying.currentShow?.hostName {
+                // Figma sets this line in Inter; the app uses Manrope
+                // throughout (see `Theme.Typography`).
+                Text("\(L10n.hostedByKicker) \(hostName)")
+                    .font(Theme.Typography.Manrope.semibold(size: 12, relativeTo: .caption))
+                    .foregroundStyle(Theme.mutedText)
+                    .manropeLineHeight(16.8, fontSize: 12)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .combine)
+    }
+
+    /// "Listening controls": progress with times, then the player row.
+    private var playerControls: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            if let show = nowPlaying.currentShow {
+                ShowProgressBar(show: show, progress: nowPlaying.showProgress)
+            }
+
+            HStack(spacing: 20) {
+                VStack(alignment: .leading, spacing: 12) {
+                    if nowPlaying.currentShow != nil {
+                        // The minutes count down with the number pop-in
+                        // (library P9).
+                        PopNumberText(
+                            text: remainingLabel,
+                            font: Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline),
+                            color: Theme.mutedText
+                        )
+                        .lineLimit(1)
+                    }
+                    SleepTimerButton(player: nowPlaying.player, currentShowEndDate: nowPlaying.currentShowEndDate)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                PlayButton(state: nowPlaying.playbackState, action: nowPlaying.togglePlayPause, diameter: 46, iconSize: 17)
+            }
+
+            statusLabel
+        }
     }
 
     private var remainingLabel: String {
