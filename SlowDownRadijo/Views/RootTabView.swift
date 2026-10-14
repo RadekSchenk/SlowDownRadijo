@@ -44,6 +44,8 @@ struct RootTabView: View {
     #if DEBUG
     /// Tab-bar taps, for the UI tests' diagnostics.
     @State private var debugTabTaps = 0
+    @State private var debugBarTouches = 0
+    @State private var debugHitInfo = "not probed"
     #endif
     /// `init()` isn't a safe place for the autoplay side effect — SwiftUI
     /// re-invokes it (e.g. when `AppRootView` re-renders as the splash
@@ -110,6 +112,22 @@ struct RootTabView: View {
         }
         // The bar reaches the screen's bottom edge itself (see `bottomNav`).
         .ignoresSafeArea(.container, edges: .bottom)
+        #if DEBUG
+        .overlay(alignment: .topTrailing) {
+            Color.clear
+                .frame(width: 1, height: 1)
+                .accessibilityElement()
+                .accessibilityLabel(debugHitInfo)
+                .accessibilityValue("barTouches=\(debugBarTouches)")
+                .accessibilityIdentifier("debug.hit")
+        }
+        .task {
+            for _ in 0..<20 {
+                try? await Task.sleep(for: .seconds(2))
+                probeHits()
+            }
+        }
+        #endif
         .tint(Theme.liveRed)
         .environmentObject(favoriteTrackStore)
         .environmentObject(previewPlayer)
@@ -256,7 +274,37 @@ struct RootTabView: View {
         // strip instead of the real 34pt safe area.
         .padding(.bottom, bottomSafeInset > 0 ? Self.homeIndicatorZone : 0)
         .background(Theme.tabBarBackground)
+        #if DEBUG
+        .simultaneousGesture(TapGesture().onEnded { debugBarTouches += 1 })
+        #endif
     }
+
+    #if DEBUG
+    /// Which UIKit view would get a touch on the tab bar, and on the page —
+    /// for the UI tests' diagnostics.
+    private func probeHits() {
+        let windows = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap(\.windows)
+        let windowList = windows.map { "\(type(of: $0))(level \($0.windowLevel.rawValue), hidden \($0.isHidden), key \($0.isKeyWindow), \($0.frame.integral))" }
+        guard let window = windows.first(where: \.isKeyWindow) ?? windows.first else {
+            debugHitInfo = "no window"
+            return
+        }
+        let height = window.bounds.height
+        let points: [(String, CGPoint)] = [("bar", CGPoint(x: 151, y: height - 52)), ("page", CGPoint(x: 200, y: 300))]
+        let hits = points.map { name, point -> String in
+            var chain: [String] = []
+            var view = window.hitTest(point, with: nil)
+            while let current = view, chain.count < 8 {
+                chain.append("\(type(of: current))\(current.frame.integral)")
+                view = current.superview
+            }
+            return "\(name)@\(Int(point.y)): " + chain.joined(separator: " < ")
+        }
+        debugHitInfo = "windows: " + windowList.joined(separator: "; ") + " || " + hits.joined(separator: " || ")
+    }
+    #endif
 
     private static func analyticsScreen(for tab: Int) -> AnalyticsScreen {
         switch tab {

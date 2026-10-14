@@ -69,7 +69,13 @@ jobs:
           mkdir -p screenshots
           xcrun xcresulttool export attachments --path TestResults.xcresult --output-path screenshots || true
           ls -la screenshots | head -40
-          for f in screenshots/*.txt; do echo "===== $f"; head -c 20000 "$f"; echo; done
+          for f in screenshots/*.png; do
+            sips -s format jpeg -s formatOptions 40 -Z 500 "$f" --out "${f%.png}.jpg" >/dev/null 2>&1 || continue
+            echo "===== IMAGE $f"
+            base64 -i "${f%.png}.jpg" | tr -d '\n'
+            echo
+            echo "===== END IMAGE"
+          done
 
       - uses: actions/upload-artifact@v4
         if: always()

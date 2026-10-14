@@ -16,6 +16,36 @@ final class TabBarUITests: XCTestCase {
         XCTAssertTrue(app.buttons["tab.0"].waitForExistence(timeout: 20), "tab bar never appeared\n\(app.debugDescription)")
     }
 
+    func testDiagnostics() {
+        sleep(5)
+        let probe = app.descendants(matching: .any)["debug.hit"]
+        print("[uitest] probe: \(probe.label)")
+        let tab3 = app.buttons["tab.3"]
+        tab3.tap()
+        sleep(1)
+        print("[uitest] after element tap: \(String(describing: tab3.value)) probe value=\(String(describing: probe.value))")
+        let center = tab3.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        center.tap()
+        sleep(1)
+        print("[uitest] after coordinate tap: \(String(describing: tab3.value)) probe value=\(String(describing: probe.value))")
+        let statsBlock = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Your listening stats")).firstMatch
+        print("[uitest] stats block exists=\(statsBlock.exists) hittable=\(statsBlock.exists && statsBlock.isHittable)")
+        if statsBlock.exists {
+            statsBlock.tap()
+            sleep(2)
+            print("[uitest] after stats block tap: page5=\(app.descendants(matching: .any)["page.5"].exists) page0=\(app.descendants(matching: .any)["page.0"].exists) tab5=\(String(describing: app.buttons["tab.5"].value))")
+        }
+        let play = app.buttons["play.fill"]
+        print("[uitest] play exists=\(play.exists)")
+        if play.exists {
+            play.tap()
+            sleep(2)
+            print("[uitest] after play tap: play.fill exists=\(app.buttons["play.fill"].exists)")
+        }
+        print("[uitest] probe again: \(probe.label)")
+        attachScreenshot(named: "diagnostics")
+    }
+
     func testEveryTabSwitchesPageAndHighlight() {
         assertOnly(selected: 0)
         for tag in [3, 5, 4, 0, 5, 3] {
