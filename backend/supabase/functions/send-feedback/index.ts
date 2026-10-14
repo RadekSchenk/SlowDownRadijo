@@ -4,9 +4,14 @@
 // never talks to Resend directly; RESEND_API_KEY only ever lives in this
 // function's environment.
 
+import { allowRelay } from "../_shared/rate-limit.ts";
+
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const RECIPIENT_EMAIL = "jsem@radekschenk.cz";
 const MAX_MESSAGE_LENGTH = 4000;
+// The app sends short values ("iPhone15,3", "iOS 18.1"); anything longer or
+// not a string is dropped rather than relayed.
+const MAX_DEVICE_FIELD_LENGTH = 64;
 
 interface DeviceInfo {
   appVersion?: string;
@@ -31,8 +36,20 @@ function escapeHtml(value: string): string {
     .replace(/>/g, "&gt;");
 }
 
-function deviceInfoLines(device: DeviceInfo | undefined): string {
-  if (!device) return "(neznámé zařízení)";
+function deviceField(value: unknown): string | undefined {
+  return typeof value === "string" ? value.slice(0, MAX_DEVICE_FIELD_LENGTH) : undefined;
+}
+
+function deviceInfoLines(raw: DeviceInfo | undefined): string {
+  if (!raw || typeof raw !== "object") return "(neznámé zařízení)";
+  const device: DeviceInfo = {
+    appVersion: deviceField(raw.appVersion),
+    buildNumber: deviceField(raw.buildNumber),
+    osVersion: deviceField(raw.osVersion),
+    deviceModel: deviceField(raw.deviceModel),
+    appLanguage: deviceField(raw.appLanguage),
+    appearance: deviceField(raw.appearance),
+  };
   const rows: [string, string | undefined][] = [
     ["Verze appky", device.appVersion && device.buildNumber ? `${device.appVersion} (${device.buildNumber})` : device.appVersion],
     ["iOS", device.osVersion],
@@ -63,12 +80,16 @@ Deno.serve(async (req) => {
     return jsonResponse({ error: "Expected JSON body" }, 400);
   }
 
-  const message = payload.message?.trim();
+  const message = typeof payload.message === "string" ? payload.message.trim() : undefined;
   if (!message) {
     return jsonResponse({ error: "Missing message" }, 400);
   }
   if (message.length > MAX_MESSAGE_LENGTH) {
     return jsonResponse({ error: "Message too long" }, 413);
+  }
+
+  if (!(await allowRelay(req, "feedback"))) {
+    return jsonResponse({ error: "Too many messages, try again later" }, 429);
   }
 
   const deviceBlock = deviceInfoLines(payload.device);

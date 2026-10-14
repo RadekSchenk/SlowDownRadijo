@@ -8,7 +8,7 @@ struct SafariView: UIViewControllerRepresentable {
         let config = SFSafariViewController.Configuration()
         config.entersReaderIfAvailable = false
         let controller = SFSafariViewController(url: url, configuration: config)
-        controller.preferredControlTintColor = UIColor(Theme.sunOrange)
+        controller.preferredControlTintColor = UIColor(Theme.liveRed)
         return controller
     }
 

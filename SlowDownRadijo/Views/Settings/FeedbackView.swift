@@ -2,11 +2,13 @@ import SwiftUI
 
 /// Pushed from the hamburger menu, always last — an in-app feedback form
 /// that relays to `jsem@radekschenk.cz` via the `send-feedback` Edge
-/// Function. Used to live inside `SettingsView`; split out into its own
-/// menu item.
+/// Function. Styled like the Vzkaz tab (shared action buttons, muted
+/// subtitle, header-pill surfaces).
 struct FeedbackView: View {
     @StateObject private var feedbackViewModel = FeedbackViewModel()
     @Environment(\.dismiss) private var dismiss
+
+    private static let successGreen = Color(hex: 0x28C840)
 
     var body: some View {
         ScrollView {
@@ -14,22 +16,28 @@ struct FeedbackView: View {
                 BackHeaderView(title: L10n.settingsFeedbackTitle, onBack: { dismiss() })
 
                 Text(L10n.settingsFeedbackIntro)
-                    .font(Theme.Typography.Manrope.regular(size: 13, relativeTo: .footnote))
-                    .foregroundStyle(Theme.lavender)
+                    .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .subheadline))
+                    .foregroundStyle(Theme.mutedText)
 
                 switch feedbackViewModel.state {
                 case .idle, .sending, .failed:
-                    feedbackForm
-                    if feedbackViewModel.state == .failed {
-                        Text(L10n.settingsFeedbackFailed)
-                            .font(Theme.Typography.Manrope.regular(size: 12, relativeTo: .footnote))
-                            .foregroundStyle(Theme.statusError)
+                    VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+                        feedbackForm
+                        if feedbackViewModel.state == .failed {
+                            Text(L10n.settingsFeedbackFailed)
+                                .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .footnote))
+                                .foregroundStyle(Theme.statusError)
+                        }
                     }
+                    // Library P12 — error shake when sending fails.
+                    .shake(when: feedbackViewModel.state == .failed)
                 case .sent:
                     sentConfirmation
                 }
             }
-            .padding(Theme.Spacing.md)
+            .padding(.horizontal, 20)
+            .padding(.top, 20)
+            .padding(.bottom, Theme.Spacing.xl)
         }
         .background(Theme.background.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)
@@ -40,66 +48,57 @@ struct FeedbackView: View {
             ZStack(alignment: .topLeading) {
                 if feedbackViewModel.message.isEmpty {
                     Text(L10n.settingsFeedbackPlaceholder)
-                        .font(Theme.Typography.Manrope.regular(size: 15, relativeTo: .body))
-                        .foregroundStyle(Theme.lavender)
+                        .font(Theme.Typography.Manrope.regular(size: 16, relativeTo: .body))
+                        .foregroundStyle(Theme.subtleText)
                         .padding(.horizontal, 13)
                         .padding(.vertical, 16)
                         .allowsHitTesting(false)
                 }
                 TextEditor(text: $feedbackViewModel.message)
-                    .font(Theme.Typography.Manrope.regular(size: 15, relativeTo: .body))
+                    .font(Theme.Typography.Manrope.regular(size: 16, relativeTo: .body))
                     .foregroundStyle(Theme.textPrimary)
+                    .tint(Theme.liveRed)
                     .scrollContentBackground(.hidden)
                     .padding(8)
                     .frame(minHeight: 160)
                     .disabled(feedbackViewModel.state == .sending)
             }
-            .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
-                    .strokeBorder(Theme.hairline(0.1), lineWidth: 1)
-                    .allowsHitTesting(false)
-            )
+            .background(Theme.hairline(0.08), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
 
-            Button(action: feedbackViewModel.submit) {
-                Text(feedbackViewModel.state == .sending ? L10n.settingsFeedbackSending : L10n.settingsFeedbackSend)
-                    .font(Theme.Typography.Manrope.bold(size: 15, relativeTo: .subheadline))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, Theme.Spacing.sm)
-                    .background(
-                        feedbackViewModel.canSubmit ? Theme.sunOrange : Theme.sunOrange.opacity(0.4),
-                        in: Capsule()
-                    )
-            }
-            .buttonStyle(.plain)
-            .disabled(!feedbackViewModel.canSubmit)
+            PrimaryActionButton(
+                title: feedbackViewModel.state == .sending ? L10n.settingsFeedbackSending : L10n.settingsFeedbackSend,
+                systemImage: "paperplane.fill",
+                isEnabled: feedbackViewModel.canSubmit,
+                action: feedbackViewModel.submit
+            )
         }
     }
 
     private var sentConfirmation: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-            HStack(spacing: Theme.Spacing.sm) {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(Color(hex: 0x28C840))
-                Text(L10n.settingsFeedbackSent)
-                    .font(Theme.Typography.Manrope.semibold(size: 15, relativeTo: .subheadline))
-                    .foregroundStyle(Theme.textPrimary)
-            }
+        VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+            // Library P10 — success check.
+            SuccessCheck()
 
-            Button(L10n.settingsFeedbackSendAnother) {
+            // Same badge as the Vzkaz tab's "ODESLÁNO".
+            HStack(spacing: 8) {
+                Circle()
+                    .fill(Self.successGreen)
+                    .frame(width: 10, height: 10)
+                Text(L10n.sentBadge)
+                    .font(Theme.Typography.Manrope.extraBold(size: 14))
+                    .foregroundStyle(Self.successGreen)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(Self.successGreen.opacity(0.15), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+
+            Text(L10n.settingsFeedbackSent)
+                .font(Theme.Typography.Manrope.bold(size: 16, relativeTo: .body))
+                .foregroundStyle(Theme.textPrimary)
+
+            SecondaryActionButton(title: L10n.settingsFeedbackSendAnother) {
                 feedbackViewModel.reset()
             }
-            .font(Theme.Typography.Manrope.bold(size: 14, relativeTo: .subheadline))
-            .foregroundStyle(Theme.sunOrange)
-            .buttonStyle(.plain)
         }
-        .padding(Theme.Spacing.lg)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .overlay(
-            RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
-                .strokeBorder(Theme.hairline(0.1), lineWidth: 1)
-                .allowsHitTesting(false)
-        )
     }
 }

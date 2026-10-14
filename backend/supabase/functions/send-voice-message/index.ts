@@ -4,6 +4,8 @@
 // Resend directly — RESEND_API_KEY only ever lives in this function's
 // environment (set via `supabase secrets set`), never in client code.
 
+import { allowRelay } from "../_shared/rate-limit.ts";
+
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const RECIPIENT_EMAIL = "jsem@radekschenk.cz";
 // A 1-minute mono AAC clip at the app's recording settings is well under
@@ -47,6 +49,16 @@ Deno.serve(async (req) => {
   }
 
   const bytes = new Uint8Array(await audio.arrayBuffer());
+  // The app records MPEG-4 audio (.m4a), which carries "ftyp" at byte 4.
+  // Anything else is not a voice message and must not reach the inbox.
+  if (bytes.length < 8 || new TextDecoder().decode(bytes.subarray(4, 8)) !== "ftyp") {
+    return jsonResponse({ error: "Unsupported audio format" }, 415);
+  }
+
+  if (!(await allowRelay(req, "voice"))) {
+    return jsonResponse({ error: "Too many messages, try again later" }, 429);
+  }
+
   const base64 = btoa(Array.from(bytes, (b) => String.fromCharCode(b)).join(""));
 
   const resendResponse = await fetch("https://api.resend.com/emails", {
@@ -64,7 +76,9 @@ Deno.serve(async (req) => {
       text: "Ahoj, posílám vzkaz pro rádio (nahrávka v příloze).",
       attachments: [
         {
-          filename: audio.name || "vzkaz.m4a",
+          // Fixed name: the sender doesn't get to choose what the
+          // attachment is called (e.g. "faktura.exe").
+          filename: "vzkaz.m4a",
           content: base64,
         },
       ],

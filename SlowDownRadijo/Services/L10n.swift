@@ -91,6 +91,21 @@ enum L10n {
         }
     }
 
+    /// VoiceOver labels for the play/pause button.
+    static var playRadio: String {
+        switch lang {
+        case .cs: return "Pustit rádio"
+        case .en: return "Play radio"
+        }
+    }
+
+    static var pauseRadio: String {
+        switch lang {
+        case .cs: return "Pozastavit rádio"
+        case .en: return "Pause radio"
+        }
+    }
+
     static var coHralo: String {
         switch lang {
         case .cs: return "Co hrálo"
@@ -142,12 +157,6 @@ enum L10n {
         }
     }
 
-    static func next(_ showName: String) -> String {
-        switch lang {
-        case .cs: return "Následuje: \(showName)"
-        case .en: return "Next up: \(showName)"
-        }
-    }
 
     /// "1h 29 min" / "1h 29m"
     static func durationShort(hours: Int, minutes: Int) -> String {
@@ -223,6 +232,39 @@ enum L10n {
         switch lang {
         case .cs: return "Pro tento den nemáme program."
         case .en: return "We don't have a schedule for this day."
+        }
+    }
+
+    /// Heading for the compact schedule embedded on the home screen —
+    /// deliberately not `tabProgram` ("Program"), which named the
+    /// now-hidden standalone tab this section replaces.
+    static var homeProgramHeading: String {
+        switch lang {
+        case .cs: return "Pořady"
+        case .en: return "Shows"
+        }
+    }
+
+    /// Day picker's label for today's chip, in place of its weekday
+    /// abbreviation.
+    static var today: String {
+        switch lang {
+        case .cs: return "Dnes"
+        case .en: return "Today"
+        }
+    }
+
+    static func showPreviousShows(count: Int) -> String {
+        switch lang {
+        case .cs: return "Zobrazit předchozí pořady (\(count))"
+        case .en: return "Show previous shows (\(count))"
+        }
+    }
+
+    static var hidePreviousShows: String {
+        switch lang {
+        case .cs: return "Skrýt předchozí pořady"
+        case .en: return "Hide previous shows"
         }
     }
 
@@ -382,6 +424,13 @@ enum L10n {
         }
     }
 
+    static var sentBadge: String {
+        switch lang {
+        case .cs: return "ODESLÁNO"
+        case .en: return "SENT"
+        }
+    }
+
     static var messageRecorded: String {
         switch lang {
         case .cs: return "Vzkaz nahraný"
@@ -516,8 +565,8 @@ enum L10n {
 
     static var hubSettingsRowSubtitle: String {
         switch lang {
-        case .cs: return "Vzhled, jazyk"
-        case .en: return "Appearance, language"
+        case .cs: return "Přehrávání, statistiky, soukromí"
+        case .en: return "Playback, stats, privacy"
         }
     }
 
@@ -535,20 +584,6 @@ enum L10n {
         }
     }
 
-    static var hubNotificationsRow: String {
-        switch lang {
-        case .cs: return "Notifikace"
-        case .en: return "Notifications"
-        }
-    }
-
-    static var hubNotificationsRowSubtitle: String {
-        switch lang {
-        case .cs: return "Upozornění na nové novinky"
-        case .en: return "Alerts for new posts"
-        }
-    }
-
     static var hubFeedbackRow: String {
         switch lang {
         case .cs: return "Zpětná vazba"
@@ -560,6 +595,13 @@ enum L10n {
         switch lang {
         case .cs: return "Napiš nám, co si myslíš"
         case .en: return "Tell us what you think"
+        }
+    }
+
+    static var close: String {
+        switch lang {
+        case .cs: return "Zavřít"
+        case .en: return "Close"
         }
     }
 
@@ -707,34 +749,6 @@ enum L10n {
         }
     }
 
-    static var settingsAppearanceTitle: String {
-        switch lang {
-        case .cs: return "Vzhled"
-        case .en: return "Appearance"
-        }
-    }
-
-    static var settingsAppearanceSystem: String {
-        switch lang {
-        case .cs: return "Systém"
-        case .en: return "System"
-        }
-    }
-
-    static var settingsAppearanceLight: String {
-        switch lang {
-        case .cs: return "Světlý režim"
-        case .en: return "Light mode"
-        }
-    }
-
-    static var settingsAppearanceDark: String {
-        switch lang {
-        case .cs: return "Tmavý režim"
-        case .en: return "Dark mode"
-        }
-    }
-
     static var settingsLanguageTitle: String {
         switch lang {
         case .cs: return "Jazyk"
@@ -812,6 +826,323 @@ enum L10n {
         }
     }
 
+    static var settingsStatsTitle: String {
+        switch lang {
+        case .cs: return "Statistiky poslechu"
+        case .en: return "Listening stats"
+        }
+    }
+
+    static var settingsStatsDescription: String {
+        switch lang {
+        case .cs: return "Měříme jen čas, kdy rádio hraje, pod anonymním ID – bez jména a e-mailu. Díky tomu uvidíš své statistiky a své místo mezi posluchači."
+        case .en: return "We only measure how long the radio plays, under an anonymous ID – no name or e-mail. That's what powers your stats and your place among listeners."
+        }
+    }
+
+    static var settingsStatsDeleteTitle: String {
+        switch lang {
+        case .cs: return "Smazat moje statistiky"
+        case .en: return "Delete my stats"
+        }
+    }
+
+    static var settingsStatsDeleteDescription: String {
+        switch lang {
+        case .cs: return "Odstraní tvůj naměřený poslech z našeho serveru i z telefonu."
+        case .en: return "Removes your measured listening from our server and from this phone."
+        }
+    }
+
+    static var statsDeleteConfirmTitle: String {
+        switch lang {
+        case .cs: return "Smazat všechny tvoje statistiky?"
+        case .en: return "Delete all your stats?"
+        }
+    }
+
+    static var statsDeleteConfirmMessage: String {
+        switch lang {
+        case .cs: return "Nelze vrátit zpět. Měření případně začne znovu od nuly."
+        case .en: return "This can't be undone. If measuring is on, it starts again from zero."
+        }
+    }
+
+    static var statsDeleteConfirmAction: String {
+        switch lang {
+        case .cs: return "Smazat"
+        case .en: return "Delete"
+        }
+    }
+
+    static var statsDeleteCancel: String {
+        switch lang {
+        case .cs: return "Zrušit"
+        case .en: return "Cancel"
+        }
+    }
+
+    static var statsDeletedTitle: String {
+        switch lang {
+        case .cs: return "Statistiky smazány"
+        case .en: return "Stats deleted"
+        }
+    }
+
+    static var statsDeleteFailedTitle: String {
+        switch lang {
+        case .cs: return "Smazání se nepovedlo"
+        case .en: return "Couldn't delete"
+        }
+    }
+
+    static var statsDeleteFailedMessage: String {
+        switch lang {
+        case .cs: return "Zkus to znovu, až budeš připojený/á k internetu."
+        case .en: return "Try again when you're online."
+        }
+    }
+
+    // MARK: - Statistiky
+
+    static var tabStats: String {
+        switch lang {
+        case .cs: return "Statistiky"
+        case .en: return "Stats"
+        }
+    }
+
+    static var statsTitle: String {
+        switch lang {
+        case .cs: return "Statistiky"
+        case .en: return "Stats"
+        }
+    }
+
+    static var statsSubtitle: String {
+        switch lang {
+        case .cs: return "Tvůj čas s rádiem. Od dnešních minut až po místo mezi ostatními posluchači."
+        case .en: return "Your time with the radio. From today’s minutes to your place among the other listeners."
+        }
+    }
+
+    static var statsTotal: String {
+        switch lang {
+        case .cs: return "Celkem"
+        case .en: return "Total"
+        }
+    }
+
+    static var statsTodayDescription: String {
+        switch lang {
+        case .cs: return "Tolik času jsi dnes strávil/a poslechem Slow Down rádia v appce."
+        case .en: return "This is how long you listened to Slow Down Radio in the app today."
+        }
+    }
+
+    static var statsTotalDescription: String {
+        switch lang {
+        case .cs: return "Součet tvého zaznamenaného poslechu v appce napříč všemi dny."
+        case .en: return "The sum of your recorded listening in the app across all days."
+        }
+    }
+
+    static var statsCommunityTitle: String {
+        switch lang {
+        case .cs: return "Celkem všichni Slow Down Riders"
+        case .en: return "All Slow Down Riders combined"
+        }
+    }
+
+    static var statsCommunityDescription: String {
+        switch lang {
+        case .cs: return "Součet veškerého poslechu v appce napříč všemi dny od všech."
+        case .en: return "All listening in the app, across all days, from everyone."
+        }
+    }
+
+    static var statsLeaderboardTitle: String {
+        switch lang {
+        case .cs: return "Žebříček posluchačů"
+        case .en: return "Listener leaderboard"
+        }
+    }
+
+    static var statsLeaderboardScope: String {
+        switch lang {
+        case .cs: return "Žebříček posluchačů v appce"
+        case .en: return "Leaderboard of app listeners"
+        }
+    }
+
+    static var statsRankOf: String {
+        switch lang {
+        case .cs: return "z"
+        case .en: return "of"
+        }
+    }
+
+    static func statsLeaderboardDescription(count: String) -> String {
+        switch lang {
+        case .cs: return "Tvoje místo mezi \(count) posluchači podle zaznamenaného času poslechu v appce."
+        case .en: return "Your place among \(count) listeners, based on recorded listening time in the app."
+        }
+    }
+
+    static var statsEncouragement: String {
+        switch lang {
+        case .cs: return "Díky, že ladíš s námi. Tady nejde o závod, ale o společný čas s hudbou."
+        case .en: return "Thanks for tuning in with us. This isn’t a race — it’s time spent together with music."
+        }
+    }
+
+    static var statsTimelineTitle: String {
+        switch lang {
+        case .cs: return "Tvůj poslech v čase"
+        case .en: return "Your listening over time"
+        }
+    }
+
+    static var statsWeekCaption: String {
+        switch lang {
+        case .cs: return "za 7 dní"
+        case .en: return "last 7 days"
+        }
+    }
+
+    static var statsShowsTitle: String {
+        switch lang {
+        case .cs: return "Čas s jednotlivými pořady"
+        case .en: return "Time with each show"
+        }
+    }
+
+    static func statsShowsContext(total: String) -> String {
+        switch lang {
+        case .cs: return "Stejný týden · \(total)"
+        case .en: return "Same week · \(total)"
+        }
+    }
+
+    static var statsTopShowKicker: String {
+        switch lang {
+        case .cs: return "NEJVÍC POSLECHU"
+        case .en: return "MOST LISTENED"
+        }
+    }
+
+    static var statsExplainTitle: String {
+        switch lang {
+        case .cs: return "Co čísla znamenají?"
+        case .en: return "What do the numbers mean?"
+        }
+    }
+
+    static var statsExplainBody: String {
+        switch lang {
+        case .cs: return "Dnes je čas poslechu během dnešního dne. Celkem zahrnuje veškerý zaznamenaný poslech v appce; dnešní čas je jeho součástí."
+        case .en: return "Today is your listening time during today. Total includes all recorded listening in the app; today’s time is part of it."
+        }
+    }
+
+    static var statsPrivacyNote: String {
+        switch lang {
+        case .cs: return "Měříme jen čas poslechu pod anonymním ID. Vypnout to jde v nastavení."
+        case .en: return "We only measure listening time under an anonymous ID. You can turn it off in Settings."
+        }
+    }
+
+    static var statsUnknownShow: String {
+        switch lang {
+        case .cs: return "Mimo program"
+        case .en: return "Outside the schedule"
+        }
+    }
+
+    static var statsEmptyChart: String {
+        switch lang {
+        case .cs: return "Zatím tu nic není."
+        case .en: return "Nothing here yet."
+        }
+    }
+
+    static var statsEmptyShows: String {
+        switch lang {
+        case .cs: return "Až si něco poslechneš, uvidíš tu své oblíbené pořady."
+        case .en: return "Once you’ve listened to something, your favourite shows will show up here."
+        }
+    }
+
+    static var statsRankNoListening: String {
+        switch lang {
+        case .cs: return "Pusť si rádio a zjistíš, kde ses mezi posluchači ocitl/a."
+        case .en: return "Play the radio and you’ll see where you stand among the listeners."
+        }
+    }
+
+    static var statsRankNeedsMinute: String {
+        switch lang {
+        case .cs: return "Pořadí se ti ukáže po první minutě poslechu."
+        case .en: return "Your rank appears after your first minute of listening."
+        }
+    }
+
+    static var statsRankCalculating: String {
+        switch lang {
+        case .cs: return "Pořadí se právě počítá…"
+        case .en: return "Working out your rank…"
+        }
+    }
+
+    static var statsRankFailed: String {
+        switch lang {
+        case .cs: return "Pořadí se teď nepodařilo načíst."
+        case .en: return "Couldn’t load your rank right now."
+        }
+    }
+
+    static var statsLeaderboardLocked: String {
+        switch lang {
+        case .cs: return "Žebříček se objeví, jakmile se v appce sejde dost posluchačů. Do té doby tu máš svůj vlastní čas s rádiem."
+        case .en: return "The leaderboard appears once enough listeners have joined the app. Until then, here’s your own time with the radio."
+        }
+    }
+
+    static var statsRetry: String {
+        switch lang {
+        case .cs: return "Zkusit znovu"
+        case .en: return "Try again"
+        }
+    }
+
+    static var statsOfflineNote: String {
+        switch lang {
+        case .cs: return "Offline – pořadí se aktualizuje po připojení."
+        case .en: return "Offline – your rank updates once you’re back online."
+        }
+    }
+
+    static var statsDisabledMessage: String {
+        switch lang {
+        case .cs: return "Statistiky jsou vypnuté. Nic se neměří ani neukládá."
+        case .en: return "Stats are turned off. Nothing is measured or stored."
+        }
+    }
+
+    static var statsEnableAction: String {
+        switch lang {
+        case .cs: return "Zapnout"
+        case .en: return "Turn on"
+        }
+    }
+
+    static var statsHomeTitle: String {
+        switch lang {
+        case .cs: return "Tvoje statistiky poslechu"
+        case .en: return "Your listening stats"
+        }
+    }
+
     static var settingsPrivacyPolicy: String {
         switch lang {
         case .cs: return "Zásady ochrany osobních údajů"
@@ -872,13 +1203,6 @@ enum L10n {
     }
 
     // MARK: - Notifications
-
-    static var notificationsTitle: String {
-        switch lang {
-        case .cs: return "Notifikace"
-        case .en: return "Notifications"
-        }
-    }
 
     static var notificationsNewPostTitle: String {
         switch lang {

@@ -10,8 +10,7 @@ struct SocialLinksRow: View {
     @Environment(\.openURL) private var openURL
 
     var body: some View {
-        HStack(spacing: Theme.Spacing.lg) {
-            Spacer(minLength: 0)
+        HStack(spacing: Theme.Spacing.sm) {
             button(urlString: "https://www.youtube.com/@slowdownradijo", label: "YouTube") {
                 YouTubeGlyph()
             }
@@ -26,7 +25,6 @@ struct SocialLinksRow: View {
                 Text("f")
                     .font(.system(size: 20, weight: .bold, design: .rounded))
             }
-            Spacer(minLength: 0)
         }
     }
 
@@ -35,10 +33,11 @@ struct SocialLinksRow: View {
             guard let url = URL(string: urlString) else { return }
             openURL(url)
         } label: {
+            // The header pills' look, at a 44pt tap target.
             icon()
-                .foregroundStyle(Theme.lavender)
+                .foregroundStyle(Theme.textPrimary)
                 .frame(width: 44, height: 44)
-                .background(Theme.hairline(0.08), in: Circle())
+                .background(Theme.hairline(0.08), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
         .buttonStyle(.plain)
         .accessibilityLabel(label)

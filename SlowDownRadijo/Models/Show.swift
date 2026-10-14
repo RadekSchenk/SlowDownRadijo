@@ -18,9 +18,17 @@ struct Show: Codable, Identifiable, Hashable {
     /// Name of a bundled `Assets.xcassets` imageset (e.g. "HostDjPufaz"),
     /// not a remote URL — host photos ship inside the app.
     var hostImageName: String? = nil
+    /// The show's own title without the " s <host>" suffix `name` carries
+    /// (e.g. "Beat Brunch") — used where the host is shown on its own line.
+    var title: String? = nil
+    /// Short station-written description (Czech only — like show names,
+    /// station content isn't translated), at most two lines in the UI.
+    var summary: String? = nil
+
+    var displayTitle: String { title ?? name }
 
     private enum CodingKeys: String, CodingKey {
-        case id, name, start, end, imageURL, language, hostName, hostImageName
+        case id, name, start, end, imageURL, language, hostName, hostImageName, title, summary
     }
 }
 

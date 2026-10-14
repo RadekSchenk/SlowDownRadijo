@@ -1,9 +1,9 @@
 import SwiftUI
 
-/// One row per platform — icon, name, price, and a CTA button. The
-/// benefits themselves live once in `SupportView.benefitsSection` (every
-/// platform offers the same ones), so this stays a compact picker rather
-/// than repeating that list three times.
+/// One platform row — logo, name, price, and a CTA. Laid out like a row of
+/// the home screen's "Pořady" list (title + subtle detail line, 20pt
+/// vertical padding, dividers drawn by `SupportView`); the CTA uses the
+/// header's pill geometry filled with `Theme.liveRed`.
 struct SupportCardView: View {
     @ObservedObject private var loc = LocalizationManager.shared
 
@@ -17,32 +17,27 @@ struct SupportCardView: View {
                 .scaledToFit()
                 .frame(width: 32, height: 32)
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(option.name)
-                    .font(Theme.Typography.Manrope.bold(size: 18, relativeTo: .headline))
+                    .font(Theme.Typography.Manrope.extraBold(size: 21, relativeTo: .title3))
                     .foregroundStyle(Theme.textPrimary)
                 Text(option.price)
-                    .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
-                    .foregroundStyle(Theme.sunOrange)
+                    .font(Theme.Typography.Manrope.regular(size: 14, relativeTo: .subheadline))
+                    .foregroundStyle(Theme.subtleText)
             }
 
             Spacer(minLength: Theme.Spacing.sm)
 
             Button(action: action) {
                 Text(L10n.support)
-                    .font(Theme.Typography.Manrope.bold(size: 15, relativeTo: .subheadline))
+                    .font(Theme.Typography.Manrope.extraBold(size: 13, relativeTo: .caption))
                     .foregroundStyle(.white)
-                    .padding(.horizontal, Theme.Spacing.md)
-                    .padding(.vertical, Theme.Spacing.sm)
-                    .background(Theme.sunOrange, in: Capsule())
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(Theme.liveRed, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
             .buttonStyle(.plain)
         }
-        .padding(Theme.Spacing.lg)
-        .overlay(
-            RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
-                .strokeBorder(Theme.hairline(0.1), lineWidth: 1)
-                .allowsHitTesting(false)
-        )
+        .padding(.vertical, 20)
     }
 }

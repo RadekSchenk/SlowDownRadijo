@@ -50,12 +50,15 @@ struct SleepTimerButton: View {
             isShowingDialog = true
         } label: {
             HStack(spacing: 6) {
-                Image(systemName: "moon.zzz.fill")
-                    .font(.system(size: 14, weight: .semibold))
+                // Plain filled crescent — Figma's icon (node 12294:178)
+                // has no "zzz" sleep marks, confirmed by rendering it in
+                // isolation.
+                Image(systemName: "moon.fill")
+                    .font(.system(size: 14, weight: .bold))
                 Text(label)
-                    .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .footnote))
+                    .font(Theme.Typography.Manrope.bold(size: 16, relativeTo: .footnote))
             }
-            .foregroundStyle(Theme.lavender)
+            .foregroundStyle(Theme.textPrimary)
         }
         .buttonStyle(.plain)
         .onReceive(ticker) { now = $0 }

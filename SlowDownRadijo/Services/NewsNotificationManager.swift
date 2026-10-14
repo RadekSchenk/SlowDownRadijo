@@ -48,7 +48,7 @@ enum NewsNotificationManager {
     }
 
     /// Called both from the periodic check above and directly when the
-    /// user flips the toggle on in `NotificationsView`, so permission gets
+    /// user flips the toggle on in `NewsListView`, so permission gets
     /// asked for right away rather than waiting for the next new post.
     @discardableResult
     static func requestAuthorizationIfNeeded() async -> Bool {

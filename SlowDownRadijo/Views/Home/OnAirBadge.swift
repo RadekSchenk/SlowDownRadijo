@@ -7,13 +7,15 @@ struct OnAirBadge: View {
     private static let red = Color(hex: 0xD91F1F)
 
     @State private var pulse = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         HStack(spacing: 8) {
             Circle()
                 .fill(Self.red)
                 .frame(width: 10, height: 10)
-                .opacity(pulse ? 1 : 0.35)
+                // Reduce Motion: a steady, fully lit dot instead of the pulse.
+                .opacity(pulse || reduceMotion ? 1 : 0.35)
 
             Text(L10n.onAir)
                 .font(Theme.Typography.Manrope.extraBold(size: 14))
@@ -23,6 +25,7 @@ struct OnAirBadge: View {
         .padding(.vertical, 6)
         .background(Self.red.opacity(0.15), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
         .onAppear {
+            guard !reduceMotion else { return }
             withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
                 pulse = true
             }

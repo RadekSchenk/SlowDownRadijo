@@ -8,6 +8,15 @@ import Foundation
 /// **not** fetched live. Update `Resources/schedule.json` by re-running the
 /// scrape when the programme changes.
 final class ScheduleStore: ObservableObject {
+    /// The schedule's times are the station's own (Prague) local time, the
+    /// same zone `collect-now-playing` resolves shows in — not the phone's,
+    /// so a listener abroad still sees what is really on air.
+    static let stationCalendar: Calendar = {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Europe/Prague") ?? .current
+        return calendar
+    }()
+
     @Published private(set) var days: [ScheduleDay] = []
 
     init() {
@@ -33,7 +42,7 @@ final class ScheduleStore: ObservableObject {
     }
 
     /// Returns the show scheduled at `date`, if the schedule fully covers that slot.
-    func currentShow(at date: Date = Date(), calendar: Calendar = .current) -> Show? {
+    func currentShow(at date: Date = Date(), calendar: Calendar = ScheduleStore.stationCalendar) -> Show? {
         let weekday = calendar.component(.weekday, from: date)
         guard let day = day(for: weekday) else { return nil }
         let minutes = minuteOfDay(for: date, calendar: calendar)
@@ -48,13 +57,13 @@ final class ScheduleStore: ObservableObject {
 
     /// Resolves the show that was airing at an arbitrary past `date`, used to
     /// annotate "Co hrálo" history entries with the programme block they aired in.
-    func show(at date: Date, calendar: Calendar = .current) -> Show? {
+    func show(at date: Date, calendar: Calendar = ScheduleStore.stationCalendar) -> Show? {
         currentShow(at: date, calendar: calendar)
     }
 
     /// Fraction (0...1) of `show`'s scheduled block that has elapsed at `date`.
     /// Returns 0 if `show`'s times can't be parsed or the block has zero length.
-    func progress(for show: Show, at date: Date = Date(), calendar: Calendar = .current) -> Double {
+    func progress(for show: Show, at date: Date = Date(), calendar: Calendar = ScheduleStore.stationCalendar) -> Double {
         guard let start = Self.minutes(from: show.start),
               let rawEnd = Self.minutes(from: show.end) else { return 0 }
         let end = rawEnd == 0 ? 1440 : rawEnd
@@ -69,7 +78,7 @@ final class ScheduleStore: ObservableObject {
     }
 
     /// Whole minutes remaining in `show`'s scheduled block at `date`.
-    func remainingMinutes(for show: Show, at date: Date = Date(), calendar: Calendar = .current) -> Int {
+    func remainingMinutes(for show: Show, at date: Date = Date(), calendar: Calendar = ScheduleStore.stationCalendar) -> Int {
         guard let rawEnd = Self.minutes(from: show.end) else { return 0 }
         let end = rawEnd == 0 ? 1440 : rawEnd
         let endSeconds = end * 60
@@ -80,7 +89,7 @@ final class ScheduleStore: ObservableObject {
     /// The show scheduled immediately after `show` — the next block on the
     /// same day, or the following day's first block if `show` runs to
     /// midnight. `date` should be a moment within `show`'s own block.
-    func nextShow(after show: Show, from date: Date, calendar: Calendar = .current) -> Show? {
+    func nextShow(after show: Show, from date: Date, calendar: Calendar = ScheduleStore.stationCalendar) -> Show? {
         let weekday = calendar.component(.weekday, from: date)
         guard let scheduleDay = day(for: weekday) else { return nil }
 
@@ -98,7 +107,7 @@ final class ScheduleStore: ObservableObject {
     /// The absolute moment `show` ends, anchored to today's date (relative
     /// to `date`) — used by the sleep timer's "Konec pořadu" option. `nil`
     /// if `show.end` can't be parsed.
-    func endDate(for show: Show, relativeTo date: Date = Date(), calendar: Calendar = .current) -> Date? {
+    func endDate(for show: Show, relativeTo date: Date = Date(), calendar: Calendar = ScheduleStore.stationCalendar) -> Date? {
         guard let rawEnd = Self.minutes(from: show.end) else { return nil }
         let totalMinutes = rawEnd == 0 ? 1440 : rawEnd
         let startOfDay = calendar.startOfDay(for: date)

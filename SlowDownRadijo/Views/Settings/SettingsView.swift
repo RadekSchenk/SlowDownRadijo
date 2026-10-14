@@ -1,140 +1,127 @@
 import SwiftUI
 
-/// Pushed from the hamburger menu — the appearance picker plus an autoplay
-/// toggle. Language now lives back in `AppHeaderView` as a compact toggle
-/// next to the hamburger. Feedback moved to its own menu item
-/// (`FeedbackView`), always last in the menu.
+/// Pushed from the hamburger menu — the autoplay toggle, the listening-stats
+/// controls and the privacy policy, as a divider-separated list like the
+/// home screen's "Pořady".
+/// Language lives in `AppHeaderView`; feedback
+/// and the news-notification toggle have their own homes in the menu.
 struct SettingsView: View {
     @ObservedObject private var loc = LocalizationManager.shared
-    @ObservedObject private var appearanceManager = AppearanceManager.shared
     @AppStorage("autoplayEnabled") private var autoplayEnabled = true
+    @AppStorage(StatsConfig.enabledKey) private var statsEnabled = true
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) private var systemColorScheme
     @State private var isShowingPrivacyPolicy = false
+    @State private var isConfirmingStatsDeletion = false
+    @State private var statsAlert: StatsAlert?
 
-    // TODO: placeholder — point this at the real hosted page once
-    // PRIVACY_POLICY.md is published (see repo root).
-    private static let privacyPolicyURL = URL(string: "https://slowdownradijo.cz/ochrana-osobnich-udaju/")!
-
-    private var isEffectivelyDark: Bool {
-        switch appearanceManager.appearance {
-        case .system: return systemColorScheme == .dark
-        case .light: return false
-        case .dark: return true
-        }
+    private struct StatsAlert {
+        let title: String
+        var message: String?
     }
+
+    private static let privacyPolicyURL = URL(string: "https://slowdownradijo.cz/ochrana-osobnich-udaju/")!
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
                 BackHeaderView(title: L10n.settingsTitle, onBack: { dismiss() })
-                autoplaySection
-                appearanceSection
-                privacyPolicyRow
+
+                VStack(spacing: 0) {
+                    ListDivider()
+                    ListRow(title: L10n.settingsAutoplayTitle, subtitle: L10n.settingsAutoplayDescription) {
+                        Toggle("", isOn: $autoplayEnabled)
+                            .labelsHidden()
+                            .tint(Theme.liveRed)
+                    }
+
+                    ListDivider()
+                    ListRow(title: L10n.settingsStatsTitle, subtitle: L10n.settingsStatsDescription) {
+                        Toggle("", isOn: $statsEnabled)
+                            .labelsHidden()
+                            .tint(Theme.liveRed)
+                    }
+
+                    ListDivider()
+                    Button {
+                        isConfirmingStatsDeletion = true
+                    } label: {
+                        ListRow(title: L10n.settingsStatsDeleteTitle, subtitle: L10n.settingsStatsDeleteDescription) {
+                            EmptyView()
+                        }
+                    }
+                    .buttonStyle(.plain)
+
+                    ListDivider()
+                    Button {
+                        isShowingPrivacyPolicy = true
+                    } label: {
+                        ListRow(title: L10n.settingsPrivacyPolicy) {
+                            ListRowChevron()
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    ListDivider()
+                }
+
                 aboutFooter
+
+                #if DEBUG
+                Text("DEBUG · \(UserDefaults.standard.string(forKey: ListeningStatsStore.debugKey) ?? "no stats line yet")")
+                    .font(Theme.Typography.Manrope.regular(size: 11, relativeTo: .caption2))
+                    .foregroundStyle(Theme.subtleText)
+                #endif
             }
-            .padding(Theme.Spacing.md)
+            .padding(.horizontal, 20)
+            .padding(.top, 20)
+            .padding(.bottom, Theme.Spacing.xl)
         }
         .background(Theme.background.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: $isShowingPrivacyPolicy) {
             SafariView(url: Self.privacyPolicyURL)
         }
-    }
-
-    // MARK: - Autoplay
-
-    private var autoplaySection: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-            sectionHeader(L10n.settingsAutoplayTitle)
-
-            HStack(alignment: .center, spacing: Theme.Spacing.md) {
-                Text(L10n.settingsAutoplayDescription)
-                    .font(Theme.Typography.Manrope.regular(size: 13, relativeTo: .footnote))
-                    .foregroundStyle(Theme.lavender)
-
-                Spacer(minLength: Theme.Spacing.md)
-
-                Toggle("", isOn: $autoplayEnabled)
-                    .labelsHidden()
-                    .tint(Theme.sunOrange)
-            }
+        .onChange(of: statsEnabled) { _, _ in
+            ListeningTracker.shared.enabledPreferenceChanged()
         }
-    }
-
-    // MARK: - Appearance
-
-    private var appearanceSection: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-            sectionHeader(L10n.settingsAppearanceTitle)
-
-            HStack(spacing: Theme.Spacing.sm) {
-                appearanceOption(isDark: false, title: L10n.settingsAppearanceLight, icon: "sun.max.fill")
-                appearanceOption(isDark: true, title: L10n.settingsAppearanceDark, icon: "moon.fill")
+        .confirmationDialog(
+            L10n.statsDeleteConfirmTitle,
+            isPresented: $isConfirmingStatsDeletion,
+            titleVisibility: .visible
+        ) {
+            Button(L10n.statsDeleteConfirmAction, role: .destructive) {
+                Task {
+                    do {
+                        try await ListeningTracker.shared.deleteAllData()
+                        statsAlert = StatsAlert(title: L10n.statsDeletedTitle)
+                    } catch {
+                        statsAlert = StatsAlert(title: L10n.statsDeleteFailedTitle, message: L10n.statsDeleteFailedMessage)
+                    }
+                }
             }
+            Button(L10n.statsDeleteCancel, role: .cancel) {}
+        } message: {
+            Text(L10n.statsDeleteConfirmMessage)
         }
-    }
-
-    private func appearanceOption(isDark: Bool, title: String, icon: String) -> some View {
-        let isSelected = isEffectivelyDark == isDark
-        return Button {
-            appearanceManager.appearance = isDark ? .dark : .light
-        } label: {
-            VStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.system(size: 22, weight: .semibold))
-                Text(title)
-                    .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
-            }
-            .foregroundStyle(isSelected ? .white : Theme.textPrimary)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, Theme.Spacing.lg)
-            .background(
-                RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
-                    .fill(isSelected ? Theme.sunOrange : Color.clear)
+        .alert(
+            statsAlert?.title ?? "",
+            isPresented: Binding(
+                get: { statsAlert != nil },
+                set: { if !$0 { statsAlert = nil } }
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
-                    .strokeBorder(isSelected ? Color.clear : Theme.hairline(0.1), lineWidth: 1)
-            )
-        }
-        .buttonStyle(.plain)
-    }
-
-    // MARK: - Privacy policy
-
-    private var privacyPolicyRow: some View {
-        Button {
-            isShowingPrivacyPolicy = true
-        } label: {
-            HStack(spacing: Theme.Spacing.sm) {
-                Image(systemName: "hand.raised")
-                    .font(.system(size: 14, weight: .semibold))
-                Text(L10n.settingsPrivacyPolicy)
-                    .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
-                Spacer(minLength: 0)
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .semibold))
+        ) {
+            Button(L10n.ok, role: .cancel) {}
+        } message: {
+            if let message = statsAlert?.message {
+                Text(message)
             }
-            .foregroundStyle(Theme.textPrimary)
         }
-        .buttonStyle(.plain)
-    }
-
-    // MARK: - Shared bits
-
-    private func sectionHeader(_ title: String) -> some View {
-        Text(title)
-            .font(Theme.Typography.Manrope.bold(size: 18, relativeTo: .title3))
-            .foregroundStyle(Theme.textPrimary)
     }
 
     private var aboutFooter: some View {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "?"
         return Text(L10n.settingsAbout(version: version, build: build))
-            .font(Theme.Typography.Manrope.regular(size: 11, relativeTo: .caption2))
-            .foregroundStyle(Theme.lavender)
-            .frame(maxWidth: .infinity, alignment: .center)
+            .font(Theme.Typography.Manrope.regular(size: 14, relativeTo: .footnote))
+            .foregroundStyle(Theme.subtleText)
     }
 }

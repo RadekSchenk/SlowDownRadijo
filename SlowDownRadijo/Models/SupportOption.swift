@@ -7,9 +7,9 @@ struct SupportOption: Identifiable {
     /// suffix is appended via `price` from `L10n.perMonth` so it localizes.
     let amount: String
     let url: URL
-    /// Name of a theme-adaptive imageset in Assets.xcassets (light/dark
-    /// appearance variants of the platform's own brand mark), not an SF
-    /// Symbol — real logos read more trustworthy on a support/payment card.
+    /// Name of an imageset in Assets.xcassets holding the platform's own
+    /// brand mark (light-on-dark artwork), not an SF Symbol — real logos
+    /// read more trustworthy on a support/payment card.
     let logoAssetName: String
 
     var price: String { "\(amount)/\(L10n.perMonth)" }

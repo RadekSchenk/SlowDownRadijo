@@ -13,26 +13,37 @@ import UIKit
 /// is used sparingly as a secondary tint. Backgrounds follow the site's
 /// dark theme (`#101010` / `#111618`).
 enum Theme {
-    // Backgrounds — dark is the site's (and this app's) primary look, but
-    // every color adapts so the app still works correctly in Light Mode
-    // instead of forcing one appearance and ignoring the system setting.
-    // Dark value matches the "Co hrálo" card redesign's frame background
-    // (`#120e25`, updated 2026-08-23 from the earlier `#1a1535`) — reused
-    // as the one dark-mode background across the whole app rather than
-    // just that one screen.
-    static let background = Color.adaptive(light: 0xF5F5F7, dark: 0x120E25)
-    static let surface = Color.adaptive(light: 0xFFFFFF, dark: 0x1A1A1E)
-    static let surfaceElevated = Color.adaptive(light: 0xEDEDF2, dark: 0x222226)
+    // Backgrounds — the app is dark-only (there is no light mode and no
+    // appearance toggle; `UIUserInterfaceStyle` is pinned to Dark too).
+    // The page background matches the "Co hrálo" card redesign's frame
+    // background (`#120e25`, updated 2026-08-23 from the earlier `#1a1535`) —
+    // reused as the one background across the whole app rather than just
+    // that one screen.
+    static let background = Color(hex: 0x120E25)
+    static let surface = Color(hex: 0x1A1A1E)
+    static let surfaceElevated = Color(hex: 0x222226)
     /// The tab bar deliberately did **not** follow `background`'s
     /// 2026-08-23 update (`#1a1535` → `#120e25`) — Figma's `bottom-nav`
     /// spec still uses the old `#1a1535` for a subtle visual separation
     /// from the page content above it. Light-mode value matches
     /// `background`'s own light value, unchanged.
-    static let tabBarBackground = Color.adaptive(light: 0xF5F5F7, dark: 0x1A1535)
-    /// Same story as `tabBarBackground`: the unselected tab label/icon
-    /// color stayed at the old `lavender` dark value (`#b8afdc`) even
-    /// after `lavender` itself moved to `#8f89a9`.
-    static let tabBarUnselected = Color.adaptive(light: 0x5C4F8A, dark: 0xB8AFDC)
+    static let tabBarBackground = Color(hex: 0x1A1535)
+    /// Home screen's secondary text (`#b8afdc`) — "Pořad končí za…",
+    /// progress times, disclosure links, subtitles. Brighter than `lavender`.
+    static let mutedText = Color(hex: 0xB8AFDC)
+    /// Quieter tertiary text (`#a699b8`) — names/details under a row title.
+    static let subtleText = Color(hex: 0xA699B8)
+    /// Solid list-row divider (`#332b4d`).
+    static let divider = Color(hex: 0x332B4D)
+    /// Statistiky cards (`#1a1535` in Figma).
+    static let statsCard = Color(hex: 0x1A1535)
+    /// The smaller metric tiles on the home screen's stats block (`#241c3a`).
+    static let statsCardRaised = Color(hex: 0x241C3A)
+    /// Non-peak bars of the weekly chart (`#665781`).
+    static let statsBarMuted = Color(hex: 0x665781)
+    /// The unselected tab label/icon color stayed at the old `lavender`
+    /// dark value (`#b8afdc`) even after `lavender` itself moved to `#8f89a9`.
+    static let tabBarUnselected = mutedText
 
     // Brand
     /// Matches the Figma splash screen's background exactly (`#433785`) —
@@ -45,19 +56,18 @@ enum Theme {
     /// progress fill).
     static let sunOrange = Color(hex: 0xE8652B)
     static let sunRed = Color(hex: 0xE04A4F)
-    /// A second, distinct red — "live"/now-playing accent introduced by the
-    /// 2026-08-23 home-screen hero redesign (`#db304e`). Deliberately
-    /// scoped to now-playing-card surfaces only (`PlayButton`,
-    /// `ShowProgressBar`, `NowPlayingEqualizer`, `NowPlayingWaveform`) —
-    /// `sunOrange` remains the app-wide accent everywhere else (tab bar,
-    /// Settings, Vzkaz, Program, Support), so don't reach for this outside
-    /// the now-playing card without the design calling for it.
+    /// The action color (`#db304e`): play button, progress fill, selected
+    /// tab, and every primary control on Vzkaz and Podpora. `sunOrange` is
+    /// legacy — only screens not yet restyled to the home screen still use it.
     static let liveRed = Color(hex: 0xDB304E)
     /// Flat, muted fill for the *unplayed* portion of `NowPlayingWaveform`'s
-    /// bars (`#2a263b`) — distinct from `surfaceElevated`, which is
-    /// adaptive and reads too light against this specific dark waveform
-    /// context.
+    /// bars (`#2a263b`) — distinct from `surfaceElevated`, which reads too
+    /// light against this specific waveform context.
     static let waveformMuted = Color(hex: 0x2A263B)
+    /// The *unplayed* part of the home equalizer and the progress track under
+    /// it (`#b8afdc`) — bright enough to show that something is there. The
+    /// Vzkaz recording waveform still uses the darker `waveformMuted`.
+    static let equalizerUnplayed = Color(hex: 0xB8AFDC)
 
     static let accentGradient = LinearGradient(
         colors: [sunYellow, sunOrange, sunRed],
@@ -75,27 +85,24 @@ enum Theme {
 
     /// Muted lavender used for secondary text in the flat redesign — a
     /// tinted alternative to a plain white-opacity gray, giving text a
-    /// warmer, more "branded" look than generic gray would. Adaptive: the
-    /// original light purple-gray only reads against the dark background;
-    /// Light Mode gets a deeper plum instead of going near-invisible. Dark
-    /// value matches the "Co hrálo" card redesign's muted text (`#8f89a9`,
-    /// updated 2026-08-23 from the brighter `#b8afdc`).
-    static let lavender = Color.adaptive(light: 0x5C4F8A, dark: 0x8F89A9)
+    /// warmer, more "branded" look than generic gray would. Matches the
+    /// "Co hrálo" card redesign's muted text (`#8f89a9`, updated 2026-08-23
+    /// from the brighter `#b8afdc`).
+    static let lavender = Color(hex: 0x8F89A9)
     /// Warm gold used for small "not the main accent" highlights — the
     /// "PRÁVĚ HRAJE" kicker label and the Spotify CTA. Deliberately not
     /// Spotify's own green: the redesign keeps every accent in-house rather
-    /// than borrowing a third party's brand color. Adaptive for the same
-    /// reason as `lavender` above.
-    static let gold = Color.adaptive(light: 0x8A5E12, dark: 0xD4A24C)
+    /// than borrowing a third party's brand color.
+    static let gold = Color(hex: 0xD4A24C)
     /// A legible accent purple for text/icons/borders — distinct from
     /// `brandPurple`, which is a *fixed* color deliberately kept constant
     /// for the splash screen background and decorative glows, where it's
     /// never read as foreground text against a variable background. This
-    /// one adapts so it stays readable against `surface`/`background` in
-    /// both appearances. No longer used by the "Najít na Spotify" pill,
+    /// one is a lighter purple that stays readable against
+    /// `surface`/`background`. No longer used by the "Najít na Spotify" pill,
     /// which reverted to `spotifyGreen` as of the 2026-08-23 redesign —
     /// kept in case another screen needs a legible purple.
-    static let purpleAccent = Color.adaptive(light: 0x433785, dark: 0xA78BFA)
+    static let purpleAccent = Color(hex: 0xA78BFA)
 
     /// Spotify's brand green, used by the "Najít na Spotify" action chip
     /// (`TrackDetailsRow`) — a filled, 10%-opacity tint chip rather than
@@ -106,21 +113,18 @@ enum Theme {
     static let spotifyGreen = Color(hex: 0x00CA47)
 
     // Text
-    static let textPrimary = Color.adaptive(light: 0x101010, dark: 0xFFFFFF)
-    static let textSecondary = Color.adaptive(light: 0x101010, dark: 0xFFFFFF, opacity: 0.6)
-    static let textTertiary = Color.adaptive(light: 0x101010, dark: 0xFFFFFF, opacity: 0.4)
+    static let textPrimary = Color(hex: 0xFFFFFF)
+    static let textSecondary = Color(hex: 0xFFFFFF, alpha: 0.6)
+    static let textTertiary = Color(hex: 0xFFFFFF, alpha: 0.4)
 
     // Status
     static let statusError = Color(hex: 0xE04A4F)
     static let statusLive = Color(hex: 0xFAB817)
 
     /// Faint hairline overlay — card borders, unfilled progress tracks,
-    /// translucent pill backgrounds. Was hardcoded as `Color.white.opacity`
-    /// throughout the app, which reads as a barely-there highlight against
-    /// the dark background but nearly disappears in Light Mode; adapts the
-    /// same way `textPrimary` does so it stays visible either way.
+    /// translucent pill backgrounds: white at the given opacity.
     static func hairline(_ opacity: Double) -> Color {
-        Color.adaptive(light: 0x101010, dark: 0xFFFFFF, opacity: opacity)
+        Color.white.opacity(opacity)
     }
 
     enum Spacing {
@@ -152,6 +156,12 @@ enum Theme {
         /// rendering each file — Regular/Medium/SemiBold/Bold are visually
         /// distinct — so this isn't a case of four copies of one weight.
         enum Manrope {
+            /// Static wght-300 instance cut from Google Fonts' `Manrope[wght].ttf`
+            /// (same naming scheme as the other weights) — for Figma's big
+            /// thin numerals: programme times, day-picker dates.
+            static func light(size: CGFloat, relativeTo style: Font.TextStyle = .body) -> Font {
+                .custom("ManropeExtraLight-Light", size: size, relativeTo: style)
+            }
             static func regular(size: CGFloat, relativeTo style: Font.TextStyle = .body) -> Font {
                 .custom("ManropeExtraLight-Regular", size: size, relativeTo: style)
             }
@@ -183,6 +193,15 @@ enum Theme {
     }
 }
 
+extension View {
+    /// Matches a Figma fixed line height (e.g. 30pt text on a 38pt line) for
+    /// Manrope, whose natural line box is 1.366× the font size: trims or adds
+    /// the difference evenly above and below, the way CSS half-leading does.
+    func manropeLineHeight(_ lineHeight: CGFloat, fontSize: CGFloat) -> some View {
+        padding(.vertical, (lineHeight - fontSize * 1.366) / 2)
+    }
+}
+
 extension Color {
     init(hex: UInt32, alpha: Double = 1) {
         self.init(
@@ -192,19 +211,5 @@ extension Color {
             blue: Double(hex & 0xFF) / 255,
             opacity: alpha
         )
-    }
-
-    /// A color that switches between a light- and dark-mode hex value
-    /// depending on the current system appearance.
-    static func adaptive(light: UInt32, dark: UInt32, opacity: Double = 1) -> Color {
-        Color(UIColor { traits in
-            let hex = traits.userInterfaceStyle == .dark ? dark : light
-            return UIColor(
-                red: CGFloat((hex >> 16) & 0xFF) / 255,
-                green: CGFloat((hex >> 8) & 0xFF) / 255,
-                blue: CGFloat(hex & 0xFF) / 255,
-                alpha: opacity
-            )
-        })
     }
 }

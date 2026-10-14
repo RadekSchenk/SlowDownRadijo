@@ -17,15 +17,15 @@ struct NewsDetailView: View {
                 BackHeaderView(title: L10n.newsTitle, onBack: { dismiss() })
 
                 if let imageURL = post.featuredImageURL {
-                    RemoteArtworkView(url: imageURL, cornerRadius: Theme.Radius.card)
+                    RemoteArtworkView(url: imageURL, cornerRadius: 2)
                         .frame(maxWidth: .infinity)
                         .frame(height: 200)
                 }
 
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                     Text(L10n.formattedDate(post.date))
-                        .font(Theme.Typography.Manrope.semibold(size: 12, relativeTo: .footnote))
-                        .foregroundStyle(Theme.gold)
+                        .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .subheadline))
+                        .foregroundStyle(Theme.mutedText)
                     Text(post.title)
                         .font(Theme.Typography.Manrope.extraBold(size: 22, relativeTo: .title2))
                         .foregroundStyle(Theme.textPrimary)
@@ -37,7 +37,9 @@ struct NewsDetailView: View {
                     }
                 }
             }
-            .padding(Theme.Spacing.md)
+            .padding(.horizontal, 20)
+            .padding(.top, 20)
+            .padding(.bottom, Theme.Spacing.xl)
         }
         .background(Theme.background.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)
@@ -57,26 +59,14 @@ struct NewsDetailView: View {
                 .foregroundStyle(Theme.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
         case .image(let url):
-            RemoteArtworkView(url: url, cornerRadius: Theme.Radius.card)
+            RemoteArtworkView(url: url, cornerRadius: 2)
                 .frame(maxWidth: .infinity)
                 .frame(height: 200)
         case .videoEmbed(let url):
-            Button {
+            PrimaryActionButton(title: L10n.newsWatchVideo, systemImage: "play.fill") {
                 safariURL = url
                 isShowingSafari = true
-            } label: {
-                HStack(spacing: Theme.Spacing.sm) {
-                    Image(systemName: "play.circle.fill")
-                        .font(.system(size: 20))
-                    Text(L10n.newsWatchVideo)
-                        .font(Theme.Typography.Manrope.bold(size: 14, relativeTo: .subheadline))
-                }
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, Theme.Spacing.sm)
-                .background(Theme.sunOrange, in: Capsule())
             }
-            .buttonStyle(.plain)
         }
     }
 }
