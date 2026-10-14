@@ -22,7 +22,7 @@ struct AppHeaderView: View {
         HStack(spacing: Theme.Spacing.sm) {
             menuButton
             Spacer(minLength: 0)
-            OnAirBadge()
+            OnAirBadge(isFilled: false)
         }
         // Matches the Figma "app-header" frame's own auto-layout padding
         // (20 horizontal — already provided by every tab root's own outer
@@ -47,7 +47,9 @@ struct AppHeaderView: View {
             .padding(.leading, 12)
             .padding(.trailing, 10)
             .padding(.vertical, 8)
-            .background(Theme.hairline(0.08), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+            // No pill behind it any more (Figma); the padding stays as
+            // the tap area.
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityLabel(L10n.hubTitle)

@@ -7,6 +7,10 @@ import SwiftUI
 struct OnAirBadge: View {
     private static let red = Color(hex: 0xD91F1F)
 
+    /// The faint red pill behind it; the app header shows the dot and
+    /// label alone.
+    var isFilled = true
+
     @State private var pulse = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -24,7 +28,7 @@ struct OnAirBadge: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
-        .background(Self.red.opacity(0.15), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .background(Self.red.opacity(isFilled ? 0.15 : 0), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
         .onAppear {
             guard !reduceMotion else { return }
             withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
