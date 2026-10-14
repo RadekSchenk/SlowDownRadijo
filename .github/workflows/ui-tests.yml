@@ -60,7 +60,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             | tee xcodebuild.log | grep -E "error:|warning: .*RootTabView|Test Case|Executed|\*\* TEST|failed|passed" || true
           echo "::group::Test output"
-          sed -n "/Test Suite 'All tests' started/,\$p" xcodebuild.log | head -1500
+          grep -E "\[(uitest|bisect|state|tabbar)\]|error:|passed|failed" xcodebuild.log | grep -v "hierarchy" | head -300
           echo "::endgroup::"
           grep -q "\*\* TEST SUCCEEDED \*\*" xcodebuild.log
 
