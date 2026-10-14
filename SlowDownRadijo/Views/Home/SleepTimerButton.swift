@@ -90,8 +90,19 @@ struct SleepTimerButton: View {
             // Figma "Sleep timer" (node 12318:5226): text first, the moon
             // after it, 8pt apart.
             HStack(spacing: 8) {
-                Text(label)
-                    .font(Theme.Typography.Manrope.bold(size: 14, relativeTo: .subheadline))
+                if let fireDate = player.sleepTimerFireDate {
+                    // Counts down to the second; each digit that changes
+                    // pops in (library P9). Tabular digits keep the line
+                    // from twitching in width every second.
+                    PopNumberText(
+                        text: L10n.turnsOffIn(Self.remainingLabel(until: fireDate, now: now)),
+                        font: Self.labelFont.monospacedDigit(),
+                        color: Theme.textPrimary
+                    )
+                } else {
+                    Text(L10n.setSleepTimer)
+                        .font(Self.labelFont)
+                }
                 // Plain filled crescent, 15pt — Figma's icon has no "zzz"
                 // sleep marks.
                 Image(systemName: "moon.fill")
@@ -122,10 +133,7 @@ struct SleepTimerButton: View {
         .sensoryFeedback(.selection, trigger: choices)
     }
 
-    private var label: String {
-        guard let fireDate = player.sleepTimerFireDate else { return L10n.setSleepTimer }
-        return L10n.turnsOffIn(Self.remainingLabel(until: fireDate, now: now))
-    }
+    private static let labelFont = Theme.Typography.Manrope.bold(size: 14, relativeTo: .subheadline)
 
     private func apply(_ option: SleepTimerOption) {
         if let duration = option.duration {
@@ -140,11 +148,11 @@ struct SleepTimerButton: View {
         Analytics.shared.track(.sleepTimerSet(option: option.analyticsName))
     }
 
+    /// "9 min 56 s" — whole seconds, rounded up so it never reads "0 s"
+    /// while the radio still plays.
     static func remainingLabel(until fireDate: Date, now: Date) -> String {
-        let remaining = max(0, Int(fireDate.timeIntervalSince(now)))
-        let minutes = (remaining + 59) / 60
-        guard minutes >= 60 else { return L10n.minutesShort(minutes) }
-        return L10n.durationShort(hours: minutes / 60, minutes: minutes % 60)
+        let remaining = max(0, Int(fireDate.timeIntervalSince(now).rounded(.up)))
+        return L10n.countdown(hours: remaining / 3600, minutes: remaining % 3600 / 60, seconds: remaining % 60)
     }
 }
 
@@ -214,7 +222,7 @@ struct SleepTimerSheet: View {
                 TimelineView(.periodic(from: .now, by: 1)) { context in
                     PopNumberText(
                         text: L10n.turnsOffIn(SleepTimerButton.remainingLabel(until: fireDate, now: context.date)),
-                        font: Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline),
+                        font: Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline).monospacedDigit(),
                         color: Theme.liveRed
                     )
                 }
