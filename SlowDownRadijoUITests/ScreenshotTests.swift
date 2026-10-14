@@ -2,7 +2,7 @@ import XCTest
 
 /// Screens of the app at a given text size and language, as attachments —
 /// for checking layouts with large text and for App Store screenshots.
-/// Run by `.github/workflows/screenshots.yml`; skipped by the regular UI
+/// Run by the screenshots job in `.github/workflows/ui-tests.yml`; skipped by the regular UI
 /// tests. Settings come from the environment: `SCREENSHOT_TEXT_SIZE`
 /// (a `UIContentSizeCategory` raw value) and `SCREENSHOT_LANGUAGE` (cs/en).
 final class ScreenshotTests: XCTestCase {
