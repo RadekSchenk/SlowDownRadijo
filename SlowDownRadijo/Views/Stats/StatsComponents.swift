@@ -12,13 +12,21 @@ struct DurationText: View {
         let parts = StatsFormat.hoursAndMinutes(seconds: seconds)
         let gap = unitSize * 0.27 // the width of a space between number and unit
         HStack(alignment: .lastTextBaseline, spacing: 0) {
-            number(StatsFormat.number(parts.hours))
-            unit("h").padding(.horizontal, gap)
-            number("\(parts.minutes)")
-            unit("m").padding(.leading, gap)
+            if seconds > 0, seconds < 60 {
+                // The first minute is under way: "< 1 m", not a "0 h 0 m"
+                // that looks as if nothing is being counted.
+                unit("<").padding(.trailing, gap)
+                number("1")
+                unit("m").padding(.leading, gap)
+            } else {
+                number(StatsFormat.number(parts.hours))
+                unit("h").padding(.horizontal, gap)
+                number("\(parts.minutes)")
+                unit("m").padding(.leading, gap)
+            }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(parts.hours) h \(parts.minutes) m")
+        .accessibilityLabel(seconds > 0 && seconds < 60 ? L10n.statsUnderAMinute : "\(parts.hours) h \(parts.minutes) m")
     }
 
     /// The digits pop in when they change (library P9 — Number pop-in).
@@ -83,12 +91,21 @@ struct StatsMetricCard: View {
     let label: String
     let seconds: Int
     let description: String
+    /// Shows `ListeningDot` by the label (the "Dnes" card while counting).
+    var isLive = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(label)
-                .font(Theme.Typography.Manrope.bold(size: 14, relativeTo: .subheadline))
-                .foregroundStyle(Theme.mutedText)
+            HStack(spacing: 6) {
+                Text(label)
+                    .font(Theme.Typography.Manrope.bold(size: 14, relativeTo: .subheadline))
+                    .foregroundStyle(Theme.mutedText)
+                if isLive {
+                    ListeningDot()
+                        .transition(.opacity)
+                }
+            }
+            .animation(Motion.smoothOut(Motion.fast), value: isLive)
             DurationText(seconds: seconds, numberSize: 36, unitSize: 19, lineHeight: 44)
             StatsBodyText(description)
         }
@@ -291,5 +308,26 @@ struct ShowShareRow: View {
         }
         .padding(.vertical, 16)
         .accessibilityElement(children: .combine)
+    }
+}
+
+/// Small red dot pulsing like the ON-AIR badge's (`OnAirBadge`): listening
+/// is being counted right now. Steady with Reduce Motion.
+struct ListeningDot: View {
+    @State private var pulse = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        Circle()
+            .fill(Theme.liveRed)
+            .frame(width: 6, height: 6)
+            .opacity(pulse || reduceMotion ? 1 : 0.35)
+            .onAppear {
+                guard !reduceMotion else { return }
+                withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
+                    pulse = true
+                }
+            }
+            .accessibilityLabel(L10n.statsCountingNow)
     }
 }

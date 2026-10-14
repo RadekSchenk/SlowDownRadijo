@@ -54,7 +54,7 @@ struct StatsView: View {
             }
 
             if statsEnabled {
-                StatsMetricCard(label: L10n.today, seconds: summary.todaySeconds, description: L10n.statsTodayDescription)
+                StatsMetricCard(label: L10n.today, seconds: summary.todaySeconds, description: L10n.statsTodayDescription, isLive: stats.isMeasuring)
                 StatsMetricCard(label: L10n.statsTotal, seconds: summary.totalSeconds, description: L10n.statsTotalDescription)
                 // "Everyone together" and the leaderboard wait for a community.
                 if stats.communityUnlocked {

@@ -255,6 +255,22 @@ enum L10n {
         }
     }
 
+    /// VoiceOver for "< 1 m" in the stats.
+    static var statsUnderAMinute: String {
+        switch lang {
+        case .cs: return "méně než minuta"
+        case .en: return "less than a minute"
+        }
+    }
+
+    /// VoiceOver for the pulsing dot by "Dnes".
+    static var statsCountingNow: String {
+        switch lang {
+        case .cs: return "právě se počítá"
+        case .en: return "counting now"
+        }
+    }
+
     // MARK: - Show reminders
 
     /// Notification title when a followed show starts; the body is its name.

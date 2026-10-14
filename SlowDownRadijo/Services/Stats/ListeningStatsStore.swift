@@ -22,6 +22,8 @@ final class ListeningStatsStore: ObservableObject {
     /// The last attempt to reach the server failed (offline, server trouble).
     @Published private(set) var loadFailed = false
     @Published private(set) var isLoading = false
+    /// Listening is being counted right now — drives the live dot by "Dnes".
+    @Published private(set) var isMeasuring = false
 
     private static let snapshotKey = "stats.snapshot"
     private static let publicKey = "stats.publicStats"
@@ -44,6 +46,7 @@ final class ListeningStatsStore: ObservableObject {
         UserDefaults.standard.removeObject(forKey: "stats.available")
         snapshot = Self.loadCached(StatsSnapshot.self, key: Self.snapshotKey)
         publicStats = Self.loadCached(PublicStats.self, key: Self.publicKey)
+        isMeasuring = ListeningTracker.shared.isMeasuring
         recordDebug("start: cached public available=\(publicStats.map { "\($0.available)" } ?? "none"), snapshot available=\(snapshot.map { "\($0.available)" } ?? "none")")
 
         ListeningTracker.shared.events
@@ -58,6 +61,8 @@ final class ListeningStatsStore: ObservableObject {
                     Task { await self.refresh(force: true) }
                 case .deleted:
                     self.clearLocalCache()
+                case .measuringChanged:
+                    self.isMeasuring = ListeningTracker.shared.isMeasuring
                 }
             }
             .store(in: &cancellables)
