@@ -33,7 +33,7 @@ struct ShowProgressBar: View {
         }
     }
 
-    /// 5pt, 3pt corners, white at 10% with a `liveRed` fill. Its own track
+    /// 6pt, 3pt corners, white at 10% with a `liveRed` fill. Its own track
     /// rather than `ShowProgressTrack`, which the Pořady list still uses in
     /// its earlier style.
     ///
@@ -44,7 +44,7 @@ struct ShowProgressBar: View {
     /// Motion the fill just shows and the glow stays steady.
     private var track: some View {
         GeometryReader { proxy in
-            let fillWidth = max(5, proxy.size.width * (hasRisen ? progress : 0))
+            let fillWidth = max(6, proxy.size.width * (hasRisen ? progress : 0))
 
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: 3, style: .continuous)
@@ -66,7 +66,7 @@ struct ShowProgressBar: View {
             }
             .animation(Motion.smoothOut(0.6), value: progress)
         }
-        .frame(height: 5)
+        .frame(height: 6)
         .onAppear {
             if reduceMotion {
                 hasRisen = true
