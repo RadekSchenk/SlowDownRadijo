@@ -15,8 +15,6 @@ struct ShowProgressBar: View {
     /// False while off screen: coming back, the fill runs up from the
     /// start to where the show is now, once.
     @State private var hasRisen = false
-    /// The glow's breath, in step with the ON-AIR dot.
-    @State private var pulse = false
 
     /// Figma "Progress track": 6pt.
     private static let height: CGFloat = 6
@@ -59,18 +57,18 @@ struct ShowProgressBar: View {
             }
             .frame(height: Self.height)
             // An overlay, so the 12pt glow spills over the 6pt track
-            // instead of making it (and the gaps around it) taller.
+            // instead of making it (and the gaps around it) taller. Only
+            // there while playing: a hidden glow would keep pulsing, and a
+            // view that never stops animating keeps the app from ever
+            // going idle (UI tests time out on it).
             .overlay(alignment: .leading) {
-                Circle()
-                    .fill(Theme.liveRed)
-                    .frame(width: 12, height: 12)
-                    .blur(radius: 4)
-                    .opacity(pulse || reduceMotion ? 0.9 : 0.35)
-                    .opacity(isPlaying ? 1 : 0)
-                    .animation(.easeOut(duration: 0.3), value: isPlaying)
-                    .offset(x: fillWidth - 6)
-                    .allowsHitTesting(false)
+                if isPlaying {
+                    ProgressHeadGlow()
+                        .offset(x: fillWidth - 6)
+                        .transition(.opacity)
+                }
             }
+            .animation(.easeOut(duration: 0.3), value: isPlaying)
             .animation(Motion.smoothOut(0.6), value: progress)
         }
         .frame(height: Self.height)
@@ -82,13 +80,31 @@ struct ShowProgressBar: View {
             withAnimation(.easeOut(duration: 0.8).delay(0.15)) {
                 hasRisen = true
             }
-            withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
-                pulse = true
-            }
         }
         .onDisappear {
             hasRisen = false
-            pulse = false
         }
+    }
+}
+
+/// The soft red glow at the head of the progress fill, breathing in step
+/// with the ON-AIR dot; steady with Reduce Motion.
+private struct ProgressHeadGlow: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var pulse = false
+
+    var body: some View {
+        Circle()
+            .fill(Theme.liveRed)
+            .frame(width: 12, height: 12)
+            .blur(radius: 4)
+            .opacity(pulse || reduceMotion ? 0.9 : 0.35)
+            .allowsHitTesting(false)
+            .onAppear {
+                guard !reduceMotion else { return }
+                withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
+                    pulse = true
+                }
+            }
     }
 }
