@@ -7,11 +7,10 @@
 - ⬜ **Placený Apple Developer Program** (99 USD/rok). Nejlépe jako organizace
   Slow Down Radio s.r.o. (potřebuje D-U-N-S číslo, vyřízení trvá i 1–2 týdny),
   jinak na osobu. Na App Storu se pak jako prodejce zobrazí to jméno.
-- ⬜ **Zásady ochrany osobních údajů na webu.** Appka odkazuje na
-  `https://slowdownradijo.cz/ochrana-osobnich-udaju/` a ta stránka teď vrací 404.
-  Obsah je hotový v `PRIVACY_POLICY.md`; doplnit datum a vystavit na tuto adresu
-  (bez komentáře s Google Analytics na konci). Stejnou URL zadat do App Store
-  Connect.
+- ✅ **Zásady ochrany osobních údajů na webu** – vystavené 14. 10. 2026 na
+  `https://slowdownradijo.cz/ochrana-osobnich-udaju/` (appka odkazuje sem).
+  Stejnou URL zadat do App Store Connect (App Privacy ▸ Privacy Policy URL).
+  Při každé změně `PRIVACY_POLICY.md` poslat správci webu novou verzi.
 - ⬜ **Supportní URL** pro App Store Connect, např. `https://slowdownradijo.cz/kontakt/`
   nebo stránka s e-mailem.
 - ⬜ **Snímky obrazovky** iPhone 6,9" (1320 × 2868), stačí jedna sada, 3–10 kusů.
