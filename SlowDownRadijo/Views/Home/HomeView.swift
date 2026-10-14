@@ -148,11 +148,16 @@ struct HomeView: View {
             // Here only, the show's own title without " s <host>" ("Kurátorská
             // selekce", not "… s Philip TBC") — the host has its own line
             // below. Everywhere else keeps the full name.
-            Text(nowPlaying.currentShow?.displayTitle ?? nowPlaying.showName)
-                .font(Theme.Typography.Manrope.extraBold(size: 30, relativeTo: .title))
-                .foregroundStyle(Theme.textPrimary)
-                .multilineTextAlignment(.center)
-                .manropeLineHeight(36, fontSize: 30)
+            //
+            // A title that only just misses one line ("The Best of Slow
+            // Down" on a narrower iPhone or with larger text) steps down to
+            // 28 or 26pt to stay on it; longer ones wrap at the full 30pt.
+            ViewThatFits(in: .horizontal) {
+                showTitleText(size: 30).lineLimit(1)
+                showTitleText(size: 28).lineLimit(1)
+                showTitleText(size: 26).lineLimit(1)
+                showTitleText(size: 30)
+            }
 
             if let hostName = nowPlaying.currentShow?.hostName {
                 // Figma sets this line and the song in Inter; the app uses
@@ -171,6 +176,14 @@ struct HomeView: View {
         }
         .frame(maxWidth: .infinity)
         .animation(Motion.cardResize, value: nowPlaying.verifiedTrack)
+    }
+
+    private func showTitleText(size: CGFloat) -> some View {
+        Text(nowPlaying.currentShow?.displayTitle ?? nowPlaying.showName)
+            .font(Theme.Typography.Manrope.extraBold(size: size, relativeTo: .title))
+            .foregroundStyle(Theme.textPrimary)
+            .multilineTextAlignment(.center)
+            .manropeLineHeight(size * 1.2, fontSize: size)
     }
 
     /// The song playing now (only when `TrackTrust` vouches for it):
