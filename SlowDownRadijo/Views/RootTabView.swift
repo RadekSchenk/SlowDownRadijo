@@ -36,6 +36,8 @@ struct RootTabView: View {
     }
 
     @State private var selectedTab = 0
+    /// Pages built so far (see `tabPage`).
+    @State private var visitedTabs: Set<Int> = [0]
     /// `init()` isn't a safe place for the autoplay side effect — SwiftUI
     /// re-invokes it (e.g. when `AppRootView` re-renders as the splash
     /// dismisses), which previously spun up a second `RadioPlayerService`
@@ -84,60 +86,40 @@ struct RootTabView: View {
     }
 
     var body: some View {
-        TabView(selection: $selectedTab) {
-            NavigationStack {
+        // Our own tab container instead of `TabView`: the bottom bar is
+        // hand-built (Figma `bottom-nav`), and on iOS 26 a hidden system tab
+        // bar under it kept the highlight stuck on Rádio. Each page is built
+        // on its first visit and then kept alive (scroll position, state),
+        // only the selected one is shown.
+        ZStack {
+            tabPage(0) {
                 HomeView(
                     nowPlaying: nowPlayingViewModel,
                     history: historyViewModel,
                     scheduleStore: scheduleStore,
                     onOpenStats: { selectedTab = Self.statsTab }
                 )
-                .toolbar(.hidden, for: .navigationBar)
             }
-            .tag(0)
 
             if FeatureFlags.standaloneProgramTab {
-                NavigationStack {
-                    ProgramView(scheduleStore: scheduleStore)
-                        .toolbar(.hidden, for: .navigationBar)
-                }
-                .tag(1)
+                tabPage(1) { ProgramView(scheduleStore: scheduleStore) }
             }
 
             if FeatureFlags.nowPlayingHistoryAndFavorites {
-                NavigationStack {
-                    FavoritesView()
-                        .toolbar(.hidden, for: .navigationBar)
-                }
-                .tag(2)
+                tabPage(2) { FavoritesView() }
             }
 
-            NavigationStack {
+            tabPage(3) {
                 MessageView(viewModel: voiceMessageViewModel) {
                     selectedTab = 0
                 }
-                .toolbar(.hidden, for: .navigationBar)
             }
-            .tag(3)
 
-            NavigationStack {
-                SupportView()
-                    .toolbar(.hidden, for: .navigationBar)
-            }
-            .tag(4)
+            tabPage(4) { SupportView() }
 
-            NavigationStack {
-                StatsView()
-                    .toolbar(.hidden, for: .navigationBar)
-            }
-            .tag(Self.statsTab)
+            tabPage(Self.statsTab) { StatsView() }
         }
         .toastOverlay()
-        // The native tab bar centers/compresses its items instead of
-        // spreading them to Figma's `bottom-nav` spec (node 12294:257) —
-        // 60pt side margins, space-between across the full width — so it
-        // stays hidden and `bottomNav` below takes its place.
-        .toolbar(.hidden, for: .tabBar)
         .tint(Theme.liveRed)
         .safeAreaInset(edge: .bottom, spacing: 0) {
             bottomNav
@@ -176,13 +158,39 @@ struct RootTabView: View {
             }
         }
         .onChange(of: selectedTab) { _, tab in
+            let isFirstVisit = visitedTabs.insert(tab).inserted
             Analytics.shared.screen(Self.analyticsScreen(for: tab))
+            if tab == Self.statsTab {
+                Analytics.shared.track(.statsOpened(communityUnlocked: statsStore.communityUnlocked))
+                // The page refreshes itself when first built; it then stays
+                // alive, so later visits refresh from here.
+                if !isFirstVisit {
+                    Task { await statsStore.refreshAll() }
+                }
+            }
         }
     }
 
-    /// Hand-built replacement for `TabView`'s own tab bar chrome — see the
-    /// `.toolbar(.hidden, for: .tabBar)` comment above for why. Visible
-    /// tabs are hardcoded (not derived from the `TabView` content above):
+    /// One page of the tab container: built on its first visit, then kept
+    /// in the hierarchy and only shown while selected.
+    @ViewBuilder
+    private func tabPage<Content: View>(_ tag: Int, @ViewBuilder content: () -> Content) -> some View {
+        if visitedTabs.contains(tag) || selectedTab == tag {
+            let isSelected = selectedTab == tag
+            NavigationStack {
+                content()
+                    .toolbar(.hidden, for: .navigationBar)
+            }
+            .opacity(isSelected ? 1 : 0)
+            .allowsHitTesting(isSelected)
+            .accessibilityHidden(!isSelected)
+            .zIndex(isSelected ? 1 : 0)
+        }
+    }
+
+    /// The hand-built tab bar (Figma `bottom-nav`, node 12294:257: 40pt
+    /// side insets, tabs spread across the width). Visible tabs are
+    /// hardcoded (not derived from the pages above):
     /// Rádio, Vzkaz, Statistiky, Podpora. The two feature-flagged pages are
     /// kept out of the nav entirely, not just hidden from this bar.
     private var bottomNav: some View {

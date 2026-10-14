@@ -37,8 +37,9 @@ struct StatsView: View {
         .ignoresSafeArea(edges: .top)
         .background(Theme.background.ignoresSafeArea())
         .refreshable { await stats.refreshAll(force: true) }
+        // First visit; later visits refresh from `RootTabView`, which keeps
+        // the page alive between them.
         .task { await stats.refreshAll() }
-        .onAppear { Analytics.shared.track(.statsOpened(communityUnlocked: stats.communityUnlocked)) }
     }
 
     // MARK: - Overview
