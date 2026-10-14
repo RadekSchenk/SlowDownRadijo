@@ -147,7 +147,9 @@ jobs:
               -derivedDataPath DerivedData \
               -only-testing:SlowDownRadijoUITests/ScreenshotTests \
               -resultBundlePath "Result-$size.xcresult" \
-              CODE_SIGNING_ALLOWED=NO | tail -3 || true
+              CODE_SIGNING_ALLOWED=NO > "test-$size.log" 2>&1 || true
+            grep "\[overflow\]" "test-$size.log" | head -120 || true
+            tail -3 "test-$size.log"
             xcrun xcresulttool export attachments --path "Result-$size.xcresult" --output-path "shots/$size" || true
           done
 
