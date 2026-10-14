@@ -192,6 +192,14 @@ final class NowPlayingViewModel: ObservableObject {
     /// Re-run on every track change and every 20s, so a title that gets
     /// stuck disappears once it's older than `TrackTrust.maximumAge`.
     private func updateVerifiedTrack() {
+        #if DEBUG
+        // Screenshot tests: `-debugVerifiedTrack "Artist - Title"` shows a
+        // song line without waiting for one on the live stream.
+        if let forced = UserDefaults.standard.string(forKey: "debugVerifiedTrack") {
+            verifiedTrack = NowPlayingTrack.parse(streamTitle: forced)
+            return
+        }
+        #endif
         let now = Date()
         var trusted: NowPlayingTrack?
         if let track, TrackTrust.isRealSong(track, shows: allShows) {

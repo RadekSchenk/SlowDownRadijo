@@ -126,7 +126,7 @@ struct HomeView: View {
     private var nowPlayingHeader: some View {
         VStack(alignment: .leading, spacing: 0) {
             showTitle
-                .fadesOutUnderTopEdge()
+                .fadesOutUnderTopEdge(shrinkingTo: 0.8)
 
             // Figma: 12pt to the "Hlavička" frame, which starts with 16pt
             // of its own above the card.
@@ -156,33 +156,13 @@ struct HomeView: View {
                 .manropeLineHeight(36, fontSize: 30)
 
             if let hostName = nowPlaying.currentShow?.hostName {
-                // Figma sets this line in Inter; the app uses Manrope
-                // throughout (see `Theme.Typography`). The divider under it
-                // is exactly as wide as this line: it's drawn in the text's
-                // own bounds, 10pt below it. (Not `fixedSize`, which kept a
-                // long line from wrapping at large text sizes and pushed the
-                // page wider than the screen.)
-                let showsDivider = nowPlaying.verifiedTrack != nil
+                // Figma sets this line and the song in Inter; the app uses
+                // Manrope throughout (see `Theme.Typography`).
                 Text("\(L10n.hostedByKicker) \(hostName)")
                     .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .callout))
                     .foregroundStyle(Theme.mutedText)
                     .multilineTextAlignment(.center)
                     .manropeLineHeight(22.4, fontSize: 16)
-                    .padding(.bottom, showsDivider ? 11 : 0)
-                    .overlay(alignment: .bottom) {
-                        if showsDivider {
-                            Rectangle()
-                                .fill(Theme.divider)
-                                .frame(height: 1)
-                                .transition(.opacity)
-                        }
-                    }
-            } else if nowPlaying.verifiedTrack != nil {
-                // No host line to measure: Figma's own 144pt.
-                Rectangle()
-                    .fill(Theme.divider)
-                    .frame(width: 144, height: 1)
-                    .transition(.opacity)
             }
 
             if let track = nowPlaying.verifiedTrack {

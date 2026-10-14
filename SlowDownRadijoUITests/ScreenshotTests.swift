@@ -16,6 +16,8 @@ final class ScreenshotTests: XCTestCase {
             "-autoplayEnabled", "NO",
             "-app.language", language,
             "-UIPreferredContentSizeCategoryName", textSize,
+            // A long song line, to check that it wraps within the screen.
+            "-debugVerifiedTrack", "Anderson .Paak & Cordae feat. Leon Bridges - A Good Day (Extended Version, Remastered 2024)",
         ]
         app.launch()
         XCTAssertTrue(app.buttons["tab.0"].waitForExistence(timeout: 60))
