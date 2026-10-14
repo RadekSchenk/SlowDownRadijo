@@ -16,13 +16,6 @@ enum L10n {
 
     // MARK: - Shared
 
-    static var tagline: String {
-        switch lang {
-        case .cs: return "Tohle algoritmus neumí"
-        case .en: return "This, algorithms can't do"
-        }
-    }
-
     static var ok: String { "OK" }
 
     // MARK: - Tab bar / page titles
