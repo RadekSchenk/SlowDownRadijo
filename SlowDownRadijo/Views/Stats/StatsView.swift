@@ -38,6 +38,7 @@ struct StatsView: View {
         .background(Theme.background.ignoresSafeArea())
         .refreshable { await stats.refreshAll(force: true) }
         .task { await stats.refreshAll() }
+        .onAppear { Analytics.shared.track(.statsOpened(communityUnlocked: stats.communityUnlocked)) }
     }
 
     // MARK: - Overview

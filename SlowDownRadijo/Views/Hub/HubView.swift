@@ -25,6 +25,7 @@ struct HubView: View {
                         // this channel heavily on-air.
                         ListDivider()
                         Button {
+                            Analytics.shared.track(.linkOpened(target: "whatsapp"))
                             openURL(Self.whatsAppURL)
                         } label: {
                             row(icon: "message.fill", title: L10n.hubWhatsAppRow, subtitle: L10n.hubWhatsAppRowSubtitle)
@@ -65,6 +66,7 @@ struct HubView: View {
             }
             .background(Theme.background.ignoresSafeArea())
             .toolbar(.hidden, for: .navigationBar)
+            .onAppear { Analytics.shared.screen(.menu) }
         }
         // Toasts from screens pushed in the menu (Settings ▸ show reminders).
         .toastOverlay()

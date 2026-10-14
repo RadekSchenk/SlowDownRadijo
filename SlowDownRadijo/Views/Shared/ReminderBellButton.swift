@@ -52,12 +52,14 @@ struct ReminderBellButton: View {
         let outcome = await reminders.toggle(show)
         switch outcome {
         case .enabled:
+            Analytics.shared.track(.showReminderChanged(showID: show.id, isOn: true, source: "bell"))
             if !reduceMotion { ringCount += 1 }
             ToastCenter.shared.show(.init(
                 systemImage: "bell.fill",
                 message: L10n.reminderOnToast(show: show.displayTitle, next: reminders.nextAiringLabel(for: show))
             ))
         case .disabled:
+            Analytics.shared.track(.showReminderChanged(showID: show.id, isOn: false, source: "bell"))
             ToastCenter.shared.show(.init(
                 systemImage: "bell.slash",
                 message: L10n.reminderOffToast(show: show.displayTitle)

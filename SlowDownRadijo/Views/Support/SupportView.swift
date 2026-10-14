@@ -78,6 +78,7 @@ struct SupportView: View {
                 ForEach(SupportOption.all) { option in
                     ListDivider()
                     SupportCardView(option: option) {
+                        Analytics.shared.track(.supportLinkOpened(platform: option.id))
                         safariURL = option.url
                         isShowingSafari = true
                     }

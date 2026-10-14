@@ -52,6 +52,7 @@ final class NowPlayingViewModel: ObservableObject {
     private var lastServerCheck = Date.distantPast
     private var serverCheckTask: Task<Void, Never>?
     private lazy var allShows: [Show] = scheduleStore.days.flatMap(\.shows)
+    private var playbackAnalytics: PlaybackAnalytics?
 
     init(
         player: RadioPlayerService,
@@ -68,6 +69,10 @@ final class NowPlayingViewModel: ObservableObject {
         // at each tick. Every way of playing goes through `player.state`, so
         // this one hook covers the lock screen, headphones and CarPlay too.
         ListeningTracker.shared.configure { [weak scheduleStore] in
+            scheduleStore?.currentShow()?.id
+        }
+
+        playbackAnalytics = PlaybackAnalytics(player: player) { [weak scheduleStore] in
             scheduleStore?.currentShow()?.id
         }
 

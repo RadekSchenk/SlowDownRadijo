@@ -998,6 +998,48 @@ enum L10n {
         }
     }
 
+    static var settingsAnalyticsTitle: String {
+        switch lang {
+        case .cs: return "Anonymní měření používání"
+        case .en: return "Anonymous usage analytics"
+        }
+    }
+
+    static var settingsAnalyticsDescription: String {
+        switch lang {
+        case .cs: return "Pomáhá nám zjistit, které části appky se používají a co zlepšit. Bez jména, e-mailu a reklamních ID."
+        case .en: return "Helps us see which parts of the app get used and what to improve. No name, e-mail or advertising IDs."
+        }
+    }
+
+    static var analyticsConsentTitle: String {
+        switch lang {
+        case .cs: return "Pomůžeš nám appku vylepšovat?"
+        case .en: return "Help us make the app better?"
+        }
+    }
+
+    static var analyticsConsentBody: String {
+        switch lang {
+        case .cs: return "Rádi bychom anonymně měřili, které funkce používáš. Žádné jméno, e-mail ani reklama. Volbu můžeš kdykoli změnit v Nastavení."
+        case .en: return "We'd like to anonymously measure which features you use. No name, e-mail or ads. You can change this any time in Settings."
+        }
+    }
+
+    static var analyticsConsentAllow: String {
+        switch lang {
+        case .cs: return "Povolit"
+        case .en: return "Allow"
+        }
+    }
+
+    static var analyticsConsentDecline: String {
+        switch lang {
+        case .cs: return "Ne, díky"
+        case .en: return "No, thanks"
+        }
+    }
+
     static var settingsStatsDeleteTitle: String {
         switch lang {
         case .cs: return "Smazat moje statistiky"

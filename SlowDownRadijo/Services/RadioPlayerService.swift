@@ -24,6 +24,19 @@ final class RadioPlayerService: NSObject, ObservableObject {
     static let streamURL = URL(string: "https://icecast5.play.cz/slowdown.aac")!
 
     @Published private(set) var state: PlaybackState = .idle
+
+    /// What last started playback, and what last stopped it — read by
+    /// `PlaybackAnalytics` when the state changes.
+    enum PlayTrigger: String {
+        case user, autoplay, lockScreen = "lock_screen", notification, resume, preview
+    }
+
+    enum StopReason: String {
+        case user, sleepTimer = "sleep_timer", interruption, headphones, voiceMessage = "voice_message", preview
+    }
+
+    private(set) var lastPlayTrigger: PlayTrigger = .user
+    private(set) var lastStopReason: StopReason = .user
     /// When set, playback will automatically pause at this moment — the
     /// "sleep timer" feature. `nil` means no timer is scheduled.
     @Published private(set) var sleepTimerFireDate: Date?
@@ -100,25 +113,27 @@ final class RadioPlayerService: NSObject, ObservableObject {
 
     // MARK: - Public API
 
-    func togglePlayPause() {
+    func togglePlayPause(trigger: PlayTrigger = .user) {
         switch state {
         case .playing:
             pause()
         case .idle, .paused, .error:
-            play()
+            play(trigger: trigger)
         case .connecting:
             break
         }
     }
 
-    func play() {
+    func play(trigger: PlayTrigger = .user) {
+        lastPlayTrigger = trigger
         wasPlayingBeforeInterruption = false
         cancelReconnect()
         reconnectAttempt = 0
         startPlayback()
     }
 
-    func pause() {
+    func pause(reason: StopReason = .user) {
+        lastStopReason = reason
         wasPlayingBeforeInterruption = false
         // A reconnect scheduled after a dropout must not restart the stream
         // the listener (or the sleep timer) just paused.
@@ -149,14 +164,14 @@ final class RadioPlayerService: NSObject, ObservableObject {
         sleepTimer?.invalidate()
         let interval = fireDate.timeIntervalSinceNow
         guard interval > 0 else {
-            pause()
+            pause(reason: .sleepTimer)
             sleepTimerFireDate = nil
             return
         }
         sleepTimerFireDate = fireDate
         sleepTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
             Task { @MainActor [weak self] in
-                self?.pause()
+                self?.pause(reason: .sleepTimer)
                 self?.sleepTimerFireDate = nil
             }
         }
@@ -293,7 +308,7 @@ final class RadioPlayerService: NSObject, ObservableObject {
               AVAudioSession.RouteChangeReason(rawValue: rawReason) == .oldDeviceUnavailable else { return }
         DispatchQueue.main.async { [weak self] in
             guard let self, self.state == .playing || self.state == .connecting else { return }
-            self.pause()
+            self.pause(reason: .headphones)
         }
     }
 
@@ -326,13 +341,13 @@ final class RadioPlayerService: NSObject, ObservableObject {
             switch type {
             case .began:
                 guard self.state == .playing || self.state == .connecting else { return }
-                self.pause()
+                self.pause(reason: .interruption)
                 self.wasPlayingBeforeInterruption = true
             case .ended:
                 guard self.wasPlayingBeforeInterruption else { return }
                 self.wasPlayingBeforeInterruption = false
                 if shouldResume {
-                    self.play()
+                    self.play(trigger: .resume)
                 }
             @unknown default:
                 break
@@ -401,7 +416,7 @@ final class RadioPlayerService: NSObject, ObservableObject {
         let commandCenter = MPRemoteCommandCenter.shared()
 
         commandCenter.playCommand.addTarget { [weak self] _ in
-            self?.play()
+            self?.play(trigger: .lockScreen)
             return .success
         }
         commandCenter.pauseCommand.addTarget { [weak self] _ in
@@ -409,7 +424,7 @@ final class RadioPlayerService: NSObject, ObservableObject {
             return .success
         }
         commandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
-            self?.togglePlayPause()
+            self?.togglePlayPause(trigger: .lockScreen)
             return .success
         }
         commandCenter.nextTrackCommand.isEnabled = false

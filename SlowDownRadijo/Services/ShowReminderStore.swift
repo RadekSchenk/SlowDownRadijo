@@ -34,6 +34,8 @@ final class ShowReminderStore: ObservableObject {
 
     @Published private(set) var followedIDs: Set<String>
     @Published var openRequest: OpenRequest?
+    /// The show whose notification was tapped (for analytics).
+    var openedShowID: String?
 
     nonisolated static let categoryID = "SHOW_START"
     nonisolated static let listenActionID = "LISTEN"

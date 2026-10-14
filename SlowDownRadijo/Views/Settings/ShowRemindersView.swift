@@ -55,6 +55,7 @@ struct ShowRemindersView: View {
         .background(Theme.background.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)
         .task { await refreshAuthorization() }
+        .onAppear { Analytics.shared.screen(.showReminders) }
         .onChange(of: scenePhase) { _, phase in
             // Back from the iOS settings.
             if phase == .active { Task { await refreshAuthorization() } }
@@ -66,9 +67,12 @@ struct ShowRemindersView: View {
             get: { reminders.isFollowing(show) },
             set: { follow in
                 Task {
-                    if await reminders.setFollowing(show, follow) == .notAllowed {
+                    let outcome = await reminders.setFollowing(show, follow)
+                    if outcome == .notAllowed {
                         notificationsBlocked = true
                         ToastCenter.shared.show(.notificationsBlocked)
+                    } else {
+                        Analytics.shared.track(.showReminderChanged(showID: show.id, isOn: follow, source: "settings"))
                     }
                 }
             }

@@ -5,6 +5,19 @@ enum SleepTimerOption: CaseIterable, Identifiable {
 
     var id: Self { self }
 
+    /// How the option appears in analytics.
+    var analyticsName: String {
+        switch self {
+        case .min5: return "5m"
+        case .min10: return "10m"
+        case .min15: return "15m"
+        case .min30: return "30m"
+        case .min45: return "45m"
+        case .hour1: return "60m"
+        case .endOfShow: return "end_of_show"
+        }
+    }
+
     /// Spoken label (VoiceOver), e.g. "15 minut".
     var label: String {
         switch self {
@@ -117,6 +130,7 @@ struct SleepTimerButton: View {
             return
         }
         activeOption = option
+        Analytics.shared.track(.sleepTimerSet(option: option.analyticsName))
     }
 
     static func remainingLabel(until fireDate: Date, now: Date) -> String {

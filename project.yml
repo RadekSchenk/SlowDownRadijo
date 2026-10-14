@@ -5,6 +5,13 @@ options:
     iOS: "17.0"
   createIntermediateGroups: true
 
+packages:
+  # Product analytics (EU cloud), only after the listener agrees — see
+  # SlowDownRadijo/Services/Analytics/Analytics.swift.
+  PostHog:
+    url: https://github.com/PostHog/posthog-ios
+    from: 3.92.0
+
 settings:
   base:
     SWIFT_VERSION: "5.0"
@@ -54,6 +61,7 @@ targets:
     dependencies:
       - target: SlowDownRadijoWidgetExtension
         embed: true
+      - package: PostHog
 
   # Home Screen widget — small/medium "what's on now" tile. Self-contained,
   # no App Group: it reads its own bundled copy of schedule.json and makes

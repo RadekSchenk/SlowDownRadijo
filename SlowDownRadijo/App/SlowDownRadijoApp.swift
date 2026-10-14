@@ -5,6 +5,7 @@ struct SlowDownRadijoApp: App {
     init() {
         NewsNotificationManager.configureForegroundPresentation()
         ShowReminderStore.registerNotificationCategory()
+        Analytics.shared.configure()
     }
 
     var body: some Scene {

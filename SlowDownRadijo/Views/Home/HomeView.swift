@@ -12,6 +12,7 @@ struct HomeView: View {
     @EnvironmentObject private var favorites: FavoriteTrackStore
     @EnvironmentObject private var previewPlayer: PreviewPlayerService
     @Environment(\.openURL) private var openURL
+    @ObservedObject private var analytics = Analytics.shared
     @AppStorage(StatsConfig.enabledKey) private var statsEnabled = true
     /// Tapping the stats block jumps to the Statistiky tab.
     var onOpenStats: () -> Void = {}
@@ -35,6 +36,16 @@ struct HomeView: View {
                 if statsEnabled {
                     StatsHomeBlock(onOpen: onOpenStats)
                         .padding(.top, Theme.Spacing.xl)
+                }
+
+                if analytics.shouldAskForConsent {
+                    AnalyticsConsentCard { granted in
+                        withAnimation(Motion.cardResize) {
+                            analytics.setConsent(granted)
+                        }
+                    }
+                    .padding(.top, Theme.Spacing.xl)
+                    .transition(.reveal)
                 }
 
                 HomeProgramSection(scheduleStore: scheduleStore, currentShow: nowPlaying.currentShow)
@@ -154,7 +165,10 @@ struct HomeView: View {
     /// mark both open a Spotify search for artist + title.
     private func nowPlayingTrackLink(_ track: NowPlayingTrack) -> some View {
         Button {
-            if let url = track.spotifySearchURL { openURL(url) }
+            if let url = track.spotifySearchURL {
+                Analytics.shared.track(.spotifyOpened(showID: nowPlaying.currentShow?.id))
+                openURL(url)
+            }
         } label: {
             HStack(spacing: 8) {
                 Text("\(track.artist) – \(track.title)")

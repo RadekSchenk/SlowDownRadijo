@@ -90,7 +90,9 @@ enum NewsNotificationManager {
         ) async {
             guard response.notification.request.content.categoryIdentifier == ShowReminderStore.categoryID else { return }
             let listen = response.actionIdentifier == ShowReminderStore.listenActionID
+            let showID = response.notification.request.content.userInfo["showID"] as? String
             await MainActor.run {
+                ShowReminderStore.shared.openedShowID = showID
                 ShowReminderStore.shared.openRequest = listen ? .listen : .open
             }
         }

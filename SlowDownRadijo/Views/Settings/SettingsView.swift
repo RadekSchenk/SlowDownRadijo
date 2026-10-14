@@ -8,6 +8,7 @@ import SwiftUI
 struct SettingsView: View {
     @ObservedObject private var loc = LocalizationManager.shared
     @ObservedObject private var reminders = ShowReminderStore.shared
+    @ObservedObject private var analytics = Analytics.shared
     @AppStorage("autoplayEnabled") private var autoplayEnabled = true
     @AppStorage(StatsConfig.enabledKey) private var statsEnabled = true
     @Environment(\.dismiss) private var dismiss
@@ -56,6 +57,16 @@ struct SettingsView: View {
                     }
 
                     ListDivider()
+                    ListRow(title: L10n.settingsAnalyticsTitle, subtitle: L10n.settingsAnalyticsDescription) {
+                        Toggle("", isOn: Binding(
+                            get: { analytics.isEnabled },
+                            set: { analytics.setConsent($0) }
+                        ))
+                        .labelsHidden()
+                        .tint(Theme.liveRed)
+                    }
+
+                    ListDivider()
                     Button {
                         isConfirmingStatsDeletion = true
                     } label: {
@@ -91,6 +102,7 @@ struct SettingsView: View {
         }
         .background(Theme.background.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)
+        .onAppear { Analytics.shared.screen(.settings) }
         .sheet(isPresented: $isShowingPrivacyPolicy) {
             SafariView(url: Self.privacyPolicyURL)
         }

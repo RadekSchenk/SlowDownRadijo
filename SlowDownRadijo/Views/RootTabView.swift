@@ -151,7 +151,7 @@ struct RootTabView: View {
             if !hasAutoplayed {
                 hasAutoplayed = true
                 if autoplayEnabled {
-                    player.play()
+                    player.play(trigger: .autoplay)
                 }
             }
             if !hasCheckedNewsNotifications {
@@ -159,15 +159,23 @@ struct RootTabView: View {
                 Task { await NewsNotificationManager.checkForNewPost() }
             }
             ShowReminderStore.shared.reschedule()
+            Analytics.shared.screen(.home)
         }
         // A tap on a "Právě začíná" notification: home, and the radio for
         // "Poslouchat".
         .onReceive(ShowReminderStore.shared.$openRequest.compactMap { $0 }) { request in
             selectedTab = 0
+            Analytics.shared.track(.showNotificationOpened(
+                showID: ShowReminderStore.shared.openedShowID,
+                listen: request == .listen
+            ))
             if request == .listen, player.state != .playing {
-                player.play()
+                player.play(trigger: .notification)
             }
             ShowReminderStore.shared.openRequest = nil
+        }
+        .onChange(of: selectedTab) { _, tab in
+            Analytics.shared.screen(Self.analyticsScreen(for: tab))
         }
     }
 
@@ -205,6 +213,15 @@ struct RootTabView: View {
         // reach into the safe area, the background below fills the rest.
         .padding(.bottom, bottomSafeInset > 0 ? Self.homeIndicatorZone - bottomSafeInset : 0)
         .background(Theme.tabBarBackground.ignoresSafeArea(edges: .bottom))
+    }
+
+    private static func analyticsScreen(for tab: Int) -> AnalyticsScreen {
+        switch tab {
+        case 3: return .message
+        case 4: return .support
+        case statsTab: return .stats
+        default: return .home
+        }
     }
 
     private func tabBarButton(tag: Int, title: String, image: String) -> some View {

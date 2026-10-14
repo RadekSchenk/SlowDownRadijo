@@ -36,6 +36,7 @@ struct AppHeaderView: View {
 
             Button {
                 loc.language = loc.language == .cs ? .en : .cs
+                Analytics.shared.track(.languageChanged(to: loc.language.rawValue))
             } label: {
                 Text(languagePillLabel)
                     .font(Theme.Typography.Manrope.extraBold(size: 13, relativeTo: .caption))
