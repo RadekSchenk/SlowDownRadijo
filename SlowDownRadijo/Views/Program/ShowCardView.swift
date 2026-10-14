@@ -53,7 +53,8 @@ struct ShowCardView: View {
                             .background(Theme.hairline(0.08), in: Capsule())
                     }
 
-                    if isLive {
+                    // ON-AIR only with a host (see `isHostedShowOnAir`).
+                    if isLive && show.hostName != nil {
                         OnAirBadge()
                     }
                 }

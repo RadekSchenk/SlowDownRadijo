@@ -37,3 +37,11 @@ struct OnAirBadge: View {
         }
     }
 }
+
+extension EnvironmentValues {
+    /// Whether the show on air now has a host. ON-AIR stands for someone
+    /// live in the studio, so it shows only then — not for unhosted
+    /// rotation blocks like "The Best of Slow Down". Set once at the top
+    /// (`RootTabView`) from the current show.
+    @Entry var isHostedShowOnAir = false
+}

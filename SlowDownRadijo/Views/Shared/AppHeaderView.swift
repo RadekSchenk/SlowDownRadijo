@@ -16,14 +16,20 @@ struct AppHeaderView: View {
     static let topInset: CGFloat = 40
 
     @ObservedObject private var loc = LocalizationManager.shared
+    @Environment(\.isHostedShowOnAir) private var isHostedShowOnAir
     @State private var isShowingHub = false
 
     var body: some View {
         HStack(spacing: Theme.Spacing.sm) {
             menuButton
             Spacer(minLength: 0)
-            OnAirBadge(isFilled: false)
+            // Only with a host on air (see `isHostedShowOnAir`).
+            if isHostedShowOnAir {
+                OnAirBadge(isFilled: false)
+            }
         }
+        // Keeps the header's height when the badge is away.
+        .frame(minHeight: 34)
         // Matches the Figma "app-header" frame's own auto-layout padding
         // (20 horizontal — already provided by every tab root's own outer
         // inset, so not repeated here — and 16 vertical).

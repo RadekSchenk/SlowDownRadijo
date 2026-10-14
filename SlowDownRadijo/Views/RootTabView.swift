@@ -105,6 +105,7 @@ struct RootTabView: View {
         .environmentObject(favoriteTrackStore)
         .environmentObject(previewPlayer)
         .environmentObject(statsStore)
+        .environment(\.isHostedShowOnAir, nowPlayingViewModel.currentShow?.hostName != nil)
         .onAppear {
             bottomSafeInset = Self.windowBottomInset()
             configureNavigationBarAppearance()
