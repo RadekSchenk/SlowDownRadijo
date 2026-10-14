@@ -13,7 +13,11 @@ final class TabBarUITests: XCTestCase {
         // No sound in CI, and no first-run stream start racing the taps.
         app.launchArguments += ["-autoplayEnabled", "NO"]
         app.launch()
-        XCTAssertTrue(app.buttons["tab.0"].waitForExistence(timeout: 20), "tab bar never appeared\n\(app.debugDescription)")
+        XCTAssertTrue(app.buttons["tab.0"].waitForExistence(timeout: 60), "tab bar never appeared\n\(app.debugDescription)")
+        // The launch cover (`SplashScreenView`) lies over the tabs for a
+        // moment and isn't in the accessibility tree; on a cold simulator
+        // that moment can be long. Let it go before tapping.
+        sleep(3)
     }
 
     func testEveryTabSwitchesPageAndHighlight() {
