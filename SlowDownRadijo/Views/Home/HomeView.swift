@@ -247,7 +247,7 @@ struct HomeView: View {
             }
 
             HStack(spacing: 20) {
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 8) {
                     if nowPlaying.currentShow != nil {
                         // Counts down by the minute (the sleep timer below
                         // it goes to the second), each changing digit
