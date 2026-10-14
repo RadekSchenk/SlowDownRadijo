@@ -110,9 +110,6 @@ enum Theme {
     /// (`#00ca47`, was `#1ed760`).
     static let spotifyGreen = Color(hex: 0x00CA47)
 
-    /// The now-playing song under the host on the home screen, which opens
-    /// Spotify (`variation-3-card`, `#1ed760` — Spotify's own green).
-    static let spotifyTextGreen = Color(hex: 0x1ED760)
 
     // Text
     static let textPrimary = Color(hex: 0xFFFFFF)

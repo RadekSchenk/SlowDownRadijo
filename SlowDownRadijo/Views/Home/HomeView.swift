@@ -162,7 +162,7 @@ struct HomeView: View {
     }
 
     /// The song playing now (only when `TrackTrust` vouches for it):
-    /// "Artist – Title" in Spotify green with the Spotify mark; text and
+    /// "Artist – Title" in white with the green Spotify mark; text and
     /// mark both open a Spotify search for artist + title.
     private func nowPlayingTrackLink(_ track: NowPlayingTrack) -> some View {
         Button {
@@ -174,7 +174,7 @@ struct HomeView: View {
             HStack(spacing: 8) {
                 Text("\(track.artist) – \(track.title)")
                     .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
-                    .foregroundStyle(Theme.spotifyTextGreen)
+                    .foregroundStyle(Theme.textPrimary)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
                     .manropeLineHeight(19.6, fontSize: 14)

@@ -214,7 +214,7 @@ struct RootTabView: View {
     /// The hand-built tab bar (Figma `bottom-nav`, node 12294:257: 40pt
     /// side insets, tabs spread across the width). Visible tabs are
     /// hardcoded (not derived from the pages above):
-    /// Rádio, Vzkaz, Statistiky, Podpora. The two feature-flagged pages are
+    /// Rádio, Statistiky, Vzkaz, Podpora (Figma 12318:5147). The two feature-flagged pages are
     /// kept out of the nav entirely, not just hidden from this bar.
     private var bottomNav: some View {
         VStack(spacing: 0) {
@@ -225,9 +225,9 @@ struct RootTabView: View {
             HStack {
                 tabBarButton(tag: 0, title: L10n.tabRadio, image: "TabIconRadio")
                 Spacer(minLength: 0)
-                tabBarButton(tag: 3, title: L10n.tabMessage, image: "TabIconMessage")
-                Spacer(minLength: 0)
                 tabBarButton(tag: Self.statsTab, title: L10n.tabStats, image: "TabIconStats")
+                Spacer(minLength: 0)
+                tabBarButton(tag: 3, title: L10n.tabMessage, image: "TabIconMessage")
                 Spacer(minLength: 0)
                 tabBarButton(tag: 4, title: L10n.tabSupport, image: "TabIconSupport")
             }
