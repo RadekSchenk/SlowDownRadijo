@@ -17,6 +17,10 @@ struct HomeView: View {
     @ObservedObject private var reviewPrompt = ReviewPrompt.shared
     @Environment(\.requestReview) private var requestReview
     @State private var isShowingFeedback = false
+    /// How far the page is pulled down past its top (the rubber band);
+    /// 0 otherwise. Grows the header's logo, card and title — the reverse
+    /// of their fade on the way up.
+    @State private var pullDistance: CGFloat = 0
     @AppStorage(StatsConfig.enabledKey) private var statsEnabled = true
     /// Tapping the stats block jumps to the Statistiky tab.
     var onOpenStats: () -> Void = {}
@@ -84,6 +88,13 @@ struct HomeView: View {
             .padding(.horizontal, 20)
             .padding(.bottom, Theme.Spacing.xl)
             .scrollsToTopOnTabReselect()
+            // The content's top rests at the scroll view's top (the page
+            // ignores the top safe area), so anything above 0 is pull.
+            .onGeometryChange(for: CGFloat.self) { proxy in
+                max(0, proxy.frame(in: .scrollView).minY)
+            } action: { pull in
+                pullDistance = pull
+            }
         }
         // Like every other tab: the header starts `AppHeaderView.topInset`
         // below the true top edge (see `StatsView`).
@@ -136,6 +147,9 @@ struct HomeView: View {
             AnimatedBrandLogo()
                 .frame(width: 78, height: 65)
                 .allowsHitTesting(false)
+                // Pulled down, it grows and rises clear of the card
+                // growing up towards it.
+                .growsOnPull(pullDistance, by: 0.15, anchor: .bottom, lift: Self.cardPullGrowth)
                 .frame(maxWidth: .infinity)
                 .fadesOutUnderTopEdge(startingAt: Self.logoTop, shrinkingTo: 0.8)
 
@@ -145,10 +159,12 @@ struct HomeView: View {
                 artwork: heroImage,
                 isPlaying: nowPlaying.playbackState == .playing
             )
+            .growsOnPull(pullDistance, by: Self.cardPullGrowth / NowPlayingCard.cardSize.height, anchor: .bottom)
             .fadesOutUnderTopEdge(shrinkingTo: 0.8)
             .padding(.top, 28)
 
             showTitle
+                .growsOnPull(pullDistance, by: 0.04, anchor: .top)
                 .fadesOutUnderTopEdge(shrinkingTo: 0.8)
                 .padding(.top, 32)
 
@@ -165,6 +181,8 @@ struct HomeView: View {
     private static let headerHeight: CGFloat = 66
     /// Where the logo starts, from the top of the screen.
     private static let logoTop = AppHeaderView.topInset + 33
+    /// How much taller the card gets at full pull (towards the logo).
+    private static let cardPullGrowth: CGFloat = 18
 
     /// Figma "Player details": title, host and the song playing now.
     private var showTitle: some View {

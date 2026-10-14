@@ -41,3 +41,35 @@ private struct ScrollEdgeFade: ViewModifier {
         }
     }
 }
+
+extension View {
+    /// The edge fade's counterpart at the other end: pulling the page down
+    /// past its top (the rubber band) grows the view by up to `growth`
+    /// (0.1 = 10%) around `anchor`, and back as the page springs back.
+    /// `pull` is how far past its top the page is (see `HomeView`); the
+    /// full growth comes at `PullStretch.fullPull`. `lift` moves the view
+    /// up by that many points at full pull, to make room for a view below
+    /// it growing upwards. Nothing with Reduce Motion.
+    func growsOnPull(_ pull: CGFloat, by growth: CGFloat, anchor: UnitPoint, lift: CGFloat = 0) -> some View {
+        modifier(PullStretch(pull: pull, growth: growth, anchor: anchor, lift: lift))
+    }
+}
+
+struct PullStretch: ViewModifier {
+    let pull: CGFloat
+    let growth: CGFloat
+    let anchor: UnitPoint
+    let lift: CGFloat
+
+    /// The pull at which a view reaches its full size.
+    static let fullPull: CGFloat = 160
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func body(content: Content) -> some View {
+        let progress = reduceMotion ? 0 : min(max(pull / Self.fullPull, 0), 1)
+        content
+            .scaleEffect(1 + growth * progress, anchor: anchor)
+            .offset(y: -lift * progress)
+    }
+}
