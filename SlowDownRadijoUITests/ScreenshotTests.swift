@@ -23,6 +23,15 @@ final class ScreenshotTests: XCTestCase {
 
         let prefix = "\(language) \(textSize.replacingOccurrences(of: "UICTContentSizeCategory", with: ""))"
         capture(app, "\(prefix) 1 home")
+        // Part-way scrolls: the show card shrinking and fading on scroll.
+        // Held at the end of the drag, so the page doesn't coast on.
+        for (step, distance) in [("1a", 80.0), ("1b", 100.0)] {
+            let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7))
+            start.press(forDuration: 0.1, thenDragTo: start.withOffset(CGVector(dx: 0, dy: -distance)),
+                        withVelocity: .slow, thenHoldForDuration: 0.5)
+            sleep(1)
+            capture(app, "\(prefix) \(step) home scrolling")
+        }
         app.swipeUp()
         sleep(1)
         capture(app, "\(prefix) 2 home scrolled")

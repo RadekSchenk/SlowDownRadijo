@@ -12,6 +12,9 @@ struct NowPlayingCard: View {
     let isPlaying: Bool
 
     static let cardSize = CGSize(width: 230, height: 230)
+    /// The coordinate space of the scrolling page content the card sits
+    /// in — see `collapsesOnScroll()`.
+    static let scrollContentSpace = "home.scrollContent"
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -48,6 +51,46 @@ struct NowPlayingCard: View {
         }
     }
 
+}
+
+extension NowPlayingCard {
+    /// Like the cover art in Spotify: scrolling the page up shrinks the
+    /// card and its equalizer, fades them out and lets them lag a little
+    /// behind the scroll, so the show title and everything below slide
+    /// over them. Scrolling back reverses it; pulling down to refresh
+    /// leaves the card as it is. With Reduce Motion it only fades.
+    ///
+    /// The page must name its scroll content `scrollContentSpace`: the
+    /// card's position in it, against its position in the scroll view,
+    /// gives how far the page has scrolled.
+    func collapsesOnScroll() -> some View {
+        modifier(ScrollCollapse())
+    }
+}
+
+private struct ScrollCollapse: ViewModifier {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// Scroll distance over which the card goes from full size to gone.
+    private static let distance: CGFloat = 240
+    private static let smallestScale: CGFloat = 0.8
+    /// Share of the scroll the card holds back: it moves at 60% speed.
+    private static let lag: CGFloat = 0.4
+
+    func body(content: Content) -> some View {
+        content.visualEffect { [reduceMotion] view, proxy in
+            let scrolled = proxy.frame(in: .named(NowPlayingCard.scrollContentSpace)).minY
+                - proxy.frame(in: .scrollView).minY
+            let travel = min(max(scrolled, 0), Self.distance)
+            let progress = travel / Self.distance
+            return view
+                .scaleEffect(reduceMotion ? 1 : 1 - (1 - Self.smallestScale) * progress)
+                .offset(y: reduceMotion ? 0 : travel * Self.lag)
+                // Slow to start, so the card stays clear for the first
+                // few points of scroll.
+                .opacity(1 - pow(progress, 1.5))
+        }
+    }
 }
 
 /// The bars either side of `NowPlayingCard` (Figma "Equalizer", node

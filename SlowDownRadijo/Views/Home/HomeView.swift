@@ -80,6 +80,7 @@ struct HomeView: View {
             }
             .padding(.horizontal, 20)
             .padding(.bottom, Theme.Spacing.xl)
+            .coordinateSpace(.named(NowPlayingCard.scrollContentSpace))
             .scrollsToTopOnTabReselect()
         }
         // Like every other tab: the header starts 40pt below the true top
@@ -127,6 +128,7 @@ struct HomeView: View {
                 artwork: heroImage,
                 isPlaying: nowPlaying.playbackState == .playing
             )
+            .collapsesOnScroll()
 
             // Card, "Player details" title block and controls: all 16pt apart.
             showTitle
