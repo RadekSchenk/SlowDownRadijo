@@ -168,12 +168,12 @@ enum L10n {
         "\(minutes) min"
     }
 
-    /// A running countdown to the second: "9 min 56 s", "1h 5 min 12 s",
-    /// "56 s" (EN "9m 56s", "1h 5m 12s", "56s").
+    /// A running countdown to the second: "9 min 56 s", "1 h 27 min 36 s",
+    /// "56 s" (EN "9m 56s", "1h 27m 36s", "56s").
     static func countdown(hours: Int, minutes: Int, seconds: Int) -> String {
         switch lang {
         case .cs:
-            if hours > 0 { return "\(hours)h \(minutes) min \(seconds) s" }
+            if hours > 0 { return "\(hours) h \(minutes) min \(seconds) s" }
             return minutes > 0 ? "\(minutes) min \(seconds) s" : "\(seconds) s"
         case .en:
             if hours > 0 { return "\(hours)h \(minutes)m \(seconds)s" }
