@@ -240,9 +240,10 @@ struct HomeView: View {
             HStack(spacing: 20) {
                 VStack(alignment: .leading, spacing: 12) {
                     if nowPlaying.currentShow != nil {
-                        // Counts down to the second, like the sleep timer
-                        // below it, each changing digit popping in (library
-                        // P9); tabular digits keep the width steady.
+                        // Counts down by the minute (the sleep timer below
+                        // it goes to the second), each changing digit
+                        // popping in (library P9); tabular digits keep the
+                        // width steady.
                         TimelineView(.periodic(from: .now, by: 1)) { context in
                             PopNumberText(
                                 text: remainingLabel(now: context.date),
@@ -265,9 +266,9 @@ struct HomeView: View {
 
     private func remainingLabel(now: Date) -> String {
         guard let end = nowPlaying.currentShowEndDate else { return L10n.showEndingNow }
-        let remaining = Int(end.timeIntervalSince(now).rounded(.up))
-        guard remaining > 0 else { return L10n.showEndingNow }
-        return L10n.showEndsIn(L10n.countdown(hours: remaining / 3600, minutes: remaining % 3600 / 60, seconds: remaining % 60))
+        let minutes = Int((end.timeIntervalSince(now) / 60).rounded(.up))
+        guard minutes > 0 else { return L10n.showEndingNow }
+        return L10n.showEndsIn(L10n.remaining(hours: minutes / 60, minutes: minutes % 60))
     }
 
     @ViewBuilder

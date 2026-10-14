@@ -168,6 +168,14 @@ enum L10n {
         "\(minutes) min"
     }
 
+    /// Time left to the minute: "27 min", "1 h 27 min" (EN "27m", "1h 27m").
+    static func remaining(hours: Int, minutes: Int) -> String {
+        switch lang {
+        case .cs: return hours > 0 ? "\(hours) h \(minutes) min" : "\(minutes) min"
+        case .en: return hours > 0 ? "\(hours)h \(minutes)m" : "\(minutes)m"
+        }
+    }
+
     /// A running countdown to the second: "9 min 56 s", "1 h 27 min 36 s",
     /// "56 s" (EN "9m 56s", "1h 27m 36s", "56s").
     static func countdown(hours: Int, minutes: Int, seconds: Int) -> String {
