@@ -86,7 +86,8 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: 16) {
             NowPlayingCard(
                 artwork: heroImage,
-                isPlaying: nowPlaying.playbackState == .playing
+                isPlaying: nowPlaying.playbackState == .playing,
+                showsScrim: nowPlaying.currentShow?.artworkHasText != true
             )
 
             // Card, "Player details" title block and controls: all 16pt apart.

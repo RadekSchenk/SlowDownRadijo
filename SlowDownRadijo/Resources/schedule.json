@@ -12,7 +12,8 @@
           "start": "00:00",
           "end": "08:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "groove-lab-s-don-hoblinon",
@@ -58,7 +59,8 @@
           "start": "12:00",
           "end": "17:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "kuratorska-selekce-s-philip-tbc",
@@ -81,7 +83,8 @@
           "start": "18:00",
           "end": "19:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "diggin-time-s-dj-magic",
@@ -116,7 +119,8 @@
           "start": "22:00",
           "end": "00:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         }
       ]
     },
@@ -132,7 +136,8 @@
           "start": "00:00",
           "end": "06:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "kuratorska-selekce-s-philip-tbc",
@@ -181,7 +186,8 @@
           "start": "12:00",
           "end": "13:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "show-podle-majkla",
@@ -202,7 +208,8 @@
           "start": "14:00",
           "end": "15:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "africa-incorporated-s-chuck-diesal",
@@ -249,7 +256,8 @@
           "start": "18:00",
           "end": "20:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "the-golden-era",
@@ -266,7 +274,8 @@
           "start": "21:00",
           "end": "22:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "weekend-aftertaste-s-cube-positive",
@@ -295,7 +304,8 @@
           "start": "00:00",
           "end": "06:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "africa-incorporated-s-chuck-diesal",
@@ -379,7 +389,8 @@
           "start": "15:00",
           "end": "16:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "show-podle-majkla",
@@ -400,7 +411,8 @@
           "start": "17:00",
           "end": "18:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "grind-time",
@@ -421,7 +433,8 @@
           "start": "19:00",
           "end": "20:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "go-deeper-s-fatal-dna",
@@ -442,7 +455,8 @@
           "start": "21:00",
           "end": "00:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         }
       ]
     },
@@ -458,7 +472,8 @@
           "start": "00:00",
           "end": "06:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "britsky-state-of-mind",
@@ -506,7 +521,8 @@
           "start": "12:00",
           "end": "13:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "show-podle-majkla",
@@ -564,7 +580,8 @@
           "start": "17:00",
           "end": "20:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "diggin-time-s-dj-magic",
@@ -599,7 +616,8 @@
           "start": "22:00",
           "end": "00:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         }
       ]
     },
@@ -615,7 +633,8 @@
           "start": "00:00",
           "end": "05:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "bonus-beats-s-dj-larose",
@@ -677,7 +696,8 @@
           "start": "12:00",
           "end": "13:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "show-podle-majkla",
@@ -698,7 +718,8 @@
           "start": "14:00",
           "end": "15:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "africa-incorporated-s-chuck-diesal",
@@ -744,7 +765,8 @@
           "start": "19:00",
           "end": "20:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "like-it-slow-s-dj-aphect",
@@ -767,7 +789,8 @@
           "start": "21:00",
           "end": "00:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         }
       ]
     },
@@ -783,7 +806,8 @@
           "start": "00:00",
           "end": "06:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "africa-incorporated-s-chuck-diesal",
@@ -832,7 +856,8 @@
           "start": "12:00",
           "end": "13:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "show-podle-majkla",
@@ -853,7 +878,8 @@
           "start": "14:00",
           "end": "16:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "show-podle-majkla",
@@ -874,7 +900,8 @@
           "start": "17:00",
           "end": "20:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "the-golden-era",
@@ -891,7 +918,8 @@
           "start": "21:00",
           "end": "00:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         }
       ]
     },
@@ -907,7 +935,8 @@
           "start": "00:00",
           "end": "08:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "britsky-state-of-mind",
@@ -967,7 +996,8 @@
           "start": "12:00",
           "end": "17:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         },
         {
           "id": "kuratorska-selekce-s-philip-tbc",
@@ -990,7 +1020,8 @@
           "start": "18:00",
           "end": "00:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
-          "artworkName": "TheBestOfSlowDownHero"
+          "artworkName": "ShowArtBestOfSlowDown",
+          "artworkHasText": true
         }
       ]
     }

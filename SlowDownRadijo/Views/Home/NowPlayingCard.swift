@@ -10,6 +10,8 @@ import UIKit
 struct NowPlayingCard: View {
     let artwork: UIImage?
     let isPlaying: Bool
+    /// Off for artwork with its own lettering (`Show.artworkHasText`).
+    var showsScrim = true
 
     static let cardSize = CGSize(width: 230, height: 230)
 
@@ -31,15 +33,17 @@ struct NowPlayingCard: View {
             artworkLayer
 
             // "gradient-scrim": clear until 45%, then into near-black.
-            LinearGradient(
-                stops: [
-                    .init(color: Self.scrim.opacity(0), location: 0.45),
-                    .init(color: Self.scrim.opacity(0.79), location: 0.80),
-                    .init(color: Self.scrim.opacity(0.96), location: 1),
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
+            if showsScrim {
+                LinearGradient(
+                    stops: [
+                        .init(color: Self.scrim.opacity(0), location: 0.45),
+                        .init(color: Self.scrim.opacity(0.79), location: 0.80),
+                        .init(color: Self.scrim.opacity(0.96), location: 1),
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            }
         }
         .frame(width: Self.cardSize.width, height: Self.cardSize.height)
         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))

@@ -22,6 +22,9 @@ struct Show: Codable, Identifiable, Hashable {
     /// `imageURL` wherever the show's picture appears — no download, works
     /// offline. `imageURL` stays as the fallback for shows without one.
     var artworkName: String? = nil
+    /// The artwork carries its own lettering (a logo, not a photo), so the
+    /// home card leaves off the dark scrim that would dim it.
+    var artworkHasText: Bool? = nil
     /// The show's own title without the " s <host>" suffix `name` carries
     /// (e.g. "Beat Brunch") — used where the host is shown on its own line.
     var title: String? = nil
@@ -33,7 +36,7 @@ struct Show: Codable, Identifiable, Hashable {
     var displayTitle: String { title ?? name }
 
     private enum CodingKeys: String, CodingKey {
-        case id, name, start, end, imageURL, language, hostName, hostImageName, artworkName, title, summary, summaryEn
+        case id, name, start, end, imageURL, language, hostName, hostImageName, artworkName, artworkHasText, title, summary, summaryEn
     }
 }
 
