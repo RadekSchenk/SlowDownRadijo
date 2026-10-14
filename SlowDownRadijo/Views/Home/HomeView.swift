@@ -103,7 +103,10 @@ struct HomeView: View {
         VStack(spacing: 8) {
             OnAirBadge()
 
-            Text(nowPlaying.showName)
+            // Here only, the show's own title without " s <host>" ("Kurátorská
+            // selekce", not "… s Philip TBC") — the host has its own line
+            // below. Everywhere else keeps the full name.
+            Text(nowPlaying.currentShow?.displayTitle ?? nowPlaying.showName)
                 .font(Theme.Typography.Manrope.extraBold(size: 20, relativeTo: .title3))
                 .foregroundStyle(Theme.textPrimary)
                 .multilineTextAlignment(.center)
