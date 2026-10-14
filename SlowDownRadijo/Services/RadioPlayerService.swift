@@ -1,6 +1,7 @@
 import AVFoundation
 import Combine
 import MediaPlayer
+import Network
 import UIKit
 
 enum PlaybackState: Equatable {
@@ -51,6 +52,12 @@ final class RadioPlayerService: NSObject, ObservableObject {
     /// away from live playback, so the stream resumes when it's handed back.
     private var wasPlayingBeforeInterruption = false
 
+    /// Watches connectivity so a dropout reconnects as soon as the network
+    /// is back. Starts as "satisfied" so the first report at launch isn't
+    /// mistaken for a comeback.
+    private let pathMonitor = NWPathMonitor()
+    private var networkWasSatisfied = true
+
     override init() {
         super.init()
         // Category only: activating a non-mixable session here would stop
@@ -63,9 +70,28 @@ final class RadioPlayerService: NSObject, ObservableObject {
             name: AVAudioSession.interruptionNotification,
             object: AVAudioSession.sharedInstance()
         )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(audioRouteChanged(_:)),
+            name: AVAudioSession.routeChangeNotification,
+            object: AVAudioSession.sharedInstance()
+        )
+        pathMonitor.pathUpdateHandler = { [weak self] path in
+            let isSatisfied = path.status == .satisfied
+            DispatchQueue.main.async {
+                guard let self else { return }
+                let cameBack = isSatisfied && !self.networkWasSatisfied
+                self.networkWasSatisfied = isSatisfied
+                if cameBack {
+                    self.networkBecameAvailable()
+                }
+            }
+        }
+        pathMonitor.start(queue: DispatchQueue(label: "cz.slowdownradijo.network-path"))
     }
 
     deinit {
+        pathMonitor.cancel()
         teardownPlayer()
         reconnectTimer?.invalidate()
         connectTimeoutTimer?.invalidate()
@@ -198,8 +224,13 @@ final class RadioPlayerService: NSObject, ObservableObject {
                         self.enterConnecting()
                     }
                 case .paused:
-                    // `pause()` and failures set the state themselves.
-                    break
+                    // `pause()`, interruptions and failures set the state
+                    // themselves. A stop nobody asked for (the connection
+                    // dropped and the buffer ran dry) is handled like a
+                    // stall: `.connecting`, then a reconnect on timeout.
+                    if self.state == .playing {
+                        self.enterConnecting()
+                    }
                 @unknown default:
                     break
                 }
@@ -238,6 +269,45 @@ final class RadioPlayerService: NSObject, ObservableObject {
             name: .AVPlayerItemFailedToPlayToEndTime,
             object: item
         )
+
+        // A live stream has no end: "played to the end" means the
+        // connection closed and the buffered audio ran out.
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(itemPlayedToEndTime),
+            name: .AVPlayerItemDidPlayToEndTime,
+            object: item
+        )
+    }
+
+    @objc private func itemPlayedToEndTime() {
+        guard state == .playing || state == .connecting else { return }
+        handleFailure()
+    }
+
+    /// Unplugging headphones (or a Bluetooth device going away) pauses
+    /// AVPlayer; mirror it as a pause so playback doesn't resume through
+    /// the speaker on its own.
+    @objc private func audioRouteChanged(_ notification: Notification) {
+        guard let rawReason = notification.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt,
+              AVAudioSession.RouteChangeReason(rawValue: rawReason) == .oldDeviceUnavailable else { return }
+        DispatchQueue.main.async { [weak self] in
+            guard let self, self.state == .playing || self.state == .connecting else { return }
+            self.pause()
+        }
+    }
+
+    /// The network came back while waiting out the back-off after a
+    /// dropout (or stuck connecting): try again now instead of after up to
+    /// 30 s.
+    private func networkBecameAvailable() {
+        switch state {
+        case .error where reconnectTimer != nil, .connecting:
+            cancelReconnect()
+            startPlayback()
+        default:
+            break
+        }
     }
 
     /// The system silences the player during an interruption without
@@ -305,6 +375,7 @@ final class RadioPlayerService: NSObject, ObservableObject {
             stallObserver = nil
         }
         NotificationCenter.default.removeObserver(self, name: .AVPlayerItemFailedToPlayToEndTime, object: playerItem)
+        NotificationCenter.default.removeObserver(self, name: .AVPlayerItemDidPlayToEndTime, object: playerItem)
         player?.pause()
         player = nil
         playerItem = nil
