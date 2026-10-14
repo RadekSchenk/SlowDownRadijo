@@ -72,6 +72,16 @@ final class VoiceMessageViewModel: ObservableObject {
         state = .ready
     }
 
+    /// Out of the "recorded" step without sending: the recording is
+    /// deleted and the tab is back where it started.
+    func discardRecording() {
+        guard case .recorded(let url, _) = state else { return }
+        recorder.stopPlayback()
+        recorder.discardRecording(at: url)
+        radioPlayer.reactivatePlaybackAudioSession()
+        state = .ready
+    }
+
     func retry() {
         if let url = recordingURL {
             recorder.discardRecording(at: url)

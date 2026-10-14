@@ -589,6 +589,20 @@ enum L10n {
         }
     }
 
+    static var discardMessage: String {
+        switch lang {
+        case .cs: return "Zahodit vzkaz"
+        case .en: return "Discard message"
+        }
+    }
+
+    static var discardMessageConfirm: String {
+        switch lang {
+        case .cs: return "Zahodit nahraný vzkaz? Nikam se neodešle."
+        case .en: return "Discard the recording? It won't be sent."
+        }
+    }
+
     static var cancelRecording: String {
         switch lang {
         case .cs: return "Zrušit nahrávání"

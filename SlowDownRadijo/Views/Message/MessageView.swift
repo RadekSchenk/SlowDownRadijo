@@ -17,6 +17,7 @@ struct MessageView: View {
     @ObservedObject private var loc = LocalizationManager.shared
     /// Used by the "Zpět na rádio" button after a successful send.
     var onBack: () -> Void
+    @State private var isConfirmingDiscard = false
 
     private static let successGreen = Color(hex: 0x28C840)
 
@@ -137,6 +138,15 @@ struct MessageView: View {
             VStack(spacing: 12) {
                 PrimaryActionButton(title: L10n.sendToRadio, systemImage: "paperplane.fill", action: viewModel.submit)
                 SecondaryActionButton(title: L10n.recordAgain, action: viewModel.retry)
+            }
+
+            // The way out without sending (or recording again), asked
+            // once so a stray tap doesn't lose the message.
+            textLink(L10n.discardMessage, systemImage: "trash") {
+                isConfirmingDiscard = true
+            }
+            .confirmationDialog(L10n.discardMessageConfirm, isPresented: $isConfirmingDiscard, titleVisibility: .visible) {
+                Button(L10n.discardMessage, role: .destructive, action: viewModel.discardRecording)
             }
         }
     }
