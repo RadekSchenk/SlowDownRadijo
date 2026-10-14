@@ -226,6 +226,40 @@ enum L10n {
         }
     }
 
+    /// Heading of the sleep-timer sheet.
+    static var sleepTimerSheetTitle: String {
+        switch lang {
+        case .cs: return "Časovač vypnutí"
+        case .en: return "Sleep timer"
+        }
+    }
+
+    /// Line under the heading while no timer is running.
+    static var sleepTimerHint: String {
+        switch lang {
+        case .cs: return "Rádio po uplynutí času samo ztichne."
+        case .en: return "The radio goes quiet on its own when time is up."
+        }
+    }
+
+    /// Unit under the big number on a sleep-timer tile.
+    static var minutesUnit: String { "min" }
+
+    static var hoursUnit: String {
+        switch lang {
+        case .cs: return "hod"
+        case .en: return "hr"
+        }
+    }
+
+    /// "Konec pořadu" tile's trailing detail, e.g. "v 12:00".
+    static func atTime(_ time: String) -> String {
+        switch lang {
+        case .cs: return "v \(time)"
+        case .en: return "at \(time)"
+        }
+    }
+
     // MARK: - Program
 
     static var noProgramForDay: String {
