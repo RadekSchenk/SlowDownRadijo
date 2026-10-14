@@ -245,6 +245,11 @@ struct RootTabView: View {
         // strip instead of the real 34pt safe area.
         .padding(.bottom, bottomSafeInset > 0 ? Self.homeIndicatorZone : 0)
         .background(Theme.tabBarBackground)
+        // Like the system tab bar: the labels stop growing past the larger
+        // text sizes (four of them no longer fit across the screen and
+        // pushed every page wider than it), and a long press shows the tab
+        // enlarged instead (Large Content Viewer).
+        .dynamicTypeSize(...DynamicTypeSize.xLarge)
     }
 
     /// See `bottomSafeInset`. Never call from `body`.
@@ -288,6 +293,10 @@ struct RootTabView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityShowsLargeContentViewer {
+            Image(image).renderingMode(.template)
+            Text(title)
+        }
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityIdentifier("tab.\(tag)")
     }
