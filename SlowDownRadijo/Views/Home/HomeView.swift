@@ -210,9 +210,23 @@ struct HomeView: View {
             .manropeLineHeight(size * 1.2, fontSize: size)
     }
 
+    /// Figma's 19 × 19.6 Spotify mark with the 8pt gap before it built in,
+    /// for use inside `Text`.
+    private static let spotifyMark: UIImage = {
+        guard let icon = UIImage(named: "SpotifyIcon") else { return UIImage() }
+        let gap: CGFloat = 8
+        let size = CGSize(width: gap + 19, height: 19.623)
+        return UIGraphicsImageRenderer(size: size).image { _ in
+            icon.draw(in: CGRect(x: gap, y: 0, width: 19, height: 19.623))
+        }
+    }()
+
     /// The song playing now (only when `TrackTrust` vouches for it):
     /// "Artist – Title" in white with the green Spotify mark; text and
     /// mark both open a Spotify search for artist + title.
+    ///
+    /// The mark is part of the text, so when the song wraps it follows the
+    /// last word on the last line instead of standing beside the block.
     private func nowPlayingTrackLink(_ track: NowPlayingTrack) -> some View {
         Button {
             if let url = track.spotifySearchURL {
@@ -220,19 +234,17 @@ struct HomeView: View {
                 openURL(url)
             }
         } label: {
-            HStack(spacing: 8) {
-                Text("\(track.artist) – \(track.title)")
-                    .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .callout))
-                    .foregroundStyle(Theme.textPrimary)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(2)
-                    .manropeLineHeight(22.4, fontSize: 16)
-                    .contentTransition(.opacity)
-
-                Image("SpotifyIcon")
-                    .resizable()
-                    .frame(width: 19, height: 19.623)
-            }
+            // The word joiner keeps the mark from wrapping onto a line of
+            // its own; lowered 4pt to sit centred on the text.
+            Text("\(Text(verbatim: "\(track.artist) – \(track.title)\u{2060}"))\(Text(Image(uiImage: Self.spotifyMark).renderingMode(.original)).baselineOffset(-4))")
+                .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .callout))
+                .foregroundStyle(Theme.textPrimary)
+                .multilineTextAlignment(.center)
+                // Three lines rather than two: a truncated song would lose
+                // the mark at its end.
+                .lineLimit(3)
+                .manropeLineHeight(22.4, fontSize: 16)
+                .contentTransition(.opacity)
         }
         .buttonStyle(.plain)
         .accessibilityLabel("\(track.artist) – \(track.title)")
