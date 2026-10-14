@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Slow Down Radijo</string>
+	<string>Slow Down Rádijo</string>
 	<key>CFBundleLocalizations</key>
 	<array>
 		<string>cs</string>

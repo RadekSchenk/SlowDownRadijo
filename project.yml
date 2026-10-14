@@ -31,7 +31,7 @@ targets:
     info:
       path: SlowDownRadijo/Info.plist
       properties:
-        CFBundleDisplayName: "Slow Down Radijo"
+        CFBundleDisplayName: "Slow Down Rádijo"
         CFBundleLocalizations:
           - cs
           - en
