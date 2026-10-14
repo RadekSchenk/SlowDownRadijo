@@ -117,12 +117,12 @@ struct HomeView: View {
         nowPlaying.showArtwork
     }
 
-    /// Figma "variation-3-card" (node 12341:1637): the ON-AIR badge, title,
-    /// host and song (centred) first, then the show card with its
-    /// equalizer, the programme progress and the player row — the
-    /// remaining time and sleep timer on the left, the play button on the
-    /// right. The section starts right under the header and ends with the
-    /// player row, then the 32pt gap to the stats.
+    /// Figma "variation-3-card" (node 12341:1637): the title, host and
+    /// song (centred) first, then the show card with its equalizer, the
+    /// programme progress and the player row — the remaining time and
+    /// sleep timer on the left, the play button on the right. The section
+    /// starts 26pt under the header (whose ON-AIR badge used to sit here)
+    /// and ends with the player row, then the 32pt gap to the stats.
     private var nowPlayingHeader: some View {
         VStack(alignment: .leading, spacing: 0) {
             showTitle
@@ -140,12 +140,11 @@ struct HomeView: View {
             playerControls
                 .padding(.top, 32)
         }
+        .padding(.top, 26)
     }
 
     private var showTitle: some View {
         VStack(spacing: 10) {
-            OnAirBadge()
-
             // Here only, the show's own title without " s <host>" ("Kurátorská
             // selekce", not "… s Philip TBC") — the host has its own line
             // below. Everywhere else keeps the full name.

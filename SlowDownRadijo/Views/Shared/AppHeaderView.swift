@@ -1,40 +1,34 @@
 import SwiftUI
 
-/// Persistent masthead used at the top of every tab — brand mark + a CZ/EN
-/// language pill + a Menu pill, replacing the native navigation bar title
-/// across the whole app (see `RootTabView`, which hides the system nav
-/// bar). Matches the 2026-08-23 home-screen hero redesign's `app-header` —
-/// no tagline anymore (dropped from all three of that design's variants).
+/// Persistent masthead used at the top of every tab (Figma "app-header",
+/// node 12341:1628): the Menu pill on the left, the ON-AIR badge on the
+/// right and the brand mark centred between them — replacing the native
+/// navigation bar title across the whole app (see `RootTabView`, which
+/// hides the system nav bar).
 ///
-/// "Menu" opens `HubView` as a sheet — settings, news, notifications, and
-/// feedback, rather than surfacing every control directly here. The
-/// language pill is the exception, since it's a single tap and didn't
-/// earn a trip through Settings.
+/// "Menu" opens `HubView` as a sheet — settings, news, notifications,
+/// feedback and the language switch, rather than surfacing every control
+/// directly here.
 struct AppHeaderView: View {
     @ObservedObject private var loc = LocalizationManager.shared
     @State private var isShowingHub = false
 
-    /// Shows the language a tap *switches to*, not the current one — so in
-    /// Czech the pill reads "EN" (tap to switch to English), and in
-    /// English it reads "CZ" (tap to switch to Czech). Also deliberately
-    /// not `AppLanguage.displayCode` ("CS"/"EN"), which stays the
-    /// ISO-style code used in the feedback-email diagnostics
-    /// (`DeviceInfo`); this is just how the header pill reads.
-    private var languagePillLabel: String {
-        loc.language == .cs ? "EN" : "CZ"
-    }
-
     var body: some View {
         HStack(spacing: Theme.Spacing.sm) {
+            menuButton
+            Spacer(minLength: 0)
+            OnAirBadge()
+        }
+        // Centred on the screen whatever the two sides measure. Figma lets
+        // the 55pt mark stand 10pt above and below the pill row, into the
+        // header's padding, so it doesn't make the header taller.
+        .overlay {
             // `BrandLogo` is the white wordmark (the app is dark-only).
             Image("BrandLogo")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 73, height: 61)
-
-            Spacer(minLength: 0)
-
-            pills
+                .frame(width: 66, height: 55)
+                .accessibilityHidden(true)
         }
         // Matches the Figma "app-header" frame's own auto-layout padding
         // (20 horizontal — already provided by every tab root's own outer
@@ -46,33 +40,34 @@ struct AppHeaderView: View {
         }
     }
 
-    private var pills: some View {
-        HStack(spacing: Theme.Spacing.sm) {
-            Button {
-                loc.language = loc.language == .cs ? .en : .cs
-                Analytics.shared.track(.languageChanged(to: loc.language.rawValue))
-            } label: {
-                pill(languagePillLabel)
+    private var menuButton: some View {
+        Button {
+            isShowingHub = true
+        } label: {
+            HStack(spacing: 6) {
+                hamburger
+                Text(L10n.hubTitle.uppercased())
+                    .font(Theme.Typography.Manrope.extraBold(size: 13, relativeTo: .caption))
+                    .foregroundStyle(Theme.textPrimary)
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel(L10n.settingsLanguageTitle)
-
-            Button {
-                isShowingHub = true
-            } label: {
-                pill(L10n.hubTitle)
-            }
-            .buttonStyle(.plain)
-        }
-    }
-
-    private func pill(_ title: String) -> some View {
-        Text(title)
-            .font(Theme.Typography.Manrope.extraBold(size: 13, relativeTo: .caption))
-            .foregroundStyle(Theme.textPrimary)
             .padding(.leading, 12)
             .padding(.trailing, 10)
             .padding(.vertical, 8)
             .background(Theme.hairline(0.08), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(L10n.hubTitle)
+    }
+
+    /// Three 14 × 2 lines, 2pt apart.
+    private var hamburger: some View {
+        VStack(spacing: 2) {
+            ForEach(0..<3, id: \.self) { _ in
+                RoundedRectangle(cornerRadius: 1)
+                    .fill(Theme.textPrimary)
+                    .frame(width: 14, height: 2)
+            }
+        }
+        .accessibilityHidden(true)
     }
 }

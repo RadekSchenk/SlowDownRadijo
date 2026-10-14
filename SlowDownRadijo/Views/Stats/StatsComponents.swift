@@ -2,6 +2,8 @@ import SwiftUI
 
 /// "2 h 14 m": big white numerals with small muted units, as in Figma's
 /// stats cards (36/19 on the Statistiky screen, 24/14 on the home block).
+/// From 24 hours on, days lead: "365d 23 h 59 m" — the "d" set tight
+/// against its number, as in Figma, to fit the half-width home card.
 struct DurationText: View {
     let seconds: Int
     let numberSize: CGFloat
@@ -9,7 +11,7 @@ struct DurationText: View {
     let lineHeight: CGFloat
 
     var body: some View {
-        let parts = StatsFormat.hoursAndMinutes(seconds: seconds)
+        let parts = StatsFormat.daysHoursAndMinutes(seconds: seconds)
         let gap = unitSize * 0.27 // the width of a space between number and unit
         HStack(alignment: .lastTextBaseline, spacing: 0) {
             if seconds > 0, seconds < 60 {
@@ -19,14 +21,18 @@ struct DurationText: View {
                 number("1")
                 unit("m").padding(.leading, gap)
             } else {
-                number(StatsFormat.number(parts.hours))
+                if parts.days > 0 {
+                    number(StatsFormat.number(parts.days))
+                    unit("d").padding(.trailing, gap)
+                }
+                number("\(parts.hours)")
                 unit("h").padding(.horizontal, gap)
                 number("\(parts.minutes)")
                 unit("m").padding(.leading, gap)
             }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(seconds > 0 && seconds < 60 ? L10n.statsUnderAMinute : "\(parts.hours) h \(parts.minutes) m")
+        .accessibilityLabel(seconds > 0 && seconds < 60 ? L10n.statsUnderAMinute : StatsFormat.duration(seconds: seconds))
     }
 
     /// The digits pop in when they change (library P9 — Number pop-in).

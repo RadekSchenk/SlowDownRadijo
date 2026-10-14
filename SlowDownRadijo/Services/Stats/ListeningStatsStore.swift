@@ -217,10 +217,16 @@ final class ListeningStatsStore: ObservableObject {
 
         let todayKey = ListeningTracker.dayString(for: now)
         let communityBase = snapshot?.communitySeconds ?? publicStats?.communitySeconds ?? 0
+        var totalSeconds = (snapshot?.totalSeconds ?? 0) + unsyncedSeconds
+        #if DEBUG
+        // Screenshot tests: `-debugStatsTotalSeconds N` shows a long
+        // listening history (days, not just hours) on a fresh install.
+        totalSeconds += UserDefaults.standard.integer(forKey: "debugStatsTotalSeconds")
+        #endif
 
         return ListeningStatsSummary(
             todaySeconds: (perDay[todayKey] ?? [:]).values.reduce(0, +),
-            totalSeconds: (snapshot?.totalSeconds ?? 0) + unsyncedSeconds,
+            totalSeconds: totalSeconds,
             communitySeconds: communityBase + unsyncedSeconds,
             rank: snapshot?.rank,
             rankedListeners: snapshot?.rankedListeners ?? publicStats?.rankedListeners ?? 0,

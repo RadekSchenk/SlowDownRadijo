@@ -16,8 +16,11 @@ final class ScreenshotTests: XCTestCase {
             "-autoplayEnabled", "NO",
             "-app.language", language,
             "-UIPreferredContentSizeCategoryName", textSize,
-            // A long song line, to check that it wraps within the screen.
-            "-debugVerifiedTrack", "Anderson .Paak & Cordae feat. Leon Bridges - A Good Day (Extended Version, Remastered 2024)",
+            // The longest song line the station has played, to check that
+            // it stays within the screen.
+            "-debugVerifiedTrack", "SLOWDOWN - DA ROCKNESS MONSTAS, HELTAH SKELTAH, HELTAH SKELTAH & OGC AS THE FAB 5, ILLA NOYZ, LOUIEVILLE SLUGGAH, THE REPRESENTATIVZ & VINIA MOJICA - Leflaur Leflah Eshkoshka",
+            // A year of listening, to check days in the stats.
+            "-debugStatsTotalSeconds", "31622340",
         ]
         app.launch()
         XCTAssertTrue(app.buttons["tab.0"].waitForExistence(timeout: 60))
