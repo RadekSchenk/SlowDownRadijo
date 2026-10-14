@@ -152,23 +152,25 @@ struct HomeView: View {
             if let hostName = nowPlaying.currentShow?.hostName {
                 // Figma sets this line in Inter; the app uses Manrope
                 // throughout (see `Theme.Typography`). The divider under it
-                // is exactly as wide as this line (`fixedSize` sizes the
-                // stack to the text, the divider fills that width).
-                VStack(spacing: 8) {
-                    Text("\(L10n.hostedByKicker) \(hostName)")
-                        .font(Theme.Typography.Manrope.semibold(size: 12, relativeTo: .caption))
-                        .foregroundStyle(Theme.mutedText)
-                        .multilineTextAlignment(.center)
-                        .manropeLineHeight(16.8, fontSize: 12)
-
-                    if nowPlaying.verifiedTrack != nil {
-                        Rectangle()
-                            .fill(Theme.divider)
-                            .frame(height: 1)
-                            .transition(.opacity)
+                // is exactly as wide as this line: it's drawn in the text's
+                // own bounds, 8pt below it. (Not `fixedSize`, which kept a
+                // long line from wrapping at large text sizes and pushed the
+                // page wider than the screen.)
+                let showsDivider = nowPlaying.verifiedTrack != nil
+                Text("\(L10n.hostedByKicker) \(hostName)")
+                    .font(Theme.Typography.Manrope.semibold(size: 12, relativeTo: .caption))
+                    .foregroundStyle(Theme.mutedText)
+                    .multilineTextAlignment(.center)
+                    .manropeLineHeight(16.8, fontSize: 12)
+                    .padding(.bottom, showsDivider ? 9 : 0)
+                    .overlay(alignment: .bottom) {
+                        if showsDivider {
+                            Rectangle()
+                                .fill(Theme.divider)
+                                .frame(height: 1)
+                                .transition(.opacity)
+                        }
                     }
-                }
-                .fixedSize(horizontal: true, vertical: false)
             } else if nowPlaying.verifiedTrack != nil {
                 // No host line to measure: Figma's own 110pt.
                 Rectangle()

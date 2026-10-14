@@ -125,6 +125,10 @@ struct HomeProgramSection: View {
                 dayChip(date: entry.date, weekday: entry.weekday)
             }
         }
+        // Seven numbers can't shrink below their own width: past the
+        // larger text sizes they no longer fit across the screen and pushed
+        // the whole page wider. They stop growing at XXXL.
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
 
     private func dayChip(date: Date, weekday: Int) -> some View {

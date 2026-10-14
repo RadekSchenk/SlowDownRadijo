@@ -34,33 +34,7 @@ struct AppHeaderView: View {
 
             Spacer(minLength: 0)
 
-            Button {
-                loc.language = loc.language == .cs ? .en : .cs
-                Analytics.shared.track(.languageChanged(to: loc.language.rawValue))
-            } label: {
-                Text(languagePillLabel)
-                    .font(Theme.Typography.Manrope.extraBold(size: 13, relativeTo: .caption))
-                    .foregroundStyle(Theme.textPrimary)
-                    .padding(.leading, 12)
-                    .padding(.trailing, 10)
-                    .padding(.vertical, 8)
-                    .background(Theme.hairline(0.08), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(L10n.settingsLanguageTitle)
-
-            Button {
-                isShowingHub = true
-            } label: {
-                Text(L10n.hubTitle)
-                    .font(Theme.Typography.Manrope.extraBold(size: 13, relativeTo: .caption))
-                    .foregroundStyle(Theme.textPrimary)
-                    .padding(.leading, 12)
-                    .padding(.trailing, 10)
-                    .padding(.vertical, 8)
-                    .background(Theme.hairline(0.08), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-            }
-            .buttonStyle(.plain)
+            pills
         }
         // Matches the Figma "app-header" frame's own auto-layout padding
         // (20 horizontal — already provided by every tab root's own outer
@@ -69,5 +43,38 @@ struct AppHeaderView: View {
         .sheet(isPresented: $isShowingHub) {
             HubView()
         }
+    }
+
+    private var pills: some View {
+        HStack(spacing: Theme.Spacing.sm) {
+            Button {
+                loc.language = loc.language == .cs ? .en : .cs
+                Analytics.shared.track(.languageChanged(to: loc.language.rawValue))
+            } label: {
+                pill(languagePillLabel)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(L10n.settingsLanguageTitle)
+
+            Button {
+                isShowingHub = true
+            } label: {
+                pill(L10n.hubTitle)
+            }
+            .buttonStyle(.plain)
+        }
+        // Like a navigation bar: the pills stop growing at XXXL (only the
+        // pills — the menu sheet keeps the full text size).
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+    }
+
+    private func pill(_ title: String) -> some View {
+        Text(title)
+            .font(Theme.Typography.Manrope.extraBold(size: 13, relativeTo: .caption))
+            .foregroundStyle(Theme.textPrimary)
+            .padding(.leading, 12)
+            .padding(.trailing, 10)
+            .padding(.vertical, 8)
+            .background(Theme.hairline(0.08), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 }
