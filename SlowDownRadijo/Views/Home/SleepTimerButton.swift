@@ -71,15 +71,16 @@ struct SleepTimerButton: View {
         Button {
             isShowingSheet = true
         } label: {
-            HStack(spacing: 6) {
-                // Plain filled crescent — Figma's icon (node 12294:178)
-                // has no "zzz" sleep marks, confirmed by rendering it in
-                // isolation.
+            // Figma "Sleep timer" (node 12318:5226): text first, the moon
+            // after it, 8pt apart.
+            HStack(spacing: 8) {
+                Text(label)
+                    .font(Theme.Typography.Manrope.bold(size: 14, relativeTo: .subheadline))
+                // Plain filled crescent, 15pt — Figma's icon has no "zzz"
+                // sleep marks.
                 Image(systemName: "moon.fill")
                     .font(.system(size: 13, weight: .bold))
                     .frame(width: 15, height: 15)
-                Text(label)
-                    .font(Theme.Typography.Manrope.bold(size: 12, relativeTo: .footnote))
             }
             .foregroundStyle(Theme.textPrimary)
         }
