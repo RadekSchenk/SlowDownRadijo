@@ -28,9 +28,6 @@ final class ScreenshotTests: XCTestCase {
 
         let prefix = "\(language) \(textSize.replacingOccurrences(of: "UICTContentSizeCategory", with: ""))"
         capture(app, "\(prefix) 1 home")
-        // A moment later, to see the logo's sun moving.
-        Thread.sleep(forTimeInterval: 0.7)
-        capture(app, "\(prefix) 1 home later")
         // Part-way scrolls: the title, then the show card fading out under
         // the top edge. Held at the end of the drag, so the page doesn't
         // coast on.

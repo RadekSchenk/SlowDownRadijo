@@ -14,12 +14,6 @@ struct NowPlayingCard: View {
 
     static let cardSize = CGSize(width: 230, height: 230)
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    /// Ken Burns clock: seconds of playing so far, so pausing holds the
-    /// photo where it is and playing again carries on from there.
-    @State private var motionBase: TimeInterval = 0
-    @State private var motionStart: Date?
-
     var body: some View {
         card
             .frame(maxWidth: .infinity)
@@ -35,21 +29,6 @@ struct NowPlayingCard: View {
             }
     }
 
-    private func motionTime(at date: Date) -> TimeInterval {
-        motionBase + (motionStart.map { date.timeIntervalSince($0) } ?? 0)
-    }
-
-    private static func kenBurns(at time: TimeInterval) -> (scale: CGFloat, offset: CGSize) {
-        let zoom = CGFloat((1 - cos(2 * .pi * time / 50)) / 2)  // 0…1…0 over 50 s
-        let scale = 1 + 0.06 * zoom
-        let room = cardSize.width * 0.06 / 2 * zoom * 0.7        // stays inside the zoom's margin
-        let offset = CGSize(
-            width: room * CGFloat(sin(2 * .pi * time / 37)),
-            height: room * CGFloat(sin(2 * .pi * time / 53 + 1))
-        )
-        return (scale, offset)
-    }
-
     private var card: some View {
         artworkLayer
             .frame(width: Self.cardSize.width, height: Self.cardSize.height)
@@ -60,32 +39,12 @@ struct NowPlayingCard: View {
     @ViewBuilder
     private var artworkLayer: some View {
         if let artwork {
-            // While the radio plays the photo drifts very slowly (Ken
-            // Burns): up to 6% closer and back over about 50 seconds,
-            // with a slight wander that only grows as it zooms in, so no
-            // edge ever shows. Paused it holds still; never with Reduce
-            // Motion.
-            TimelineView(.animation(minimumInterval: 1.0 / 30, paused: !isPlaying || reduceMotion)) { context in
-                let drift = Self.kenBurns(at: reduceMotion ? 0 : motionTime(at: context.date))
-                Image(uiImage: artwork)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: Self.cardSize.width, height: Self.cardSize.height)
-                    .scaleEffect(drift.scale)
-                    .offset(drift.offset)
-            }
-            .frame(width: Self.cardSize.width, height: Self.cardSize.height)
-            .clipped()
-            .transition(.opacity)
-            .onAppear { if isPlaying { motionStart = Date() } }
-            .onChange(of: isPlaying) { _, playing in
-                if playing {
-                    motionStart = Date()
-                } else if let start = motionStart {
-                    motionBase += Date().timeIntervalSince(start)
-                    motionStart = nil
-                }
-            }
+            Image(uiImage: artwork)
+                .resizable()
+                .scaledToFill()
+                .frame(width: Self.cardSize.width, height: Self.cardSize.height)
+                .clipped()
+                .transition(.opacity)
         } else {
             // Artwork still loading (or the show has none).
             Theme.statsCardRaised
