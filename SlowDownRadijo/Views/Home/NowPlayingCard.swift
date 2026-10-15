@@ -15,16 +15,18 @@ struct NowPlayingCard: View {
     static let cardSize = CGSize(width: 230, height: 230)
 
     var body: some View {
-        ZStack(alignment: .top) {
-            CardSideEqualizer(isActive: isPlaying)
-                // Figma: the "Equalizer" frame sits 45pt below the
-                // preview's top edge, centred on the card.
-                .padding(.top, 45)
-
-            card
-        }
-        .frame(maxWidth: .infinity)
-        .frame(height: Self.cardSize.height)
+        card
+            .frame(maxWidth: .infinity)
+            .frame(height: Self.cardSize.height)
+            // Behind the card and never wider than the page: as a
+            // background it can't widen the layout (it did, pushing the
+            // whole page out to the screen's edges). Figma: the
+            // "Equalizer" frame sits 45pt below the preview's top edge,
+            // centred on the card.
+            .background(alignment: .top) {
+                CardSideEqualizer(isActive: isPlaying)
+                    .padding(.top, 45)
+            }
     }
 
     private var card: some View {
@@ -51,12 +53,12 @@ struct NowPlayingCard: View {
 
 }
 
-/// The waveform either side of `NowPlayingCard`: eleven thin bars a side,
+/// The waveform either side of `NowPlayingCard`: nine thin bars a side,
 /// growing up and down from the card's middle line, tall next to the card
-/// and smaller and fainter towards the screen's edges — a sound wave
-/// spreading out from the show. Each bar runs from a soft pink at its tips
-/// to near-white at its core with a faint glow around it, in the app's
-/// warm palette (between `liveRed` and white).
+/// and smaller and fainter towards the page's edges — a sound wave
+/// spreading out from the show. In the host line's colour
+/// (`Theme.mutedText`), plain, no glow; it stays within the page's
+/// content width.
 ///
 /// Motion: every bar follows its own mix of quick sines at unrelated
 /// frequencies, and all of them swell together on a shared pulse of about
@@ -74,17 +76,15 @@ struct CardSideEqualizer: View {
 
     /// The card's width plus the bars on either side, centred on the card.
     static let size = CGSize(width: NowPlayingCard.cardSize.width + 2 * sideWidth, height: 140)
-    private static let barsPerSide = 11
+    private static let barsPerSide = 9
     private static let barWidth: CGFloat = 3
-    private static let spacing: CGFloat = 6.5
+    private static let spacing: CGFloat = 5.6
     /// From the card's edge to the first bar.
-    private static let inset: CGFloat = 10
+    private static let inset: CGFloat = 8
     private static let sideWidth = inset + spacing * CGFloat(barsPerSide)
     private static let blendDuration: TimeInterval = 0.8
 
-    private static let tip = Color(hex: 0xF08BB8)
-    private static let core = Color(hex: 0xFFF1F6)
-    private static let glow = Color(hex: 0xE5508A)
+    private static let color = Theme.mutedText
 
     private struct Bar {
         let x: CGFloat
@@ -165,23 +165,10 @@ struct CardSideEqualizer: View {
                 return (CGRect(x: bar.x, y: (size.height - height) / 2, width: Self.barWidth, height: height),
                         bar.opacity * brightness)
             }
-            // The glow: the same bars, wider and blurred, underneath.
-            context.drawLayer { glow in
-                glow.addFilter(.blur(radius: 4))
-                for (rect, opacity) in rects {
-                    glow.fill(Path(roundedRect: rect.insetBy(dx: -1.5, dy: -1), cornerRadius: 3),
-                              with: .color(Self.glow.opacity(0.55 * opacity)))
-                }
-            }
             for (rect, opacity) in rects {
                 var bar = context
                 bar.opacity = opacity
-                bar.fill(Path(roundedRect: rect, cornerRadius: Self.barWidth / 2),
-                         with: .linearGradient(Gradient(stops: [
-                            .init(color: Self.tip, location: 0),
-                            .init(color: Self.core, location: 0.5),
-                            .init(color: Self.tip, location: 1),
-                         ]), startPoint: CGPoint(x: rect.midX, y: rect.minY), endPoint: CGPoint(x: rect.midX, y: rect.maxY)))
+                bar.fill(Path(roundedRect: rect, cornerRadius: Self.barWidth / 2), with: .color(Self.color))
             }
         }
     }
