@@ -49,7 +49,7 @@ final class VoiceMessageViewModel: ObservableObject {
             // Recording through the same shared audio session as the live
             // stream would either conflict or bleed radio audio into the
             // mic — pause playback first.
-            radioPlayer.pause()
+            radioPlayer.pause(reason: .voiceMessage)
             do {
                 try recorder.startRecording()
                 state = .recording
@@ -68,6 +68,16 @@ final class VoiceMessageViewModel: ObservableObject {
         if case .recording = state, let result = recorder.stopRecording() {
             recorder.discardRecording(at: result.url)
         }
+        radioPlayer.reactivatePlaybackAudioSession()
+        state = .ready
+    }
+
+    /// Out of the "recorded" step without sending: the recording is
+    /// deleted and the tab is back where it started.
+    func discardRecording() {
+        guard case .recorded(let url, _) = state else { return }
+        recorder.stopPlayback()
+        recorder.discardRecording(at: url)
         radioPlayer.reactivatePlaybackAudioSession()
         state = .ready
     }
@@ -98,7 +108,9 @@ final class VoiceMessageViewModel: ObservableObject {
                 recorder.discardRecording(at: url)
                 radioPlayer.reactivatePlaybackAudioSession()
                 state = .sent
+                Analytics.shared.track(.messageSent(success: true, seconds: Int(duration)))
             } catch {
+                Analytics.shared.track(.messageSent(success: false, seconds: Int(duration)))
                 uploadFailedAlert = true
                 state = .recorded(url: url, duration: duration)
             }

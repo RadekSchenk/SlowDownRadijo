@@ -39,3 +39,14 @@ struct NowPlayingTrack: Equatable {
         }
     }
 }
+
+extension TrackTrust {
+    static func isRealSong(_ track: NowPlayingTrack, shows: [Show]) -> Bool {
+        isRealSong(artist: track.artist, title: track.title, shows: shows)
+    }
+
+    /// Same song? Compares the way the server stores it.
+    static func matches(_ track: NowPlayingTrack, artist: String, title: String) -> Bool {
+        normalized(track.artist) == normalized(artist) && normalized(track.title) == normalized(title)
+    }
+}

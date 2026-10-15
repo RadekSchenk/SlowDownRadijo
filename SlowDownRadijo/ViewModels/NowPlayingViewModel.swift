@@ -25,6 +25,9 @@ final class NowPlayingViewModel: ObservableObject {
     /// there's genuinely no clip to play, so the button shouldn't show.
     @Published private(set) var currentTrackHasNoITunesMatch = false
     @Published private(set) var currentShow: Show?
+    /// `track`, but only while `TrackTrust` is sure it's a real song playing
+    /// right now — what the home screen shows under the host.
+    @Published private(set) var verifiedTrack: NowPlayingTrack?
     @Published private(set) var showArtwork: UIImage?
     /// Fraction (0...1) of `currentShow`'s scheduled block elapsed right now.
     @Published private(set) var showProgress: Double = 0
@@ -42,6 +45,14 @@ final class NowPlayingViewModel: ObservableObject {
     /// Downloaded bytes for `trackArtworkURL`, used for MPNowPlayingInfoCenter
     /// (which needs actual image data, not a URL).
     private var trackArtworkImage: UIImage?
+    /// When the current `track` really started, if we know: we saw the
+    /// metadata change to it, or the server logged its start. `nil` right
+    /// after launch until one of those confirms it.
+    private var trackConfirmedStart: Date?
+    private var lastServerCheck = Date.distantPast
+    private var serverCheckTask: Task<Void, Never>?
+    private lazy var allShows: [Show] = scheduleStore.days.flatMap(\.shows)
+    private var playbackAnalytics: PlaybackAnalytics?
 
     init(
         player: RadioPlayerService,
@@ -61,12 +72,23 @@ final class NowPlayingViewModel: ObservableObject {
             scheduleStore?.currentShow()?.id
         }
 
+        playbackAnalytics = PlaybackAnalytics(player: player) { [weak scheduleStore] in
+            scheduleStore?.currentShow()?.id
+        }
+
         player.$state
             .receive(on: DispatchQueue.main)
             .sink { [weak self] state in
                 self?.playbackState = state
                 ListeningTracker.shared.update(isPlaying: state == .playing)
             }
+            .store(in: &cancellables)
+
+        // The lock screen's "Hosted by" follows the app's language.
+        LocalizationManager.shared.$language
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.publishNowPlaying() }
             .store(in: &cancellables)
 
         metadataService.$currentTrack
@@ -82,6 +104,7 @@ final class NowPlayingViewModel: ObservableObject {
         showRefreshTimer = Timer.scheduledTimer(withTimeInterval: 20, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
                 self?.updateShowState()
+                self?.updateVerifiedTrack()
             }
         }
 
@@ -92,14 +115,15 @@ final class NowPlayingViewModel: ObservableObject {
         showRefreshTimer?.invalidate()
         showArtworkTask?.cancel()
         trackArtworkTask?.cancel()
+        serverCheckTask?.cancel()
     }
 
     var displayTitle: String {
-        track?.displayText ?? currentShow?.name ?? "Slow Down Rádijo"
+        track?.displayText ?? currentShow?.localizedName ?? "Slow Down Rádijo"
     }
 
     var showName: String {
-        currentShow?.name ?? "Slow Down Rádijo"
+        currentShow?.localizedName ?? "Slow Down Rádijo"
     }
 
     /// For the sleep timer's "Konec pořadu" option.
@@ -119,6 +143,13 @@ final class NowPlayingViewModel: ObservableObject {
     /// again as the newest "Co hrálo" row.
     private func handleTrackChange(_ newTrack: NowPlayingTrack?) {
         guard newTrack != track else { return }
+
+        // A change we watched happen dates the new title; the first title
+        // after launch could have been there for an hour, so it waits for
+        // the server's log to say when it started.
+        trackConfirmedStart = (track != nil && newTrack != nil) ? Date() : nil
+        serverCheckTask?.cancel()
+        lastServerCheck = .distantPast
 
         if let endedTrack = track, let startedAt = trackStartedAt,
            !endedTrack.artist.isEmpty, !endedTrack.title.isEmpty {
@@ -155,6 +186,58 @@ final class NowPlayingViewModel: ObservableObject {
         }
         loadTrackArtwork(for: newTrack)
         publishNowPlaying()
+        updateVerifiedTrack()
+    }
+
+    /// Re-run on every track change and every 20s, so a title that gets
+    /// stuck disappears once it's older than `TrackTrust.maximumAge`.
+    private func updateVerifiedTrack() {
+        #if DEBUG
+        // Screenshot tests: `-debugVerifiedTrack "Artist - Title"` shows a
+        // song line without waiting for one on the live stream.
+        if let forced = UserDefaults.standard.string(forKey: "debugVerifiedTrack") {
+            verifiedTrack = NowPlayingTrack.parse(streamTitle: forced)
+            return
+        }
+        #endif
+        let now = Date()
+        var trusted: NowPlayingTrack?
+        if let track, TrackTrust.isRealSong(track, shows: allShows) {
+            if let start = trackConfirmedStart {
+                let showStart = currentShow?.hostName == nil
+                    ? nil
+                    : currentShow.flatMap { scheduleStore.startDate(for: $0, relativeTo: now) }
+                if TrackTrust.isCurrent(start: start, now: now, showStart: showStart) {
+                    trusted = track
+                }
+            } else if now.timeIntervalSince(lastServerCheck) >= 60 {
+                checkServerStart(for: track)
+            }
+        }
+        guard trusted != verifiedTrack else { return }
+        withAnimation(.easeInOut(duration: 0.35)) {
+            verifiedTrack = trusted
+        }
+        publishNowPlaying()
+    }
+
+    /// Asks `played_tracks` (logged every minute by `collect-now-playing`)
+    /// when the current title started. Retried each minute until it shows
+    /// up there.
+    private func checkServerStart(for track: NowPlayingTrack) {
+        lastServerCheck = Date()
+        serverCheckTask?.cancel()
+        serverCheckTask = Task { [weak self] in
+            guard let rows = try? await RemoteHistoryService.fetchPage(
+                before: nil,
+                windowStart: Date().addingTimeInterval(-3 * 3600),
+                limit: 1
+            ), let latest = rows.first, !Task.isCancelled else { return }
+            guard let self, self.track == track,
+                  TrackTrust.matches(track, artist: latest.artist, title: latest.title) else { return }
+            self.trackConfirmedStart = latest.playedAt
+            self.updateVerifiedTrack()
+        }
     }
 
     private func loadTrackArtwork(for track: NowPlayingTrack?) {
@@ -209,6 +292,12 @@ final class NowPlayingViewModel: ObservableObject {
 
     private func loadShowArtwork(for show: Show?) {
         showArtworkTask?.cancel()
+        // A bundled photo is there at once, no download.
+        if let name = show?.artworkName, let image = UIImage(named: name) {
+            showArtwork = image
+            publishNowPlaying()
+            return
+        }
         guard let url = show?.imageURL else {
             showArtwork = nil
             publishNowPlaying()
@@ -225,10 +314,22 @@ final class NowPlayingViewModel: ObservableObject {
         }
     }
 
+    /// The lock screen, Control Center and CarPlay show what the home
+    /// screen shows: the song only when `TrackTrust` vouches for it (never
+    /// the raw stream title — promos, show placeholders, stuck songs), with
+    /// the show below; otherwise the show and its host. Always the show's
+    /// own photo, as on the home card.
     private func publishNowPlaying() {
-        // Prefer the track's own artwork; fall back to the show's, since a
-        // live stream doesn't always resolve to a real per-track match
-        // (e.g. DJ mix blocks).
-        player.updateNowPlaying(track: track, showTitle: showName, artwork: trackArtworkImage ?? showArtwork)
+        let showTitle = currentShow?.displayTitle ?? "Slow Down Rádijo"
+        let title: String
+        let subtitle: String
+        if let song = verifiedTrack {
+            title = "\(song.artist) – \(song.title)"
+            subtitle = showTitle
+        } else {
+            title = showTitle
+            subtitle = currentShow?.hostName.map { "\(L10n.hostedByKicker) \($0)" } ?? "Slow Down Rádijo"
+        }
+        player.updateNowPlaying(title: title, subtitle: subtitle, artwork: showArtwork)
     }
 }

@@ -74,7 +74,7 @@ struct NowPlayingWidgetView: View {
 
     @ViewBuilder
     private var artwork: some View {
-        if let imageName = entry.show?.hostImageName {
+        if let imageName = entry.show?.artworkName ?? entry.show?.hostImageName {
             Image(imageName)
                 .resizable()
                 .scaledToFill()

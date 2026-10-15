@@ -2,6 +2,8 @@ import SwiftUI
 
 /// "2 h 14 m": big white numerals with small muted units, as in Figma's
 /// stats cards (36/19 on the Statistiky screen, 24/14 on the home block).
+/// From 24 hours on, days lead: "365d 23 h 59 m" — the "d" set tight
+/// against its number, as in Figma, to fit the half-width home card.
 struct DurationText: View {
     let seconds: Int
     let numberSize: CGFloat
@@ -9,16 +11,28 @@ struct DurationText: View {
     let lineHeight: CGFloat
 
     var body: some View {
-        let parts = StatsFormat.hoursAndMinutes(seconds: seconds)
+        let parts = StatsFormat.daysHoursAndMinutes(seconds: seconds)
         let gap = unitSize * 0.27 // the width of a space between number and unit
         HStack(alignment: .lastTextBaseline, spacing: 0) {
-            number(StatsFormat.number(parts.hours))
-            unit("h").padding(.horizontal, gap)
-            number("\(parts.minutes)")
-            unit("m").padding(.leading, gap)
+            if seconds > 0, seconds < 60 {
+                // The first minute is under way: "< 1 m", not a "0 h 0 m"
+                // that looks as if nothing is being counted.
+                unit("<").padding(.trailing, gap)
+                number("1")
+                unit("m").padding(.leading, gap)
+            } else {
+                if parts.days > 0 {
+                    number(StatsFormat.number(parts.days))
+                    unit("d").padding(.trailing, gap)
+                }
+                number("\(parts.hours)")
+                unit("h").padding(.horizontal, gap)
+                number("\(parts.minutes)")
+                unit("m").padding(.leading, gap)
+            }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(parts.hours) h \(parts.minutes) m")
+        .accessibilityLabel(seconds > 0 && seconds < 60 ? L10n.statsUnderAMinute : StatsFormat.duration(seconds: seconds))
     }
 
     /// The digits pop in when they change (library P9 — Number pop-in).
@@ -83,12 +97,21 @@ struct StatsMetricCard: View {
     let label: String
     let seconds: Int
     let description: String
+    /// Shows `ListeningDot` by the label (the "Dnes" card while counting).
+    var isLive = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(label)
-                .font(Theme.Typography.Manrope.bold(size: 14, relativeTo: .subheadline))
-                .foregroundStyle(Theme.mutedText)
+            HStack(spacing: 6) {
+                Text(label)
+                    .font(Theme.Typography.Manrope.bold(size: 14, relativeTo: .subheadline))
+                    .foregroundStyle(Theme.mutedText)
+                if isLive {
+                    ListeningDot()
+                        .transition(.opacity)
+                }
+            }
+            .animation(Motion.smoothOut(Motion.fast), value: isLive)
             DurationText(seconds: seconds, numberSize: 36, unitSize: 19, lineHeight: 44)
             StatsBodyText(description)
         }
@@ -173,90 +196,27 @@ struct WeeklyChartCard: View {
     }
 }
 
-/// The week's most-listened show: full-bleed artwork under a scrim, a
-/// time-and-share badge on top, kicker, title and host at the bottom.
-struct TopShowCard: View {
-    let share: ListeningStatsSummary.ShowShare
-
-    var body: some View {
-        Color.clear
-            .frame(height: 260)
-            .frame(maxWidth: .infinity)
-            .overlay { artwork }
-            .overlay { scrim }
-            .overlay(alignment: .topLeading) { badge }
-            .overlay(alignment: .bottomLeading) { caption }
-            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-    }
-
-    @ViewBuilder
-    private var artwork: some View {
-        if share.usesBundledHeroImage {
-            Image("TheBestOfSlowDownHero")
-                .resizable()
-                .scaledToFill()
-        } else {
-            RemoteArtworkView(url: share.imageURL, cornerRadius: 0)
-        }
-    }
-
-    /// Fades the photo into the page background so the caption stays legible.
-    private var scrim: some View {
-        LinearGradient(
-            stops: [
-                .init(color: Theme.background.opacity(0), location: 0.35),
-                .init(color: Theme.background.opacity(0.702), location: 0.65),
-                .init(color: Theme.background.opacity(0.949), location: 0.90),
-                .init(color: Theme.background, location: 1.0),
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-    }
-
-    private var badge: some View {
-        PopNumberText(
-            text: "\(StatsFormat.duration(seconds: share.seconds)) · \(StatsFormat.percent(share.fraction))",
-            font: Theme.Typography.Manrope.extraBold(size: 12),
-            color: Theme.liveRed
-        )
-        .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(Theme.liveRed.opacity(0.15), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).stroke(Theme.liveRed, lineWidth: 1))
-            .padding(16)
-    }
-
-    private var caption: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(L10n.statsTopShowKicker)
-                .font(Theme.Typography.Manrope.bold(size: 9, relativeTo: .caption2))
-                .foregroundStyle(Theme.mutedText)
-            Text(share.name)
-                .font(Theme.Typography.Manrope.extraBold(size: 20, relativeTo: .title3))
-                .foregroundStyle(Theme.textPrimary)
-                .manropeLineHeight(24, fontSize: 20)
-            if let host = share.hostName {
-                Text(host)
-                    .font(Theme.Typography.Manrope.medium(size: 13, relativeTo: .footnote))
-                    .foregroundStyle(Theme.mutedText)
-            }
-        }
-        .padding(20)
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-/// One of the other shows: name + host, time and share, and a thin share bar.
+/// One show of the week's ranking: name + host, time and share, and a thin
+/// share bar. The most-listened one (`isTop`) is the same row, a step
+/// louder — a red kicker, larger name and time, a thicker red bar — so it
+/// leads the list rather than standing apart from it.
 struct ShowShareRow: View {
     let share: ListeningStatsSummary.ShowShare
+    var isTop = false
 
     var body: some View {
         VStack(spacing: 10) {
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
+                    if isTop {
+                        Text(L10n.statsTopShowKicker)
+                            .font(Theme.Typography.Manrope.extraBold(size: 11, relativeTo: .caption2))
+                            .tracking(0.5)
+                            .foregroundStyle(Theme.liveRed)
+                            .padding(.bottom, 2)
+                    }
                     Text(share.name)
-                        .font(Theme.Typography.Manrope.extraBold(size: 17, relativeTo: .headline))
+                        .font(Theme.Typography.Manrope.extraBold(size: isTop ? 21 : 17, relativeTo: .headline))
                         .foregroundStyle(Theme.textPrimary)
                     if let host = share.hostName {
                         Text(host)
@@ -268,7 +228,7 @@ struct ShowShareRow: View {
                 VStack(alignment: .trailing, spacing: 4) {
                     PopNumberText(
                         text: StatsFormat.duration(seconds: share.seconds),
-                        font: Theme.Typography.Manrope.extraBold(size: 15, relativeTo: .subheadline)
+                        font: Theme.Typography.Manrope.extraBold(size: isTop ? 17 : 15, relativeTo: .subheadline)
                     )
                     PopNumberText(
                         text: StatsFormat.percent(share.fraction),
@@ -282,14 +242,37 @@ struct ShowShareRow: View {
                 ZStack(alignment: .leading) {
                     Capsule().fill(Theme.divider)
                     Capsule()
-                        .fill(Theme.mutedText)
-                        .frame(width: max(3, proxy.size.width * CGFloat(share.fraction)))
+                        .fill(isTop ? Theme.liveRed : Theme.mutedText)
+                        .frame(width: max(barHeight, proxy.size.width * CGFloat(share.fraction)))
                         .animation(Motion.cardResize, value: share.fraction)
                 }
             }
-            .frame(height: 3)
+            .frame(height: barHeight)
         }
         .padding(.vertical, 16)
         .accessibilityElement(children: .combine)
+    }
+
+    private var barHeight: CGFloat { isTop ? 5 : 3 }
+}
+
+/// Small red dot pulsing like the ON-AIR badge's (`OnAirBadge`): listening
+/// is being counted right now. Steady with Reduce Motion.
+struct ListeningDot: View {
+    @State private var pulse = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        Circle()
+            .fill(Theme.liveRed)
+            .frame(width: 6, height: 6)
+            .opacity(pulse || reduceMotion ? 1 : 0.35)
+            .onAppear {
+                guard !reduceMotion else { return }
+                withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
+                    pulse = true
+                }
+            }
+            .accessibilityLabel(L10n.statsCountingNow)
     }
 }

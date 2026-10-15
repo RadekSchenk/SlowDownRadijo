@@ -24,18 +24,18 @@ struct RootTabView: View {
     private static let homeIndicatorZone: CGFloat = 19
 
     /// The window's bottom safe-area inset: 34pt on iPhones with a home
-    /// indicator, 0 on those without. Read from UIKit — a `GeometryReader`
-    /// inside the `safeAreaInset` / an ignoring background reports 0 here.
-    /// `body` re-runs right after the first `.onAppear` (state changes), by
-    /// which time the window exists.
-    private var bottomSafeInset: CGFloat {
-        let windows = UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .flatMap(\.windows)
-        return (windows.first(where: \.isKeyWindow) ?? windows.first)?.safeAreaInsets.bottom ?? 0
-    }
+    /// indicator, 0 on those without. Read from UIKit once, in `.onAppear`,
+    /// and kept in state: reading it inside `body` (as this view once did)
+    /// stopped SwiftUI from updating this view on iOS 26 — taps landed, but
+    /// the selected tab never changed on screen.
+    @State private var bottomSafeInset: CGFloat = 0
 
     @State private var selectedTab = 0
+    /// Pages built so far (see `tabPage`).
+    @State private var visitedTabs: Set<Int> = [0]
+    /// Taps on the already selected tab, per tab: each one scrolls that
+    /// page back to the top (`.scrollsToTopOnTabReselect()`).
+    @State private var reselectCounts: [Int: Int] = [:]
     /// `init()` isn't a safe place for the autoplay side effect — SwiftUI
     /// re-invokes it (e.g. when `AppRootView` re-renders as the splash
     /// dismisses), which previously spun up a second `RadioPlayerService`
@@ -49,6 +49,8 @@ struct RootTabView: View {
     /// Guards the once-per-launch "Novinky" notification check the same
     /// way `hasAutoplayed` guards autoplay — see `NewsNotificationManager`.
     @State private var hasCheckedNewsNotifications = false
+    /// The last notification tap acted on (see `ShowReminderStore.OpenRequest`).
+    @State private var handledOpenRequestID: UUID?
 
     /// The services the state objects share, built on first access only.
     /// SwiftUI may call `init()` again, but it evaluates each `StateObject`
@@ -82,88 +84,146 @@ struct RootTabView: View {
     }
 
     var body: some View {
-        TabView(selection: $selectedTab) {
-            NavigationStack {
-                HomeView(
-                    nowPlaying: nowPlayingViewModel,
-                    history: historyViewModel,
-                    scheduleStore: scheduleStore,
-                    onOpenStats: { selectedTab = Self.statsTab }
-                )
-                .toolbar(.hidden, for: .navigationBar)
-            }
-            .tag(0)
+        // Our own tab container instead of `TabView`: the bottom bar is
+        // hand-built (Figma `bottom-nav`), and on iOS 26 a hidden system tab
+        // bar under it kept the highlight stuck on Rádio. Each page is built
+        // on its first visit and then kept alive (scroll position, state),
+        // only the selected one is shown.
+        //
+        // The pages and the bar are stacked, not overlapped: nothing of a
+        // page may reach under the bar, or it takes the bar's taps.
+        VStack(spacing: 0) {
+            pages
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .toastOverlay()
 
-            if FeatureFlags.standaloneProgramTab {
-                NavigationStack {
-                    ProgramView(scheduleStore: scheduleStore)
-                        .toolbar(.hidden, for: .navigationBar)
-                }
-                .tag(1)
-            }
-
-            if FeatureFlags.nowPlayingHistoryAndFavorites {
-                NavigationStack {
-                    FavoritesView()
-                        .toolbar(.hidden, for: .navigationBar)
-                }
-                .tag(2)
-            }
-
-            NavigationStack {
-                MessageView(viewModel: voiceMessageViewModel) {
-                    selectedTab = 0
-                }
-                .toolbar(.hidden, for: .navigationBar)
-            }
-            .tag(3)
-
-            NavigationStack {
-                SupportView()
-                    .toolbar(.hidden, for: .navigationBar)
-            }
-            .tag(4)
-
-            NavigationStack {
-                StatsView()
-                    .toolbar(.hidden, for: .navigationBar)
-            }
-            .tag(Self.statsTab)
-        }
-        // The native tab bar centers/compresses its items instead of
-        // spreading them to Figma's `bottom-nav` spec (node 12294:257) —
-        // 60pt side margins, space-between across the full width — so it
-        // stays hidden and `bottomNav` below takes its place.
-        .toolbar(.hidden, for: .tabBar)
-        .tint(Theme.liveRed)
-        .safeAreaInset(edge: .bottom, spacing: 0) {
             bottomNav
         }
-
+        // The bar reaches the screen's bottom edge itself (see `bottomNav`).
+        .ignoresSafeArea(.container, edges: .bottom)
+        .tint(Theme.liveRed)
         .environmentObject(favoriteTrackStore)
         .environmentObject(previewPlayer)
         .environmentObject(statsStore)
+        .environment(\.isHostedShowOnAir, nowPlayingViewModel.currentShow?.hostName != nil)
         .onAppear {
+            bottomSafeInset = Self.windowBottomInset()
             configureNavigationBarAppearance()
             // Autoplay: a radio app should start making sound as soon as it
             // opens, not wait for a tap — unless the user turned it off.
             if !hasAutoplayed {
                 hasAutoplayed = true
                 if autoplayEnabled {
-                    player.play()
+                    // Once the launch cover has faded: starting the stream
+                    // activates the audio session, which can hold up the
+                    // main thread — and with it the first frames — for a
+                    // moment. The stream takes longer than this to connect
+                    // anyway.
+                    Task {
+                        try? await Task.sleep(for: .milliseconds(300))
+                        player.play(trigger: .autoplay)
+                    }
                 }
             }
             if !hasCheckedNewsNotifications {
                 hasCheckedNewsNotifications = true
                 Task { await NewsNotificationManager.checkForNewPost() }
             }
+            ShowReminderStore.shared.reschedule()
+            Analytics.shared.screen(.home)
+        }
+        // A tap on a "Právě začíná" notification: home, and the radio for
+        // "Poslouchat".
+        .onReceive(ShowReminderStore.shared.$openRequest.compactMap { $0 }) { request in
+            ShowReminderStore.shared.finishOpenRequest(request)
+            guard request.id != handledOpenRequestID else { return }
+            handledOpenRequestID = request.id
+            selectedTab = 0
+            Analytics.shared.track(.showNotificationOpened(showID: request.showID, listen: request.listen))
+            if request.listen, player.state != .playing {
+                player.play(trigger: .notification)
+            }
+        }
+        .onChange(of: selectedTab) { _, tab in
+            let isFirstVisit = visitedTabs.insert(tab).inserted
+            Analytics.shared.screen(Self.analyticsScreen(for: tab))
+            if tab == Self.statsTab {
+                Analytics.shared.track(.statsOpened(communityUnlocked: statsStore.communityUnlocked))
+                // The page refreshes itself when first built; it then stays
+                // alive, so later visits refresh from here.
+                if !isFirstVisit {
+                    Task { await statsStore.refreshAll() }
+                }
+            }
         }
     }
 
-    /// Hand-built replacement for `TabView`'s own tab bar chrome — see the
-    /// `.toolbar(.hidden, for: .tabBar)` comment above for why. Visible
-    /// tabs are hardcoded (not derived from the `TabView` content above):
-    /// Rádio, Vzkaz, Statistiky, Podpora. The two feature-flagged pages are
+    /// The tab pages, one above the other; see `tabPage`.
+    private var pages: some View {
+        ZStack {
+            tabPage(0) {
+                HomeView(
+                    nowPlaying: nowPlayingViewModel,
+                    history: historyViewModel,
+                    scheduleStore: scheduleStore,
+                    onOpenStats: { selectedTab = Self.statsTab }
+                )
+            }
+
+            if FeatureFlags.standaloneProgramTab {
+                tabPage(1) { ProgramView(scheduleStore: scheduleStore) }
+            }
+
+            if FeatureFlags.nowPlayingHistoryAndFavorites {
+                tabPage(2) { FavoritesView() }
+            }
+
+            tabPage(3) {
+                MessageView(viewModel: voiceMessageViewModel) {
+                    selectedTab = 0
+                }
+            }
+
+            tabPage(4) { SupportView() }
+
+            tabPage(Self.statsTab) { StatsView() }
+        }
+    }
+
+    /// One page of the tab container: built on its first visit, then kept
+    /// in the hierarchy and only shown while selected.
+    @ViewBuilder
+    private func tabPage<Content: View>(_ tag: Int, @ViewBuilder content: () -> Content) -> some View {
+        if visitedTabs.contains(tag) || selectedTab == tag {
+            let isSelected = selectedTab == tag
+            // No `NavigationStack`: the pages push nothing (the menu has its
+            // own), and a UIKit navigation view only adds a layer that can
+            // catch touches.
+            content()
+                .environment(\.tabReselectCount, reselectCounts[tag, default: 0])
+                .opacity(isSelected ? 1 : 0)
+                .allowsHitTesting(isSelected)
+                .accessibilityHidden(!isSelected)
+                .zIndex(isSelected ? 1 : 0)
+                #if DEBUG
+                // Lets the UI tests see which page is on screen.
+                .overlay(alignment: .topLeading) {
+                    if isSelected {
+                        Color.clear
+                            .frame(width: 1, height: 1)
+                            .accessibilityElement()
+                            .accessibilityLabel("page \(tag)")
+                            .accessibilityIdentifier("page.\(tag)")
+                    }
+                }
+                #endif
+        }
+    }
+
+    /// The hand-built tab bar (Figma `bottom-nav`, node 12294:257: 40pt
+    /// side insets, tabs spread across the width). Visible tabs are
+    /// hardcoded (not derived from the pages above):
+    /// Rádio, Statistiky, Vzkaz, Podpora (Figma 12318:5147). The two feature-flagged pages are
     /// kept out of the nav entirely, not just hidden from this bar.
     private var bottomNav: some View {
         VStack(spacing: 0) {
@@ -174,9 +234,9 @@ struct RootTabView: View {
             HStack {
                 tabBarButton(tag: 0, title: L10n.tabRadio, image: "TabIconRadio")
                 Spacer(minLength: 0)
-                tabBarButton(tag: 3, title: L10n.tabMessage, image: "TabIconMessage")
-                Spacer(minLength: 0)
                 tabBarButton(tag: Self.statsTab, title: L10n.tabStats, image: "TabIconStats")
+                Spacer(minLength: 0)
+                tabBarButton(tag: 3, title: L10n.tabMessage, image: "TabIconMessage")
                 Spacer(minLength: 0)
                 tabBarButton(tag: 4, title: L10n.tabSupport, image: "TabIconSupport")
             }
@@ -189,17 +249,43 @@ struct RootTabView: View {
             .padding(.top, 14)
             .padding(.bottom, 10)
         }
-        // Trim the real safe area (34pt) down to the design's 19pt
-        // home-indicator strip: the negative padding lets the bar's bottom edge
-        // reach into the safe area, the background below fills the rest.
-        .padding(.bottom, bottomSafeInset > 0 ? Self.homeIndicatorZone - bottomSafeInset : 0)
-        .background(Theme.tabBarBackground.ignoresSafeArea(edges: .bottom))
+        // The bar runs to the screen's bottom edge (`body` ignores the bottom
+        // safe area); below the tabs it keeps the design's 19pt home-indicator
+        // strip instead of the real 34pt safe area.
+        .padding(.bottom, bottomSafeInset > 0 ? Self.homeIndicatorZone : 0)
+        .background(Theme.tabBarBackground)
+        // Like the system tab bar: the labels stop growing past the larger
+        // text sizes (four of them no longer fit across the screen and
+        // pushed every page wider than it), and a long press shows the tab
+        // enlarged instead (Large Content Viewer).
+        .dynamicTypeSize(...DynamicTypeSize.xLarge)
+    }
+
+    /// See `bottomSafeInset`. Never call from `body`.
+    private static func windowBottomInset() -> CGFloat {
+        let windows = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap(\.windows)
+        return (windows.first(where: \.isKeyWindow) ?? windows.first)?.safeAreaInsets.bottom ?? 0
+    }
+
+    private static func analyticsScreen(for tab: Int) -> AnalyticsScreen {
+        switch tab {
+        case 3: return .message
+        case 4: return .support
+        case statsTab: return .stats
+        default: return .home
+        }
     }
 
     private func tabBarButton(tag: Int, title: String, image: String) -> some View {
         let isSelected = selectedTab == tag
         return Button {
-            selectedTab = tag
+            if isSelected {
+                reselectCounts[tag, default: 0] += 1
+            } else {
+                selectedTab = tag
+            }
         } label: {
             VStack(spacing: 6) {
                 Image(image)
@@ -212,9 +298,16 @@ struct RootTabView: View {
                     .frame(height: 16)
             }
             .foregroundStyle(isSelected ? Theme.liveRed : Theme.tabBarUnselected)
+            // The whole tab is tappable, not just the icon and label glyphs.
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityShowsLargeContentViewer {
+            Image(image).renderingMode(.template)
+            Text(title)
+        }
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .accessibilityIdentifier("tab.\(tag)")
     }
 
     private func configureNavigationBarAppearance() {

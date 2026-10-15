@@ -31,6 +31,7 @@ struct SocialLinksRow: View {
     private func button(urlString: String, label: String, @ViewBuilder icon: () -> some View) -> some View {
         Button {
             guard let url = URL(string: urlString) else { return }
+            Analytics.shared.track(.linkOpened(target: label.lowercased()))
             openURL(url)
         } label: {
             // The header pills' look, at a 44pt tap target.

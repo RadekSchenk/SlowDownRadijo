@@ -17,7 +17,7 @@ struct StatsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 AppHeaderView()
-                    .padding(.top, 40)
+                    .padding(.top, AppHeaderView.topInset)
 
                 VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
                     overview(summary)
@@ -33,10 +33,13 @@ struct StatsView: View {
                 .padding(.bottom, 36)
             }
             .padding(.horizontal, 20)
+            .scrollsToTopOnTabReselect()
         }
         .ignoresSafeArea(edges: .top)
         .background(Theme.background.ignoresSafeArea())
         .refreshable { await stats.refreshAll(force: true) }
+        // First visit; later visits refresh from `RootTabView`, which keeps
+        // the page alive between them.
         .task { await stats.refreshAll() }
     }
 
@@ -54,7 +57,7 @@ struct StatsView: View {
             }
 
             if statsEnabled {
-                StatsMetricCard(label: L10n.today, seconds: summary.todaySeconds, description: L10n.statsTodayDescription)
+                StatsMetricCard(label: L10n.today, seconds: summary.todaySeconds, description: L10n.statsTodayDescription, isLive: stats.isMeasuring)
                 StatsMetricCard(label: L10n.statsTotal, seconds: summary.totalSeconds, description: L10n.statsTotalDescription)
                 // "Everyone together" and the leaderboard wait for a community.
                 if stats.communityUnlocked {
@@ -210,12 +213,11 @@ struct StatsView: View {
                         .font(Theme.Typography.Manrope.regular(size: 13, relativeTo: .footnote))
                         .foregroundStyle(Theme.mutedText)
 
-                    TopShowCard(share: top)
-
+                    // The top show leads the same list, a step louder.
                     VStack(spacing: 0) {
-                        let others = Array(summary.shows.dropFirst().prefix(7))
-                        ForEach(Array(others.enumerated()), id: \.element.id) { index, share in
-                            if index > 0 { ListDivider() }
+                        ShowShareRow(share: top, isTop: true)
+                        ForEach(Array(summary.shows.dropFirst().prefix(7)), id: \.id) { share in
+                            ListDivider()
                             ShowShareRow(share: share)
                         }
                     }
