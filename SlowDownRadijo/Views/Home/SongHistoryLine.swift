@@ -37,6 +37,8 @@ struct SongHistoryLine: View {
     /// Each page's height, by page.
     @State private var heights: [Int: CGFloat] = [:]
 
+    private var visibleHeight: CGFloat? { heights[visible ?? 0] ?? heights[0] }
+
     private var pageIDs: [Int] { earlier.isEmpty ? [0] : Array(0...(earlier.count + 1)) }
 
     var body: some View {
@@ -46,18 +48,26 @@ struct SongHistoryLine: View {
                 ForEach(pageIDs.reversed(), id: \.self) { id in
                     page(id)
                         .frame(maxWidth: .infinity)
+                        // Its own full height, whatever the row allows.
+                        .fixedSize(horizontal: false, vertical: true)
                         .containerRelativeFrame(.horizontal)
                         .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { heights[id] = $0 }
                 }
             }
             .scrollTargetLayout()
+            // As tall as the page showing, pages hanging from the top: a
+            // taller earlier song (two lines and "před 6 min") would
+            // otherwise make the row taller than the frame below, and the
+            // scroll view would centre it, pulling the song playing now up
+            // towards the host line.
+            .frame(height: visibleHeight, alignment: .top)
         }
         .scrollTargetBehavior(.paging)
         .scrollPosition(id: $visible, anchor: .center)
         .defaultScrollAnchor(.trailing)
         .scrollIndicators(.hidden)
         .scrollDisabled(earlier.isEmpty)
-        .frame(height: heights[visible ?? 0] ?? heights[0])
+        .frame(height: visibleHeight)
         .animation(.smooth(duration: 0.3), value: visible)
         .task(id: current) {
             showNow()
