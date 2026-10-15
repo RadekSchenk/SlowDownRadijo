@@ -1,10 +1,12 @@
 import SwiftUI
 
-/// The white Slow Down Rádijo wordmark whose sun — the striped "O" —
-/// catches a band of warm light now and then: shortly after it appears,
-/// then once a minute, the light sweeps across the stripes left to right.
-/// Only the sun's stripes light up (the band is masked by the logo's own
-/// shape and kept within the sun). With Reduce Motion it stays still.
+/// The white Slow Down Rádijo wordmark whose sun — the striped "O" — is
+/// always gently alive: its stripes breathe like a slow equalizer, each on
+/// its own rhythm, shortening by up to a tenth about the sun's middle and
+/// back. Shortly after it appears, then once a minute, a band of warm
+/// light also sweeps across the stripes left to right (masked by the
+/// logo's own shape, kept within the sun). With Reduce Motion it stays
+/// still.
 struct AnimatedBrandLogo: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// 0 = the band waits left of the sun, 1 = it has passed out right.
@@ -16,8 +18,24 @@ struct AnimatedBrandLogo: View {
     private static let interval: Duration = .seconds(60)
     private static let duration: Double = 1.6
 
+    /// Each stripe's slice of the sun, as fractions of the logo's width
+    /// (boundaries in the gaps between the stripes; the "L" ends at 455 px
+    /// and the "W" starts at 798, so neither is touched).
+    private static let stripes: [ClosedRange<CGFloat>] = {
+        let edges: [CGFloat] = [458, 480, 503, 538, 581, 645, 697, 742, 765, 792]
+        return zip(edges, edges.dropFirst()).map { ($0 / 1225)...($1 / 1225) }
+    }()
+
     var body: some View {
-        logo
+        Group {
+            if reduceMotion {
+                logo
+            } else {
+                TimelineView(.animation) { context in
+                    breathingLogo(at: context.date.timeIntervalSinceReferenceDate)
+                }
+            }
+        }
             .overlay {
                 GeometryReader { geometry in
                     let size = geometry.size
@@ -48,6 +66,53 @@ struct AnimatedBrandLogo: View {
                     try? await Task.sleep(for: Self.interval)
                 }
             }
+    }
+
+    /// The logo without its sun, plus each stripe drawn on its own,
+    /// shortened about the sun's middle by its own slow rhythm.
+    private func breathingLogo(at time: TimeInterval) -> some View {
+        GeometryReader { geometry in
+            let size = geometry.size
+            let sun = CGRect(
+                x: Self.sun.minX * size.width, y: Self.sun.minY * size.height,
+                width: Self.sun.width * size.width, height: Self.sun.height * size.height
+            )
+            let anchor = UnitPoint(x: 0.5, y: sun.midY / max(size.height, 1))
+            let stripesSpan = Self.stripes[0].lowerBound...Self.stripes[Self.stripes.count - 1].upperBound
+            ZStack(alignment: .topLeading) {
+                logo.mask {
+                    // Everything but the stripes.
+                    Rectangle()
+                        .overlay(alignment: .topLeading) {
+                            Rectangle()
+                                .frame(width: (stripesSpan.upperBound - stripesSpan.lowerBound) * size.width, height: sun.height)
+                                .offset(x: stripesSpan.lowerBound * size.width, y: sun.minY)
+                                .blendMode(.destinationOut)
+                        }
+                        .compositingGroup()
+                }
+                ForEach(Self.stripes.indices, id: \.self) { index in
+                    let slice = Self.stripes[index]
+                    logo
+                        .scaleEffect(x: 1, y: Self.stripeScale(index, at: time), anchor: anchor)
+                        .mask(alignment: .topLeading) {
+                            Rectangle()
+                                .frame(width: (slice.upperBound - slice.lowerBound) * size.width, height: sun.height)
+                                .offset(x: slice.lowerBound * size.width, y: sun.minY)
+                        }
+                }
+            }
+        }
+    }
+
+    /// 0.9…1: two slow sines per stripe at unrelated speeds (0.2–0.5 Hz),
+    /// so the sun never visibly repeats.
+    private static func stripeScale(_ index: Int, at time: TimeInterval) -> CGFloat {
+        let i = Double(index)
+        let a = sin(2 * .pi * (0.21 + 0.031 * i) * time + i * 1.7)
+        let b = sin(2 * .pi * (0.37 + 0.023 * (8 - i)) * time + i * 0.9)
+        let level = (0.6 * a + 0.4 * b + 1) / 2
+        return 0.9 + 0.1 * CGFloat(level)
     }
 
     private var logo: some View {
