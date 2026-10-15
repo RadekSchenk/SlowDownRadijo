@@ -37,7 +37,25 @@ struct SongHistoryLine: View {
     /// Each page's height, by page.
     @State private var heights: [Int: CGFloat] = [:]
 
-    private var visibleHeight: CGFloat? { heights[visible ?? 0] ?? heights[0] }
+    /// How far the row is scrolled (its content's left edge, negative)
+    /// and how wide a page is, for `rowHeight`.
+    @State private var contentX: CGFloat = 0
+    @State private var pageWidth: CGFloat = 0
+
+    /// The row's height follows the finger: between two pages it blends
+    /// their heights by how far the swipe has got, so the progress bar and
+    /// text below glide instead of jumping when a one-line song gives way
+    /// to a two-line one.
+    private var rowHeight: CGFloat? {
+        let order = Array(pageIDs.reversed())
+        let settled = heights[visible ?? 0] ?? heights[0]
+        guard pageWidth > 0, order.count > 1 else { return settled }
+        let position = min(max(-contentX / pageWidth, 0), CGFloat(order.count - 1))
+        let lower = Int(position.rounded(.down))
+        let upper = min(lower + 1, order.count - 1)
+        guard let from = heights[order[lower]], let to = heights[order[upper]] else { return settled }
+        return from + (to - from) * (position - CGFloat(lower))
+    }
 
     private var pageIDs: [Int] { earlier.isEmpty ? [0] : Array(0...(earlier.count + 1)) }
 
@@ -55,20 +73,21 @@ struct SongHistoryLine: View {
                 }
             }
             .scrollTargetLayout()
+            .onGeometryChange(for: CGFloat.self) { $0.frame(in: .scrollView).minX } action: { contentX = $0 }
             // As tall as the page showing, pages hanging from the top: a
             // taller earlier song (two lines and "před 6 min") would
             // otherwise make the row taller than the frame below, and the
             // scroll view would centre it, pulling the song playing now up
             // towards the host line.
-            .frame(height: visibleHeight, alignment: .top)
+            .frame(height: rowHeight, alignment: .top)
         }
         .scrollTargetBehavior(.paging)
         .scrollPosition(id: $visible, anchor: .center)
         .defaultScrollAnchor(.trailing)
         .scrollIndicators(.hidden)
         .scrollDisabled(earlier.isEmpty)
-        .frame(height: visibleHeight)
-        .animation(.smooth(duration: 0.3), value: visible)
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { pageWidth = $0 }
+        .frame(height: rowHeight)
         .task(id: current) {
             showNow()
             earlier = await RecentSongs.load(before: current, since: showStart, shows: shows)
