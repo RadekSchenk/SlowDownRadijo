@@ -1,9 +1,9 @@
 import SwiftUI
 
 /// The white Slow Down Rádijo wordmark whose sun — the striped "O" — is
-/// always gently alive: its stripes breathe like a slow equalizer, each on
-/// its own rhythm, shortening by up to a tenth about the sun's middle and
-/// back. Shortly after it appears, then once a minute, a band of warm
+/// always alive: its stripes play like a calm equalizer, each on its own
+/// rhythm, shortening to as little as 60% about the sun's middle and back
+/// (at the logo's size, a tenth was too little to see). Shortly after it appears, then once a minute, a band of warm
 /// light also sweeps across the stripes left to right (masked by the
 /// logo's own shape, kept within the sun). With Reduce Motion it stays
 /// still.
@@ -105,14 +105,14 @@ struct AnimatedBrandLogo: View {
         }
     }
 
-    /// 0.9…1: two slow sines per stripe at unrelated speeds (0.2–0.5 Hz),
+    /// 0.6…1: two sines per stripe at unrelated speeds (0.35–0.95 Hz),
     /// so the sun never visibly repeats.
     private static func stripeScale(_ index: Int, at time: TimeInterval) -> CGFloat {
         let i = Double(index)
-        let a = sin(2 * .pi * (0.21 + 0.031 * i) * time + i * 1.7)
-        let b = sin(2 * .pi * (0.37 + 0.023 * (8 - i)) * time + i * 0.9)
+        let a = sin(2 * .pi * (0.35 + 0.043 * i) * time + i * 1.7)
+        let b = sin(2 * .pi * (0.6 + 0.041 * (8 - i)) * time + i * 0.9)
         let level = (0.6 * a + 0.4 * b + 1) / 2
-        return 0.9 + 0.1 * CGFloat(level)
+        return 0.6 + 0.4 * CGFloat(level)
     }
 
     private var logo: some View {
