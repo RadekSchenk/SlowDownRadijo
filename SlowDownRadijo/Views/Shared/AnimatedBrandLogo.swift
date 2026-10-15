@@ -81,24 +81,28 @@ struct AnimatedBrandLogo: View {
             let stripesSpan = Self.stripes[0].lowerBound...Self.stripes[Self.stripes.count - 1].upperBound
             ZStack(alignment: .topLeading) {
                 logo.mask {
-                    // Everything but the stripes.
-                    Rectangle()
-                        .overlay(alignment: .topLeading) {
-                            Rectangle()
-                                .frame(width: (stripesSpan.upperBound - stripesSpan.lowerBound) * size.width, height: sun.height)
-                                .offset(x: stripesSpan.lowerBound * size.width, y: sun.minY)
-                                .blendMode(.destinationOut)
-                        }
-                        .compositingGroup()
+                    // Everything but the stripes: a path with a hole, filled
+                    // even-odd (a blend-mode cut-out didn't reliably cut,
+                    // leaving the still stripes showing under the moving
+                    // ones).
+                    Path { path in
+                        path.addRect(CGRect(origin: .zero, size: size))
+                        path.addRect(CGRect(
+                            x: stripesSpan.lowerBound * size.width, y: sun.minY,
+                            width: (stripesSpan.upperBound - stripesSpan.lowerBound) * size.width, height: sun.height
+                        ))
+                    }
+                    .fill(style: FillStyle(eoFill: true))
                 }
                 ForEach(Self.stripes.indices, id: \.self) { index in
                     let slice = Self.stripes[index]
                     logo
                         .scaleEffect(x: 1, y: Self.stripeScale(index, at: time), anchor: anchor)
-                        .mask(alignment: .topLeading) {
-                            Rectangle()
-                                .frame(width: (slice.upperBound - slice.lowerBound) * size.width, height: sun.height)
-                                .offset(x: slice.lowerBound * size.width, y: sun.minY)
+                        .mask {
+                            Path(CGRect(
+                                x: slice.lowerBound * size.width, y: sun.minY,
+                                width: (slice.upperBound - slice.lowerBound) * size.width, height: sun.height
+                            ))
                         }
                 }
             }
