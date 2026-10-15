@@ -1,10 +1,11 @@
 """Turns the raw simulator recording into the showcase video.
 
 Run by .github/workflows/showcase.yml after ShowcaseTests has driven the
-app: reads the SHOWCASE_MARK lines from the test log, puts the phone screen
-on a 1080 x 1920 card in the app's colours with a caption for each scene,
-adds an intro and an outro with the logo, and lays the live stream's sound
-(recorded at the same time) underneath.
+app: keeps only the stretches the test marked with SHOWCASE_CLIP lines (the
+gestures and the pauses after them, not XCUITest's waiting), puts the phone
+screen on a 1080 x 1920 card in the app's colours with a caption for each
+scene, adds an intro and an outro with the logo, and lays the live stream's
+sound (recorded at the same time, uncut) underneath.
 
     python3 compose.py <work dir>
 
@@ -31,11 +32,10 @@ PHONE_H = 1440
 PHONE_Y = 400
 INTRO, OUTRO, XFADE = 3.2, 3.6, 0.6
 
-# Scene → caption (None keeps the one before it on screen).
+# Scene → caption.
 CAPTIONS = {
     "home": ("Živé vysílání", "Pořad, moderátor a skladba, která právě hraje"),
     "songs": ("Co hrálo před chvílí", "Swipni zpátky až o 10 skladeb, každou najdeš na Spotify"),
-    "pull": None,
     "timer": ("Časovač vypnutí", "Usni u rádia, appka ho pak sama vypne"),
     "scroll": ("Tvoje statistiky", "Kolik času s rádiem trávíš"),
     "program": ("Program na celý týden", "S upozorněním na oblíbené pořady"),
@@ -115,19 +115,24 @@ def phone_layers(width, height):
 
 
 def main():
-    marks = []
+    clips = []
     for line in open(os.path.join(WORK, "test.log"), errors="ignore"):
-        if "SHOWCASE_MARK" in line:
-            parts = line.split("SHOWCASE_MARK", 1)[1].split()
-            if len(parts) >= 2:
-                marks.append((parts[0], float(parts[1])))
-    print("marks:", marks)
+        if "SHOWCASE_CLIP" in line:
+            parts = line.split("SHOWCASE_CLIP", 1)[1].split()
+            if len(parts) >= 3:
+                clips.append((parts[0], float(parts[1]), float(parts[2])))
+    clips.sort(key=lambda c: c[1])
+    # Overlapping or touching stretches become one.
+    merged = []
+    for scene, start, end in clips:
+        if merged and start <= merged[-1][2] + 0.05:
+            merged[-1][2] = max(merged[-1][2], end)
+        else:
+            merged.append([scene, start, end])
+    print("clips:", [(c[0], round(c[2] - c[1], 1)) for c in merged])
     rec_start = float(open(os.path.join(WORK, "rec_start")).read())
-    times = {name: t for name, t in marks}
-    seg_start = times.get("launch", marks[0][1]) - 0.2
-    seg_end = times.get("end", marks[-1][1]) + 0.8
-    duration = seg_end - seg_start
-    trim_from = max(0.0, seg_start - rec_start)
+    seg_start = merged[0][1]
+    duration = sum(end - start for _, start, end in merged)
 
     probe = json.loads(subprocess.check_output([
         "ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height",
@@ -137,20 +142,15 @@ def main():
     mask, frame, pad = phone_layers(phone_w, PHONE_H)
     phone_x = (W - phone_w) // 2
 
-    # Caption windows: from each scene's mark to the next caption's.
-    windows, current = [], None
-    for name, t in marks:
-        if name not in CAPTIONS and name != "end":
-            continue
-        caption = CAPTIONS.get(name)
-        if name != "end" and caption is None:
-            continue
-        rel = t - seg_start
-        if current:
-            windows.append((current[0], current[1], rel))
-        current = (name, rel) if name != "end" else None
-    if current:
-        windows.append((current[0], current[1], duration))
+    # Caption windows on the cut timeline: one per run of a scene.
+    windows, t = [], 0.0
+    for scene, start, end in merged:
+        length = end - start
+        if windows and windows[-1][0] == scene:
+            windows[-1][2] = t + length
+        elif scene in CAPTIONS:
+            windows.append([scene, t, t + length])
+        t += length
 
     bg = os.path.join(WORK, "bg.png")
     Image.new("RGB", (W, H), BG).save(bg)
@@ -163,9 +163,12 @@ def main():
               "-loop", "1", "-t", f"{duration:.3f}", "-i", frame,
               "-loop", "1", "-t", f"{INTRO:.3f}", "-framerate", str(FPS), "-i", intro,
               "-loop", "1", "-t", f"{OUTRO:.3f}", "-framerate", str(FPS), "-i", outro]
-    filters = [
-        f"[0:v]trim=start={trim_from:.3f}:duration={duration:.3f},setpts=PTS-STARTPTS,fps={FPS},"
-        f"scale={phone_w}:{PHONE_H}:flags=lanczos,format=rgba[ph]",
+    cuts = [f"[0:v]split={len(merged)}" + "".join(f"[r{i}]" for i in range(len(merged)))]
+    for i, (_, start, end) in enumerate(merged):
+        cuts.append(f"[r{i}]trim=start={start - rec_start:.3f}:end={end - rec_start:.3f},setpts=PTS-STARTPTS,fps={FPS}[s{i}]")
+    cuts.append("".join(f"[s{i}]" for i in range(len(merged))) + f"concat=n={len(merged)}:v=1:a=0[cut]")
+    filters = cuts + [
+        f"[cut]scale={phone_w}:{PHONE_H}:flags=lanczos,format=rgba[ph]",
         "[2:v]format=gray[mask]",
         "[ph][mask]alphamerge[phr]",
         f"[1:v]fps={FPS},format=rgba[bg]",
