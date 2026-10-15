@@ -71,13 +71,21 @@ jobs:
           python3 -c 'import time; print(time.time())' > work/audio_start
           ffmpeg -loglevel error -y -i https://icecast5.play.cz/slowdown.aac -t 600 -c copy work/radio.aac &
           AUDIO=$!
-          xcrun simctl io "$UDID" recordVideo --codec=h264 --force work/raw.mov 2> work/record.log &
+          xcrun simctl io "$UDID" recordVideo --codec=h264 --force work/raw.mov > work/record.log 2>&1 &
           RECORD=$!
           for i in $(seq 1 100); do
             grep -q "Recording started" work/record.log 2>/dev/null && break
             sleep 0.1
           done
+          cat work/record.log
+          sleep 1
+          # The recording's clock starts at its first frame, and a still
+          # screen sends none. A status bar change makes that first frame
+          # now, so the test's timestamps line up with the video.
+          xcrun simctl status_bar "$UDID" override --time "0:00"
           python3 -c 'import time; print(time.time())' > work/rec_start
+          sleep 0.5
+          xcrun simctl status_bar "$UDID" override --time "$(TZ=Europe/Prague date +%-H:%M)"
           xcodebuild test-without-building \
             -project SlowDownRadijo.xcodeproj \
             -scheme SlowDownRadijo \
@@ -85,11 +93,12 @@ jobs:
             -derivedDataPath DerivedData \
             -only-testing:SlowDownRadijoUITests/ShowcaseTests \
             CODE_SIGNING_ALLOWED=NO > work/test.log 2>&1 || true
+          python3 -c 'import time; print(time.time())' > work/rec_stop
           kill -INT $RECORD 2>/dev/null || true
           wait $RECORD || true
           kill -INT $AUDIO 2>/dev/null || true
           wait $AUDIO || true
-          grep -E "SHOWCASE_MARK|error:|Test Case|t = .*(Wait|idle|animation)" work/test.log | head -150 || true
+          grep -E "SHOWCASE_CLIP|error:|Test Case|t = .*(Wait|idle|animation)" work/test.log | head -150 || true
           ls -la work
 
       - name: Compose

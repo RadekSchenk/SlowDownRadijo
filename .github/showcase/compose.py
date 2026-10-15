@@ -138,6 +138,13 @@ def main():
         "ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height",
         "-of", "json", os.path.join(WORK, "raw.mov")]))
     raw_w, raw_h = probe["streams"][0]["width"], probe["streams"][0]["height"]
+    raw_duration = float(subprocess.check_output([
+        "ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0",
+        os.path.join(WORK, "raw.mov")]).strip() or 0)
+    stop_path = os.path.join(WORK, "rec_stop")
+    if os.path.exists(stop_path):
+        wall = float(open(stop_path).read()) - rec_start
+        print(f"recording: {raw_duration:.1f} s of video for {wall:.1f} s of wall time")
     phone_w = round(PHONE_H * raw_w / raw_h / 2) * 2
     mask, frame, pad = phone_layers(phone_w, PHONE_H)
     phone_x = (W - phone_w) // 2
