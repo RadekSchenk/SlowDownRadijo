@@ -200,37 +200,38 @@ struct SleepTimerSheet: View {
         .padding(.bottom, 16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .animation(Motion.cardResize, value: fireDate != nil)
-        .presentationDetents([.height(fireDate == nil ? 352 : 428), .large])
+        .presentationDetents([.height(fireDate == nil ? 368 : 444), .large])
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(24)
         .presentationBackground(Theme.statsCard)
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 8) {
-                Image(systemName: "moon.fill")
-                    .font(.system(size: 17, weight: .bold))
-                    .foregroundStyle(Theme.liveRed)
+        HStack(alignment: .center, spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(L10n.sleepTimerSheetTitle)
                     .font(Theme.Typography.Manrope.extraBold(size: 22, relativeTo: .title2))
                     .foregroundStyle(Theme.textPrimary)
-            }
 
-            if let fireDate {
-                // Counts down live while the sheet is open.
-                TimelineView(.periodic(from: .now, by: 1)) { context in
-                    PopNumberText(
-                        text: L10n.turnsOffIn(SleepTimerButton.remainingLabel(until: fireDate, now: context.date)),
-                        font: Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline).monospacedDigit(),
-                        color: Theme.liveRed
-                    )
+                if let fireDate {
+                    // Counts down live while the sheet is open.
+                    TimelineView(.periodic(from: .now, by: 1)) { context in
+                        PopNumberText(
+                            text: L10n.turnsOffIn(SleepTimerButton.remainingLabel(until: fireDate, now: context.date)),
+                            font: Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline).monospacedDigit(),
+                            color: Theme.liveRed
+                        )
+                    }
+                } else {
+                    Text(L10n.sleepTimerHint)
+                        .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
+                        .foregroundStyle(Theme.mutedText)
                 }
-            } else {
-                Text(L10n.sleepTimerHint)
-                    .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
-                    .foregroundStyle(Theme.mutedText)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            // The night sky: a glowing moon among twinkling stars.
+            SleepMoon(isOn: fireDate != nil)
         }
     }
 
