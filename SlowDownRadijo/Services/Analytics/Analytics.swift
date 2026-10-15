@@ -157,13 +157,19 @@ enum AnalyticsEvent {
     case screenViewed(AnalyticsScreen)
     case languageChanged(to: String)
 
-    /// `trigger`: see `RadioPlayerService.PlayTrigger`.
-    case playbackStarted(trigger: String, showID: String?, connectMilliseconds: Int?)
+    /// `trigger`: see `RadioPlayerService.PlayTrigger`. `output`: the kind
+    /// of output it plays on (`AudioOutput.kind`), never its name.
+    case playbackStarted(trigger: String, showID: String?, connectMilliseconds: Int?, output: String)
     /// `reason`: see `RadioPlayerService.StopReason`.
-    case playbackStopped(seconds: Int, reason: String, showID: String?, reconnects: Int)
+    case playbackStopped(seconds: Int, reason: String, showID: String?, reconnects: Int, output: String)
     /// `stage`: "connecting" (never started) or "interrupted" (dropped while playing).
     case playbackFailed(stage: String, showID: String?)
     case sleepTimerSet(option: String)
+    /// "Hraje na: …" tapped, the system output picker opening.
+    case outputPickerOpened(output: String)
+    /// The output changed kind (`AudioOutput.kind`) — through the picker,
+    /// Control Center, or headphones and cars coming and going.
+    case outputChanged(from: String, to: String, playing: Bool)
 
     /// `source`: "bell" (Pořady list) or "settings".
     case showReminderChanged(showID: String, isOn: Bool, source: String)
@@ -186,6 +192,8 @@ enum AnalyticsEvent {
         case .playbackStopped: return "playback_stopped"
         case .playbackFailed: return "playback_failed"
         case .sleepTimerSet: return "sleep_timer_set"
+        case .outputPickerOpened: return "output_picker_opened"
+        case .outputChanged: return "output_changed"
         case .showReminderChanged: return "show_reminder_changed"
         case .showNotificationOpened: return "show_notification_opened"
         case .spotifyOpened: return "spotify_opened"
@@ -205,21 +213,26 @@ enum AnalyticsEvent {
             return ["screen": screen.rawValue]
         case .languageChanged(let to):
             return ["to": to]
-        case .playbackStarted(let trigger, let showID, let connectMilliseconds):
-            var properties: [String: Any] = ["trigger": trigger, "show_id": showID ?? "_"]
+        case .playbackStarted(let trigger, let showID, let connectMilliseconds, let output):
+            var properties: [String: Any] = ["trigger": trigger, "show_id": showID ?? "_", "output": output]
             if let connectMilliseconds { properties["connect_ms"] = connectMilliseconds }
             return properties
-        case .playbackStopped(let seconds, let reason, let showID, let reconnects):
+        case .playbackStopped(let seconds, let reason, let showID, let reconnects, let output):
             return [
                 "seconds_listened": Self.rounded(seconds),
                 "end_reason": reason,
                 "show_id": showID ?? "_",
                 "reconnects": reconnects,
+                "output": output,
             ]
         case .playbackFailed(let stage, let showID):
             return ["stage": stage, "show_id": showID ?? "_"]
         case .sleepTimerSet(let option):
             return ["option": option]
+        case .outputPickerOpened(let output):
+            return ["output": output]
+        case .outputChanged(let from, let to, let playing):
+            return ["from": from, "to": to, "playing": playing]
         case .showReminderChanged(let showID, let isOn, let source):
             return ["show_id": showID, "on": isOn, "source": source]
         case .showNotificationOpened(let showID, let listen):

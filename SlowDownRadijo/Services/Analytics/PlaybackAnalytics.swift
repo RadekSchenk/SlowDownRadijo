@@ -1,3 +1,4 @@
+import AVFoundation
 import Combine
 import Foundation
 
@@ -26,6 +27,8 @@ final class PlaybackAnalytics {
     /// Reported this stretch of failures already (retries go error →
     /// connecting → error until something plays or the listener stops).
     private var failureReported = false
+    /// The output kind last seen, for `output_changed`.
+    private var outputKind = AudioOutput.kind()
 
     init(player: RadioPlayerService, currentShowID: @escaping () -> String?) {
         self.player = player
@@ -34,6 +37,18 @@ final class PlaybackAnalytics {
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] state in self?.handle(state) }
+        routeObserver = NotificationCenter.default.publisher(for: AVAudioSession.routeChangeNotification)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.routeChanged() }
+    }
+
+    private var routeObserver: AnyCancellable?
+
+    private func routeChanged() {
+        let kind = AudioOutput.kind()
+        guard kind != outputKind else { return }
+        Analytics.shared.track(.outputChanged(from: outputKind, to: kind, playing: player.state == .playing))
+        outputKind = kind
     }
 
     private func handle(_ state: PlaybackState) {
@@ -57,7 +72,8 @@ final class PlaybackAnalytics {
                 Analytics.shared.track(.playbackStarted(
                     trigger: player.lastPlayTrigger.rawValue,
                     showID: currentShowID(),
-                    connectMilliseconds: connectMilliseconds
+                    connectMilliseconds: connectMilliseconds,
+                    output: AudioOutput.kind()
                 ))
             } else if droppedInSession {
                 droppedInSession = false
@@ -88,7 +104,8 @@ final class PlaybackAnalytics {
                 seconds: Int(heardSeconds),
                 reason: player.lastStopReason.rawValue,
                 showID: currentShowID(),
-                reconnects: reconnects
+                reconnects: reconnects,
+                output: AudioOutput.kind()
             ))
         }
     }

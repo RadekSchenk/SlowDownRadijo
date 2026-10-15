@@ -66,10 +66,22 @@ private struct InvisibleRoutePicker: UIViewRepresentable {
         picker.prioritizesVideoDevices = false
         picker.backgroundColor = .clear
         picker.accessibilityIdentifier = "airplay"
+        picker.delegate = context.coordinator
         return picker
     }
 
     func updateUIView(_ picker: AVRoutePickerView, context: Context) {
         picker.accessibilityLabel = label
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator() }
+
+    final class Coordinator: NSObject, AVRoutePickerViewDelegate {
+        func routePickerViewWillBeginPresentingRoutes(_ routePickerView: AVRoutePickerView) {
+            // Called on the main thread.
+            MainActor.assumeIsolated {
+                Analytics.shared.track(.outputPickerOpened(output: AudioOutput.kind()))
+            }
+        }
     }
 }
