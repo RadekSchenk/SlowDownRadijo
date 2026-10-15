@@ -82,10 +82,10 @@ jobs:
           # The recording's clock starts at its first frame, and a still
           # screen sends none. A status bar change makes that first frame
           # now, so the test's timestamps line up with the video.
-          xcrun simctl status_bar "$UDID" override --time "0:00"
+          xcrun simctl status_bar "$UDID" override --batteryLevel 99 || true
           python3 -c 'import time; print(time.time())' > work/rec_start
           sleep 0.5
-          xcrun simctl status_bar "$UDID" override --time "$(TZ=Europe/Prague date +%-H:%M)"
+          xcrun simctl status_bar "$UDID" override --batteryLevel 100 || true
           xcodebuild test-without-building \
             -project SlowDownRadijo.xcodeproj \
             -scheme SlowDownRadijo \
