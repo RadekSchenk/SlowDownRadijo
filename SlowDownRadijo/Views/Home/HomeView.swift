@@ -268,7 +268,13 @@ struct HomeView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                PlayButton(state: nowPlaying.playbackState, action: nowPlaying.togglePlayPause, diameter: 46, iconSize: 17)
+                // Where it plays, next to whether it plays: the output
+                // picker, 16pt left of the play button.
+                HStack(spacing: 16) {
+                    AirPlayButton()
+                        .frame(width: 28, height: 28)
+                    PlayButton(state: nowPlaying.playbackState, action: nowPlaying.togglePlayPause, diameter: 46, iconSize: 17)
+                }
             }
 
             statusLabel

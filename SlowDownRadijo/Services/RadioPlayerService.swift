@@ -403,7 +403,10 @@ final class RadioPlayerService: NSObject, ObservableObject {
     private func configureAudioSession(activate: Bool) {
         do {
             let session = AVAudioSession.sharedInstance()
-            try session.setCategory(.playback, mode: .default, options: [])
+            // Long-form audio, like Music and Podcasts: it shares their
+            // output, so a speaker picked for them (or in the AirPlay
+            // picker) is where the radio plays too.
+            try session.setCategory(.playback, mode: .default, policy: .longFormAudio, options: [])
             if activate {
                 try session.setActive(true)
             }
