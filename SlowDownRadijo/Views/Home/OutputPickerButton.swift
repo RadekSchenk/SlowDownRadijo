@@ -2,29 +2,33 @@ import AVFoundation
 import AVKit
 import SwiftUI
 
-/// "Hraje na: iPhone" under the sleep timer, styled like it (text, then
-/// the icon): where the radio plays, and a tap opens the system's output
-/// picker — Bluetooth and AirPlay speakers, HomePod, Apple TV, a Mac. The
-/// icon turns the app's red while it plays somewhere other than the phone
-/// or wired headphones.
+/// The output picker next to the play button, as a pair with it: the
+/// same 46pt circle, but quiet — a faint white fill with the AirPlay icon —
+/// so play stays the main control. A tap opens the system's picker:
+/// Bluetooth and AirPlay speakers, HomePod, Apple TV, a Mac. While the radio
+/// plays somewhere other than the phone or wired headphones the icon turns
+/// the app's red over a faint red fill. VoiceOver reads where it plays
+/// ("Hraje na: JBL Charge 3").
 ///
 /// The picker itself (`AVRoutePickerView`, the only way to open it) lies
-/// invisible over the row and takes the tap.
-struct OutputRouteLink: View {
+/// invisible over the circle and takes the tap.
+struct OutputPickerButton: View {
+    var diameter: CGFloat = 46
+
     @ObservedObject private var loc = LocalizationManager.shared
     @State private var output = Output.current()
 
     var body: some View {
-        HStack(spacing: 8) {
-            Text(L10n.playsOn(output.name))
-                .font(Theme.Typography.Manrope.bold(size: 14, relativeTo: .subheadline))
-                .foregroundStyle(Theme.textPrimary)
-                .lineLimit(1)
+        ZStack {
+            Circle()
+                .fill(output.isElsewhere ? Theme.liveRed.opacity(0.15) : Theme.hairline(0.08))
             Image(systemName: "airplayaudio")
-                .font(.system(size: 13, weight: .bold))
-                .frame(width: 15, height: 15)
+                .font(.system(size: 18, weight: .semibold))
+                .frame(width: 20, height: 20)
                 .foregroundStyle(output.isElsewhere ? Theme.liveRed : Theme.textPrimary)
         }
+        .frame(width: diameter, height: diameter)
+        .animation(.easeInOut(duration: 0.25), value: output)
         .overlay { InvisibleRoutePicker(label: L10n.playsOn(output.name)) }
         .onReceive(
             NotificationCenter.default.publisher(for: AVAudioSession.routeChangeNotification)

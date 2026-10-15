@@ -265,12 +265,15 @@ struct HomeView: View {
                         }
                     }
                     SleepTimerButton(player: nowPlaying.player, currentShowEndDate: nowPlaying.currentShowEndDate)
-                    // Where it plays; a tap picks a speaker.
-                    OutputRouteLink()
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                PlayButton(state: nowPlaying.playbackState, action: nowPlaying.togglePlayPause, diameter: 46, iconSize: 17)
+                // Where it plays, next to whether it plays: a quiet circle
+                // the size of the play button, 16pt left of it.
+                HStack(spacing: 16) {
+                    OutputPickerButton(diameter: 46)
+                    PlayButton(state: nowPlaying.playbackState, action: nowPlaying.togglePlayPause, diameter: 46, iconSize: 17)
+                }
             }
 
             statusLabel

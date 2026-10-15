@@ -206,8 +206,8 @@ enum L10n {
     }
 
     /// Inline link under the progress bar, shown when no timer is running.
-    /// Under the sleep timer: where the radio plays ("Hraje na: JBL
-    /// Charge 3"). A colon, so device names needn't be declined.
+    /// VoiceOver on the output picker: where the radio plays ("Hraje na:
+    /// JBL Charge 3"). A colon, so device names needn't be declined.
     static func playsOn(_ device: String) -> String {
         switch lang {
         case .cs: return "Hraje na: \(device)"
