@@ -265,16 +265,12 @@ struct HomeView: View {
                         }
                     }
                     SleepTimerButton(player: nowPlaying.player, currentShowEndDate: nowPlaying.currentShowEndDate)
+                    // Where it plays; a tap picks a speaker.
+                    OutputRouteLink()
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                // Where it plays, next to whether it plays: the output
-                // picker, 16pt left of the play button.
-                HStack(spacing: 16) {
-                    AirPlayButton()
-                        .frame(width: 28, height: 28)
-                    PlayButton(state: nowPlaying.playbackState, action: nowPlaying.togglePlayPause, diameter: 46, iconSize: 17)
-                }
+                PlayButton(state: nowPlaying.playbackState, action: nowPlaying.togglePlayPause, diameter: 46, iconSize: 17)
             }
 
             statusLabel
