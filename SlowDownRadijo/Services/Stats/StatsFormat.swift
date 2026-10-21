@@ -16,17 +16,22 @@ enum StatsFormat {
         return formatter.string(from: NSNumber(value: value)) ?? "\(value)"
     }
 
-    /// Whole hours and the remaining whole minutes (seconds are dropped).
-    static func hoursAndMinutes(seconds: Int) -> (hours: Int, minutes: Int) {
+    /// Whole days, the remaining whole hours and minutes (seconds are
+    /// dropped). Days only count from 24 hours on; below that `days` is 0.
+    static func daysHoursAndMinutes(seconds: Int) -> (days: Int, hours: Int, minutes: Int) {
         let totalMinutes = max(seconds, 0) / 60
-        return (totalMinutes / 60, totalMinutes % 60)
+        let totalHours = totalMinutes / 60
+        return (totalHours / 24, totalHours % 24, totalMinutes % 60)
     }
 
-    /// "4 h 12 m"; under an hour just "45 m" (used inside badges and rows).
+    /// "4 h 12 m", from 24 hours on "3 d 4 h 12 m"; under an hour just
+    /// "45 m" (used inside badges and rows).
     static func duration(seconds: Int) -> String {
-        let (hours, minutes) = hoursAndMinutes(seconds: seconds)
+        let (days, hours, minutes) = daysHoursAndMinutes(seconds: seconds)
+        let minutesPart = String(format: "%02d", minutes)
+        if days > 0 { return "\(number(days)) d \(hours) h \(minutesPart) m" }
         if hours == 0 { return "\(minutes) m" }
-        return "\(number(hours)) h \(String(format: "%02d", minutes)) m"
+        return "\(hours) h \(minutesPart) m"
     }
 
     /// Chart labels: "45 m", "1 h", "1,25 h", "2,5 h"; "0" for nothing.

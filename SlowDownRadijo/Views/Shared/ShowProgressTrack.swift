@@ -1,10 +1,9 @@
 import SwiftUI
 
-/// The flat progress-fill track shared between `ShowProgressBar` (home
-/// screen's full now-playing detail) and `ShowCardView` (Program tab's
-/// compact list row) — kept as one component (2026-08-23 unification) so
-/// the exact styling (square ends, `Theme.liveRed` fill, `#b8afdc` unplayed
-/// part, 6pt height) can't drift between the two over time.
+/// The flat progress-fill track of `ShowCardView` (Program tab's compact
+/// list row): square ends, `Theme.liveRed` fill, `#b8afdc` unplayed part,
+/// 6pt height. The home screen's card has its own rounded track (see
+/// `ShowProgressBar`).
 struct ShowProgressTrack: View {
     let progress: Double
 

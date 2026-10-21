@@ -21,9 +21,16 @@ struct StatsHomeBlock: View {
                     .manropeLineHeight(26, fontSize: 19)
 
                 HStack(spacing: 8) {
-                    metric(label: L10n.today, seconds: summary.todaySeconds)
-                    metric(label: L10n.statsTotal, seconds: summary.totalSeconds)
+                    metric(label: L10n.today, seconds: summary.todaySeconds, isLive: stats.isMeasuring)
+                    // On the first day of listening "Celkem" would just
+                    // repeat "Dnes"; it joins once earlier days add to it
+                    // (a minute's margin absorbs sync rounding).
+                    if summary.totalSeconds >= summary.todaySeconds + 60 {
+                        metric(label: L10n.statsTotal, seconds: summary.totalSeconds)
+                            .transition(.reveal)
+                    }
                 }
+                .animation(Motion.cardResize, value: summary.totalSeconds >= summary.todaySeconds + 60)
 
                 if stats.communityUnlocked {
                     HStack(spacing: 8) {
@@ -45,12 +52,20 @@ struct StatsHomeBlock: View {
         .buttonStyle(.plain)
     }
 
-    private func metric(label: String, seconds: Int) -> some View {
+    private func metric(label: String, seconds: Int, isLive: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(label)
-                .font(Theme.Typography.Manrope.semibold(size: 13, relativeTo: .footnote))
-                .foregroundStyle(Theme.mutedText)
-                .manropeLineHeight(18, fontSize: 13)
+            HStack(spacing: 6) {
+                Text(label)
+                    .font(Theme.Typography.Manrope.semibold(size: 13, relativeTo: .footnote))
+                    .foregroundStyle(Theme.mutedText)
+                    .manropeLineHeight(18, fontSize: 13)
+                if isLive {
+                    // Counting right now (radio playing, stats on).
+                    ListeningDot()
+                        .transition(.opacity)
+                }
+            }
+            .animation(Motion.smoothOut(Motion.fast), value: isLive)
             DurationText(seconds: seconds, numberSize: 24, unitSize: 14, lineHeight: 34)
         }
         .padding(.horizontal, 12)

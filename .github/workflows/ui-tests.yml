@@ -1,0 +1,180 @@
+# Builds the app and runs the UI tests (SlowDownRadijoUITests) on an iOS
+# simulator. No signing: simulator builds don't need it. A commit whose
+# message contains [screenshots] takes screenshots instead (see below).
+name: UI tests
+
+on:
+  push:
+    branches: [claude/adoring-tesla-bj752w]
+    paths:
+      - "SlowDownRadijo/**"
+      - "SlowDownRadijoUITests/**"
+      - "SlowDownRadijoWidget/**"
+      - "project.yml"
+      - ".github/workflows/ui-tests.yml"
+      - ".github/screenshots.conf"
+  workflow_dispatch:
+
+jobs:
+  ui-tests:
+    if: ${{ !contains(github.event.head_commit.message, '[screenshots]') }}
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate the Xcode project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Pick a simulator
+        id: sim
+        run: |
+          xcodebuild -version
+          xcrun simctl list runtimes
+          UDID=$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys, re
+          data = json.load(sys.stdin)["devices"]
+          def version(runtime):
+              m = re.search(r"iOS-(\d+)-(\d+)", runtime)
+              return (int(m.group(1)), int(m.group(2))) if m else (0, 0)
+          for runtime in sorted(data, key=version, reverse=True):
+              if "iOS" not in runtime:
+                  continue
+              phones = [d for d in data[runtime] if d["name"].startswith("iPhone")]
+              if phones:
+                  print(phones[0]["udid"], file=sys.stderr)
+                  print(runtime, phones[0]["name"], file=sys.stderr)
+                  print(phones[0]["udid"])
+                  break
+          ')
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+
+      - name: Build and test
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project SlowDownRadijo.xcodeproj \
+            -scheme SlowDownRadijo \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -resultBundlePath TestResults.xcresult \
+            -skip-testing:SlowDownRadijoUITests/ScreenshotTests \
+            -skip-testing:SlowDownRadijoUITests/ShowcaseTests \
+            CODE_SIGNING_ALLOWED=NO \
+            | tee xcodebuild.log | grep -E "error:|warning: .*RootTabView|Test Case|Executed|\*\* TEST|failed|passed" || true
+          grep -q "\*\* TEST SUCCEEDED \*\*" xcodebuild.log
+
+      - name: Export screenshots
+        if: always()
+        run: |
+          mkdir -p screenshots
+          xcrun xcresulttool export attachments --path TestResults.xcresult --output-path screenshots || true
+          ls -la screenshots | head -40
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui-test-results
+          path: |
+            screenshots
+            xcodebuild.log
+
+  # Screens at the text sizes and language in .github/screenshots.conf,
+  # printed into the log as small JPEGs (base64) and uploaded full size.
+  screenshots:
+    # Only when asked: a commit message containing [screenshots].
+    if: contains(github.event.head_commit.message, '[screenshots]')
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Settings
+        id: cfg
+        run: |
+          . .github/screenshots.conf
+          echo "text_sizes=${TEXT_SIZES:-UICTContentSizeCategoryL}" >> "$GITHUB_OUTPUT"
+          echo "language=${LANGUAGE:-cs}" >> "$GITHUB_OUTPUT"
+          echo "device=${DEVICE:-iPhone 17 Pro}" >> "$GITHUB_OUTPUT"
+
+      - name: Generate the Xcode project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Pick a simulator
+        id: sim
+        run: |
+          UDID=$(xcrun simctl list devices available -j | DEVICE="${{ steps.cfg.outputs.device }}" python3 -c '
+          import json, os, sys, re
+          data = json.load(sys.stdin)["devices"]
+          want = os.environ["DEVICE"]
+          def version(runtime):
+              m = re.search(r"iOS-(\d+)-(\d+)", runtime)
+              return (int(m.group(1)), int(m.group(2))) if m else (0, 0)
+          for runtime in sorted(data, key=version, reverse=True):
+              if "iOS" not in runtime:
+                  continue
+              phones = [d for d in data[runtime] if d["name"] == want] or [d for d in data[runtime] if d["name"].startswith("iPhone")]
+              if phones:
+                  print(runtime, phones[0]["name"], file=sys.stderr)
+                  print(phones[0]["udid"])
+                  break
+          ')
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+
+      - name: Build for testing
+        run: |
+          set -o pipefail
+          xcodebuild build-for-testing \
+            -project SlowDownRadijo.xcodeproj \
+            -scheme SlowDownRadijo \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -derivedDataPath DerivedData \
+            CODE_SIGNING_ALLOWED=NO | tail -5
+
+      - name: Capture
+        run: |
+          mkdir -p shots
+          for size in ${{ steps.cfg.outputs.text_sizes }}; do
+            rm -rf "Result-$size.xcresult"
+            SCREENSHOT_TEXT_SIZE="$size" SCREENSHOT_LANGUAGE="${{ steps.cfg.outputs.language }}" \
+            TEST_RUNNER_SCREENSHOT_TEXT_SIZE="$size" TEST_RUNNER_SCREENSHOT_LANGUAGE="${{ steps.cfg.outputs.language }}" \
+            xcodebuild test-without-building \
+              -project SlowDownRadijo.xcodeproj \
+              -scheme SlowDownRadijo \
+              -destination "id=${{ steps.sim.outputs.udid }}" \
+              -derivedDataPath DerivedData \
+              -only-testing:SlowDownRadijoUITests/ScreenshotTests \
+              -resultBundlePath "Result-$size.xcresult" \
+              CODE_SIGNING_ALLOWED=NO > "test-$size.log" 2>&1 || true
+            grep "\[overflow\]" "test-$size.log" | head -120 || true
+            tail -3 "test-$size.log"
+            xcrun xcresulttool export attachments --path "Result-$size.xcresult" --output-path "shots/$size" || true
+          done
+
+      - name: Print screenshots
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess, glob
+          for manifest in sorted(glob.glob("shots/*/manifest.json")):
+              folder = os.path.dirname(manifest)
+              for test in json.load(open(manifest)):
+                  for att in test.get("attachments", []):
+                      name = att.get("suggestedHumanReadableName", "")
+                      path = os.path.join(folder, att["exportedFileName"])
+                      if not path.endswith(".png"):
+                          continue
+                      jpg = path[:-4] + ".jpg"
+                      subprocess.run(["sips", "-s", "format", "jpeg", "-s", "formatOptions", "45", "-Z", "700", path, "--out", jpg], capture_output=True)
+                      data = subprocess.run(["base64", "-i", jpg], capture_output=True, text=True).stdout.replace("\n", "")
+                      print(f"===== IMAGE {name}")
+                      print(data)
+                      print("===== END IMAGE")
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: shots

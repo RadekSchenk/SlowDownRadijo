@@ -22,7 +22,7 @@ struct NowPlayingProvider: TimelineProvider {
         }
 
         Task {
-            let track = await LatestTrackService.fetchLatest()
+            let track = await verifiedLatestTrack(now: now, show: show)
             completion(NowPlayingEntry(date: now, show: show, latestArtist: track?.artist, latestTitle: track?.title))
         }
     }
@@ -31,7 +31,7 @@ struct NowPlayingProvider: TimelineProvider {
         Task {
             let now = Date()
             let show = scheduleStore.currentShow(at: now)
-            let track = await LatestTrackService.fetchLatest()
+            let track = await verifiedLatestTrack(now: now, show: show)
             let entry = NowPlayingEntry(date: now, show: show, latestArtist: track?.artist, latestTitle: track?.title)
 
             // Reload at most every 15 minutes, or right when the current
@@ -42,8 +42,25 @@ struct NowPlayingProvider: TimelineProvider {
                endDate > now, endDate < reloadDate {
                 reloadDate = endDate
             }
+            // A song shown is gone once it can't be playing any more.
+            if let track {
+                let stale = track.playedAt.addingTimeInterval(TrackTrust.maximumAge)
+                if stale > now, stale < reloadDate { reloadDate = stale }
+            }
 
             completion(Timeline(entries: [entry], policy: .after(reloadDate)))
         }
+    }
+
+    /// The latest song from the server, only when the app would show it too
+    /// (`TrackTrust`): no station noise or show placeholders, started within
+    /// the last few minutes, and — in a hosted show — after the show began.
+    private func verifiedLatestTrack(now: Date, show: Show?) async -> RemotePlayedTrack? {
+        guard let track = await LatestTrackService.fetchLatest() else { return nil }
+        let shows = scheduleStore.days.flatMap(\.shows)
+        guard TrackTrust.isRealSong(artist: track.artist, title: track.title, shows: shows) else { return nil }
+        let showStart = show?.hostName == nil ? nil : show.flatMap { scheduleStore.startDate(for: $0, relativeTo: now) }
+        guard TrackTrust.isCurrent(start: track.playedAt, now: now, showStart: showStart) else { return nil }
+        return track
     }
 }

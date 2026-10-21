@@ -90,7 +90,7 @@ Paste that into `VoiceMessageUploadService.endpoint` in the iOS project
 curl -F "audio=@/path/to/test.m4a" \
   https://<project-ref>.supabase.co/functions/v1/send-voice-message
 ```
-Should respond `{"success":true}` and land an email at jsem@radekschenk.cz
+Should respond `{"success":true}` and land an email at info@slowdownradijo.cz
 within a few seconds.
 
 ## Stats: one-time setup

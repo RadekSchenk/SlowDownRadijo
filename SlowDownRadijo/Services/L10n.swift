@@ -12,14 +12,9 @@ import Foundation
 enum L10n {
     private static var lang: AppLanguage { LocalizationManager.shared.language }
 
-    // MARK: - Shared
+    static var isEnglish: Bool { lang == .en }
 
-    static var tagline: String {
-        switch lang {
-        case .cs: return "Tohle algoritmus neumí"
-        case .en: return "This, algorithms can't do"
-        }
-    }
+    // MARK: - Shared
 
     static var ok: String { "OK" }
 
@@ -67,7 +62,7 @@ enum L10n {
 
     static var onAir: String { "ON-AIR" }
 
-    /// Kicker line above the host's name in `HostBadge`.
+    /// "Moderuje JARO COSSIGA" under the show title in `NowPlayingCard`.
     static var hostedByKicker: String {
         switch lang {
         case .cs: return "Moderuje"
@@ -173,6 +168,27 @@ enum L10n {
         "\(minutes) min"
     }
 
+    /// Time left to the minute: "27 min", "1 h 27 min" (EN "27m", "1h 27m").
+    static func remaining(hours: Int, minutes: Int) -> String {
+        switch lang {
+        case .cs: return hours > 0 ? "\(hours) h \(minutes) min" : "\(minutes) min"
+        case .en: return hours > 0 ? "\(hours)h \(minutes)m" : "\(minutes)m"
+        }
+    }
+
+    /// A running countdown to the second: "9 min 56 s", "1 h 27 min 36 s",
+    /// "56 s" (EN "9m 56s", "1h 27m 36s", "56s").
+    static func countdown(hours: Int, minutes: Int, seconds: Int) -> String {
+        switch lang {
+        case .cs:
+            if hours > 0 { return "\(hours) h \(minutes) min \(seconds) s" }
+            return minutes > 0 ? "\(minutes) min \(seconds) s" : "\(seconds) s"
+        case .en:
+            if hours > 0 { return "\(hours)h \(minutes)m \(seconds)s" }
+            return minutes > 0 ? "\(minutes)m \(seconds)s" : "\(seconds)s"
+        }
+    }
+
     // MARK: - Sleep timer
 
     static var sleepTimerTitle: String {
@@ -190,6 +206,15 @@ enum L10n {
     }
 
     /// Inline link under the progress bar, shown when no timer is running.
+    /// VoiceOver on the output picker: where the radio plays ("Hraje na:
+    /// JBL Charge 3"). A colon, so device names needn't be declined.
+    static func playsOn(_ device: String) -> String {
+        switch lang {
+        case .cs: return "Hraje na: \(device)"
+        case .en: return "Playing on: \(device)"
+        }
+    }
+
     static var setSleepTimer: String {
         switch lang {
         case .cs: return "Nastavit časovač vypnutí"
@@ -223,6 +248,169 @@ enum L10n {
         switch lang {
         case .cs: return "Konec pořadu"
         case .en: return "End of show"
+        }
+    }
+
+    /// Heading of the sleep-timer sheet.
+    static var sleepTimerSheetTitle: String {
+        switch lang {
+        case .cs: return "Časovač vypnutí"
+        case .en: return "Sleep timer"
+        }
+    }
+
+    /// Line under the heading while no timer is running.
+    static var sleepTimerHint: String {
+        switch lang {
+        case .cs: return "Rádio po uplynutí času samo ztichne."
+        case .en: return "The radio goes quiet on its own when time is up."
+        }
+    }
+
+    /// Unit under the big number on a sleep-timer tile.
+    static var minutesUnit: String { "min" }
+
+    static var hoursUnit: String {
+        switch lang {
+        case .cs: return "hod"
+        case .en: return "hr"
+        }
+    }
+
+    /// "Konec pořadu" tile's trailing detail, e.g. "v 12:00".
+    static func atTime(_ time: String) -> String {
+        switch lang {
+        case .cs: return "v \(time)"
+        case .en: return "at \(time)"
+        }
+    }
+
+    /// VoiceOver for "< 1 m" in the stats.
+    static var statsUnderAMinute: String {
+        switch lang {
+        case .cs: return "méně než minuta"
+        case .en: return "less than a minute"
+        }
+    }
+
+    /// VoiceOver for the pulsing dot by "Dnes".
+    static var statsCountingNow: String {
+        switch lang {
+        case .cs: return "právě se počítá"
+        case .en: return "counting now"
+        }
+    }
+
+    // MARK: - Show reminders
+
+    /// Notification title when a followed show starts; the body is its name.
+    static var showStartingTitle: String {
+        switch lang {
+        case .cs: return "Právě začíná"
+        case .en: return "On air now"
+        }
+    }
+
+    /// The notification's action button.
+    static var listenAction: String {
+        switch lang {
+        case .cs: return "Poslouchat"
+        case .en: return "Listen"
+        }
+    }
+
+    static var tomorrow: String {
+        switch lang {
+        case .cs: return "zítra"
+        case .en: return "tomorrow"
+        }
+    }
+
+    /// "dnes v 09:00" / "zítra v 09:00" / "Út v 09:00".
+    static func nextAiring(day: String, time: String) -> String {
+        switch lang {
+        case .cs: return "\(day) v \(time)"
+        case .en: return "\(day) at \(time)"
+        }
+    }
+
+    /// Toast after turning a show's reminder on.
+    static func reminderOnToast(show: String, next: String?) -> String {
+        switch lang {
+        case .cs:
+            let base = "Dáme ti vědět, až začne \(show)."
+            return next.map { "\(base) Nejbližší: \($0)." } ?? base
+        case .en:
+            let base = "We'll let you know when \(show) starts."
+            return next.map { "\(base) Next: \($0)." } ?? base
+        }
+    }
+
+    static func reminderOffToast(show: String) -> String {
+        switch lang {
+        case .cs: return "Upozornění na \(show) vypnuto."
+        case .en: return "\(show) reminders off."
+        }
+    }
+
+    static var notificationsBlockedToast: String {
+        switch lang {
+        case .cs: return "Notifikace má appka v nastavení iOS vypnuté."
+        case .en: return "Notifications are turned off for the app in iOS settings."
+        }
+    }
+
+    static var openSettingsAction: String {
+        switch lang {
+        case .cs: return "Nastavení"
+        case .en: return "Settings"
+        }
+    }
+
+    /// VoiceOver label of the bell next to a show.
+    static func reminderBellLabel(show: String) -> String {
+        switch lang {
+        case .cs: return "Upozornit na začátek pořadu \(show)"
+        case .en: return "Remind me when \(show) starts"
+        }
+    }
+
+    static var showRemindersTitle: String {
+        switch lang {
+        case .cs: return "Upozornění na pořady"
+        case .en: return "Show reminders"
+        }
+    }
+
+    static var showRemindersIntro: String {
+        switch lang {
+        case .cs: return "Pošleme ti upozornění ve chvíli, kdy vybraný pořad začíná. Zapnout ho jde i zvonečkem v seznamu Pořady."
+        case .en: return "We'll notify you the moment a chosen show starts. You can also use the bell in the Shows list."
+        }
+    }
+
+    /// Subtitle of the Settings row.
+    static func showRemindersSummary(count: Int) -> String {
+        switch lang {
+        case .cs:
+            switch count {
+            case 0: return "Vypnuto"
+            case 1: return "Zapnuto u 1 pořadu"
+            default: return "Zapnuto u \(count) pořadů"
+            }
+        case .en:
+            switch count {
+            case 0: return "Off"
+            case 1: return "On for 1 show"
+            default: return "On for \(count) shows"
+            }
+        }
+    }
+
+    static var turnOffAllReminders: String {
+        switch lang {
+        case .cs: return "Vypnout všechna upozornění"
+        case .en: return "Turn off all reminders"
         }
     }
 
@@ -407,6 +595,20 @@ enum L10n {
         switch lang {
         case .cs: return "Klepnutím zastavíš nahrávání"
         case .en: return "Tap to stop recording"
+        }
+    }
+
+    static var discardMessage: String {
+        switch lang {
+        case .cs: return "Zahodit vzkaz"
+        case .en: return "Discard message"
+        }
+    }
+
+    static var discardMessageConfirm: String {
+        switch lang {
+        case .cs: return "Zahodit nahraný vzkaz? Nikam se neodešle."
+        case .en: return "Discard the recording? It won't be sent."
         }
     }
 
@@ -726,6 +928,24 @@ enum L10n {
         }
     }
 
+    /// Under an earlier song on the home screen: "před 6 min".
+    static func playedAgo(minutes: Int) -> String {
+        let minutes = max(minutes, 1)
+        let duration = remaining(hours: minutes / 60, minutes: minutes % 60)
+        switch lang {
+        case .cs: return "před \(duration)"
+        case .en: return "\(duration) ago"
+        }
+    }
+
+    /// After the last earlier song on the home screen.
+    static var noEarlierSongs: String {
+        switch lang {
+        case .cs: return "Starší skladby z tohoto pořadu tu nemáme"
+        case .en: return "No earlier songs from this show here"
+        }
+    }
+
     // MARK: - Settings
 
     static var settingsTitle: String {
@@ -837,6 +1057,76 @@ enum L10n {
         switch lang {
         case .cs: return "Měříme jen čas, kdy rádio hraje, pod anonymním ID – bez jména a e-mailu. Díky tomu uvidíš své statistiky a své místo mezi posluchači."
         case .en: return "We only measure how long the radio plays, under an anonymous ID – no name or e-mail. That's what powers your stats and your place among listeners."
+        }
+    }
+
+    static var settingsAnalyticsTitle: String {
+        switch lang {
+        case .cs: return "Anonymní měření používání"
+        case .en: return "Anonymous usage analytics"
+        }
+    }
+
+    static var settingsAnalyticsDescription: String {
+        switch lang {
+        case .cs: return "Pomáhá nám zjistit, které části appky se používají a co zlepšit. Bez jména, e-mailu a reklamních ID."
+        case .en: return "Helps us see which parts of the app get used and what to improve. No name, e-mail or advertising IDs."
+        }
+    }
+
+    static var analyticsConsentTitle: String {
+        switch lang {
+        case .cs: return "Pomůžeš nám appku vylepšovat?"
+        case .en: return "Help us make the app better?"
+        }
+    }
+
+    static var analyticsConsentBody: String {
+        switch lang {
+        case .cs: return "Rádi bychom anonymně měřili, které funkce používáš. Žádné jméno, e-mail ani reklama. Volbu můžeš kdykoli změnit v Nastavení."
+        case .en: return "We'd like to anonymously measure which features you use. No name, e-mail or ads. You can change this any time in Settings."
+        }
+    }
+
+    static var analyticsConsentAllow: String {
+        switch lang {
+        case .cs: return "Povolit"
+        case .en: return "Allow"
+        }
+    }
+
+    static var reviewPromptTitle: String {
+        switch lang {
+        case .cs: return "Jak se ti s appkou poslouchá?"
+        case .en: return "Enjoying the app?"
+        }
+    }
+
+    static var reviewPromptBody: String {
+        switch lang {
+        case .cs: return "Líbí se ti Slow Down Rádijo v mobilu? Tvoje odpověď nám pomůže."
+        case .en: return "Do you like Slow Down Rádijo on your phone? Your answer helps us."
+        }
+    }
+
+    static var reviewPromptYes: String {
+        switch lang {
+        case .cs: return "Líbí"
+        case .en: return "I like it"
+        }
+    }
+
+    static var reviewPromptNo: String {
+        switch lang {
+        case .cs: return "Moc ne"
+        case .en: return "Not really"
+        }
+    }
+
+    static var analyticsConsentDecline: String {
+        switch lang {
+        case .cs: return "Ne, díky"
+        case .en: return "No, thanks"
         }
     }
 
@@ -1216,5 +1506,23 @@ enum L10n {
         case .cs: return "Upozornit, když na rádiu vyjde nová novinka."
         case .en: return "Get notified when a new post is published."
         }
+    }
+}
+
+// Lives here rather than in `Show.swift`, which the widget also compiles
+// without `L10n`.
+extension Show {
+    /// The description in the app's language (English falls back to Czech).
+    var localizedSummary: String? {
+        L10n.isEnglish ? (summaryEn ?? summary) : summary
+    }
+
+    /// `name` with its Czech " s <host>" ("with") in English, e.g. "Beat
+    /// Brunch with Jaro Cossiga". Shows with a `title` are exactly the ones
+    /// whose `name` carries that suffix; the titles themselves stay as the
+    /// station names them.
+    var localizedName: String {
+        guard L10n.isEnglish, title != nil, let range = name.range(of: " s ") else { return name }
+        return name.replacingCharacters(in: range, with: " with ")
     }
 }

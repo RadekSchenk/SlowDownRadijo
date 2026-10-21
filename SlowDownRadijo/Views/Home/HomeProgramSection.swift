@@ -95,10 +95,14 @@ struct HomeProgramSection: View {
 
                 ListDivider()
             }
+            .movesWithScroll()
 
             if !pastShows.isEmpty {
-                pastShowsDisclosure
-                ListDivider()
+                VStack(spacing: 0) {
+                    pastShowsDisclosure
+                    ListDivider()
+                }
+                .movesWithScroll()
             }
 
             if displayedShows.isEmpty {
@@ -109,10 +113,14 @@ struct HomeProgramSection: View {
             } else {
                 VStack(spacing: 0) {
                     ForEach(Array(displayedShows.enumerated()), id: \.offset) { index, show in
-                        compactRow(for: show)
-                        if index < displayedShows.count - 1 {
-                            ListDivider()
+                        // Each row with its divider, so they move as one.
+                        VStack(spacing: 0) {
+                            compactRow(for: show)
+                            if index < displayedShows.count - 1 {
+                                ListDivider()
+                            }
                         }
+                        .movesWithScroll()
                     }
                 }
             }
@@ -198,10 +206,18 @@ struct HomeProgramSection: View {
 
     private func compactRow(for show: Show) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(show.start)
-                .font(Theme.Typography.Manrope.light(size: 30, relativeTo: .title))
-                .foregroundStyle(Theme.textPrimary)
-                .manropeLineHeight(38, fontSize: 30)
+            // Figma "Čas a fotografie": the time on the left; the reminder
+            // bell takes the right end.
+            HStack {
+                Text(show.start)
+                    .font(Theme.Typography.Manrope.light(size: 30, relativeTo: .title))
+                    .foregroundStyle(Theme.textPrimary)
+                    .manropeLineHeight(38, fontSize: 30)
+                Spacer(minLength: Theme.Spacing.sm)
+                ReminderBellButton(show: show)
+                    // Optically flush with the row's right edge.
+                    .padding(.trailing, -10)
+            }
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(show.displayTitle)
@@ -216,7 +232,7 @@ struct HomeProgramSection: View {
                 }
             }
 
-            if let summary = show.summary {
+            if let summary = show.localizedSummary {
                 Text(summary)
                     .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .subheadline))
                     .foregroundStyle(Theme.mutedText)

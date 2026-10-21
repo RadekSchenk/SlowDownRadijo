@@ -1,12 +1,14 @@
 import SwiftUI
 
-/// Pushed from the hamburger menu — the autoplay toggle, the listening-stats
-/// controls and the privacy policy, as a divider-separated list like the
+/// Pushed from the hamburger menu — the autoplay toggle, show reminders,
+/// the listening-stats controls and the privacy policy, as a divider-separated list like the
 /// home screen's "Pořady".
 /// Language lives in `AppHeaderView`; feedback
 /// and the news-notification toggle have their own homes in the menu.
 struct SettingsView: View {
     @ObservedObject private var loc = LocalizationManager.shared
+    @ObservedObject private var reminders = ShowReminderStore.shared
+    @ObservedObject private var analytics = Analytics.shared
     @AppStorage("autoplayEnabled") private var autoplayEnabled = true
     @AppStorage(StatsConfig.enabledKey) private var statsEnabled = true
     @Environment(\.dismiss) private var dismiss
@@ -35,10 +37,33 @@ struct SettingsView: View {
                     }
 
                     ListDivider()
+                    NavigationLink {
+                        ShowRemindersView()
+                    } label: {
+                        ListRow(
+                            title: L10n.showRemindersTitle,
+                            subtitle: L10n.showRemindersSummary(count: reminders.followedIDs.count)
+                        ) {
+                            ListRowChevron()
+                        }
+                    }
+                    .buttonStyle(.plain)
+
+                    ListDivider()
                     ListRow(title: L10n.settingsStatsTitle, subtitle: L10n.settingsStatsDescription) {
                         Toggle("", isOn: $statsEnabled)
                             .labelsHidden()
                             .tint(Theme.liveRed)
+                    }
+
+                    ListDivider()
+                    ListRow(title: L10n.settingsAnalyticsTitle, subtitle: L10n.settingsAnalyticsDescription) {
+                        Toggle("", isOn: Binding(
+                            get: { analytics.isEnabled },
+                            set: { analytics.setConsent($0) }
+                        ))
+                        .labelsHidden()
+                        .tint(Theme.liveRed)
                     }
 
                     ListDivider()
@@ -77,6 +102,7 @@ struct SettingsView: View {
         }
         .background(Theme.background.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)
+        .onAppear { Analytics.shared.screen(.settings) }
         .sheet(isPresented: $isShowingPrivacyPolicy) {
             SafariView(url: Self.privacyPolicyURL)
         }

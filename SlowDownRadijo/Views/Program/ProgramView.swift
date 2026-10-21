@@ -31,12 +31,12 @@ struct ProgramView: View {
             AppHeaderView()
                 .padding(.horizontal, 20)
                 // Matches the home screen's header offset exactly (see
-                // `HomeView.heroSection`) — fixed 40pt from the true top
-                // edge rather than the system safe-area inset, which
+                // `HomeView.heroSection`) — a fixed distance from the true
+                // top edge rather than the system safe-area inset, which
                 // otherwise put every tab's header at a different distance
                 // from the top depending on how much padding its own
                 // content wrapper happened to add.
-                .padding(.top, 40)
+                .padding(.top, AppHeaderView.topInset)
 
             Text(L10n.tabProgram)
                 .font(Theme.Typography.Manrope.extraBold(size: 28, relativeTo: .title))

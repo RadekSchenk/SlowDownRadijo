@@ -22,7 +22,10 @@ enum NewsNotificationManager {
 
     static func checkForNewPost() async {
         guard isEnabled else { return }
-        let granted = await requestAuthorizationIfNeeded()
+        // Never asks at launch: permission is asked in context (the news
+        // switch, a show's bell); until then new posts just aren't announced.
+        let status = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
+        let granted = status == .authorized || status == .provisional
 
         guard let posts = try? await NewsService.fetchRecent(limit: 1), let latest = posts.first else { return }
 
@@ -47,9 +50,9 @@ enum NewsNotificationManager {
         try? await UNUserNotificationCenter.current().add(request)
     }
 
-    /// Called both from the periodic check above and directly when the
-    /// user flips the toggle on in `NewsListView`, so permission gets
-    /// asked for right away rather than waiting for the next new post.
+    /// Called from `NewsListView` — when it opens with the switch on (the
+    /// default) and when the switch is flipped on — so permission is asked
+    /// where it makes sense, not at launch.
     @discardableResult
     static func requestAuthorizationIfNeeded() async -> Bool {
         let center = UNUserNotificationCenter.current()
@@ -72,14 +75,42 @@ enum NewsNotificationManager {
         UNUserNotificationCenter.current().delegate = ForegroundPresenter.shared
     }
 
+    /// Uses the completion-handler callbacks, not the `async` ones: an
+    /// `async` delegate method runs off the main thread and iOS then calls
+    /// its own completion there too, which UIKit answers with an assertion
+    /// crash (seen when opening a show notification). Here the work and the
+    /// completion both happen on the main thread.
     private final class ForegroundPresenter: NSObject, UNUserNotificationCenterDelegate {
         static let shared = ForegroundPresenter()
 
         func userNotificationCenter(
             _ center: UNUserNotificationCenter,
-            willPresent notification: UNNotification
-        ) async -> UNNotificationPresentationOptions {
-            [.banner, .sound, .badge]
+            willPresent notification: UNNotification,
+            withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+        ) {
+            completionHandler([.banner, .sound, .badge])
+        }
+
+        /// A tap on a show-start notification (`ShowReminderStore`): the
+        /// home tab, and the radio too for "Poslouchat".
+        func userNotificationCenter(
+            _ center: UNUserNotificationCenter,
+            didReceive response: UNNotificationResponse,
+            withCompletionHandler completionHandler: @escaping () -> Void
+        ) {
+            let content = response.notification.request.content
+            guard content.categoryIdentifier == ShowReminderStore.categoryID else {
+                completionHandler()
+                return
+            }
+            let listen = response.actionIdentifier == ShowReminderStore.listenActionID
+            let showID = content.userInfo["showID"] as? String
+            DispatchQueue.main.async {
+                MainActor.assumeIsolated {
+                    ShowReminderStore.shared.requestOpen(listen: listen, showID: showID)
+                }
+                completionHandler()
+            }
         }
     }
 }

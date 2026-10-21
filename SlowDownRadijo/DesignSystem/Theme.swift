@@ -60,13 +60,11 @@ enum Theme {
     /// tab, and every primary control on Vzkaz and Podpora. `sunOrange` is
     /// legacy — only screens not yet restyled to the home screen still use it.
     static let liveRed = Color(hex: 0xDB304E)
-    /// Flat, muted fill for the *unplayed* portion of `NowPlayingWaveform`'s
-    /// bars (`#2a263b`) — distinct from `surfaceElevated`, which reads too
-    /// light against this specific waveform context.
+    /// Flat, muted fill for the *unplayed* bars of the Vzkaz recording
+    /// waveform (`#2a263b`).
     static let waveformMuted = Color(hex: 0x2A263B)
-    /// The *unplayed* part of the home equalizer and the progress track under
-    /// it (`#b8afdc`) — bright enough to show that something is there. The
-    /// Vzkaz recording waveform still uses the darker `waveformMuted`.
+    /// The *unplayed* part of the Pořady list's progress track
+    /// (`ShowProgressTrack`, `#b8afdc`).
     static let equalizerUnplayed = Color(hex: 0xB8AFDC)
 
     static let accentGradient = LinearGradient(

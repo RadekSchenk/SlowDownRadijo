@@ -43,7 +43,12 @@ final class PlayHistoryStore {
         } catch {
             fatalError("Failed to create PlayHistoryStore container: \(error)")
         }
-        pruneOld()
+        // Not on the way to the first frame: a fetch and a save on the
+        // main context, and nothing needs it done sooner.
+        Task { [weak self] in
+            try? await Task.sleep(for: .seconds(3))
+            self?.pruneOld()
+        }
     }
 
     /// Records a newly-observed track. Callers are expected to have already

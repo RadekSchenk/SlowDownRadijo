@@ -27,7 +27,13 @@ struct NewsListView: View {
         }
         .background(Theme.background.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)
-        .onAppear { viewModel.loadIfNeeded() }
+        .onAppear {
+            viewModel.loadIfNeeded()
+            Analytics.shared.screen(.news)
+            if newsNotificationsEnabled {
+                Task { await NewsNotificationManager.requestAuthorizationIfNeeded() }
+            }
+        }
         .refreshable { await viewModel.refresh() }
         .onChange(of: newsNotificationsEnabled) { _, isEnabled in
             guard isEnabled else { return }
