@@ -9,6 +9,12 @@ import Foundation
 /// reconnects happened in between), and `playback_failed` when the stream
 /// doesn't start or drops. A dropout the player recovers from is part of
 /// the same session.
+///
+/// A session the app never sees end — the app closed or killed while the
+/// radio plays, which happens often — would lose its whole listening time
+/// (a third of all sessions went missing that way). So the session is
+/// saved at its start and every minute while it plays, and the next launch
+/// sends the saved one as `playback_stopped` with reason "app_closed".
 @MainActor
 final class PlaybackAnalytics {
     private let player: RadioPlayerService
@@ -33,6 +39,7 @@ final class PlaybackAnalytics {
     init(player: RadioPlayerService, currentShowID: @escaping () -> String?) {
         self.player = player
         self.currentShowID = currentShowID
+        Self.sendUnfinishedSession()
         cancellable = player.$state
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
@@ -82,6 +89,7 @@ final class PlaybackAnalytics {
             playingSince = now
             startReviewCredit(at: now)
             failureReported = false
+            saveSession(at: now)
 
         case .error:
             pausePlayingClock(at: now)
@@ -100,6 +108,7 @@ final class PlaybackAnalytics {
             failureReported = false
             guard isInSession else { return }
             isInSession = false
+            UserDefaults.standard.removeObject(forKey: Self.openSessionKey)
             Analytics.shared.track(.playbackStopped(
                 seconds: Int(heardSeconds),
                 reason: player.lastStopReason.rawValue,
@@ -119,6 +128,44 @@ final class PlaybackAnalytics {
             heardSeconds += now.timeIntervalSince(since)
             playingSince = nil
         }
+        saveSession(at: now)
+    }
+
+    // MARK: - Sessions the app never saw end
+
+    private static let openSessionKey = "analytics.openSession"
+
+    private struct OpenSession: Codable {
+        let seconds: Double
+        let showID: String?
+        let reconnects: Int
+        let output: String
+    }
+
+    /// The session so far, for the next launch to send if this one never
+    /// gets to.
+    private func saveSession(at now: Date) {
+        guard isInSession else { return }
+        let session = OpenSession(
+            seconds: heardSeconds + (playingSince.map { now.timeIntervalSince($0) } ?? 0),
+            showID: currentShowID(),
+            reconnects: reconnects,
+            output: AudioOutput.kind()
+        )
+        UserDefaults.standard.set(try? JSONEncoder().encode(session), forKey: Self.openSessionKey)
+    }
+
+    private static func sendUnfinishedSession() {
+        guard let data = UserDefaults.standard.data(forKey: openSessionKey) else { return }
+        UserDefaults.standard.removeObject(forKey: openSessionKey)
+        guard let session = try? JSONDecoder().decode(OpenSession.self, from: data) else { return }
+        Analytics.shared.track(.playbackStopped(
+            seconds: Int(session.seconds),
+            reason: "app_closed",
+            showID: session.showID,
+            reconnects: session.reconnects,
+            output: session.output
+        ))
     }
 
     /// Listening time for `ReviewPrompt` (local only, nothing is sent):
@@ -131,7 +178,11 @@ final class PlaybackAnalytics {
         reviewCreditedUntil = now
         reviewTimer?.invalidate()
         reviewTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
-            Task { @MainActor [weak self] in self?.creditReviewPrompt(at: Date()) }
+            Task { @MainActor [weak self] in
+                let now = Date()
+                self?.creditReviewPrompt(at: now)
+                self?.saveSession(at: now)
+            }
         }
     }
 
