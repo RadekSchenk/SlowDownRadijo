@@ -23,3 +23,6 @@ backend/supabase/.temp/
 
 # Archives and exports from tools/release/upload.sh.
 /build/
+
+# Python bytecode (tools/ scripts).
+__pycache__/
