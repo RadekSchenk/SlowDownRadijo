@@ -50,6 +50,14 @@ jobs:
                   break
           ')
           echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+          # Boot it now and let it settle. Left to xcodebuild, the first
+          # test launched the app on a simulator still finishing its first
+          # boot, and its first UI query timed out ("Timed out while
+          # evaluating UI query", TabBarUITests setUp, runs for 946c0f6 and
+          # a65e912); the later tests passed.
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          sleep 30
 
       - name: Build and test
         run: |
