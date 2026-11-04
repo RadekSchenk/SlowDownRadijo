@@ -29,6 +29,9 @@ final class AppStoreScreenshotTests: XCTestCase {
             // mixtape and talk shows send no song titles, so the live
             // stream may have none to confirm while the screens are taken.
             "-debugVerifiedTrack", "Kokoroko - Never Lost",
+            // Vzkaz with a recorded message ready to send, rather than the
+            // empty screen (the CI simulator has no microphone).
+            "-debugRecordedVoiceMessage", "YES",
         ]
         app.launchEnvironment["TZ"] = "Europe/Prague"
         app.launch()

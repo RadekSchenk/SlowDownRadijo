@@ -23,6 +23,15 @@ final class VoiceMessageViewModel: ObservableObject {
         self.recorder.onMaxDurationReached = { [weak self] url, duration in
             self?.state = .recorded(url: url, duration: duration)
         }
+        #if DEBUG
+        // Screenshot tests: `-debugRecordedVoiceMessage YES` opens Vzkaz on
+        // a 38-second recorded message (the CI simulator has no microphone).
+        if UserDefaults.standard.bool(forKey: "debugRecordedVoiceMessage") {
+            let levels: [Float] = [0.35, 0.7, 0.55, 0.9, 0.6, 0.8, 0.45, 0.95, 0.65, 0.5, 0.85, 0.4, 0.75]
+            self.recorder.showDemoWaveform(levels + [Float](repeating: 0, count: VoiceMessageRecorder.waveformSegmentCount - levels.count))
+            state = .recorded(url: FileManager.default.temporaryDirectory.appendingPathComponent("demo.m4a"), duration: 38)
+        }
+        #endif
     }
 
     var recordingURL: URL? {

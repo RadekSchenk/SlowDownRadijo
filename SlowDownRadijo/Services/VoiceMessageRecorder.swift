@@ -31,6 +31,14 @@ final class VoiceMessageRecorder: NSObject, ObservableObject {
     private var playbackTimer: Timer?
     private var recordingURL: URL?
 
+    #if DEBUG
+    /// Screenshot tests: a recorded message's waveform without a
+    /// microphone (see `VoiceMessageViewModel.init`).
+    func showDemoWaveform(_ levels: [Float]) {
+        waveformLevels = levels
+    }
+    #endif
+
     func requestPermissionIfNeeded() async -> Bool {
         switch AVAudioApplication.shared.recordPermission {
         case .granted:
