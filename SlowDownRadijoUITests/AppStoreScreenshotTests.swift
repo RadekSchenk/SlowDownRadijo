@@ -25,6 +25,10 @@ final class AppStoreScreenshotTests: XCTestCase {
             // Times as a listener here sees them: the CI Mac runs on UTC
             // and a US region (2:00 PM for the 15:00 end of a show).
             "-AppleLocale", language == "cs" ? "cs_CZ" : "en_GB",
+            // A song the station really played (Beat Brunch, 4 Nov 2026):
+            // mixtape and talk shows send no song titles, so the live
+            // stream may have none to confirm while the screens are taken.
+            "-debugVerifiedTrack", "Kokoroko - Never Lost",
         ]
         app.launchEnvironment["TZ"] = "Europe/Prague"
         app.launch()
@@ -32,7 +36,7 @@ final class AppStoreScreenshotTests: XCTestCase {
 
         // The radio playing, with a confirmed song under the show.
         let song = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", " – ")).firstMatch
-        _ = song.waitForExistence(timeout: 300)
+        _ = song.waitForExistence(timeout: 30)
         sleep(4)
         capture("1 home")
 
@@ -49,7 +53,7 @@ final class AppStoreScreenshotTests: XCTestCase {
 
         // Down the home page until the programme's heading and day picker
         // are near the top.
-        scroll(by: 620)
+        scroll(by: 730)
         sleep(2)
         capture("3 programme")
 
