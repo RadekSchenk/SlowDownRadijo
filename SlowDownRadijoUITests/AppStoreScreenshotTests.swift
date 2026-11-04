@@ -22,13 +22,17 @@ final class AppStoreScreenshotTests: XCTestCase {
             "-analytics.consent", "denied",
             // A few weeks of listening, so the stats have something to show.
             "-debugStatsTotalSeconds", "371520",
+            // Times as a listener here sees them: the CI Mac runs on UTC
+            // and a US region (2:00 PM for the 15:00 end of a show).
+            "-AppleLocale", language == "cs" ? "cs_CZ" : "en_GB",
         ]
+        app.launchEnvironment["TZ"] = "Europe/Prague"
         app.launch()
         XCTAssertTrue(app.buttons["tab.0"].waitForExistence(timeout: 60))
 
         // The radio playing, with a confirmed song under the show.
         let song = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", " – ")).firstMatch
-        _ = song.waitForExistence(timeout: 150)
+        _ = song.waitForExistence(timeout: 300)
         sleep(4)
         capture("1 home")
 
@@ -43,8 +47,9 @@ final class AppStoreScreenshotTests: XCTestCase {
             sleep(2)
         }
 
-        // Down the home page to the programme.
-        for _ in 0..<2 { scroll(by: 300) }
+        // Down the home page until the programme's heading and day picker
+        // are near the top.
+        scroll(by: 620)
         sleep(2)
         capture("3 programme")
 
