@@ -33,9 +33,12 @@ final class VoiceMessageRecorder: NSObject, ObservableObject {
 
     #if DEBUG
     /// Screenshot tests: a recorded message's waveform without a
-    /// microphone (see `VoiceMessageViewModel.init`).
+    /// microphone, part-way through playing back (the bars only rise
+    /// behind the playback position) — see `VoiceMessageViewModel.init`.
     func showDemoWaveform(_ levels: [Float]) {
         waveformLevels = levels
+        isPlaying = true
+        playbackProgress = 0.55
     }
     #endif
 

@@ -54,9 +54,16 @@ final class AppStoreScreenshotTests: XCTestCase {
             sleep(2)
         }
 
-        // Down the home page until the programme's heading and day picker
-        // are near the top.
-        scroll(by: 730)
+        // Down the home page until the programme's heading sits just under
+        // the status bar, the day picker below it. A drag doesn't move the
+        // page by exactly its length, so measure and correct once.
+        let heading = app.staticTexts.matching(NSPredicate(format: "label == %@ OR label == %@", "Pořady", "Shows")).firstMatch
+        for _ in 0..<3 where heading.exists {
+            let offset = heading.frame.minY - 80
+            if abs(offset) < 12 { break }
+            scroll(by: offset)
+            sleep(1)
+        }
         sleep(2)
         capture("3 programme")
 
@@ -76,10 +83,11 @@ final class AppStoreScreenshotTests: XCTestCase {
         add(attachment)
     }
 
-    /// A slow drag that stops where it ends instead of flinging the page on.
+    /// A slow drag that stops where it ends instead of flinging the page
+    /// on; a negative distance scrolls back up.
     private func scroll(by distance: CGFloat) {
-        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.75))
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: distance > 0 ? 0.8 : 0.25))
         start.press(forDuration: 0.05, thenDragTo: start.withOffset(CGVector(dx: 0, dy: -distance)),
-                    withVelocity: XCUIGestureVelocity(500), thenHoldForDuration: 0.4)
+                    withVelocity: XCUIGestureVelocity(300), thenHoldForDuration: 0.6)
     }
 }
