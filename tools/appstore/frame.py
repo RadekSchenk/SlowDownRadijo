@@ -9,7 +9,8 @@ to card, so the five read as one strip in the App Store.
 
     python3 tools/appstore/frame.py <screens dir> <output dir> [style]
 
-Styles (the background): glow (default), panorama, sun, red, night.
+Styles (the background): panorama (the one in use, the default), glow,
+sun, red, night.
 
 Needs Pillow. Run by the appstore-screenshots job in
 .github/workflows/ui-tests.yml.
@@ -167,7 +168,7 @@ def rounded(size, radius):
     return mask
 
 
-def frame(screen_path, lang, key, out_path, style="glow"):
+def frame(screen_path, lang, key, out_path, style="panorama"):
     spec = SCREENS[key]
     card = background(key, style)
 
@@ -218,7 +219,7 @@ def frame(screen_path, lang, key, out_path, style="glow"):
 
 def main():
     src, out = sys.argv[1], sys.argv[2]
-    style = sys.argv[3] if len(sys.argv) > 3 else "glow"
+    style = sys.argv[3] if len(sys.argv) > 3 else "panorama"
     os.makedirs(out, exist_ok=True)
     for path in sorted(glob.glob(os.path.join(src, "*"))):
         name = os.path.splitext(os.path.basename(path))[0].replace("_", " ")

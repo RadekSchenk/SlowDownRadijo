@@ -277,7 +277,7 @@ jobs:
         run: |
           python3 -m pip install --break-system-packages --quiet pillow
           # The background style: glow, panorama, sun, red or night.
-          python3 tools/appstore/frame.py shots framed sun
+          python3 tools/appstore/frame.py shots framed panorama
 
       - name: Print screenshots
         run: |
