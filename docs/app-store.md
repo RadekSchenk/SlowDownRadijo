@@ -30,7 +30,7 @@ Hip hop, soul, jazz a funk
 
 **Promotional text**
 
-Poslouchej Slow Down Rádijo živě: pořad, moderátor i skladba, která právě hraje. Týdenní program, časovač vypnutí a tvoje vlastní statistiky poslechu.
+Poslouchej Slow Down Rádijo – ruční kurátorský výběr hudby namísto automatických algoritmů. Program, časovač vypnutí, vzkaz do rádia a tvoje vlastní statistiky poslechu.
 
 **Keywords**
 
@@ -38,7 +38,7 @@ radio,rádio,hiphop,rap,soul,funk,jazz,afrobeat,beats,groove,stream,živě,praha
 
 **Description**
 
-Slow Down Rádijo v kapse. Živé vysílání rádia, které hraje hip hop, soul, funk, jazz, afrobeat i elektroniku – a hlavně věci, které jinde neuslyšíš.
+Slow Down Rádijo v kapse. Živé vysílání rádia, které hraje hip hop, soul, funk, jazz, afrobeat i elektroniku – a hlavně věci, které jinde neuslyšíš. Ruční kurátorský výběr hudby namísto automatických algoritmů.
 
 CO APPKA UMÍ
 • Živé vysílání na jedno klepnutí – i na pozadí, ze zamčené obrazovky, přes AirPlay a Bluetooth
@@ -55,6 +55,8 @@ BEZ ÚČTU A BEZ REKLAM
 Appku používáš bez registrace a bez reklam. Statistiky poslechu jsou anonymní a můžeš je kdykoli vypnout i smazat. Měření používání appky se zapne jen s tvým souhlasem.
 
 Zpomal se Slow Down Rádijem.
+Tohle algoritmus neumí.
+No music. No life.
 
 ## English
 
@@ -64,7 +66,7 @@ Hip hop, soul, jazz and funk
 
 **Promotional text**
 
-Listen to Slow Down Rádijo live: the show, the host and the song on air right now. A weekly schedule, a sleep timer and your own listening stats.
+Listen to Slow Down Rádijo – music hand-picked by people instead of algorithms. A weekly schedule, a sleep timer, voice messages to the station and your own listening stats.
 
 **Keywords**
 
@@ -72,7 +74,7 @@ radio,hiphop,rap,soul,funk,jazz,afrobeat,beats,groove,stream,live,online,prague,
 
 **Description**
 
-Slow Down Rádijo in your pocket. The live stream of a radio station playing hip hop, soul, funk, jazz, Afrobeat and electronica – and above all, music you won't hear anywhere else.
+Slow Down Rádijo in your pocket. The live stream of a radio station playing hip hop, soul, funk, jazz, Afrobeat and electronica – and above all, music you won't hear anywhere else. Hand-picked by people, not by algorithms.
 
 WHAT IT DOES
 • The live stream in one tap – in the background, from the lock screen, over AirPlay and Bluetooth
@@ -89,6 +91,8 @@ NO ACCOUNT, NO ADS
 No sign-up and no ads. Listening stats are anonymous, and you can turn them off and delete them at any time. Usage measurement only starts with your consent.
 
 Slow down with Slow Down Rádijo.
+No algorithm can do this.
+No music. No life.
 
 ## App Privacy (the privacy label)
 
