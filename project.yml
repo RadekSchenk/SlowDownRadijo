@@ -33,6 +33,10 @@ targets:
       path: SlowDownRadijo/Info.plist
       properties:
         CFBundleDisplayName: "Slow Down Rádijo"
+        # From the build settings, so upload.sh's build number gets in
+        # (XcodeGen otherwise writes a fixed 1.0 / 1).
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         CFBundleLocalizations:
           - cs
           - en
@@ -115,6 +119,9 @@ targets:
       path: SlowDownRadijoWidget/Info.plist
       properties:
         CFBundleDisplayName: "Slow Down Rádijo"
+        # Must match the app's (see above).
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
         UIAppFonts:
