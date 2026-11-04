@@ -17,7 +17,7 @@ on:
 
 jobs:
   ui-tests:
-    if: ${{ !contains(github.event.head_commit.message, '[screenshots]') }}
+    if: ${{ !contains(github.event.head_commit.message, '[screenshots]') && !contains(github.event.head_commit.message, '[appstore]') }}
     runs-on: macos-26
     timeout-minutes: 45
     steps:
@@ -69,6 +69,7 @@ jobs:
             -resultBundlePath TestResults.xcresult \
             -skip-testing:SlowDownRadijoUITests/ScreenshotTests \
             -skip-testing:SlowDownRadijoUITests/ShowcaseTests \
+            -skip-testing:SlowDownRadijoUITests/AppStoreScreenshotTests \
             CODE_SIGNING_ALLOWED=NO \
             | tee xcodebuild.log | grep -E "error:|warning: .*RootTabView|Test Case|Executed|\*\* TEST|failed|passed" || true
           grep -q "\*\* TEST SUCCEEDED \*\*" xcodebuild.log
@@ -186,3 +187,101 @@ jobs:
         with:
           name: screenshots
           path: shots
+
+  # The App Store screenshots (AppStoreScreenshotTests), in Czech and
+  # English, on a 6.9" iPhone (1320 x 2868) with a 9:41 status bar. Only
+  # when asked: a commit message containing [appstore]. Uploaded as the
+  # "appstore-screenshots" artifact (PNG) and printed into the log (JPEG,
+  # base64) for a look without downloading.
+  appstore-screenshots:
+    if: contains(github.event.head_commit.message, '[appstore]')
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate the Xcode project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Simulator
+        id: sim
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys, re
+          data = json.load(sys.stdin)["devices"]
+          def version(runtime):
+              m = re.search(r"iOS-(\d+)-(\d+)", runtime)
+              return (int(m.group(1)), int(m.group(2))) if m else (0, 0)
+          for runtime in sorted(data, key=version, reverse=True):
+              if "iOS" not in runtime:
+                  continue
+              phones = [d for d in data[runtime] if d["name"] == "iPhone 17 Pro Max"] or [d for d in data[runtime] if d["name"].endswith("Pro Max")]
+              if phones:
+                  print(runtime, phones[0]["name"], file=sys.stderr)
+                  print(phones[0]["udid"])
+                  break
+          ')
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl status_bar "$UDID" override --time "9:41" --dataNetwork wifi --wifiMode active --wifiBars 3 \
+            --cellularMode active --cellularBars 4 --operatorName "" --batteryState charged --batteryLevel 100
+          sleep 20
+
+      - name: Build for testing
+        run: |
+          set -o pipefail
+          xcodebuild build-for-testing \
+            -project SlowDownRadijo.xcodeproj \
+            -scheme SlowDownRadijo \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -derivedDataPath DerivedData \
+            CODE_SIGNING_ALLOWED=NO | tail -5
+
+      - name: Capture
+        run: |
+          mkdir -p shots
+          for lang in cs en; do
+            TEST_RUNNER_SCREENSHOT_LANGUAGE="$lang" \
+            xcodebuild test-without-building \
+              -project SlowDownRadijo.xcodeproj \
+              -scheme SlowDownRadijo \
+              -destination "id=${{ steps.sim.outputs.udid }}" \
+              -derivedDataPath DerivedData \
+              -only-testing:SlowDownRadijoUITests/AppStoreScreenshotTests \
+              -resultBundlePath "Result-$lang.xcresult" \
+              CODE_SIGNING_ALLOWED=NO > "test-$lang.log" 2>&1 || true
+            tail -3 "test-$lang.log"
+            xcrun xcresulttool export attachments --path "Result-$lang.xcresult" --output-path "raw-$lang" || true
+          done
+          python3 - <<'PY2'
+          import glob, json, os, shutil
+          for manifest in glob.glob("raw-*/manifest.json"):
+              folder = os.path.dirname(manifest)
+              for test in json.load(open(manifest)):
+                  for att in test.get("attachments", []):
+                      name = att.get("suggestedHumanReadableName", "")
+                      # "cs 1 home_0_<uuid>.png" -> "cs 1 home.png"
+                      clean = name.split("_0_")[0]
+                      if att["exportedFileName"].endswith(".png"):
+                          shutil.copy(os.path.join(folder, att["exportedFileName"]), os.path.join("shots", clean + ".png"))
+          PY2
+          ls -la shots
+          for f in shots/*.png; do sips -g pixelWidth -g pixelHeight "$f" | tail -2 | tr '\n' ' '; echo " $f"; done
+
+      - name: Print screenshots
+        run: |
+          for f in shots/*.png; do
+            sips -s format jpeg -s formatOptions 88 "$f" --out "${f%.png}.jpg" > /dev/null
+            echo "===== IMAGE $(basename "${f%.png}")"
+            base64 -i "${f%.png}.jpg" | tr -d '\n'
+            echo
+            echo "===== END IMAGE"
+          done
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: appstore-screenshots
+          path: shots/*.png
