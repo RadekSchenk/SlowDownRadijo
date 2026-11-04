@@ -189,9 +189,11 @@ jobs:
           path: shots
 
   # The App Store screenshots (AppStoreScreenshotTests), in Czech and
-  # English, on a 6.9" iPhone (1320 x 2868) with a 9:41 status bar. Only
-  # when asked: a commit message containing [appstore]. Uploaded as the
-  # "appstore-screenshots" artifact (PNG) and printed into the log (JPEG,
+  # English, on a 6.9" iPhone (1320 x 2868) with a 9:41 status bar, then
+  # framed with a caption by tools/appstore/frame.py. Only when asked: a
+  # commit message containing [appstore]. Uploaded as the
+  # "appstore-screenshots" artifact (framed/ for the App Store, shots/ the
+  # plain screens); the framed ones are printed into the log (JPEG,
   # base64) for a look without downloading.
   appstore-screenshots:
     if: contains(github.event.head_commit.message, '[appstore]')
@@ -271,9 +273,14 @@ jobs:
           ls -la shots
           for f in shots/*.png; do sips -g pixelWidth -g pixelHeight "$f" | tail -2 | tr '\n' ' '; echo " $f"; done
 
+      - name: Frame
+        run: |
+          python3 -m pip install --break-system-packages --quiet pillow
+          python3 tools/appstore/frame.py shots framed
+
       - name: Print screenshots
         run: |
-          for f in shots/*.png; do
+          for f in framed/*.png; do
             sips -s format jpeg -s formatOptions 88 "$f" --out "${f%.png}.jpg" > /dev/null
             echo "===== IMAGE $(basename "${f%.png}")"
             base64 -i "${f%.png}.jpg" | tr -d '\n'
@@ -284,4 +291,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: appstore-screenshots
-          path: shots/*.png
+          path: |
+            framed/*.png
+            shots/*.png
