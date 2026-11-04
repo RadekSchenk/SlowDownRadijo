@@ -8,7 +8,9 @@ keywords 100 (comma-separated, no spaces after commas), description
 
 Screenshots: `[appstore]` in a commit message runs the
 appstore-screenshots job (`.github/workflows/ui-tests.yml`), 6.9" iPhone,
-Czech and English; best while a show with a host is on air.
+Czech and English; best while a show with a host is on air. Upload the
+files in the artifact's `framed-6.3` folder (1206 x 2622): App Store
+Connect's iPhone slot is the 6.1"/6.3" Dynamic Island size.
 
 ## App information
 
