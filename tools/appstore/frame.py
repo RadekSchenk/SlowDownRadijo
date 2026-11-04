@@ -7,7 +7,9 @@ top, the screen in a phone outline below it, over a glow in the logo's
 sunset colours fading into the app's night blue. The glows move from card
 to card, so the five read as one strip in the App Store.
 
-    python3 tools/appstore/frame.py <screens dir> <output dir>
+    python3 tools/appstore/frame.py <screens dir> <output dir> [style]
+
+Styles (the background): glow (default), panorama, sun, red, night.
 
 Needs Pillow. Run by the appstore-screenshots job in
 .github/workflows/ui-tests.yml.
@@ -66,7 +68,16 @@ SCREEN_RADIUS = 118
 PHONE_TOP = 640
 
 
-def background(glows):
+ORDER = list(SCREENS)
+
+
+def fade(strength=0.85, length=1.45):
+    """Opaque at the top, gone by about two thirds down."""
+    mask = Image.linear_gradient("L").resize((W, H))
+    return mask.point(lambda v: int(max(0, 255 - v * length) * strength))
+
+
+def glow_background(glows):
     card = Image.new("RGB", (W, H), NIGHT)
     layer = Image.new("RGB", (W, H), NIGHT)
     draw = ImageDraw.Draw(layer)
@@ -81,15 +92,84 @@ def background(glows):
     return card
 
 
+def panorama_background(index):
+    """One sunset running across all five cards: yellow, orange, red,
+    the app's red, violet."""
+    stops = [SUN_YELLOW, SUN_ORANGE, SUN_RED, LIVE_RED, VIOLET, (60, 40, 140)]
+    total = W * len(ORDER)
+    strip = Image.new("RGB", (len(stops), 1))
+    for i, c in enumerate(stops):
+        strip.putpixel((i, 0), c)
+    row = strip.resize((total, 1), Image.BILINEAR).crop((index * W, 0, index * W + W, 1))
+    layer = row.resize((W, H))
+    card = Image.new("RGB", (W, H), NIGHT)
+    card.paste(layer, (0, 0), fade(0.9, 1.3))
+    return card
+
+
+def sun_background(index):
+    """The logo's striped sun rising behind the phone, on night blue."""
+    card = Image.new("RGB", (W, H), NIGHT)
+    d = 1500
+    cx, cy = W // 2, 1250
+    grad = Image.new("RGB", (1, 3))
+    for i, c in enumerate([SUN_YELLOW, SUN_ORANGE, SUN_RED]):
+        grad.putpixel((0, i), c)
+    sun = grad.resize((d, d), Image.BILINEAR)
+    mask = Image.new("L", (d, d), 0)
+    md = ImageDraw.Draw(mask)
+    md.ellipse((0, 0, d - 1, d - 1), fill=255)
+    # Gaps that widen towards the bottom, like the logo's sun.
+    y, gap, band = 0, 6, 120
+    while y < d:
+        y += band
+        md.rectangle((0, y, d, y + gap), fill=0)
+        y += gap
+        band = max(40, band - 9)
+        gap += 7
+    halo = Image.new("RGB", (W, H), NIGHT)
+    ImageDraw.Draw(halo).ellipse((cx - d // 2 - 200, cy - d // 2 - 200, cx + d // 2 + 200, cy + d // 2 + 200),
+                                 fill=SUN_RED)
+    halo = halo.filter(ImageFilter.GaussianBlur(260))
+    card = Image.blend(card, halo, 0.35)
+    card.paste(sun, (cx - d // 2, cy - d // 2), mask)
+    return card
+
+
+def red_background(index):
+    """The app's red only, glowing from the top."""
+    x = [0.2, 0.8, 0.35, 0.65, 0.5][index]
+    return glow_background([(LIVE_RED, x)])
+
+
+def night_background(index):
+    """Night blue with a faint violet light, the caption in sunset
+    colours instead."""
+    return glow_background([((60, 40, 120), 0.5)])
+
+
+def background(spec, style):
+    index = ORDER.index(spec)
+    if style == "panorama":
+        return panorama_background(index)
+    if style == "sun":
+        return sun_background(index)
+    if style == "red":
+        return red_background(index)
+    if style == "night":
+        return night_background(index)
+    return glow_background(SCREENS[spec]["glow"])
+
+
 def rounded(size, radius):
     mask = Image.new("L", size, 0)
     ImageDraw.Draw(mask).rounded_rectangle((0, 0, size[0] - 1, size[1] - 1), radius, fill=255)
     return mask
 
 
-def frame(screen_path, lang, key, out_path):
+def frame(screen_path, lang, key, out_path, style="glow"):
     spec = SCREENS[key]
-    card = background(spec["glow"])
+    card = background(key, style)
 
     # Caption.
     draw = ImageDraw.Draw(card)
@@ -97,8 +177,20 @@ def frame(screen_path, lang, key, out_path):
     text = spec[lang]
     box = draw.multiline_textbbox((0, 0), text, font=font, spacing=26, align="center")
     tw, th = box[2] - box[0], box[3] - box[1]
-    draw.multiline_text(((W - tw) / 2 - box[0], 330 - th / 2 - box[1]), text, font=font,
-                        fill=(255, 255, 255), spacing=26, align="center")
+    origin = ((W - tw) / 2 - box[0], 330 - th / 2 - box[1])
+    if style == "night":
+        # The caption in the logo's sunset gradient.
+        grad = Image.new("RGB", (1, 3))
+        for i, c in enumerate([SUN_YELLOW, SUN_ORANGE, SUN_RED]):
+            grad.putpixel((0, i), c)
+        fill = grad.resize((W, int(th) + 40), Image.BILINEAR)
+        mask = Image.new("L", (W, H), 0)
+        ImageDraw.Draw(mask).multiline_text(origin, text, font=font, fill=255, spacing=26, align="center")
+        full = Image.new("RGB", (W, H))
+        full.paste(fill, (0, int(330 - th / 2) - 20))
+        card.paste(full, (0, 0), mask)
+    else:
+        draw.multiline_text(origin, text, font=font, fill=(255, 255, 255), spacing=26, align="center")
 
     # The screen in a phone outline, with a soft shadow.
     screen = Image.open(screen_path).convert("RGB")
@@ -126,6 +218,7 @@ def frame(screen_path, lang, key, out_path):
 
 def main():
     src, out = sys.argv[1], sys.argv[2]
+    style = sys.argv[3] if len(sys.argv) > 3 else "glow"
     os.makedirs(out, exist_ok=True)
     for path in sorted(glob.glob(os.path.join(src, "*"))):
         name = os.path.splitext(os.path.basename(path))[0].replace("_", " ")
@@ -133,7 +226,7 @@ def main():
         if key not in SCREENS or lang not in ("cs", "en"):
             continue
         target = os.path.join(out, f"{lang} {key}.png")
-        frame(path, lang, key, target)
+        frame(path, lang, key, target, style)
         print(target)
 
 
