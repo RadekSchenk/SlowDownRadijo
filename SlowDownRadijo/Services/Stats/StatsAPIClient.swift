@@ -70,6 +70,13 @@ actor StatsAPIClient {
     // MARK: - Public API
 
     func recordListening(batchID: UUID, rows: [ListeningRow], appVersion: String) async throws {
+        #if DEBUG
+        // UI tests and screenshot runs (`-statsDryRun YES`): a simulator in
+        // CI isn't a listener, so nothing reaches the station's stats — and
+        // with no upload, no anonymous account is created either. The batch
+        // counts as sent, so the phone's own totals still add up.
+        if UserDefaults.standard.bool(forKey: "statsDryRun") { return }
+        #endif
         let body = try JSONEncoder().encode(RecordBody(batchID: batchID, rows: rows, appVersion: appVersion))
         _ = try await authenticatedRPC("record_listening", body: body)
     }

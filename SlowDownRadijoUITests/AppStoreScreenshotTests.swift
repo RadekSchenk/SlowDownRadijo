@@ -18,6 +18,8 @@ final class AppStoreScreenshotTests: XCTestCase {
         app = XCUIApplication()
         app.launchArguments += [
             "-app.language", language,
+            // Nothing from CI in the station's listening stats.
+            "-statsDryRun", "YES",
             // No consent card on the home screen, and nothing sent from CI.
             "-analytics.consent", "denied",
             // A few weeks of listening, so the stats have something to show.

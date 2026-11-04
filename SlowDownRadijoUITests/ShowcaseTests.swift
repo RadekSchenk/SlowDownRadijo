@@ -20,6 +20,8 @@ final class ShowcaseTests: XCTestCase {
         app = XCUIApplication()
         app.launchArguments += [
             "-app.language", "cs",
+            // Nothing from CI in the station's listening stats.
+            "-statsDryRun", "YES",
             // No analytics from a CI run.
             "-analytics.consent", "denied",
             // A few days of listening, so the stats have something to show.
