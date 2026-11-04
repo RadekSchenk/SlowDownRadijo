@@ -8,7 +8,12 @@ import SwiftUI
 ///
 /// Styled after the home screen: 20pt margins, 24pt headings, and the menu
 /// itself as a divider-separated list like "Pořady".
+///
+/// The language switch sits right under the title, not in Settings:
+/// someone who doesn't read Czech has to find it without reading the
+/// menu, so each language is named in itself ("English").
 struct HubView: View {
+    @ObservedObject private var loc = LocalizationManager.shared
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
 
@@ -18,13 +23,17 @@ struct HubView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
-                    header
+                    VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                        header
+                        languageSwitch
+                    }
 
                     VStack(spacing: 0) {
                         // First and most prominent — the station leans on
                         // this channel heavily on-air.
                         ListDivider()
                         Button {
+                            Analytics.shared.track(.linkOpened(target: "whatsapp"))
                             openURL(Self.whatsAppURL)
                         } label: {
                             row(icon: "message.fill", title: L10n.hubWhatsAppRow, subtitle: L10n.hubWhatsAppRowSubtitle)
@@ -65,7 +74,10 @@ struct HubView: View {
             }
             .background(Theme.background.ignoresSafeArea())
             .toolbar(.hidden, for: .navigationBar)
+            .onAppear { Analytics.shared.screen(.menu) }
         }
+        // Toasts from screens pushed in the menu (Settings ▸ show reminders).
+        .toastOverlay()
     }
 
     private var header: some View {
@@ -77,6 +89,45 @@ struct HubView: View {
             HeaderIconButton(systemName: "xmark") { dismiss() }
                 .accessibilityLabel(L10n.close)
         }
+    }
+
+    private var languageSwitch: some View {
+        HStack(spacing: 2) {
+            ForEach(AppLanguage.allCases) { language in
+                languageOption(language)
+            }
+        }
+        .padding(3)
+        .background(Theme.statsCard, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(L10n.settingsLanguageTitle)
+    }
+
+    private func languageOption(_ language: AppLanguage) -> some View {
+        let isSelected = loc.language == language
+        return Button {
+            guard !isSelected else { return }
+            loc.language = language
+            Analytics.shared.track(.languageChanged(to: language.rawValue))
+        } label: {
+            Text(language.displayName)
+                .font(isSelected
+                      ? Theme.Typography.Manrope.extraBold(size: 14, relativeTo: .subheadline)
+                      : Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
+                .foregroundStyle(isSelected ? Theme.textPrimary : Theme.mutedText)
+                .lineLimit(1)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 9)
+                .background(
+                    isSelected ? Theme.statsCardRaised : .clear,
+                    in: RoundedRectangle(cornerRadius: 9, style: .continuous)
+                )
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .accessibilityIdentifier("language.\(language.rawValue)")
+        .animation(Motion.smoothOut(Motion.fast), value: isSelected)
     }
 
     private func row(icon: String, title: String, subtitle: String) -> some View {

@@ -8,15 +8,18 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "00:00",
           "end": "08:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "groove-lab-s-don-hoblinon",
           "name": "Groove Lab s Don Hobliňon",
           "title": "Groove Lab",
           "summary": "Laboratoř grooveu – autorská hudební selekce.",
+          "summaryEn": "A groove laboratory – an original music selection.",
           "start": "08:00",
           "end": "10:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/11/Groove-Lab-s-Don-Hoblinon.jpg",
@@ -28,9 +31,11 @@
           "name": "Africa Incorporated s Chuck Diesal",
           "title": "Africa Incorporated",
           "summary": "Cesta do světa black music – od afrobeatu přes jazz a soul po reggae a vše mezi tím.",
+          "summaryEn": "A journey into black music – from Afrobeat through jazz and soul to reggae and everything in between.",
           "start": "10:00",
           "end": "11:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Chuck-Diesal_.jpg",
+          "artworkName": "ShowArtAfricaIncorporated",
           "hostName": "Chuck Diesal",
           "hostImageName": "HostChuckDiesal"
         },
@@ -38,6 +43,7 @@
           "id": "grind-time",
           "name": "Grind Time",
           "summary": "Nejen skateboarding – zevnitř očima skejtra, zvenku uchem DJ Pufaze.",
+          "summaryEn": "Not just skateboarding – from the inside through a skater's eyes, from the outside through DJ Pufaz's ears.",
           "start": "11:00",
           "end": "12:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/06/Grind-Time.jpg",
@@ -48,18 +54,22 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "12:00",
           "end": "17:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "kuratorska-selekce-s-philip-tbc",
           "name": "Kurátorská selekce s Philip TBC",
           "title": "Kurátorská selekce",
           "summary": "DJ a producent ze Shadowbox crew, kterému od roku 1998 vládne breakbeat.",
+          "summaryEn": "A DJ and producer from the Shadowbox crew, ruled by breakbeat since 1998.",
           "start": "17:00",
           "end": "18:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Kuratorska-selekce-s-Philip-TBC_.jpg",
+          "artworkName": "ShowArtPhilipTbc",
           "hostName": "Philip TBC",
           "hostImageName": "HostPhilipTbc"
         },
@@ -67,18 +77,22 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "18:00",
           "end": "19:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "diggin-time-s-dj-magic",
           "name": "Diggin Time s DJ Magič",
           "title": "Diggin Time",
           "summary": "Čas kopat v hudbě – autorská selekce.",
+          "summaryEn": "Time to dig into music – an original selection.",
           "start": "19:00",
           "end": "20:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/diggin-time-dj-magic-porad.jpg",
+          "artworkName": "ShowArtDigginTime",
           "hostName": "DJ Magič"
         },
         {
@@ -86,9 +100,11 @@
           "name": "Weekend Aftertaste s cube positive",
           "title": "Weekend Aftertaste",
           "summary": "Elektronika, latino a hip-hop – afterparty víkendu, nebo warm-up týdne.",
+          "summaryEn": "Electronica, Latin and hip-hop – the weekend's afterparty or the week's warm-up.",
           "start": "20:00",
           "end": "22:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/02/Weekend-Aftertaste-s-cube-positive.jpg",
+          "artworkName": "ShowArtWeekendAftertaste",
           "hostName": "DJ cube positive",
           "hostImageName": "HostDjCubePositive"
         },
@@ -96,9 +112,11 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "22:00",
           "end": "00:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         }
       ]
     },
@@ -110,18 +128,22 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "00:00",
           "end": "06:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "kuratorska-selekce-s-philip-tbc",
           "name": "Kurátorská selekce s Philip TBC",
           "title": "Kurátorská selekce",
           "summary": "DJ a producent ze Shadowbox crew, kterému od roku 1998 vládne breakbeat.",
+          "summaryEn": "A DJ and producer from the Shadowbox crew, ruled by breakbeat since 1998.",
           "start": "06:00",
           "end": "07:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Kuratorska-selekce-s-Philip-TBC_.jpg",
+          "artworkName": "ShowArtPhilipTbc",
           "hostName": "Philip TBC",
           "hostImageName": "HostPhilipTbc"
         },
@@ -130,9 +152,11 @@
           "name": "Morning Coffee s DJ Pufaz",
           "title": "Morning Coffee",
           "summary": "Hudební start do všedního dne.",
+          "summaryEn": "A musical start to the working day.",
           "start": "07:00",
           "end": "09:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/01/dj-pufaz-porad-.jpg",
+          "artworkName": "ShowArtMorningCoffee",
           "hostName": "DJ Pufaz",
           "hostImageName": "HostDjPufaz"
         },
@@ -141,9 +165,11 @@
           "name": "Beat Brunch s Jaro Cossiga",
           "title": "Beat Brunch",
           "summary": "Hip hop, neo soul, funk, jazz i elektronika v dopoledním mixu plném rarit.",
+          "summaryEn": "Hip hop, neo soul, funk, jazz and electronica in a late-morning mix full of rarities.",
           "start": "09:00",
           "end": "12:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Jaro-beatbrunch-porad.jpg",
+          "artworkName": "ShowArtBeatBrunch",
           "hostName": "Jaro Cossiga",
           "hostImageName": "HostJaroCossiga"
         },
@@ -151,35 +177,43 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "12:00",
           "end": "13:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "show-podle-majkla",
           "name": "Show podle Majkla",
           "summary": "Je zpět – a s ním i soutěže pro posluchače.",
+          "summaryEn": "It's back – and with it, competitions for listeners.",
           "start": "13:00",
           "end": "14:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/svet-podle-majkla-porad.jpg",
+          "artworkName": "ShowArtShowPodleMajkla",
           "hostName": "Vrtulník Michael V."
         },
         {
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "14:00",
           "end": "15:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "africa-incorporated-s-chuck-diesal",
           "name": "Africa Incorporated s Chuck Diesal",
           "title": "Africa Incorporated",
           "summary": "Cesta do světa black music – od afrobeatu přes jazz a soul po reggae a vše mezi tím.",
+          "summaryEn": "A journey into black music – from Afrobeat through jazz and soul to reggae and everything in between.",
           "start": "15:00",
           "end": "16:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Chuck-Diesal_.jpg",
+          "artworkName": "ShowArtAfricaIncorporated",
           "hostName": "Chuck Diesal",
           "hostImageName": "HostChuckDiesal"
         },
@@ -187,9 +221,11 @@
           "id": "show-podle-majkla",
           "name": "Show podle Majkla",
           "summary": "Je zpět – a s ním i soutěže pro posluchače.",
+          "summaryEn": "It's back – and with it, competitions for listeners.",
           "start": "16:00",
           "end": "17:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/svet-podle-majkla-porad.jpg",
+          "artworkName": "ShowArtShowPodleMajkla",
           "hostName": "Vrtulník Michael V."
         },
         {
@@ -197,9 +233,11 @@
           "name": "Bonus Beats s DJ LaRose",
           "title": "Bonus Beats",
           "summary": "Rodák z New Yorku, který s DJingem začínal v 90. letech v pražském XT3.",
+          "summaryEn": "A New Yorker who started DJing in the '90s at Prague's XT3.",
           "start": "17:00",
           "end": "18:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/bonus-beats-dj-larose-porad.jpg",
+          "artworkName": "ShowArtBonusBeats",
           "hostName": "DJ LaRose",
           "hostImageName": "HostDjLaRose"
         },
@@ -207,9 +245,11 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "18:00",
           "end": "20:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "the-golden-era",
@@ -222,18 +262,22 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "21:00",
           "end": "22:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "weekend-aftertaste-s-cube-positive",
           "name": "Weekend Aftertaste s cube positive",
           "title": "Weekend Aftertaste",
           "summary": "Elektronika, latino a hip-hop – afterparty víkendu, nebo warm-up týdne.",
+          "summaryEn": "Electronica, Latin and hip-hop – the weekend's afterparty or the week's warm-up.",
           "start": "22:00",
           "end": "00:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/02/Weekend-Aftertaste-s-cube-positive.jpg",
+          "artworkName": "ShowArtWeekendAftertaste",
           "hostName": "DJ cube positive",
           "hostImageName": "HostDjCubePositive"
         }
@@ -247,18 +291,22 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "00:00",
           "end": "06:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "africa-incorporated-s-chuck-diesal",
           "name": "Africa Incorporated s Chuck Diesal",
           "title": "Africa Incorporated",
           "summary": "Cesta do světa black music – od afrobeatu přes jazz a soul po reggae a vše mezi tím.",
+          "summaryEn": "A journey into black music – from Afrobeat through jazz and soul to reggae and everything in between.",
           "start": "06:00",
           "end": "07:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Chuck-Diesal_.jpg",
+          "artworkName": "ShowArtAfricaIncorporated",
           "hostName": "Chuck Diesal",
           "hostImageName": "HostChuckDiesal"
         },
@@ -267,9 +315,11 @@
           "name": "Morning Coffee s DJ Pufaz",
           "title": "Morning Coffee",
           "summary": "Hudební start do všedního dne.",
+          "summaryEn": "A musical start to the working day.",
           "start": "07:00",
           "end": "09:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/01/dj-pufaz-porad-.jpg",
+          "artworkName": "ShowArtMorningCoffee",
           "hostName": "DJ Pufaz",
           "hostImageName": "HostDjPufaz"
         },
@@ -278,9 +328,11 @@
           "name": "Beat Brunch s Jaro Cossiga",
           "title": "Beat Brunch",
           "summary": "Hip hop, neo soul, funk, jazz i elektronika v dopoledním mixu plném rarit.",
+          "summaryEn": "Hip hop, neo soul, funk, jazz and electronica in a late-morning mix full of rarities.",
           "start": "09:00",
           "end": "12:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Jaro-beatbrunch-porad.jpg",
+          "artworkName": "ShowArtBeatBrunch",
           "hostName": "Jaro Cossiga",
           "hostImageName": "HostJaroCossiga"
         },
@@ -288,9 +340,11 @@
           "id": "britsky-state-of-mind",
           "name": "Britský State of Mind",
           "summary": "Hudební výlet do UK s rodilým Britem, blogerem a DJem.",
+          "summaryEn": "A musical trip to the UK with a native Brit, blogger and DJ.",
           "start": "12:00",
           "end": "13:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/06/Britsky-State-of-Mind.jpg",
+          "artworkName": "ShowArtBritskyStateOfMind",
           "hostName": "C. Monts",
           "hostImageName": "HostCMonts"
         },
@@ -298,18 +352,22 @@
           "id": "show-podle-majkla",
           "name": "Show podle Majkla",
           "summary": "Je zpět – a s ním i soutěže pro posluchače.",
+          "summaryEn": "It's back – and with it, competitions for listeners.",
           "start": "13:00",
           "end": "14:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/svet-podle-majkla-porad.jpg",
+          "artworkName": "ShowArtShowPodleMajkla",
           "hostName": "Vrtulník Michael V."
         },
         {
           "id": "bass-time",
           "name": "Bass Time",
           "summary": "Legendární basové linky, jejich hráči a příběhy. Připravil kurátor Matěj Grulich.",
+          "summaryEn": "Legendary bass lines, the players behind them and their stories. Curated by Matěj Grulich.",
           "start": "14:00",
           "end": "15:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Bass-Time.jpg",
+          "artworkName": "ShowArtBassTime",
           "hostName": "Jaro Cossiga",
           "hostImageName": "HostJaroCossiga"
         },
@@ -317,31 +375,38 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "15:00",
           "end": "16:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "show-podle-majkla",
           "name": "Show podle Majkla",
           "summary": "Je zpět – a s ním i soutěže pro posluchače.",
+          "summaryEn": "It's back – and with it, competitions for listeners.",
           "start": "16:00",
           "end": "17:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/svet-podle-majkla-porad.jpg",
+          "artworkName": "ShowArtShowPodleMajkla",
           "hostName": "Vrtulník Michael V."
         },
         {
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "17:00",
           "end": "18:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "grind-time",
           "name": "Grind Time",
           "summary": "Nejen skateboarding – zevnitř očima skejtra, zvenku uchem DJ Pufaze.",
+          "summaryEn": "Not just skateboarding – from the inside through a skater's eyes, from the outside through DJ Pufaz's ears.",
           "start": "18:00",
           "end": "19:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/06/Grind-Time.jpg",
@@ -352,15 +417,18 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "19:00",
           "end": "20:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "go-deeper-s-fatal-dna",
           "name": "Go Deeper s Fatal DNA",
           "title": "Go Deeper",
           "summary": "Hypnotické basy a vzletné výšky v rytmu downtempa a progresivní elektroniky.",
+          "summaryEn": "Hypnotic bass and soaring highs to the rhythm of downtempo and progressive electronica.",
           "start": "20:00",
           "end": "21:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/go-deeper-porad.jpg",
@@ -370,9 +438,11 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "21:00",
           "end": "00:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         }
       ]
     },
@@ -384,17 +454,21 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "00:00",
           "end": "06:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "britsky-state-of-mind",
           "name": "Britský State of Mind",
           "summary": "Hudební výlet do UK s rodilým Britem, blogerem a DJem.",
+          "summaryEn": "A musical trip to the UK with a native Brit, blogger and DJ.",
           "start": "06:00",
           "end": "07:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/06/Britsky-State-of-Mind.jpg",
+          "artworkName": "ShowArtBritskyStateOfMind",
           "hostName": "C. Monts",
           "hostImageName": "HostCMonts"
         },
@@ -403,9 +477,11 @@
           "name": "Morning Coffee s DJ Pufaz",
           "title": "Morning Coffee",
           "summary": "Hudební start do všedního dne.",
+          "summaryEn": "A musical start to the working day.",
           "start": "07:00",
           "end": "09:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/01/dj-pufaz-porad-.jpg",
+          "artworkName": "ShowArtMorningCoffee",
           "hostName": "DJ Pufaz",
           "hostImageName": "HostDjPufaz"
         },
@@ -414,9 +490,11 @@
           "name": "Beat Brunch s Jaro Cossiga",
           "title": "Beat Brunch",
           "summary": "Hip hop, neo soul, funk, jazz i elektronika v dopoledním mixu plném rarit.",
+          "summaryEn": "Hip hop, neo soul, funk, jazz and electronica in a late-morning mix full of rarities.",
           "start": "09:00",
           "end": "12:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Jaro-beatbrunch-porad.jpg",
+          "artworkName": "ShowArtBeatBrunch",
           "hostName": "Jaro Cossiga",
           "hostImageName": "HostJaroCossiga"
         },
@@ -424,17 +502,21 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "12:00",
           "end": "13:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "show-podle-majkla",
           "name": "Show podle Majkla",
           "summary": "Je zpět – a s ním i soutěže pro posluchače.",
+          "summaryEn": "It's back – and with it, competitions for listeners.",
           "start": "13:00",
           "end": "14:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/svet-podle-majkla-porad.jpg",
+          "artworkName": "ShowArtShowPodleMajkla",
           "hostName": "Vrtulník Michael V."
         },
         {
@@ -442,9 +524,11 @@
           "name": "Mixtape Medley s DJ Poem",
           "title": "Mixtape Medley",
           "summary": "Různorodé mixy z dílny Filipa Paciny.",
+          "summaryEn": "Eclectic mixes from the workshop of Filip Pacina.",
           "start": "14:00",
           "end": "15:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/MIxtape-Medley-s-DJ-Poem.jpg",
+          "artworkName": "ShowArtMixtapeMedley",
           "hostName": "DJ Poem",
           "hostImageName": "HostDjPoem"
         },
@@ -453,9 +537,11 @@
           "name": "Kurátorská selekce s Philip TBC",
           "title": "Kurátorská selekce",
           "summary": "DJ a producent ze Shadowbox crew, kterému od roku 1998 vládne breakbeat.",
+          "summaryEn": "A DJ and producer from the Shadowbox crew, ruled by breakbeat since 1998.",
           "start": "15:00",
           "end": "16:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Kuratorska-selekce-s-Philip-TBC_.jpg",
+          "artworkName": "ShowArtPhilipTbc",
           "hostName": "Philip TBC",
           "hostImageName": "HostPhilipTbc"
         },
@@ -463,27 +549,33 @@
           "id": "show-podle-majkla",
           "name": "Show podle Majkla",
           "summary": "Je zpět – a s ním i soutěže pro posluchače.",
+          "summaryEn": "It's back – and with it, competitions for listeners.",
           "start": "16:00",
           "end": "17:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/svet-podle-majkla-porad.jpg",
+          "artworkName": "ShowArtShowPodleMajkla",
           "hostName": "Vrtulník Michael V."
         },
         {
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "17:00",
           "end": "20:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "diggin-time-s-dj-magic",
           "name": "Diggin Time s DJ Magič",
           "title": "Diggin Time",
           "summary": "Čas kopat v hudbě – autorská selekce.",
+          "summaryEn": "Time to dig into music – an original selection.",
           "start": "20:00",
           "end": "21:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/diggin-time-dj-magic-porad.jpg",
+          "artworkName": "ShowArtDigginTime",
           "hostName": "DJ Magič"
         },
         {
@@ -491,9 +583,11 @@
           "name": "Kurátorská selekce s Bone Constructor",
           "title": "Kurátorská selekce",
           "summary": "Veterán scény, který léta hrál jako DJ Ghonzales.",
+          "summaryEn": "A scene veteran who played for years as DJ Ghonzales.",
           "start": "21:00",
           "end": "22:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Bone-Constructor-porad.jpg",
+          "artworkName": "ShowArtBoneConstructor",
           "hostName": "Bone Constructor",
           "hostImageName": "HostBoneConstructor"
         },
@@ -501,9 +595,11 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "22:00",
           "end": "00:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         }
       ]
     },
@@ -515,18 +611,22 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "00:00",
           "end": "05:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "bonus-beats-s-dj-larose",
           "name": "Bonus Beats s DJ LaRose",
           "title": "Bonus Beats",
           "summary": "Rodák z New Yorku, který s DJingem začínal v 90. letech v pražském XT3.",
+          "summaryEn": "A New Yorker who started DJing in the '90s at Prague's XT3.",
           "start": "05:00",
           "end": "06:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/bonus-beats-dj-larose-porad.jpg",
+          "artworkName": "ShowArtBonusBeats",
           "hostName": "DJ LaRose",
           "hostImageName": "HostDjLaRose"
         },
@@ -535,9 +635,11 @@
           "name": "Mixtape Medley s DJ Poem",
           "title": "Mixtape Medley",
           "summary": "Různorodé mixy z dílny Filipa Paciny.",
+          "summaryEn": "Eclectic mixes from the workshop of Filip Pacina.",
           "start": "06:00",
           "end": "07:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/MIxtape-Medley-s-DJ-Poem.jpg",
+          "artworkName": "ShowArtMixtapeMedley",
           "hostName": "DJ Poem",
           "hostImageName": "HostDjPoem"
         },
@@ -546,9 +648,11 @@
           "name": "Morning Coffee s DJ Pufaz",
           "title": "Morning Coffee",
           "summary": "Hudební start do všedního dne.",
+          "summaryEn": "A musical start to the working day.",
           "start": "07:00",
           "end": "09:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/01/dj-pufaz-porad-.jpg",
+          "artworkName": "ShowArtMorningCoffee",
           "hostName": "DJ Pufaz",
           "hostImageName": "HostDjPufaz"
         },
@@ -557,9 +661,11 @@
           "name": "Beat Brunch s Jaro Cossiga",
           "title": "Beat Brunch",
           "summary": "Hip hop, neo soul, funk, jazz i elektronika v dopoledním mixu plném rarit.",
+          "summaryEn": "Hip hop, neo soul, funk, jazz and electronica in a late-morning mix full of rarities.",
           "start": "09:00",
           "end": "12:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Jaro-beatbrunch-porad.jpg",
+          "artworkName": "ShowArtBeatBrunch",
           "hostName": "Jaro Cossiga",
           "hostImageName": "HostJaroCossiga"
         },
@@ -567,35 +673,43 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "12:00",
           "end": "13:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "show-podle-majkla",
           "name": "Show podle Majkla",
           "summary": "Je zpět – a s ním i soutěže pro posluchače.",
+          "summaryEn": "It's back – and with it, competitions for listeners.",
           "start": "13:00",
           "end": "14:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/svet-podle-majkla-porad.jpg",
+          "artworkName": "ShowArtShowPodleMajkla",
           "hostName": "Vrtulník Michael V."
         },
         {
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "14:00",
           "end": "15:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "africa-incorporated-s-chuck-diesal",
           "name": "Africa Incorporated s Chuck Diesal",
           "title": "Africa Incorporated",
           "summary": "Cesta do světa black music – od afrobeatu přes jazz a soul po reggae a vše mezi tím.",
+          "summaryEn": "A journey into black music – from Afrobeat through jazz and soul to reggae and everything in between.",
           "start": "15:00",
           "end": "16:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Chuck-Diesal_.jpg",
+          "artworkName": "ShowArtAfricaIncorporated",
           "hostName": "Chuck Diesal",
           "hostImageName": "HostChuckDiesal"
         },
@@ -603,9 +717,11 @@
           "id": "show-podle-majkla",
           "name": "Show podle Majkla",
           "summary": "Je zpět – a s ním i soutěže pro posluchače.",
+          "summaryEn": "It's back – and with it, competitions for listeners.",
           "start": "16:00",
           "end": "17:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/svet-podle-majkla-porad.jpg",
+          "artworkName": "ShowArtShowPodleMajkla",
           "hostName": "Vrtulník Michael V."
         },
         {
@@ -613,6 +729,7 @@
           "name": "Groove Lab s Don Hobliňon",
           "title": "Groove Lab",
           "summary": "Laboratoř grooveu – autorská hudební selekce.",
+          "summaryEn": "A groove laboratory – an original music selection.",
           "start": "17:00",
           "end": "19:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/11/Groove-Lab-s-Don-Hoblinon.jpg",
@@ -623,18 +740,22 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "19:00",
           "end": "20:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "like-it-slow-s-dj-aphect",
           "name": "Like it Slow s DJ Aphect",
           "title": "Like it Slow",
           "summary": "Fialová mlha Houstonu, syrovost Memphisu a Dirty South rap plný soulu.",
+          "summaryEn": "Houston's purple haze, Memphis grit and soulful Dirty South rap.",
           "start": "20:00",
           "end": "21:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/01/Like-it-Slow-s-DJ-Aphect-moderator.jpg",
+          "artworkName": "ShowArtLikeItSlow",
           "hostName": "DJ Aphect",
           "hostImageName": "HostDjAphect"
         },
@@ -642,9 +763,11 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "21:00",
           "end": "00:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         }
       ]
     },
@@ -656,18 +779,22 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "00:00",
           "end": "06:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "africa-incorporated-s-chuck-diesal",
           "name": "Africa Incorporated s Chuck Diesal",
           "title": "Africa Incorporated",
           "summary": "Cesta do světa black music – od afrobeatu přes jazz a soul po reggae a vše mezi tím.",
+          "summaryEn": "A journey into black music – from Afrobeat through jazz and soul to reggae and everything in between.",
           "start": "06:00",
           "end": "07:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Chuck-Diesal_.jpg",
+          "artworkName": "ShowArtAfricaIncorporated",
           "hostName": "Chuck Diesal",
           "hostImageName": "HostChuckDiesal"
         },
@@ -676,9 +803,11 @@
           "name": "Morning Coffee s DJ Pufaz",
           "title": "Morning Coffee",
           "summary": "Hudební start do všedního dne.",
+          "summaryEn": "A musical start to the working day.",
           "start": "07:00",
           "end": "09:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/01/dj-pufaz-porad-.jpg",
+          "artworkName": "ShowArtMorningCoffee",
           "hostName": "DJ Pufaz",
           "hostImageName": "HostDjPufaz"
         },
@@ -687,9 +816,11 @@
           "name": "Beat Brunch s Jaro Cossiga",
           "title": "Beat Brunch",
           "summary": "Hip hop, neo soul, funk, jazz i elektronika v dopoledním mixu plném rarit.",
+          "summaryEn": "Hip hop, neo soul, funk, jazz and electronica in a late-morning mix full of rarities.",
           "start": "09:00",
           "end": "12:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Jaro-beatbrunch-porad.jpg",
+          "artworkName": "ShowArtBeatBrunch",
           "hostName": "Jaro Cossiga",
           "hostImageName": "HostJaroCossiga"
         },
@@ -697,43 +828,53 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "12:00",
           "end": "13:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "show-podle-majkla",
           "name": "Show podle Majkla",
           "summary": "Je zpět – a s ním i soutěže pro posluchače.",
+          "summaryEn": "It's back – and with it, competitions for listeners.",
           "start": "13:00",
           "end": "14:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/svet-podle-majkla-porad.jpg",
+          "artworkName": "ShowArtShowPodleMajkla",
           "hostName": "Vrtulník Michael V."
         },
         {
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "14:00",
           "end": "16:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "show-podle-majkla",
           "name": "Show podle Majkla",
           "summary": "Je zpět – a s ním i soutěže pro posluchače.",
+          "summaryEn": "It's back – and with it, competitions for listeners.",
           "start": "16:00",
           "end": "17:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2026/05/svet-podle-majkla-porad.jpg",
+          "artworkName": "ShowArtShowPodleMajkla",
           "hostName": "Vrtulník Michael V."
         },
         {
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "17:00",
           "end": "20:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "the-golden-era",
@@ -746,9 +887,11 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "21:00",
           "end": "00:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         }
       ]
     },
@@ -760,17 +903,21 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "00:00",
           "end": "08:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "britsky-state-of-mind",
           "name": "Britský State of Mind",
           "summary": "Hudební výlet do UK s rodilým Britem, blogerem a DJem.",
+          "summaryEn": "A musical trip to the UK with a native Brit, blogger and DJ.",
           "start": "08:00",
           "end": "09:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/06/Britsky-State-of-Mind.jpg",
+          "artworkName": "ShowArtBritskyStateOfMind",
           "hostName": "C. Monts",
           "hostImageName": "HostCMonts"
         },
@@ -779,9 +926,11 @@
           "name": "Mixtape Medley s DJ Poem",
           "title": "Mixtape Medley",
           "summary": "Různorodé mixy z dílny Filipa Paciny.",
+          "summaryEn": "Eclectic mixes from the workshop of Filip Pacina.",
           "start": "09:00",
           "end": "10:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/MIxtape-Medley-s-DJ-Poem.jpg",
+          "artworkName": "ShowArtMixtapeMedley",
           "hostName": "DJ Poem",
           "hostImageName": "HostDjPoem"
         },
@@ -790,9 +939,11 @@
           "name": "Africa Incorporated s Chuck Diesal",
           "title": "Africa Incorporated",
           "summary": "Cesta do světa black music – od afrobeatu přes jazz a soul po reggae a vše mezi tím.",
+          "summaryEn": "A journey into black music – from Afrobeat through jazz and soul to reggae and everything in between.",
           "start": "10:00",
           "end": "11:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Chuck-Diesal_.jpg",
+          "artworkName": "ShowArtAfricaIncorporated",
           "hostName": "Chuck Diesal",
           "hostImageName": "HostChuckDiesal"
         },
@@ -800,9 +951,11 @@
           "id": "bass-time",
           "name": "Bass Time",
           "summary": "Legendární basové linky, jejich hráči a příběhy. Připravil kurátor Matěj Grulich.",
+          "summaryEn": "Legendary bass lines, the players behind them and their stories. Curated by Matěj Grulich.",
           "start": "11:00",
           "end": "12:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Bass-Time.jpg",
+          "artworkName": "ShowArtBassTime",
           "hostName": "Jaro Cossiga",
           "hostImageName": "HostJaroCossiga"
         },
@@ -810,18 +963,22 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "12:00",
           "end": "17:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         },
         {
           "id": "kuratorska-selekce-s-philip-tbc",
           "name": "Kurátorská selekce s Philip TBC",
           "title": "Kurátorská selekce",
           "summary": "DJ a producent ze Shadowbox crew, kterému od roku 1998 vládne breakbeat.",
+          "summaryEn": "A DJ and producer from the Shadowbox crew, ruled by breakbeat since 1998.",
           "start": "17:00",
           "end": "18:00",
           "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/Kuratorska-selekce-s-Philip-TBC_.jpg",
+          "artworkName": "ShowArtPhilipTbc",
           "hostName": "Philip TBC",
           "hostImageName": "HostPhilipTbc"
         },
@@ -829,9 +986,11 @@
           "id": "the-best-of-slow-down",
           "name": "The Best of Slow Down",
           "summary": "To nejlepší, co propadne naším pečlivým výběrem.",
+          "summaryEn": "The best of what makes it through our careful selection.",
           "start": "18:00",
           "end": "00:00",
-          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg"
+          "imageURL": "https://slowdownradijo.cz/wp-content/uploads/2025/04/The-Best-of-Slow-Down_.jpg",
+          "artworkName": "ShowArtBestOfSlowDown"
         }
       ]
     }

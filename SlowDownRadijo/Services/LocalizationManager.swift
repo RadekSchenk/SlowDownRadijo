@@ -37,7 +37,10 @@ final class LocalizationManager: ObservableObject {
            let saved = AppLanguage(rawValue: raw) {
             language = saved
         } else {
-            language = .cs
+            // Czech for Czech and Slovak phones, English for everyone else
+            // (until the listener picks with the header pill).
+            let preferred = Locale.preferredLanguages.first?.lowercased() ?? "cs"
+            language = preferred.hasPrefix("cs") || preferred.hasPrefix("sk") ? .cs : .en
         }
     }
 }

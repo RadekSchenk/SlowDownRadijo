@@ -28,8 +28,10 @@ final class FeedbackViewModel: ObservableObject {
                 try await FeedbackUploadService.send(message: text)
                 message = ""
                 state = .sent
+                Analytics.shared.track(.feedbackSent(success: true))
             } catch {
                 state = .failed
+                Analytics.shared.track(.feedbackSent(success: false))
             }
         }
     }

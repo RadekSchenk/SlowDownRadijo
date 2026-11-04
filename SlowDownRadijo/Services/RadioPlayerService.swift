@@ -24,6 +24,19 @@ final class RadioPlayerService: NSObject, ObservableObject {
     static let streamURL = URL(string: "https://icecast5.play.cz/slowdown.aac")!
 
     @Published private(set) var state: PlaybackState = .idle
+
+    /// What last started playback, and what last stopped it — read by
+    /// `PlaybackAnalytics` when the state changes.
+    enum PlayTrigger: String {
+        case user, autoplay, lockScreen = "lock_screen", notification, resume, preview
+    }
+
+    enum StopReason: String {
+        case user, sleepTimer = "sleep_timer", interruption, headphones, voiceMessage = "voice_message", preview
+    }
+
+    private(set) var lastPlayTrigger: PlayTrigger = .user
+    private(set) var lastStopReason: StopReason = .user
     /// When set, playback will automatically pause at this moment — the
     /// "sleep timer" feature. `nil` means no timer is scheduled.
     @Published private(set) var sleepTimerFireDate: Date?
@@ -44,9 +57,11 @@ final class RadioPlayerService: NSObject, ObservableObject {
     private var stallObserver: NSObjectProtocol?
     private var sleepTimer: Timer?
 
-    private var currentTrack: NowPlayingTrack?
+    /// What the lock screen, Control Center and CarPlay show — set by
+    /// `NowPlayingViewModel`.
+    private var nowPlayingTitle = "Slow Down Rádijo"
+    private var nowPlayingSubtitle = "Slow Down Rádijo"
     private var currentArtwork: UIImage?
-    private var currentShowTitle: String = "Slow Down Rádijo"
 
     /// Set when a call, Siri, an alarm or another app took the audio session
     /// away from live playback, so the stream resumes when it's handed back.
@@ -100,25 +115,27 @@ final class RadioPlayerService: NSObject, ObservableObject {
 
     // MARK: - Public API
 
-    func togglePlayPause() {
+    func togglePlayPause(trigger: PlayTrigger = .user) {
         switch state {
         case .playing:
             pause()
         case .idle, .paused, .error:
-            play()
+            play(trigger: trigger)
         case .connecting:
             break
         }
     }
 
-    func play() {
+    func play(trigger: PlayTrigger = .user) {
+        lastPlayTrigger = trigger
         wasPlayingBeforeInterruption = false
         cancelReconnect()
         reconnectAttempt = 0
         startPlayback()
     }
 
-    func pause() {
+    func pause(reason: StopReason = .user) {
+        lastStopReason = reason
         wasPlayingBeforeInterruption = false
         // A reconnect scheduled after a dropout must not restart the stream
         // the listener (or the sleep timer) just paused.
@@ -132,9 +149,9 @@ final class RadioPlayerService: NSObject, ObservableObject {
 
     /// Called by the view model whenever the parsed now-playing metadata or
     /// current-show artwork changes, so lock screen / Control Center stay in sync.
-    func updateNowPlaying(track: NowPlayingTrack?, showTitle: String, artwork: UIImage?) {
-        currentTrack = track
-        currentShowTitle = showTitle
+    func updateNowPlaying(title: String, subtitle: String, artwork: UIImage?) {
+        nowPlayingTitle = title
+        nowPlayingSubtitle = subtitle
         currentArtwork = artwork
         publishNowPlayingInfo()
     }
@@ -149,14 +166,14 @@ final class RadioPlayerService: NSObject, ObservableObject {
         sleepTimer?.invalidate()
         let interval = fireDate.timeIntervalSinceNow
         guard interval > 0 else {
-            pause()
+            pause(reason: .sleepTimer)
             sleepTimerFireDate = nil
             return
         }
         sleepTimerFireDate = fireDate
         sleepTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: false) { [weak self] _ in
             Task { @MainActor [weak self] in
-                self?.pause()
+                self?.pause(reason: .sleepTimer)
                 self?.sleepTimerFireDate = nil
             }
         }
@@ -293,7 +310,7 @@ final class RadioPlayerService: NSObject, ObservableObject {
               AVAudioSession.RouteChangeReason(rawValue: rawReason) == .oldDeviceUnavailable else { return }
         DispatchQueue.main.async { [weak self] in
             guard let self, self.state == .playing || self.state == .connecting else { return }
-            self.pause()
+            self.pause(reason: .headphones)
         }
     }
 
@@ -326,13 +343,13 @@ final class RadioPlayerService: NSObject, ObservableObject {
             switch type {
             case .began:
                 guard self.state == .playing || self.state == .connecting else { return }
-                self.pause()
+                self.pause(reason: .interruption)
                 self.wasPlayingBeforeInterruption = true
             case .ended:
                 guard self.wasPlayingBeforeInterruption else { return }
                 self.wasPlayingBeforeInterruption = false
                 if shouldResume {
-                    self.play()
+                    self.play(trigger: .resume)
                 }
             @unknown default:
                 break
@@ -386,7 +403,10 @@ final class RadioPlayerService: NSObject, ObservableObject {
     private func configureAudioSession(activate: Bool) {
         do {
             let session = AVAudioSession.sharedInstance()
-            try session.setCategory(.playback, mode: .default, options: [])
+            // Long-form audio, like Music and Podcasts: it shares their
+            // output, so a speaker picked for them (or in the AirPlay
+            // picker) is where the radio plays too.
+            try session.setCategory(.playback, mode: .default, policy: .longFormAudio, options: [])
             if activate {
                 try session.setActive(true)
             }
@@ -401,7 +421,7 @@ final class RadioPlayerService: NSObject, ObservableObject {
         let commandCenter = MPRemoteCommandCenter.shared()
 
         commandCenter.playCommand.addTarget { [weak self] _ in
-            self?.play()
+            self?.play(trigger: .lockScreen)
             return .success
         }
         commandCenter.pauseCommand.addTarget { [weak self] _ in
@@ -409,7 +429,7 @@ final class RadioPlayerService: NSObject, ObservableObject {
             return .success
         }
         commandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
-            self?.togglePlayPause()
+            self?.togglePlayPause(trigger: .lockScreen)
             return .success
         }
         commandCenter.nextTrackCommand.isEnabled = false
@@ -423,13 +443,12 @@ final class RadioPlayerService: NSObject, ObservableObject {
 
     private func publishNowPlayingInfo() {
         var info: [String: Any] = [:]
-        info[MPMediaItemPropertyTitle] = currentTrack?.displayText ?? currentShowTitle
-        info[MPMediaItemPropertyArtist] = "Slow Down Rádijo"
+        info[MPMediaItemPropertyTitle] = nowPlayingTitle
+        info[MPMediaItemPropertyArtist] = nowPlayingSubtitle
         info[MPNowPlayingInfoPropertyIsLiveStream] = true
         info[MPNowPlayingInfoPropertyPlaybackRate] = state == .playing ? 1.0 : 0.0
 
-        // We don't have per-track album art for a live stream, so we fall
-        // back to the current programme block's artwork, as specced.
+        // The show's photo, as on the home screen card.
         if let artwork = currentArtwork {
             let mpArtwork = MPMediaItemArtwork(boundsSize: artwork.size) { _ in artwork }
             info[MPMediaItemPropertyArtwork] = mpArtwork

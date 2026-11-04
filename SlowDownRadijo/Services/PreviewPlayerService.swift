@@ -74,7 +74,7 @@ final class PreviewPlayerService: ObservableObject {
         activeKey = nil
         if wasRadioPlayingBeforePreview {
             wasRadioPlayingBeforePreview = false
-            radioPlayer.play()
+            radioPlayer.play(trigger: .preview)
         }
     }
 
@@ -104,7 +104,7 @@ final class PreviewPlayerService: ObservableObject {
     /// end-of-clip below) hands control back automatically.
     private func play(url: URL) {
         wasRadioPlayingBeforePreview = radioPlayer.state == .playing
-        radioPlayer.pause()
+        radioPlayer.pause(reason: .preview)
 
         let item = AVPlayerItem(url: url)
         let newPlayer = AVPlayer(playerItem: item)

@@ -4,6 +4,8 @@ import SwiftUI
 struct SlowDownRadijoApp: App {
     init() {
         NewsNotificationManager.configureForegroundPresentation()
+        ShowReminderStore.registerNotificationCategory()
+        Analytics.shared.configure()
     }
 
     var body: some Scene {
@@ -13,12 +15,18 @@ struct SlowDownRadijoApp: App {
     }
 }
 
-/// Shows the splash screen briefly on cold launch, then reveals the tab
-/// interface underneath. The tab view is mounted from the start (not after
-/// a delay) so its services start warming up immediately; the splash is
-/// purely a visual overlay.
+/// Covers the first moments after launch with `SplashScreenView` — an exact
+/// copy of the system launch screen, so the two read as one — then fades
+/// it out as soon as the tab interface has drawn its first frame. The tab
+/// view is mounted from the start, so its services warm up underneath.
 private struct AppRootView: View {
     @State private var showSplash = true
+
+    /// Just long enough for the home screen to lay out under the cover;
+    /// the app itself is ready by then (the schedule ships in the bundle,
+    /// and the slower start-up work waits until after it — see
+    /// `RootTabView`'s autoplay and `PlayHistoryStore`).
+    private static let hold: Duration = .milliseconds(80)
 
     var body: some View {
         ZStack {
@@ -31,11 +39,11 @@ private struct AppRootView: View {
         }
         // Dark only: no light mode, no appearance toggle.
         .preferredColorScheme(.dark)
-        .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
-                withAnimation(.easeOut(duration: 0.4)) {
-                    showSplash = false
-                }
+        .appTextSizeLimit()
+        .task {
+            try? await Task.sleep(for: Self.hold)
+            withAnimation(.easeOut(duration: 0.2)) {
+                showSplash = false
             }
         }
     }

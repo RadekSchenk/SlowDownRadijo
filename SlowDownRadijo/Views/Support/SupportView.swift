@@ -17,7 +17,7 @@ struct SupportView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 AppHeaderView()
-                    .padding(.top, 40)
+                    .padding(.top, AppHeaderView.topInset)
 
                 VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
                     intro
@@ -28,6 +28,7 @@ struct SupportView: View {
             }
             .padding(.horizontal, 20)
             .padding(.bottom, Theme.Spacing.xl)
+            .scrollsToTopOnTabReselect()
         }
         .ignoresSafeArea(edges: .top)
         .background(Theme.background.ignoresSafeArea())
@@ -78,6 +79,7 @@ struct SupportView: View {
                 ForEach(SupportOption.all) { option in
                     ListDivider()
                     SupportCardView(option: option) {
+                        Analytics.shared.track(.supportLinkOpened(platform: option.id))
                         safariURL = option.url
                         isShowingSafari = true
                     }

@@ -9,6 +9,8 @@ struct ShowCardView: View {
     let show: Show
     let isLive: Bool
     let progress: Double
+    /// Re-renders on a language switch (the show name changes with it).
+    @ObservedObject private var loc = LocalizationManager.shared
 
     var body: some View {
         HStack(alignment: .center, spacing: Theme.Spacing.md) {
@@ -22,12 +24,21 @@ struct ShowCardView: View {
 
             // 2pt matches the home screen's track artwork (`TrackDetailsRow`),
             // not the previous 12pt — unified 2026-08-23.
-            RemoteArtworkView(url: show.imageURL, cornerRadius: 2)
-                .frame(width: 56, height: 56)
+            Group {
+                if let name = show.artworkName {
+                    Image(name)
+                        .resizable()
+                        .scaledToFill()
+                        .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
+                } else {
+                    RemoteArtworkView(url: show.imageURL, cornerRadius: 2)
+                }
+            }
+            .frame(width: 56, height: 56)
 
             VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 HStack(spacing: Theme.Spacing.sm) {
-                    Text(show.name)
+                    Text(show.localizedName)
                         .font(Theme.Typography.Manrope.extraBold(size: 16, relativeTo: .subheadline))
                         .foregroundStyle(Theme.textPrimary)
                         .lineLimit(2)
@@ -42,7 +53,8 @@ struct ShowCardView: View {
                             .background(Theme.hairline(0.08), in: Capsule())
                     }
 
-                    if isLive {
+                    // ON-AIR only with a host (see `isHostedShowOnAir`).
+                    if isLive && show.hostName != nil {
                         OnAirBadge()
                     }
                 }

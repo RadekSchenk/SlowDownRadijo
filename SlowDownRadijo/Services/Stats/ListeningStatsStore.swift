@@ -22,6 +22,8 @@ final class ListeningStatsStore: ObservableObject {
     /// The last attempt to reach the server failed (offline, server trouble).
     @Published private(set) var loadFailed = false
     @Published private(set) var isLoading = false
+    /// Listening is being counted right now — drives the live dot by "Dnes".
+    @Published private(set) var isMeasuring = false
 
     private static let snapshotKey = "stats.snapshot"
     private static let publicKey = "stats.publicStats"
@@ -44,6 +46,7 @@ final class ListeningStatsStore: ObservableObject {
         UserDefaults.standard.removeObject(forKey: "stats.available")
         snapshot = Self.loadCached(StatsSnapshot.self, key: Self.snapshotKey)
         publicStats = Self.loadCached(PublicStats.self, key: Self.publicKey)
+        isMeasuring = ListeningTracker.shared.isMeasuring
         recordDebug("start: cached public available=\(publicStats.map { "\($0.available)" } ?? "none"), snapshot available=\(snapshot.map { "\($0.available)" } ?? "none")")
 
         ListeningTracker.shared.events
@@ -58,6 +61,8 @@ final class ListeningStatsStore: ObservableObject {
                     Task { await self.refresh(force: true) }
                 case .deleted:
                     self.clearLocalCache()
+                case .measuringChanged:
+                    self.isMeasuring = ListeningTracker.shared.isMeasuring
                 }
             }
             .store(in: &cancellables)
@@ -174,13 +179,11 @@ final class ListeningStatsStore: ObservableObject {
         }
 
         var bars: [ListeningStatsSummary.DayBar] = []
-        var showSeconds: [String: Int] = [:]
         var daySeconds: [Int] = []
         for date in days {
             let key = ListeningTracker.dayString(for: date)
             let shows = perDay[key] ?? [:]
             daySeconds.append(shows.values.reduce(0, +))
-            for (id, seconds) in shows { showSeconds[id, default: 0] += seconds }
         }
         let peakSeconds = daySeconds.max() ?? 0
         let peakIndex = peakSeconds > 0 ? daySeconds.firstIndex(of: peakSeconds) : nil
@@ -194,7 +197,21 @@ final class ListeningStatsStore: ObservableObject {
         }
 
         let weekSeconds = daySeconds.reduce(0, +)
-        let shows: [ListeningStatsSummary.ShowShare] = showSeconds
+
+        // Shows over all time: the server's totals plus what this phone
+        // hasn't sent yet. Without them (an older server, an old cached
+        // snapshot), the recent days the snapshot holds.
+        var allTimeSeconds: [String: Int] = [:]
+        if let totals = snapshot?.shows {
+            for total in totals { allTimeSeconds[total.showId, default: 0] += total.seconds }
+            for row in unsynced { allTimeSeconds[row.showID, default: 0] += row.seconds }
+        } else {
+            for shows in perDay.values {
+                for (id, seconds) in shows { allTimeSeconds[id, default: 0] += seconds }
+            }
+        }
+        let showsSeconds = allTimeSeconds.values.reduce(0, +)
+        let shows: [ListeningStatsSummary.ShowShare] = allTimeSeconds
             .filter { $0.value > 0 }
             .sorted { $0.value == $1.value ? $0.key < $1.key : $0.value > $1.value }
             .map { id, seconds in
@@ -204,25 +221,32 @@ final class ListeningStatsStore: ObservableObject {
                     name: show?.displayTitle ?? L10n.statsUnknownShow,
                     hostName: show?.hostName,
                     imageURL: show?.imageURL,
-                    usesBundledHeroImage: id == "the-best-of-slow-down",
+                    artworkName: show?.artworkName,
                     seconds: seconds,
-                    fraction: weekSeconds > 0 ? Double(seconds) / Double(weekSeconds) : 0
+                    fraction: showsSeconds > 0 ? Double(seconds) / Double(showsSeconds) : 0
                 )
             }
 
         let todayKey = ListeningTracker.dayString(for: now)
         let communityBase = snapshot?.communitySeconds ?? publicStats?.communitySeconds ?? 0
+        var totalSeconds = (snapshot?.totalSeconds ?? 0) + unsyncedSeconds
+        #if DEBUG
+        // Screenshot tests: `-debugStatsTotalSeconds N` shows a long
+        // listening history (days, not just hours) on a fresh install.
+        totalSeconds += UserDefaults.standard.integer(forKey: "debugStatsTotalSeconds")
+        #endif
 
         return ListeningStatsSummary(
             todaySeconds: (perDay[todayKey] ?? [:]).values.reduce(0, +),
-            totalSeconds: (snapshot?.totalSeconds ?? 0) + unsyncedSeconds,
+            totalSeconds: totalSeconds,
             communitySeconds: communityBase + unsyncedSeconds,
             rank: snapshot?.rank,
             rankedListeners: snapshot?.rankedListeners ?? publicStats?.rankedListeners ?? 0,
             bars: bars,
             weekSeconds: weekSeconds,
             weekRangeLabel: StatsFormat.dateRange(from: days.first ?? now, to: days.last ?? now),
-            shows: shows
+            shows: shows,
+            showsSeconds: showsSeconds
         )
     }
 

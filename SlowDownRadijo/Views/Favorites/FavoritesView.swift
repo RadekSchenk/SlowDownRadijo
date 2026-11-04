@@ -14,13 +14,13 @@ struct FavoritesView: View {
             VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
                 AppHeaderView()
                     // Matches the home screen's header offset exactly (see
-                    // `HomeView.heroSection`) — fixed 40pt from the true
-                    // top edge, not the system safe-area inset, and the
+                    // `HomeView.heroSection`) — a fixed distance from the
+                    // true top edge, not the system safe-area inset, and the
                     // same 20pt horizontal inset as every other tab,
                     // independent of this screen's own 16pt content margin
                     // (applied to the inner VStack below, not shared with
                     // the header).
-                    .padding(.top, 40)
+                    .padding(.top, AppHeaderView.topInset)
                     .padding(.horizontal, 20)
 
                 VStack(alignment: .leading, spacing: Theme.Spacing.lg) {

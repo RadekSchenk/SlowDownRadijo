@@ -1,0 +1,303 @@
+# Builds the app and runs the UI tests (SlowDownRadijoUITests) on an iOS
+# simulator. No signing: simulator builds don't need it. A commit whose
+# message contains [screenshots] takes screenshots instead (see below).
+name: UI tests
+
+on:
+  push:
+    branches: [claude/adoring-tesla-bj752w]
+    paths:
+      - "SlowDownRadijo/**"
+      - "SlowDownRadijoUITests/**"
+      - "SlowDownRadijoWidget/**"
+      - "project.yml"
+      - ".github/workflows/ui-tests.yml"
+      - ".github/screenshots.conf"
+  workflow_dispatch:
+
+jobs:
+  ui-tests:
+    if: ${{ !contains(github.event.head_commit.message, '[screenshots]') && !contains(github.event.head_commit.message, '[appstore]') }}
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate the Xcode project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Pick a simulator
+        id: sim
+        run: |
+          xcodebuild -version
+          xcrun simctl list runtimes
+          UDID=$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys, re
+          data = json.load(sys.stdin)["devices"]
+          def version(runtime):
+              m = re.search(r"iOS-(\d+)-(\d+)", runtime)
+              return (int(m.group(1)), int(m.group(2))) if m else (0, 0)
+          for runtime in sorted(data, key=version, reverse=True):
+              if "iOS" not in runtime:
+                  continue
+              phones = [d for d in data[runtime] if d["name"].startswith("iPhone")]
+              if phones:
+                  print(phones[0]["udid"], file=sys.stderr)
+                  print(runtime, phones[0]["name"], file=sys.stderr)
+                  print(phones[0]["udid"])
+                  break
+          ')
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+          # Boot it now and let it settle. Left to xcodebuild, the first
+          # test launched the app on a simulator still finishing its first
+          # boot, and its first UI query timed out ("Timed out while
+          # evaluating UI query", TabBarUITests setUp, runs for 946c0f6 and
+          # a65e912); the later tests passed.
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          sleep 30
+
+      - name: Build and test
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project SlowDownRadijo.xcodeproj \
+            -scheme SlowDownRadijo \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -resultBundlePath TestResults.xcresult \
+            -skip-testing:SlowDownRadijoUITests/ScreenshotTests \
+            -skip-testing:SlowDownRadijoUITests/ShowcaseTests \
+            -skip-testing:SlowDownRadijoUITests/AppStoreScreenshotTests \
+            CODE_SIGNING_ALLOWED=NO \
+            | tee xcodebuild.log | grep -E "error:|warning: .*RootTabView|Test Case|Executed|\*\* TEST|failed|passed" || true
+          grep -q "\*\* TEST SUCCEEDED \*\*" xcodebuild.log
+
+      - name: Export screenshots
+        if: always()
+        run: |
+          mkdir -p screenshots
+          xcrun xcresulttool export attachments --path TestResults.xcresult --output-path screenshots || true
+          ls -la screenshots | head -40
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui-test-results
+          path: |
+            screenshots
+            xcodebuild.log
+
+  # Screens at the text sizes and language in .github/screenshots.conf,
+  # printed into the log as small JPEGs (base64) and uploaded full size.
+  screenshots:
+    # Only when asked: a commit message containing [screenshots].
+    if: contains(github.event.head_commit.message, '[screenshots]')
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Settings
+        id: cfg
+        run: |
+          . .github/screenshots.conf
+          echo "text_sizes=${TEXT_SIZES:-UICTContentSizeCategoryL}" >> "$GITHUB_OUTPUT"
+          echo "language=${LANGUAGE:-cs}" >> "$GITHUB_OUTPUT"
+          echo "device=${DEVICE:-iPhone 17 Pro}" >> "$GITHUB_OUTPUT"
+
+      - name: Generate the Xcode project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Pick a simulator
+        id: sim
+        run: |
+          UDID=$(xcrun simctl list devices available -j | DEVICE="${{ steps.cfg.outputs.device }}" python3 -c '
+          import json, os, sys, re
+          data = json.load(sys.stdin)["devices"]
+          want = os.environ["DEVICE"]
+          def version(runtime):
+              m = re.search(r"iOS-(\d+)-(\d+)", runtime)
+              return (int(m.group(1)), int(m.group(2))) if m else (0, 0)
+          for runtime in sorted(data, key=version, reverse=True):
+              if "iOS" not in runtime:
+                  continue
+              phones = [d for d in data[runtime] if d["name"] == want] or [d for d in data[runtime] if d["name"].startswith("iPhone")]
+              if phones:
+                  print(runtime, phones[0]["name"], file=sys.stderr)
+                  print(phones[0]["udid"])
+                  break
+          ')
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+
+      - name: Build for testing
+        run: |
+          set -o pipefail
+          xcodebuild build-for-testing \
+            -project SlowDownRadijo.xcodeproj \
+            -scheme SlowDownRadijo \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -derivedDataPath DerivedData \
+            CODE_SIGNING_ALLOWED=NO | tail -5
+
+      - name: Capture
+        run: |
+          mkdir -p shots
+          for size in ${{ steps.cfg.outputs.text_sizes }}; do
+            rm -rf "Result-$size.xcresult"
+            SCREENSHOT_TEXT_SIZE="$size" SCREENSHOT_LANGUAGE="${{ steps.cfg.outputs.language }}" \
+            TEST_RUNNER_SCREENSHOT_TEXT_SIZE="$size" TEST_RUNNER_SCREENSHOT_LANGUAGE="${{ steps.cfg.outputs.language }}" \
+            xcodebuild test-without-building \
+              -project SlowDownRadijo.xcodeproj \
+              -scheme SlowDownRadijo \
+              -destination "id=${{ steps.sim.outputs.udid }}" \
+              -derivedDataPath DerivedData \
+              -only-testing:SlowDownRadijoUITests/ScreenshotTests \
+              -resultBundlePath "Result-$size.xcresult" \
+              CODE_SIGNING_ALLOWED=NO > "test-$size.log" 2>&1 || true
+            grep "\[overflow\]" "test-$size.log" | head -120 || true
+            tail -3 "test-$size.log"
+            xcrun xcresulttool export attachments --path "Result-$size.xcresult" --output-path "shots/$size" || true
+          done
+
+      - name: Print screenshots
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess, glob
+          for manifest in sorted(glob.glob("shots/*/manifest.json")):
+              folder = os.path.dirname(manifest)
+              for test in json.load(open(manifest)):
+                  for att in test.get("attachments", []):
+                      name = att.get("suggestedHumanReadableName", "")
+                      path = os.path.join(folder, att["exportedFileName"])
+                      if not path.endswith(".png"):
+                          continue
+                      jpg = path[:-4] + ".jpg"
+                      subprocess.run(["sips", "-s", "format", "jpeg", "-s", "formatOptions", "45", "-Z", "700", path, "--out", jpg], capture_output=True)
+                      data = subprocess.run(["base64", "-i", jpg], capture_output=True, text=True).stdout.replace("\n", "")
+                      print(f"===== IMAGE {name}")
+                      print(data)
+                      print("===== END IMAGE")
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: shots
+
+  # The App Store screenshots (AppStoreScreenshotTests), in Czech and
+  # English, on a 6.9" iPhone (1320 x 2868) with a 9:41 status bar, then
+  # framed with a caption by tools/appstore/frame.py. Only when asked: a
+  # commit message containing [appstore]. Uploaded as the
+  # "appstore-screenshots" artifact (framed/ for the App Store, shots/ the
+  # plain screens); the plain ones are printed into the log (JPEG,
+  # base64), to look at or frame in another style without a new run.
+  appstore-screenshots:
+    if: contains(github.event.head_commit.message, '[appstore]')
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate the Xcode project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Simulator
+        id: sim
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys, re
+          data = json.load(sys.stdin)["devices"]
+          def version(runtime):
+              m = re.search(r"iOS-(\d+)-(\d+)", runtime)
+              return (int(m.group(1)), int(m.group(2))) if m else (0, 0)
+          for runtime in sorted(data, key=version, reverse=True):
+              if "iOS" not in runtime:
+                  continue
+              phones = [d for d in data[runtime] if d["name"] == "iPhone 17 Pro Max"] or [d for d in data[runtime] if d["name"].endswith("Pro Max")]
+              if phones:
+                  print(runtime, phones[0]["name"], file=sys.stderr)
+                  print(phones[0]["udid"])
+                  break
+          ')
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl status_bar "$UDID" override --time "9:41" --dataNetwork wifi --wifiMode active --wifiBars 3 \
+            --cellularMode active --cellularBars 4 --operatorName "" --batteryState charged --batteryLevel 100
+          sleep 20
+
+      - name: Build for testing
+        run: |
+          set -o pipefail
+          xcodebuild build-for-testing \
+            -project SlowDownRadijo.xcodeproj \
+            -scheme SlowDownRadijo \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -derivedDataPath DerivedData \
+            CODE_SIGNING_ALLOWED=NO | tail -5
+
+      - name: Capture
+        run: |
+          mkdir -p shots
+          for lang in cs en; do
+            TEST_RUNNER_SCREENSHOT_LANGUAGE="$lang" \
+            xcodebuild test-without-building \
+              -project SlowDownRadijo.xcodeproj \
+              -scheme SlowDownRadijo \
+              -destination "id=${{ steps.sim.outputs.udid }}" \
+              -derivedDataPath DerivedData \
+              -only-testing:SlowDownRadijoUITests/AppStoreScreenshotTests \
+              -resultBundlePath "Result-$lang.xcresult" \
+              CODE_SIGNING_ALLOWED=NO > "test-$lang.log" 2>&1 || true
+            tail -3 "test-$lang.log"
+            xcrun xcresulttool export attachments --path "Result-$lang.xcresult" --output-path "raw-$lang" || true
+          done
+          python3 - <<'PY2'
+          import glob, json, os, shutil
+          for manifest in glob.glob("raw-*/manifest.json"):
+              folder = os.path.dirname(manifest)
+              for test in json.load(open(manifest)):
+                  for att in test.get("attachments", []):
+                      name = att.get("suggestedHumanReadableName", "")
+                      # "cs 1 home_0_<uuid>.png" -> "cs 1 home.png"
+                      clean = name.split("_0_")[0]
+                      if att["exportedFileName"].endswith(".png"):
+                          shutil.copy(os.path.join(folder, att["exportedFileName"]), os.path.join("shots", clean + ".png"))
+          PY2
+          ls -la shots
+          for f in shots/*.png; do sips -g pixelWidth -g pixelHeight "$f" | tail -2 | tr '\n' ' '; echo " $f"; done
+
+      - name: Frame
+        run: |
+          python3 -m pip install --break-system-packages --quiet pillow
+          # The background style: glow, panorama, sun, red or night.
+          python3 tools/appstore/frame.py shots framed panorama
+          # App Store Connect's iPhone slot (6.1"/6.3", Dynamic Island) takes
+          # 1206 x 2622; the cards are made at 6.9" (1320 x 2868), the same
+          # shape, so they're scaled down.
+          mkdir -p framed-6.3
+          python3 -c 'import glob, os; from PIL import Image; [Image.open(f).convert("RGB").resize((1206, 2622), Image.LANCZOS).save(os.path.join("framed-6.3", os.path.basename(f))) for f in glob.glob("framed/*.png")]'
+
+      - name: Print screenshots
+        run: |
+          for f in shots/*.png; do
+            sips -s format jpeg -s formatOptions 88 "$f" --out "${f%.png}.jpg" > /dev/null
+            echo "===== IMAGE $(basename "${f%.png}")"
+            base64 -i "${f%.png}.jpg" | tr -d '\n'
+            echo
+            echo "===== END IMAGE"
+          done
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: appstore-screenshots
+          path: |
+            framed-6.3/*.png
+            framed/*.png
+            shots/*.png

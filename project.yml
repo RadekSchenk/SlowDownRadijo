@@ -1,14 +1,23 @@
 name: SlowDownRadijo
 options:
   bundleIdPrefix: cz.slowdownradijo
+  developmentLanguage: cs
   deploymentTarget:
     iOS: "17.0"
   createIntermediateGroups: true
 
+packages:
+  # Product analytics (EU cloud), only after the listener agrees — see
+  # SlowDownRadijo/Services/Analytics/Analytics.swift.
+  PostHog:
+    url: https://github.com/PostHog/posthog-ios
+    from: 3.92.0
+
 settings:
   base:
     SWIFT_VERSION: "5.0"
-    DEVELOPMENT_TEAM: M9T4JKPQJQ
+    # Slow Down Radio s.r.o. (Apple Developer Program).
+    DEVELOPMENT_TEAM: 9W8BX34TJH
     TARGETED_DEVICE_FAMILY: "1"
     ENABLE_PREVIEWS: "YES"
 
@@ -23,7 +32,16 @@ targets:
     info:
       path: SlowDownRadijo/Info.plist
       properties:
-        CFBundleDisplayName: "Slow Down Radijo"
+        CFBundleDisplayName: "Slow Down Rádijo"
+        # From the build settings, so upload.sh's build number gets in
+        # (XcodeGen otherwise writes a fixed 1.0 / 1).
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        CFBundleLocalizations:
+          - cs
+          - en
+        # HTTPS only (exempt) — answers App Store Connect's export question.
+        ITSAppUsesNonExemptEncryption: false
         UILaunchScreen:
           UIColorName: "LaunchBackground"
           UIImageName: "LaunchLogo"
@@ -36,6 +54,7 @@ targets:
         UIUserInterfaceStyle: Dark
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: false
+        # Translated in Resources/{cs,en}.lproj/InfoPlist.strings.
         NSMicrophoneUsageDescription: "Slow Down Rádijo potřebuje mikrofon, abys mohl nahrát hlasový vzkaz pro rádio."
         UIAppFonts:
           - "Manrope-Light.ttf"
@@ -47,6 +66,11 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: cz.slowdownradijo.app
+        # iPhone only. Set here, not just in the project's base settings:
+        # XcodeGen's preset for an iOS app target says iPhone + iPad, which
+        # overrode the base, and App Store Connect then refused the upload
+        # (an iPad app must support every orientation).
+        TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         MARKETING_VERSION: "1.0"
@@ -54,6 +78,23 @@ targets:
     dependencies:
       - target: SlowDownRadijoWidgetExtension
         embed: true
+      - package: PostHog
+
+  # Drives the app in the simulator (tab bar); run by
+  # .github/workflows/ui-tests.yml, or Cmd+U in Xcode.
+  SlowDownRadijoUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: SlowDownRadijoUITests
+    dependencies:
+      - target: SlowDownRadijo
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: cz.slowdownradijo.app.UITests
+        TEST_TARGET_NAME: SlowDownRadijo
+        GENERATE_INFOPLIST_FILE: "YES"
+        TARGETED_DEVICE_FAMILY: "1"
 
   # Home Screen widget — small/medium "what's on now" tile. Self-contained,
   # no App Group: it reads its own bundled copy of schedule.json and makes
@@ -69,6 +110,7 @@ targets:
       - path: SlowDownRadijo/Models/Show.swift
       - path: SlowDownRadijo/Services/ScheduleStore.swift
       - path: SlowDownRadijo/Models/RemotePlayedTrack.swift
+      - path: SlowDownRadijo/Models/TrackTrust.swift
       - path: SlowDownRadijo/DesignSystem/Theme.swift
       - path: SlowDownRadijo/Resources/schedule.json
       - path: SlowDownRadijo/Resources/Assets.xcassets
@@ -77,6 +119,9 @@ targets:
       path: SlowDownRadijoWidget/Info.plist
       properties:
         CFBundleDisplayName: "Slow Down Rádijo"
+        # Must match the app's (see above).
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
         UIAppFonts:
@@ -93,3 +138,17 @@ targets:
         CURRENT_PROJECT_VERSION: "1"
         SKIP_INSTALL: "YES"
         TARGETED_DEVICE_FAMILY: "1"
+
+schemes:
+  SlowDownRadijo:
+    build:
+      targets:
+        SlowDownRadijo: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - SlowDownRadijoUITests
+    archive:
+      config: Release

@@ -1,72 +1,110 @@
 import SwiftUI
 
-/// Shows how far the current programme block has progressed: the big
-/// `NowPlayingWaveform` (while playing) sitting directly on top of a thin
-/// fill track, start/end clock times above them, then "Pořad končí za 1h
-/// 29 min" below. No "next show" line — Figma dropped it, the home
-/// screen's Pořady list already shows what follows. The waveform lives here
-/// (not as a sibling in `HomeView`) because Figma ties it tightly to the
-/// track — 4pt gap between them, vs. 12pt everywhere else in this block —
-/// so they read as one visual unit, not two independent pieces.
+/// How far the current programme block has got (Figma "Programme
+/// progress", node 12318:5217): the block's start and end times, then a
+/// thin rounded track underneath, 10pt apart. The equalizer that used to
+/// sit on the track now flanks the show card (`CardSideEqualizer`), and
+/// the remaining-time line moved next to the play button (`HomeView`).
 struct ShowProgressBar: View {
-    @ObservedObject private var loc = LocalizationManager.shared
-
     let show: Show
     let progress: Double
-    let remainingMinutes: Int
-    /// Whether to show `NowPlayingWaveform` above the track — removed
-    /// from the layout entirely while paused, not dimmed (see
-    /// `NowPlayingWaveform`).
-    let isPlaying: Bool
-    /// Forwarded to `NowPlayingWaveform` to trigger its reseed on track
-    /// change — see that view for details.
-    let waveformTrackID: AnyHashable
+    /// Lights the glow at the head of the fill.
+    var isPlaying = false
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// False while off screen: coming back, the fill runs up from the
+    /// start to where the show is now, once.
+    @State private var hasRisen = false
+
+    /// Figma "Progress track": 6pt.
+    private static let height: CGFloat = 6
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Figma "progress-labels" sit *above* the track, 12pt apart.
-            VStack(spacing: 12) {
-                HStack {
-                    Text(show.start)
-                        .foregroundStyle(Theme.mutedText)
-                    Spacer()
-                    Text(show.end)
-                        .foregroundStyle(Theme.textPrimary)
-                }
-                .font(Theme.Typography.Manrope.bold(size: 14, relativeTo: .subheadline))
-
-                VStack(spacing: 4) {
-                    if isPlaying {
-                        NowPlayingWaveform(progress: progress, trackID: waveformTrackID)
-                            .transition(.reveal)
-                    }
-                    ShowProgressTrack(progress: progress)
-                }
-                // The equalizer comes and goes with the play state; the rest
-                // of the card follows its height (library P4 / P22).
-                .animation(Motion.cardResize, value: isPlaying)
+        VStack(spacing: 10) {
+            HStack {
+                Text(show.start)
+                    .foregroundStyle(Theme.mutedText)
+                Spacer()
+                Text(show.end)
+                    .foregroundStyle(Theme.textPrimary)
             }
+            .font(Theme.Typography.Manrope.bold(size: 13, relativeTo: .footnote))
 
-            // The minutes count down with the number pop-in (library P9).
-            PopNumberText(
-                text: remainingLabel,
-                font: Theme.Typography.Manrope.semibold(size: 16, relativeTo: .subheadline),
-                color: Theme.mutedText
-            )
-            .lineLimit(1)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            track
         }
     }
 
-    private var remainingLabel: String {
-        guard remainingMinutes > 0 else { return L10n.showEndingNow }
-        return L10n.showEndsIn(Self.formatted(minutes: remainingMinutes))
-    }
+    /// 6pt, 3pt corners, white at 10% with a `liveRed` fill. Its own track
+    /// rather than `ShowProgressTrack`, which the Pořady list still uses in
+    /// its earlier style.
+    ///
+    /// Motion: the fill runs up to the current point when the tab appears
+    /// (0.8s, slowing to a stop), then grows with the show as before.
+    /// While the radio plays, a soft glow at its head breathes like the
+    /// ON-AIR dot — "we're here now"; paused, it goes out. With Reduce
+    /// Motion the fill just shows and the glow stays steady.
+    private var track: some View {
+        GeometryReader { proxy in
+            let fillWidth = max(Self.height, proxy.size.width * (hasRisen ? progress : 0))
 
-    private static func formatted(minutes: Int) -> String {
-        guard minutes >= 60 else { return L10n.minutesShort(minutes) }
-        let hours = minutes / 60
-        let remainder = minutes % 60
-        return L10n.durationShort(hours: hours, minutes: remainder)
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                    .fill(Theme.hairline(0.1))
+
+                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                    .fill(Theme.liveRed)
+                    .frame(width: fillWidth)
+            }
+            .frame(height: Self.height)
+            // An overlay, so the 12pt glow spills over the 6pt track
+            // instead of making it (and the gaps around it) taller. Only
+            // there while playing: a hidden glow would keep pulsing, and a
+            // view that never stops animating keeps the app from ever
+            // going idle (UI tests time out on it).
+            .overlay(alignment: .leading) {
+                if isPlaying {
+                    ProgressHeadGlow()
+                        .offset(x: fillWidth - 6)
+                        .transition(.opacity)
+                }
+            }
+            .animation(.easeOut(duration: 0.3), value: isPlaying)
+            .animation(Motion.smoothOut(0.6), value: progress)
+        }
+        .frame(height: Self.height)
+        .onAppear {
+            if reduceMotion {
+                hasRisen = true
+                return
+            }
+            withAnimation(.easeOut(duration: 0.8).delay(0.15)) {
+                hasRisen = true
+            }
+        }
+        .onDisappear {
+            hasRisen = false
+        }
+    }
+}
+
+/// The soft red glow at the head of the progress fill, breathing in step
+/// with the ON-AIR dot; steady with Reduce Motion.
+private struct ProgressHeadGlow: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var pulse = false
+
+    var body: some View {
+        Circle()
+            .fill(Theme.liveRed)
+            .frame(width: 12, height: 12)
+            .blur(radius: 4)
+            .opacity(pulse || reduceMotion ? 0.9 : 0.35)
+            .allowsHitTesting(false)
+            .onAppear {
+                guard !reduceMotion else { return }
+                withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
+                    pulse = true
+                }
+            }
     }
 }

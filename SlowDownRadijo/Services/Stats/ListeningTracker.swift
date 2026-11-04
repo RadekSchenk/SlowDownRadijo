@@ -29,7 +29,8 @@ final class ListeningTracker {
     /// seconds while playing (so "Dnes" ticks up live), `synced` after the
     /// server acknowledged a batch, `deleted` after "Smazat moje statistiky".
     enum Event {
-        case accrued, synced, deleted
+        /// `measuringChanged`: `isMeasuring` flipped.
+        case accrued, synced, deleted, measuringChanged
     }
 
     let events = PassthroughSubject<Event, Never>()
@@ -167,10 +168,14 @@ final class ListeningTracker {
 
     // MARK: - Accrual
 
+    /// Listening is being counted right now (playing, stats switched on).
+    var isMeasuring: Bool { isAccruing }
+
     private func refreshAccruingState() {
         let shouldAccrue = playerIsPlaying && StatsConfig.isEnabled
         guard shouldAccrue != isAccruing else { return }
         isAccruing = shouldAccrue
+        events.send(.measuringChanged)
         if shouldAccrue {
             lastTick = Date()
             startTimer()
