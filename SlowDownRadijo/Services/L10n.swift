@@ -1309,8 +1309,8 @@ enum L10n {
 
     static func statsShowsContext(total: String) -> String {
         switch lang {
-        case .cs: return "Stejný týden · \(total)"
-        case .en: return "Same week · \(total)"
+        case .cs: return "Za celou dobu · \(total)"
+        case .en: return "All time · \(total)"
         }
     }
 

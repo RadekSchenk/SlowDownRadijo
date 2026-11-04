@@ -179,13 +179,11 @@ final class ListeningStatsStore: ObservableObject {
         }
 
         var bars: [ListeningStatsSummary.DayBar] = []
-        var showSeconds: [String: Int] = [:]
         var daySeconds: [Int] = []
         for date in days {
             let key = ListeningTracker.dayString(for: date)
             let shows = perDay[key] ?? [:]
             daySeconds.append(shows.values.reduce(0, +))
-            for (id, seconds) in shows { showSeconds[id, default: 0] += seconds }
         }
         let peakSeconds = daySeconds.max() ?? 0
         let peakIndex = peakSeconds > 0 ? daySeconds.firstIndex(of: peakSeconds) : nil
@@ -199,7 +197,21 @@ final class ListeningStatsStore: ObservableObject {
         }
 
         let weekSeconds = daySeconds.reduce(0, +)
-        let shows: [ListeningStatsSummary.ShowShare] = showSeconds
+
+        // Shows over all time: the server's totals plus what this phone
+        // hasn't sent yet. Without them (an older server, an old cached
+        // snapshot), the recent days the snapshot holds.
+        var allTimeSeconds: [String: Int] = [:]
+        if let totals = snapshot?.shows {
+            for total in totals { allTimeSeconds[total.showId, default: 0] += total.seconds }
+            for row in unsynced { allTimeSeconds[row.showID, default: 0] += row.seconds }
+        } else {
+            for shows in perDay.values {
+                for (id, seconds) in shows { allTimeSeconds[id, default: 0] += seconds }
+            }
+        }
+        let showsSeconds = allTimeSeconds.values.reduce(0, +)
+        let shows: [ListeningStatsSummary.ShowShare] = allTimeSeconds
             .filter { $0.value > 0 }
             .sorted { $0.value == $1.value ? $0.key < $1.key : $0.value > $1.value }
             .map { id, seconds in
@@ -211,7 +223,7 @@ final class ListeningStatsStore: ObservableObject {
                     imageURL: show?.imageURL,
                     artworkName: show?.artworkName,
                     seconds: seconds,
-                    fraction: weekSeconds > 0 ? Double(seconds) / Double(weekSeconds) : 0
+                    fraction: showsSeconds > 0 ? Double(seconds) / Double(showsSeconds) : 0
                 )
             }
 
@@ -233,7 +245,8 @@ final class ListeningStatsStore: ObservableObject {
             bars: bars,
             weekSeconds: weekSeconds,
             weekRangeLabel: StatsFormat.dateRange(from: days.first ?? now, to: days.last ?? now),
-            shows: shows
+            shows: shows,
+            showsSeconds: showsSeconds
         )
     }
 

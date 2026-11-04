@@ -209,7 +209,7 @@ struct StatsView: View {
                 StatsHeading(L10n.statsShowsTitle)
 
                 if let top = summary.shows.first {
-                    Text(L10n.statsShowsContext(total: StatsFormat.duration(seconds: summary.weekSeconds)))
+                    Text(L10n.statsShowsContext(total: StatsFormat.duration(seconds: summary.showsSeconds)))
                         .font(Theme.Typography.Manrope.regular(size: 13, relativeTo: .footnote))
                         .foregroundStyle(Theme.mutedText)
 

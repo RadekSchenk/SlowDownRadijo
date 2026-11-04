@@ -16,6 +16,14 @@ struct StatsSnapshot: Codable, Equatable {
     /// `nil` until the listener has enough listening to be ranked.
     let rank: Int?
     let daily: [Row]
+    /// Listening per show over all time (`get_my_stats`, 017). Missing from
+    /// an older server or a snapshot cached before it.
+    let shows: [ShowTotal]?
+
+    struct ShowTotal: Codable, Equatable {
+        let showId: String
+        let seconds: Int
+    }
 }
 
 /// `public_stats()` — needs no session, zeros until the stats UI unlocks.
@@ -55,6 +63,9 @@ struct ListeningStatsSummary {
     var bars: [DayBar] = []
     var weekSeconds = 0
     var weekRangeLabel = ""
-    /// This week's shows, most listened first.
+    /// Shows over all time, most listened first — not tied to the week in
+    /// the chart.
     var shows: [ShowShare] = []
+    /// All the time in `shows` together.
+    var showsSeconds = 0
 }
