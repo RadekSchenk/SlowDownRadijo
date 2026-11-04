@@ -18,4 +18,13 @@ enum FeatureFlags {
     /// redundant. `ProgramView` itself is untouched, just unreachable from
     /// the tab bar.
     static let standaloneProgramTab = false
+
+    /// The "Podpora" tab (`SupportView`): links to Herohero, Patreon and
+    /// Forendors with the members' benefits. Turned off 2026-11-04 for the
+    /// first App Store release — App Review counts memberships with digital
+    /// benefits as purchases that must go through In-App Purchase
+    /// (guidelines 3.1.1, 3.1.3), and in the EU an app may not link to
+    /// them. Bringing it back also means adding tab 4 back to the UI tests
+    /// (`TabBarUITests`, `ScreenshotTests`, `ShowcaseTests`).
+    static let supportTab = false
 }

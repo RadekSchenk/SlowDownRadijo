@@ -38,7 +38,6 @@ final class ShowcaseTests: XCTestCase {
         scrollHome()
         tab(5, scene: "stats", scrollBy: 260)
         tab(3, scene: "message", scrollBy: 0)
-        tab(4, scene: "support", scrollBy: 200)
         menu()
     }
 

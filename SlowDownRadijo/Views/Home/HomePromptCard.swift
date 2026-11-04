@@ -2,8 +2,7 @@ import SwiftUI
 
 /// A gentle question on the home screen: a card in the flow of the page,
 /// never a blocking dialog — an icon, a title, a line of text and two
-/// answers. Used for the analytics consent (`AnalyticsConsentCard`) and the
-/// "do you like the app?" question (`ReviewPromptCard`).
+/// answers. Used for the analytics consent (`AnalyticsConsentCard`).
 struct HomePromptCard: View {
     let systemImage: String
     let title: String
@@ -72,24 +71,6 @@ struct AnalyticsConsentCard: View {
             message: L10n.analyticsConsentBody,
             declineTitle: L10n.analyticsConsentDecline,
             acceptTitle: L10n.analyticsConsentAllow,
-            onAnswer: onAnswer
-        )
-    }
-}
-
-/// "Do you like the app?" — shown by `ReviewPrompt` to listeners who keep
-/// coming back. Yes leads to the App Store rating, no to the feedback form.
-struct ReviewPromptCard: View {
-    @ObservedObject private var loc = LocalizationManager.shared
-    let onAnswer: (Bool) -> Void
-
-    var body: some View {
-        HomePromptCard(
-            systemImage: "heart.fill",
-            title: L10n.reviewPromptTitle,
-            message: L10n.reviewPromptBody,
-            declineTitle: L10n.reviewPromptNo,
-            acceptTitle: L10n.reviewPromptYes,
             onAnswer: onAnswer
         )
     }

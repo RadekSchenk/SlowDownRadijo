@@ -16,7 +16,6 @@ struct HomeView: View {
     @ObservedObject private var analytics = Analytics.shared
     @ObservedObject private var reviewPrompt = ReviewPrompt.shared
     @Environment(\.requestReview) private var requestReview
-    @State private var isShowingFeedback = false
     /// How far the page is pulled down past its top (the rubber band);
     /// 0 otherwise. Grows the header's logo, card and title — the reverse
     /// of their fade on the way up.
@@ -51,22 +50,6 @@ struct HomeView: View {
                     AnalyticsConsentCard { granted in
                         withAnimation(Motion.cardResize) {
                             analytics.setConsent(granted)
-                        }
-                    }
-                    .movesWithScroll()
-                    .padding(.top, Theme.Spacing.xl)
-                    .transition(.reveal)
-                } else if reviewPrompt.shouldAsk {
-                    // Liked → the App Store's own rating dialog (iOS decides
-                    // whether it appears); not → the feedback form.
-                    ReviewPromptCard { liked in
-                        withAnimation(Motion.cardResize) {
-                            reviewPrompt.answered(liked: liked)
-                        }
-                        if liked {
-                            requestReview()
-                        } else {
-                            isShowingFeedback = true
                         }
                     }
                     .movesWithScroll()
@@ -115,12 +98,15 @@ struct HomeView: View {
             FavoritesIntroView()
                 .appTextSizeLimit()
         }
-        // "Not really" on the review card: straight to the feedback form.
-        .sheet(isPresented: $isShowingFeedback) {
-            NavigationStack {
-                FeedbackView()
-            }
-            .appTextSizeLimit()
+        // A returning listener: the App Store's own rating dialog, once the
+        // home screen has been up a moment (not over the launch cover, and
+        // not on top of the analytics question).
+        .task(id: reviewPrompt.shouldAsk && !analytics.shouldAskForConsent) {
+            guard reviewPrompt.shouldAsk, !analytics.shouldAskForConsent else { return }
+            try? await Task.sleep(for: .seconds(4))
+            guard !Task.isCancelled, reviewPrompt.shouldAsk else { return }
+            requestReview()
+            reviewPrompt.didAsk()
         }
     }
 

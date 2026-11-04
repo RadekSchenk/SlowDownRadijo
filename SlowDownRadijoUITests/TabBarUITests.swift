@@ -4,7 +4,7 @@ import XCTest
 /// switch both the page and the highlight, sit where the design puts it,
 /// and a second tap on the current tab has to scroll its page to the top.
 final class TabBarUITests: XCTestCase {
-    private let tabs = [0, 3, 5, 4]
+    private let tabs = [0, 3, 5]
     private var app: XCUIApplication!
 
     override func setUp() {
@@ -22,7 +22,7 @@ final class TabBarUITests: XCTestCase {
 
     func testEveryTabSwitchesPageAndHighlight() {
         assertOnly(selected: 0)
-        for tag in [3, 5, 4, 0, 5, 3] {
+        for tag in [3, 5, 0, 5, 3] {
             app.buttons["tab.\(tag)"].tap()
             assertOnly(selected: tag)
         }

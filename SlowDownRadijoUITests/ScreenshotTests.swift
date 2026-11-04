@@ -41,7 +41,7 @@ final class ScreenshotTests: XCTestCase {
         app.swipeUp()
         sleep(1)
         capture(app, "\(prefix) 2 home scrolled")
-        for (tag, name) in [(5, "3 stats"), (3, "4 message"), (4, "5 support")] {
+        for (tag, name) in [(5, "3 stats"), (3, "4 message")] {
             app.buttons["tab.\(tag)"].tap()
             sleep(2)
             capture(app, "\(prefix) \(name)")

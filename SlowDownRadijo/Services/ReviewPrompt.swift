@@ -1,15 +1,16 @@
 import Foundation
 
-/// When to ask "do you like the app?" on the home screen
-/// (`ReviewPromptCard`): yes leads to the App Store's own rating dialog,
-/// no to the feedback form.
+/// When the home screen asks iOS for its App Store rating dialog
+/// (`requestReview`). Straight to the system dialog, with no question of
+/// our own first: App Review rejects apps that ask whether you like them
+/// and send only the happy ones to rate (guideline 5.6.1).
 ///
 /// Only listeners who keep coming back are asked: at least a week since
 /// the app was first opened and at least three days with 10+ minutes of
-/// listening in the last 60. After an answer the question rests for 120
-/// days, at most three times in all, and never again after a yes. iOS
-/// itself shows the rating dialog at most three times a year, however
-/// often it's requested.
+/// listening in the last 60. After a request it rests for 120 days, at
+/// most three times in all. iOS itself shows the dialog at most three
+/// times a year, however often it's requested, and not at all to someone
+/// who has already rated.
 ///
 /// Everything here stays in `UserDefaults` on the phone; nothing is sent.
 @MainActor
@@ -22,6 +23,8 @@ final class ReviewPrompt: ObservableObject {
     private static let listeningKey = "reviewPrompt.listeningByDay"
     private static let lastAskedKey = "reviewPrompt.lastAsked"
     private static let timesAskedKey = "reviewPrompt.timesAsked"
+    /// Set by the earlier "do you like the app?" card on a yes — those
+    /// listeners were already sent to the rating.
     private static let likedKey = "reviewPrompt.liked"
 
     private static let minimumAge: TimeInterval = 7 * 86_400
@@ -65,11 +68,10 @@ final class ReviewPrompt: ObservableObject {
         evaluate()
     }
 
-    /// The listener answered the card.
-    func answered(liked: Bool) {
+    /// The rating dialog was requested (iOS decides whether it shows).
+    func didAsk() {
         defaults.set(Date(), forKey: Self.lastAskedKey)
         defaults.set(defaults.integer(forKey: Self.timesAskedKey) + 1, forKey: Self.timesAskedKey)
-        if liked { defaults.set(true, forKey: Self.likedKey) }
         shouldAsk = false
     }
 
