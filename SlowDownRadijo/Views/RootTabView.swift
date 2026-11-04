@@ -234,23 +234,35 @@ struct RootTabView: View {
                 .fill(Theme.hairline(0.08))
                 .frame(height: 1)
 
-            HStack {
-                tabBarButton(tag: 0, title: L10n.tabRadio, image: "TabIconRadio")
-                Spacer(minLength: 0)
-                tabBarButton(tag: Self.statsTab, title: L10n.tabStats, image: "TabIconStats")
-                Spacer(minLength: 0)
-                tabBarButton(tag: 3, title: L10n.tabMessage, image: "TabIconMessage")
+            HStack(spacing: 0) {
                 if FeatureFlags.supportTab {
+                    tabBarButton(tag: 0, title: L10n.tabRadio, image: "TabIconRadio")
+                    Spacer(minLength: 0)
+                    tabBarButton(tag: Self.statsTab, title: L10n.tabStats, image: "TabIconStats")
+                    Spacer(minLength: 0)
+                    tabBarButton(tag: 3, title: L10n.tabMessage, image: "TabIconMessage")
                     Spacer(minLength: 0)
                     tabBarButton(tag: 4, title: L10n.tabSupport, image: "TabIconSupport")
+                } else {
+                    // Three tabs spread edge to edge left wide gaps and
+                    // the outer two out at the screen's edges; three equal
+                    // columns (like the system tab bar) keep them together.
+                    tabBarButton(tag: 0, title: L10n.tabRadio, image: "TabIconRadio")
+                        .frame(maxWidth: .infinity)
+                    tabBarButton(tag: Self.statsTab, title: L10n.tabStats, image: "TabIconStats")
+                        .frame(maxWidth: .infinity)
+                    tabBarButton(tag: 3, title: L10n.tabMessage, image: "TabIconMessage")
+                        .frame(maxWidth: .infinity)
                 }
             }
             // Figma `bottom-nav` (node 12294:257), measured from the render:
             // the bar has 16pt side padding and the tab row another 24pt, so
-            // the tabs sit 40pt from each edge with `space-between` across
-            // the rest (≈44pt gaps for four tabs). Tab row: 14pt padding above
-            // (below the 1pt hairline) and 10pt below the icons and labels.
-            .padding(.horizontal, 40)
+            // the four tabs sit 40pt from each edge with `space-between`
+            // across the rest (≈44pt gaps). The three equal columns take a
+            // 24pt inset instead, which puts the outer tabs' centres about
+            // 80pt in. Tab row: 14pt padding above (below the 1pt hairline)
+            // and 10pt below the icons and labels.
+            .padding(.horizontal, FeatureFlags.supportTab ? 40 : 24)
             .padding(.top, 14)
             .padding(.bottom, 10)
         }
