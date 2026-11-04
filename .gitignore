@@ -20,3 +20,6 @@ backend/supabase/.temp/
 .env
 .env.local
 *.env
+
+# Archives and exports from tools/release/upload.sh.
+/build/

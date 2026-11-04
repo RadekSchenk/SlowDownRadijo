@@ -16,7 +16,8 @@ packages:
 settings:
   base:
     SWIFT_VERSION: "5.0"
-    DEVELOPMENT_TEAM: M9T4JKPQJQ
+    # Slow Down Radio s.r.o. (Apple Developer Program).
+    DEVELOPMENT_TEAM: 9W8BX34TJH
     TARGETED_DEVICE_FAMILY: "1"
     ENABLE_PREVIEWS: "YES"
 
