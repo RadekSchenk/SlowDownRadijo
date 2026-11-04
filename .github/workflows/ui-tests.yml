@@ -14,10 +14,15 @@ on:
       - ".github/workflows/ui-tests.yml"
       - ".github/screenshots.conf"
   workflow_dispatch:
+    inputs:
+      appstore:
+        description: "Take the App Store screenshots (instead of running the UI tests)"
+        type: boolean
+        default: false
 
 jobs:
   ui-tests:
-    if: ${{ !contains(github.event.head_commit.message, '[screenshots]') && !contains(github.event.head_commit.message, '[appstore]') }}
+    if: ${{ !contains(github.event.head_commit.message, '[screenshots]') && !contains(github.event.head_commit.message, '[appstore]') && !inputs.appstore }}
     runs-on: macos-26
     timeout-minutes: 45
     steps:
@@ -196,7 +201,9 @@ jobs:
   # plain screens); the plain ones are printed into the log (JPEG,
   # base64), to look at or frame in another style without a new run.
   appstore-screenshots:
-    if: contains(github.event.head_commit.message, '[appstore]')
+    # Or run it from the Actions tab with "appstore" ticked — handy for
+    # timing it to a particular show on air.
+    if: ${{ contains(github.event.head_commit.message, '[appstore]') || inputs.appstore }}
     runs-on: macos-26
     timeout-minutes: 60
     steps:
