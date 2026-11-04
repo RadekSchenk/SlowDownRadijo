@@ -66,7 +66,7 @@ Hip hop, soul, jazz and funk
 
 **Promotional text**
 
-Listen to Slow Down Rádijo – music hand-picked by people instead of algorithms. A weekly schedule, a sleep timer, voice messages to the station and your own listening stats.
+Listen to Slow Down Rádijo – music hand-picked by people, not algorithms. A weekly schedule, a sleep timer, voice messages to the station and your own listening stats.
 
 **Keywords**
 
