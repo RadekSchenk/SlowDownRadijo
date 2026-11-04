@@ -18,23 +18,23 @@ ARCHIVE=build/SlowDownRadijo.xcarchive
 
 xcodegen generate
 
-echo "▶ Archiving build $BUILD_NUMBER…"
+echo "▶ Archiving build ${BUILD_NUMBER}…"
 xcodebuild archive \
   -project SlowDownRadijo.xcodeproj \
   -scheme SlowDownRadijo \
   -configuration Release \
   -destination 'generic/platform=iOS' \
-  -archivePath "$ARCHIVE" \
+  -archivePath "${ARCHIVE}" \
   -allowProvisioningUpdates \
-  CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
+  CURRENT_PROJECT_VERSION="${BUILD_NUMBER}" \
   | grep -E "error:|warning: .*signing|\*\* ARCHIVE" || true
-test -d "$ARCHIVE" || { echo "✗ Archive failed — run without the grep to see why."; exit 1; }
+test -d "${ARCHIVE}" || { echo "✗ Archive failed — run without the grep to see why."; exit 1; }
 
 echo "▶ Uploading to App Store Connect…"
 xcodebuild -exportArchive \
-  -archivePath "$ARCHIVE" \
+  -archivePath "${ARCHIVE}" \
   -exportOptionsPlist tools/release/ExportOptions.plist \
   -exportPath build/export \
   -allowProvisioningUpdates
 
-echo "✓ Build $BUILD_NUMBER uploaded. It appears in App Store Connect → TestFlight once processed (usually 5–15 min)."
+echo "✓ Build ${BUILD_NUMBER} uploaded. It appears in App Store Connect → TestFlight once processed (usually 5–15 min)."
