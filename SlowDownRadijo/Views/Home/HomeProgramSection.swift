@@ -208,50 +208,54 @@ struct HomeProgramSection: View {
     /// A show in the list (Figma "Položka programu"): its square photo on
     /// the left — the home cover's look at list size (80pt, 8pt corners,
     /// the cover's 96 / 10 in proportion) — and, 14pt to its right as from
-    /// the cover to the show title above, one column: the start time with
-    /// the reminder bell at its end, the title and host, the description.
-    /// The photo runs from the top of the time to about the bottom of the
-    /// host line, so its edges line up with the text beside it.
+    /// the cover to the show title above, the start time with the reminder
+    /// bell at its end, the title and the host. The photo runs from the top
+    /// of the time to about the bottom of the host line, so its edges line
+    /// up with the text beside it. The description runs edge to edge
+    /// underneath, 12pt below the photo.
     private func compactRow(for show: Show) -> some View {
-        HStack(alignment: .top, spacing: 14) {
-            ShowArtworkView(show: show, size: Self.thumbnailSize, cornerRadius: 8)
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top, spacing: 14) {
+                ShowArtworkView(show: show, size: Self.thumbnailSize, cornerRadius: 8)
 
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(alignment: .center) {
-                    Text(show.start)
-                        .font(Theme.Typography.Manrope.light(size: 22, relativeTo: .title3))
-                        .foregroundStyle(Theme.textPrimary)
-                        .manropeLineHeight(28, fontSize: 22)
-                    Spacer(minLength: Theme.Spacing.sm)
-                    ReminderBellButton(show: show)
-                        // Optically flush with the row's right edge, and
-                        // no taller than the time it sits beside.
-                        .padding(.trailing, -10)
-                        .frame(height: 28)
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(show.displayTitle)
-                        .font(Theme.Typography.Heading.item)
-                        .foregroundStyle(Theme.textPrimary)
-                        .manropeLineHeight(22, fontSize: 17)
-
-                    if let hostName = show.hostName {
-                        Text(hostName)
-                            .font(Theme.Typography.Manrope.semibold(size: 13, relativeTo: .footnote))
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(alignment: .center) {
+                        Text(show.start)
+                            .font(Theme.Typography.Manrope.light(size: 22, relativeTo: .title3))
                             .foregroundStyle(Theme.textPrimary)
+                            .manropeLineHeight(28, fontSize: 22)
+                        Spacer(minLength: Theme.Spacing.sm)
+                        ReminderBellButton(show: show)
+                            // Optically flush with the row's right edge, and
+                            // no taller than the time it sits beside.
+                            .padding(.trailing, -10)
+                            .frame(height: 28)
+                    }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(show.displayTitle)
+                            .font(Theme.Typography.Heading.item)
+                            .foregroundStyle(Theme.textPrimary)
+                            .manropeLineHeight(22, fontSize: 17)
+
+                        if let hostName = show.hostName {
+                            Text(hostName)
+                                .font(Theme.Typography.Manrope.semibold(size: 13, relativeTo: .footnote))
+                                .foregroundStyle(Theme.textPrimary)
+                        }
                     }
                 }
-
-                if let summary = show.localizedSummary {
-                    Text(summary)
-                        .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
-                        .foregroundStyle(Theme.mutedText)
-                        .manropeLineHeight(20, fontSize: 14)
-                        .lineLimit(2)
-                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+
+            if let summary = show.localizedSummary {
+                Text(summary)
+                    .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
+                    .foregroundStyle(Theme.mutedText)
+                    .manropeLineHeight(20, fontSize: 14)
+                    .lineLimit(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
         .padding(.vertical, 16)
     }
