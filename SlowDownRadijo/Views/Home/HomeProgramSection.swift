@@ -174,6 +174,7 @@ struct HomeProgramSection: View {
             }
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("day.\(weekday)")
     }
 
     private var pastShowsDisclosure: some View {
