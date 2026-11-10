@@ -143,6 +143,14 @@ After phase 3 (10 Nov 2026), while the Play account is set up:
   earlier songs (see the parity table). The output picker opens the
   system's switcher; Cast to speakers that the phone does not offer there
   would need the Google Cast SDK in the app (not done).
+- Emulator walkthrough (`android-emulator.yml`): unreliable on GitHub's
+  runners now that the app really plays (stream, animations, screen
+  recording). Of four runs after the launch-crash fix, one went through
+  all 13 screens, the others lost the emulator after 1-3 screens; the
+  home screen came up every time. It reports the crash buffer and whether
+  the app still runs at the end; it is a look, not a gate. The gate is
+  the unit and screenshot tests, `MainActivityTest` (the real activity)
+  among them.
 
 ### Building
 
