@@ -15,8 +15,11 @@ struct StatsHomeBlock: View {
 
         Button(action: onOpen) {
             VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                // The home page's type scale (with the header's compact
+                // player): section headings 19, item titles 17, text 14,
+                // labels 13, figures 20–22.
                 Text(L10n.statsHomeTitle)
-                    .font(Theme.Typography.Manrope.bold(size: 19, relativeTo: .headline))
+                    .font(Theme.Typography.Manrope.extraBold(size: 19, relativeTo: .headline))
                     .foregroundStyle(Theme.textPrimary)
                     .manropeLineHeight(26, fontSize: 19)
 
@@ -37,7 +40,7 @@ struct StatsHomeBlock: View {
                         // One line in Figma; with a four-digit rank in a big
                         // community the pill grows, so this shrinks rather than wraps.
                         Text(L10n.statsLeaderboardScope)
-                            .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .body))
+                            .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
                             .foregroundStyle(Theme.mutedText)
                             .lineLimit(1)
                             .minimumScaleFactor(0.75)
@@ -66,7 +69,7 @@ struct StatsHomeBlock: View {
                 }
             }
             .animation(Motion.smoothOut(Motion.fast), value: isLive)
-            DurationText(seconds: seconds, numberSize: 24, unitSize: 14, lineHeight: 34)
+            DurationText(seconds: seconds, numberSize: 20, unitSize: 13, lineHeight: 28)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
@@ -79,17 +82,17 @@ struct StatsHomeBlock: View {
             if let rank = summary.rank {
                 PopNumberText(
                     text: "#\(rank)",
-                    font: Theme.Typography.Manrope.extraBold(size: 17, relativeTo: .headline),
+                    font: Theme.Typography.Manrope.extraBold(size: 15, relativeTo: .subheadline),
                     color: Theme.liveRed
                 )
                 PopNumberText(
                     text: "  \(L10n.statsRankOf) \(StatsFormat.number(summary.rankedListeners))",
-                    font: Theme.Typography.Manrope.semibold(size: 16, relativeTo: .body),
+                    font: Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline),
                     color: Theme.mutedText
                 )
             } else {
                 Text("—")
-                    .font(Theme.Typography.Manrope.extraBold(size: 17, relativeTo: .headline))
+                    .font(Theme.Typography.Manrope.extraBold(size: 15, relativeTo: .subheadline))
                     .foregroundStyle(Theme.mutedText)
             }
         }

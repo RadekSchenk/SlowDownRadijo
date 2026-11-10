@@ -87,8 +87,9 @@ struct HomeProgramSection: View {
         // that and push everything too far apart.
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+                // The home page's type scale: see `StatsHomeBlock`.
                 Text(L10n.homeProgramHeading)
-                    .font(Theme.Typography.Manrope.extraBold(size: 24, relativeTo: .title2))
+                    .font(Theme.Typography.Manrope.extraBold(size: 19, relativeTo: .headline))
                     .foregroundStyle(Theme.textPrimary)
 
                 dayPicker
@@ -156,14 +157,14 @@ struct HomeProgramSection: View {
                 Text("\(ScheduleStore.stationCalendar.component(.day, from: date))")
                     .font(
                         isSelected
-                            ? Theme.Typography.Manrope.extraBold(size: 28)
-                            : Theme.Typography.Manrope.light(size: 28)
+                            ? Theme.Typography.Manrope.extraBold(size: 22)
+                            : Theme.Typography.Manrope.light(size: 22)
                     )
                     .foregroundStyle(isSelected ? .white : Color(hex: 0x807894))
-                    .manropeLineHeight(34, fontSize: 28)
+                    .manropeLineHeight(28, fontSize: 22)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 72)
+            .frame(height: 58)
             .background {
                 if isSelected {
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
@@ -185,7 +186,7 @@ struct HomeProgramSection: View {
             HStack {
                 PopNumberText(
                     text: isShowingPastShows ? L10n.hidePreviousShows : L10n.showPreviousShows(count: pastShows.count),
-                    font: Theme.Typography.Manrope.bold(size: 16, relativeTo: .subheadline),
+                    font: Theme.Typography.Manrope.bold(size: 14, relativeTo: .subheadline),
                     color: Theme.textPrimary
                 )
                 .lineLimit(1)
@@ -205,14 +206,14 @@ struct HomeProgramSection: View {
     }
 
     private func compactRow(for show: Show) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 8) {
             // Figma "Čas a fotografie": the time on the left; the reminder
             // bell takes the right end.
             HStack {
                 Text(show.start)
-                    .font(Theme.Typography.Manrope.light(size: 30, relativeTo: .title))
+                    .font(Theme.Typography.Manrope.light(size: 22, relativeTo: .title3))
                     .foregroundStyle(Theme.textPrimary)
-                    .manropeLineHeight(38, fontSize: 30)
+                    .manropeLineHeight(28, fontSize: 22)
                 Spacer(minLength: Theme.Spacing.sm)
                 ReminderBellButton(show: show)
                     // Optically flush with the row's right edge.
@@ -221,26 +222,27 @@ struct HomeProgramSection: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(show.displayTitle)
-                    .font(Theme.Typography.Manrope.extraBold(size: 21, relativeTo: .title3))
+                    .font(Theme.Typography.Manrope.extraBold(size: 17, relativeTo: .headline))
                     .foregroundStyle(Theme.textPrimary)
-                    .manropeLineHeight(27, fontSize: 21)
+                    .manropeLineHeight(22, fontSize: 17)
 
                 if let hostName = show.hostName {
                     Text(hostName)
-                        .font(Theme.Typography.Manrope.bold(size: 14, relativeTo: .subheadline))
+                        .font(Theme.Typography.Manrope.semibold(size: 13, relativeTo: .footnote))
                         .foregroundStyle(Theme.textPrimary)
                 }
             }
 
             if let summary = show.localizedSummary {
                 Text(summary)
-                    .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .subheadline))
+                    .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
                     .foregroundStyle(Theme.mutedText)
+                    .manropeLineHeight(20, fontSize: 14)
                     .lineLimit(2)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.vertical, 20)
+        .padding(.vertical, 16)
     }
 
 }
