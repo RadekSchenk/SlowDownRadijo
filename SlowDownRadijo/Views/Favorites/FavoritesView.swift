@@ -12,8 +12,9 @@ struct FavoritesView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
-                // MENU and ON-AIR stay put over the page (`pinnedAppHeader`).
-                AppHeaderSpacer()
+                AppHeaderView()
+                    .padding(.top, AppHeaderView.topInset)
+                    .padding(.horizontal, 20)
 
                 VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
                     Text(L10n.favoritesTitle)
@@ -35,7 +36,6 @@ struct FavoritesView: View {
             .padding(.bottom, Theme.Spacing.md)
         }
         .ignoresSafeArea(edges: .top)
-        .pinnedAppHeader()
         .background(Theme.background.ignoresSafeArea())
         .alert(
             L10n.favoritesDeleteTitle,

@@ -16,10 +16,6 @@ struct HomeView: View {
     @ObservedObject private var analytics = Analytics.shared
     @ObservedObject private var reviewPrompt = ReviewPrompt.shared
     @Environment(\.requestReview) private var requestReview
-    /// How far the page is pulled down past its top (the rubber band);
-    /// 0 otherwise. Grows the header's logo, card and title — the reverse
-    /// of their fade on the way up.
-    @State private var pullDistance: CGFloat = 0
     @AppStorage(StatsConfig.enabledKey) private var statsEnabled = true
     /// Tapping the stats block jumps to the Statistiky tab.
     var onOpenStats: () -> Void = {}
@@ -32,8 +28,8 @@ struct HomeView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
-                // MENU and ON-AIR stay put over the page (`pinnedAppHeader`).
-                AppHeaderSpacer()
+                AppHeaderView()
+                    .padding(.top, AppHeaderView.topInset)
 
                 nowPlayingHeader
 
@@ -76,18 +72,10 @@ struct HomeView: View {
                 HeaderClouds(isPlaying: nowPlaying.playbackState == .playing)
             }
             .scrollsToTopOnTabReselect()
-            // The content's top rests at the scroll view's top (the page
-            // ignores the top safe area), so anything above 0 is pull.
-            .onGeometryChange(for: CGFloat.self) { proxy in
-                max(0, proxy.frame(in: .scrollView).minY)
-            } action: { pull in
-                pullDistance = pull
-            }
         }
         // Like every other tab: the header starts `AppHeaderView.topInset`
         // below the true top edge (see `StatsView`).
         .ignoresSafeArea(edges: .top)
-        .pinnedAppHeader()
         .background(Theme.background.ignoresSafeArea())
         .onAppear {
             if FeatureFlags.nowPlayingHistoryAndFavorites { history.loadIfNeeded() }
@@ -130,9 +118,9 @@ struct HomeView: View {
     /// the show, `HeaderClouds` drift while the radio plays. The section
     /// ends with the player row, then the 32pt gap to the stats.
     ///
-    /// Scrolling away, each part fades and recedes towards its bottom edge
-    /// as it passes under the top of the screen — the logo first, then the
-    /// show — so each stays attached to what follows.
+    /// Scrolling, the logo moves with MENU and ON-AIR as one plain block —
+    /// no growing, shrinking or fading — and the show and song only fade as
+    /// they pass under the top of the screen, like the rest of the page.
     private var nowPlayingHeader: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Centred between the header's pills, hanging a little below
@@ -140,15 +128,12 @@ struct HomeView: View {
             AnimatedBrandLogo()
                 .frame(width: Self.logoSize.width, height: Self.logoSize.height)
                 .allowsHitTesting(false)
-                .growsOnPull(pullDistance, by: 0.15, anchor: .bottom)
                 .frame(maxWidth: .infinity)
-                .fadesOutUnderTopEdge(startingAt: Self.logoTop, shrinkingTo: 0.8)
 
             // Figma "Kompaktní přehrávač": 16pt between the show, the
             // song and the controls.
             showRow
-                .growsOnPull(pullDistance, by: 0.04, anchor: .top)
-                .fadesOutUnderTopEdge(shrinkingTo: 0.8)
+                .fadesOutUnderTopEdge()
                 .padding(.top, 10)
 
             if let track = nowPlaying.verifiedTrack {

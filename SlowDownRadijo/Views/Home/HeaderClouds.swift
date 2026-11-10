@@ -26,7 +26,7 @@ struct HeaderClouds: View {
     /// Extra room above and below the frame, so the blur fades out on its
     /// own instead of being cut off — above, for pulling the page down.
     private static let marginAbove: CGFloat = 160
-    private static let height: CGFloat = 720
+    private static let height: CGFloat = 860
 
     private struct Blob {
         /// Figma's ellipse frame, in the 390pt-wide design.
@@ -42,16 +42,18 @@ struct HeaderClouds: View {
         let beat: Double
     }
 
+    // Figma's clouds, stretched taller so the glow reaches down behind the
+    // show, the song and the progress bar.
     private static let blobs: [Blob] = [
-        Blob(frame: CGRect(x: -60, y: -10, width: 280, height: 260), color: Color(hex: 0xC4183A),
+        Blob(frame: CGRect(x: -60, y: -1, width: 280, height: 338), color: Color(hex: 0xC4183A),
              opacity: 0.38, blur: 40, periods: (23, 17, 29, 19), phase: 0.0, beat: 0.035),
-        Blob(frame: CGRect(x: 180, y: -40, width: 240, height: 220), color: Color(hex: 0x6B3FA0),
+        Blob(frame: CGRect(x: 180, y: -40, width: 240, height: 286), color: Color(hex: 0x6B3FA0),
              opacity: 0.32, blur: 35, periods: (27, 19, 21, 23), phase: 1.7, beat: 0.03),
-        Blob(frame: CGRect(x: 60, y: 60, width: 200, height: 180), color: Color(hex: 0xE0206A),
+        Blob(frame: CGRect(x: 60, y: 90, width: 200, height: 234), color: Color(hex: 0xE0206A),
              opacity: 0.22, blur: 30, periods: (19, 23, 17, 29), phase: 3.1, beat: 0.05),
-        Blob(frame: CGRect(x: 230, y: 140, width: 180, height: 180), color: Color(hex: 0x3B1F7A),
+        Blob(frame: CGRect(x: 230, y: 194, width: 180, height: 234), color: Color(hex: 0x3B1F7A),
              opacity: 0.28, blur: 25, periods: (31, 21, 25, 17), phase: 4.4, beat: 0.025),
-        Blob(frame: CGRect(x: -20, y: 180, width: 160, height: 160), color: Color(hex: 0x9B7FD4),
+        Blob(frame: CGRect(x: -20, y: 246, width: 160, height: 208), color: Color(hex: 0x9B7FD4),
              opacity: 0.14, blur: 27.5, periods: (21, 29, 19, 27), phase: 5.6, beat: 0.04),
     ]
 

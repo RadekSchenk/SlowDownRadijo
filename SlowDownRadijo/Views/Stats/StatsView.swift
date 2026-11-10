@@ -16,8 +16,8 @@ struct StatsView: View {
 
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                // MENU and ON-AIR stay put over the page (`pinnedAppHeader`).
-                AppHeaderSpacer()
+                AppHeaderView()
+                    .padding(.top, AppHeaderView.topInset)
 
                 VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
                     overview(summary)
@@ -36,7 +36,6 @@ struct StatsView: View {
             .scrollsToTopOnTabReselect()
         }
         .ignoresSafeArea(edges: .top)
-        .pinnedAppHeader()
         .background(Theme.background.ignoresSafeArea())
         .refreshable { await stats.refreshAll(force: true) }
         // First visit; later visits refresh from `RootTabView`, which keeps
