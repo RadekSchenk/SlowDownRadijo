@@ -1,8 +1,6 @@
 package cz.slowdownradijo.app.analytics
 
 import android.content.Context
-import android.media.AudioDeviceInfo
-import android.media.AudioManager
 import android.os.Build
 import cz.slowdownradijo.app.BuildConfig
 import kotlinx.coroutines.CoroutineScope
@@ -53,6 +51,7 @@ sealed class AnalyticsEvent(val name: String, val properties: Map<String, Any>) 
     class OutputChanged(from: String, to: String, playing: Boolean) : AnalyticsEvent("output_changed", mapOf("from" to from, "to" to to, "playing" to playing))
     class ShowReminderChanged(showId: String, isOn: Boolean, source: String) : AnalyticsEvent("show_reminder_changed", mapOf("show_id" to showId, "on" to isOn, "source" to source))
     class ShowNotificationOpened(showId: String?, listen: Boolean) : AnalyticsEvent("show_notification_opened", mapOf("show_id" to (showId ?: "_"), "listen" to listen))
+    class OutputPickerOpened(output: String) : AnalyticsEvent("output_picker_opened", mapOf("output" to output))
     class SpotifyOpened(showId: String?) : AnalyticsEvent("spotify_opened", mapOf("show_id" to (showId ?: "_")))
     class LinkOpened(target: String) : AnalyticsEvent("link_opened", mapOf("target" to target))
     class StatsOpened(communityUnlocked: Boolean) : AnalyticsEvent("stats_opened", mapOf("community_unlocked" to communityUnlocked))
@@ -219,19 +218,5 @@ class Analytics(
 
 /** Where the sound goes, with the iOS names (`AudioOutput.swift`). */
 object AudioOutput {
-    fun kind(context: Context): String {
-        val manager = context.getSystemService(AudioManager::class.java) ?: return "phone"
-        val types = manager.getDevices(AudioManager.GET_DEVICES_OUTPUTS).map { it.type }.toSet()
-        val bluetooth = buildSet {
-            add(AudioDeviceInfo.TYPE_BLUETOOTH_A2DP); add(AudioDeviceInfo.TYPE_BLUETOOTH_SCO)
-            if (Build.VERSION.SDK_INT >= 31) { add(AudioDeviceInfo.TYPE_BLE_HEADSET); add(AudioDeviceInfo.TYPE_BLE_SPEAKER) }
-        }
-        val wired = setOf(AudioDeviceInfo.TYPE_WIRED_HEADSET, AudioDeviceInfo.TYPE_WIRED_HEADPHONES, AudioDeviceInfo.TYPE_USB_HEADSET, AudioDeviceInfo.TYPE_LINE_ANALOG)
-        return when {
-            types.any { it in bluetooth } -> "bluetooth"
-            types.any { it in wired } -> "wired"
-            AudioDeviceInfo.TYPE_HDMI in types -> "hdmi"
-            else -> "phone"
-        }
-    }
+    fun kind(context: Context): String = cz.slowdownradijo.app.player.AudioOutputs.current(context).kind
 }

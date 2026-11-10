@@ -108,6 +108,7 @@ class SlowDownApp : Application() {
             onListened = { reviewPrompt.addListening(it) })
     }
 
+    val audioOutput by lazy { cz.slowdownradijo.app.player.AudioOutputWatcher(this) }
     val reviewPrompt by lazy { cz.slowdownradijo.app.review.ReviewPrompt(this) }
 
     private var started = false
@@ -125,6 +126,14 @@ class SlowDownApp : Application() {
             }
         }
         scope.launch { language.language.drop(1).collect { analytics.track(AnalyticsEvent.LanguageChanged(it.code)) } }
+        // Headphones, speakers and cars coming and going (`output_changed`).
+        scope.launch {
+            var last = audioOutput.output.value.kind
+            audioOutput.output.collect {
+                if (it.kind != last) analytics.track(AnalyticsEvent.OutputChanged(last, it.kind, radio.state.value == PlaybackState.Playing))
+                last = it.kind
+            }
+        }
         icy.start(scope)
         nowPlaying.start(icy.track) { schedule.refresh(webSchedule::fetch) }
         // The lock screen's "Moderuje" follows the app's language.

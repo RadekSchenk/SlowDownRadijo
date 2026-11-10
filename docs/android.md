@@ -156,7 +156,7 @@ closed test that new personal accounts must run before production.
 | Programme from the web (specials) | 1.1 | 1 (cached week) |
 | Home header: compact player, clouds, equalizer | 1.1 | 1 (song line without the swipe back through earlier songs) |
 | Sleep timer | 1.0 | 1 |
-| Output picker (AirPlay / Bluetooth / Cast) | 1.0 | — |
+| Output picker (AirPlay / Bluetooth / Cast) | 1.0 | 3 (the system output switcher: Bluetooth, wired, and Cast speakers where the phone offers them; red while elsewhere; `output_picker_opened`, `output_changed`. No Google Cast SDK of our own) |
 | Programme with photos, reminder bell | 1.1 | 2 |
 | Show reminders (notifications) | 1.0 | 2 (one alarm at a time, exact when allowed, else within a minute) |
 | Listening stats (Supabase) | 1.0 | 2 |

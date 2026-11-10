@@ -1,5 +1,6 @@
 package cz.slowdownradijo.app.home
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
@@ -19,7 +20,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.SpeakerGroup
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cz.slowdownradijo.app.R
 import cz.slowdownradijo.app.data.Show
+import cz.slowdownradijo.app.player.AudioOutputInfo
 import cz.slowdownradijo.app.player.PlaybackState
 import cz.slowdownradijo.app.ui.components.LocalAnimationsEnabled
 import cz.slowdownradijo.app.ui.components.LocalReduceMotion
@@ -120,5 +125,30 @@ fun PlayButton(state: PlaybackState, onClick: () -> Unit, diameter: Int = 46, ic
             PlaybackState.Playing -> PauseIcon(iconSize.dp, Theme.textPrimary)
             else -> PlayIcon(iconSize.dp, Theme.textPrimary, Modifier.padding(start = 2.dp))
         }
+    }
+}
+
+/**
+ * The output picker next to the play button (`OutputPickerButton.swift`):
+ * the same circle, but quiet, so play stays the main control. A tap opens
+ * the system's output switcher. While the radio plays somewhere other than
+ * the phone or wired headphones the icon turns red over a faint red fill.
+ * TalkBack reads where it plays ("Hraje na: JBL Charge 3").
+ */
+@Composable
+fun OutputPickerButton(output: AudioOutputInfo, onClick: () -> Unit, diameter: Int = 46) {
+    val label = stringResource(R.string.playsOn, output.name)
+    val fill by animateColorAsState(if (output.isElsewhere) Theme.liveRed.copy(alpha = 0.15f) else Theme.hairline(0.08f), tween(250), label = "outputFill")
+    val tint by animateColorAsState(if (output.isElsewhere) Theme.liveRed else Theme.textPrimary, tween(250), label = "outputTint")
+    Box(
+        Modifier
+            .size(diameter.dp)
+            .clip(CircleShape)
+            .background(fill)
+            .clickable(onClick = onClick)
+            .semantics { contentDescription = label },
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(Icons.Rounded.SpeakerGroup, contentDescription = null, tint = tint, modifier = Modifier.size(20.dp))
     }
 }

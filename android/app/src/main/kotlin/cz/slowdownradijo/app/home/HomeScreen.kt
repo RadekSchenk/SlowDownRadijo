@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cz.slowdownradijo.app.R
 import cz.slowdownradijo.app.data.NowPlayingTrack
+import cz.slowdownradijo.app.player.AudioOutputInfo
 import cz.slowdownradijo.app.l10n.L10nLogic
 import cz.slowdownradijo.app.l10n.LocalAppLanguage
 import cz.slowdownradijo.app.player.PlaybackState
@@ -64,6 +65,7 @@ data class HomeUi(
     val playback: PlaybackState,
     val sleepTimerFireAt: Instant?,
     val now: Instant,
+    val output: AudioOutputInfo = AudioOutputInfo.phone,
 )
 
 class HomeActions(
@@ -71,6 +73,7 @@ class HomeActions(
     val openSleepTimer: () -> Unit = {},
     val openSong: (NowPlayingTrack) -> Unit = {},
     val openMenu: () -> Unit = {},
+    val openOutputPicker: () -> Unit = {},
 )
 
 /**
@@ -146,7 +149,11 @@ private fun NowPlayingHeader(ui: HomeUi, actions: HomeActions) {
                     }
                     SleepTimerLink(ui.sleepTimerFireAt, ui.now, actions.openSleepTimer)
                 }
-                PlayButton(ui.playback, actions.togglePlay)
+                // Where it plays, next to whether it plays.
+                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    OutputPickerButton(ui.output, actions.openOutputPicker)
+                    PlayButton(ui.playback, actions.togglePlay)
+                }
             }
             StatusLabel(ui.playback)
         }

@@ -291,8 +291,16 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
     val toggleReminder = rememberReminderToggle()
     val context = androidx.compose.ui.platform.LocalContext.current
 
+    val output by app.audioOutput.output.collectAsStateWithLifecycle()
+    // A switch between outputs already connected adds or removes no device: look again now and then.
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        while (true) {
+            app.audioOutput.refresh()
+            delay(2_000)
+        }
+    }
     HomeScreen(
-        HomeUi(onAir, playback, sleepFireAt, now),
+        HomeUi(onAir, playback, sleepFireAt, now, output),
         HomeActions(
             togglePlay = { app.radio.togglePlayPause() },
             openSleepTimer = { showingSleepTimer = true },
@@ -303,6 +311,10 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
                 }
             },
             openMenu = onOpenMenu,
+            openOutputPicker = {
+                app.analytics.track(AnalyticsEvent.OutputPickerOpened(output.kind))
+                cz.slowdownradijo.app.player.AudioOutputs.openSwitcher(context)
+            },
         ),
     ) {
         val stats = statsUi()

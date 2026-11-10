@@ -67,7 +67,7 @@ class HomeScreenshotTest {
     @Test fun playingHostedShowWithSong() {
         val (onAir, now) = onAir("2026-11-09T12:30:00Z", NowPlayingTrack("Khruangbin", "Maria También"))
         capture("home_playing_cs", AppLanguage.CS) {
-            HomeScreen(HomeUi(onAir, PlaybackState.Playing, now.plus(Duration.ofSeconds(596)), now), HomeActions())
+            HomeScreen(HomeUi(onAir, PlaybackState.Playing, now.plus(Duration.ofSeconds(596)), now, cz.slowdownradijo.app.player.AudioOutputInfo("JBL Charge 3", "bluetooth", true)), HomeActions())
         }
     }
 
