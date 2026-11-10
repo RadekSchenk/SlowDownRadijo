@@ -205,19 +205,17 @@ struct HomeProgramSection: View {
         .buttonStyle(.plain)
     }
 
-    /// A show in the list (Figma "Položka programu"): its square photo on
-    /// the left — the home cover's look at list size (80pt, 8pt corners,
-    /// the cover's 96 / 10 in proportion) — and, 14pt to its right as from
-    /// the cover to the show title above, the start time with the reminder
-    /// bell at its end, the title and the host. The photo runs from the top
-    /// of the time to about the bottom of the host line, so its edges line
-    /// up with the text beside it. The description runs edge to edge
-    /// underneath, 12pt below the photo.
+    /// A show in the list (Figma "Položka programu"): the start time with
+    /// the reminder bell at its end, the title and the host, and 14pt to
+    /// their right the show's square photo, flush with the row's right edge
+    /// — the home cover's look at list size (80pt, 8pt corners, the cover's
+    /// 96 / 10 in proportion). The photo runs from the top of the time to
+    /// about the bottom of the host line, so its edges line up with the
+    /// text beside it. The description runs edge to edge underneath, 12pt
+    /// below the photo.
     private func compactRow(for show: Show) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top, spacing: 14) {
-                ShowArtworkView(show: show, size: Self.thumbnailSize, cornerRadius: 8)
-
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(alignment: .center) {
                         Text(show.start)
@@ -226,8 +224,8 @@ struct HomeProgramSection: View {
                             .manropeLineHeight(28, fontSize: 22)
                         Spacer(minLength: Theme.Spacing.sm)
                         ReminderBellButton(show: show)
-                            // Optically flush with the row's right edge, and
-                            // no taller than the time it sits beside.
+                            // Optically flush with the column's right edge,
+                            // and no taller than the time it sits beside.
                             .padding(.trailing, -10)
                             .frame(height: 28)
                     }
@@ -246,6 +244,8 @@ struct HomeProgramSection: View {
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+
+                ShowArtworkView(show: show, size: Self.thumbnailSize, cornerRadius: 8)
             }
 
             if let summary = show.localizedSummary {
