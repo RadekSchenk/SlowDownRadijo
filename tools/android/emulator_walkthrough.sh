@@ -93,4 +93,7 @@ adb pull /sdcard/walkthrough.mp4 "$OUT/walkthrough.mp4" >/dev/null
 kill $LOGCAT 2>/dev/null || true
 # Crashes, ANRs, the app killed for memory, and the player's errors.
 grep -E "FATAL EXCEPTION|AndroidRuntime|ANR in|lowmemorykiller|Killing .*slowdownradijo|ExoPlayerImplInternal.*E|E/MediaSessionService" "$OUT/logcat.txt" > "$OUT/errors.log" || true
+# Android's crash buffer keeps every crash since boot, whatever happened to the stream above.
+adb logcat -d -b crash > "$OUT/crashes.log" 2>&1 || true
+{ echo "app process: $(adb shell pidof "$PKG" || echo 'not running')"; } > "$OUT/status.txt"
 ls -la "$OUT"
