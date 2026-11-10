@@ -106,7 +106,9 @@ struct HomeProgramSection: View {
                 .movesWithScroll()
             }
 
-            if displayedShows.isEmpty {
+            // Today, the show on air may simply be the day's last one: then
+            // nothing is left to list, but there's no "no programme" to say.
+            if displayedShows.isEmpty && currentShowIndex == nil {
                 Text(L10n.noProgramForDay)
                     .font(Theme.Typography.Manrope.regular(size: 13, relativeTo: .footnote))
                     .foregroundStyle(Theme.lavender)

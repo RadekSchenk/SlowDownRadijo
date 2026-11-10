@@ -56,6 +56,14 @@ final class AppStoreScreenshotTests: XCTestCase {
             sleep(2)
         }
 
+        // Another day's programme, when today's has nothing left to show —
+        // picked before scrolling, as a short day can't scroll that far
+        // (`SCREENSHOT_PROGRAMME_DAY`, a Calendar weekday, 1 = Sunday).
+        if let day = ProcessInfo.processInfo.environment["SCREENSHOT_PROGRAMME_DAY"], !day.isEmpty {
+            let chip = app.buttons["day.\(day)"]
+            if chip.waitForExistence(timeout: 5) { chip.tap() }
+        }
+
         // Down the home page until the programme's heading sits just under
         // the status bar, the day picker below it. A drag doesn't move the
         // page by exactly its length, so measure and correct once.
@@ -65,12 +73,6 @@ final class AppStoreScreenshotTests: XCTestCase {
             if abs(offset) < 12 { break }
             scroll(by: offset)
             sleep(1)
-        }
-        // Another day's programme, when today's has nothing left to show
-        // (`SCREENSHOT_PROGRAMME_DAY`, a Calendar weekday, 1 = Sunday).
-        if let day = ProcessInfo.processInfo.environment["SCREENSHOT_PROGRAMME_DAY"], !day.isEmpty {
-            let chip = app.buttons["day.\(day)"]
-            if chip.waitForExistence(timeout: 5) { chip.tap() }
         }
         sleep(2)
         capture("3 programme")
