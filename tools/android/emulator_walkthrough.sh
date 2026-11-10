@@ -6,13 +6,18 @@
 # changes. Writes out/walkthrough.mp4 and out/*.png.
 #
 #   tools/android/emulator_walkthrough.sh path/to/app.apk out [package]
-set -euo pipefail
+# No -e: one step going wrong shouldn't lose the rest of the walkthrough.
+set -uo pipefail
 APK=$1
 OUT=$2
 PKG=${3:-cz.slowdownradijo.app.debug}
 mkdir -p "$OUT"
 
-adb install -r -g "$APK" >/dev/null
+adb install -r -g "$APK" >/dev/null || exit 1
+# The whole log, streamed to the host, so it survives the emulator going away.
+adb logcat -c || true
+adb logcat -v time > "$OUT/logcat.txt" 2>&1 &
+LOGCAT=$!
 # Czech, as most listeners.
 adb shell "settings put system system_locales cs-CZ" || true
 adb shell settings put global window_animation_scale 1
@@ -45,7 +50,8 @@ tap() {
 }
 
 shot() {
-  adb exec-out screencap -p > "$OUT/$1.png"
+  timeout 30 adb wait-for-device || echo "device gone before: $1"
+  adb exec-out screencap -p > "$OUT/$1.png" || echo "screenshot failed: $1"
 }
 
 swipe_up() { adb shell input swipe 540 1700 540 700 400; }
@@ -84,5 +90,7 @@ kill -INT $RECORD 2>/dev/null || true
 wait $RECORD 2>/dev/null || true
 sleep 3
 adb pull /sdcard/walkthrough.mp4 "$OUT/walkthrough.mp4" >/dev/null
-adb logcat -d -s AndroidRuntime:E ExoPlayerImplInternal:E MediaSessionService:E > "$OUT/errors.log" || true
+kill $LOGCAT 2>/dev/null || true
+# Crashes, ANRs, the app killed for memory, and the player's errors.
+grep -E "FATAL EXCEPTION|AndroidRuntime|ANR in|lowmemorykiller|Killing .*slowdownradijo|ExoPlayerImplInternal.*E|E/MediaSessionService" "$OUT/logcat.txt" > "$OUT/errors.log" || true
 ls -la "$OUT"

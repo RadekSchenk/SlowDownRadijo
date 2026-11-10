@@ -51,6 +51,8 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_7
+          ram-size: 4096M
+          cores: 4
           disable-animations: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
           script: tools/android/emulator_walkthrough.sh android/app/build/outputs/apk/release/app-release.apk walkthrough cz.slowdownradijo.app
@@ -85,6 +87,8 @@ jobs:
           echo "===== END IMAGE"
           echo "===== ERRORS"
           cat walkthrough/errors.log || true
+          echo "----- last lines of logcat"
+          tail -n 60 walkthrough/logcat.txt || true
           echo "===== END ERRORS"
 
       - uses: actions/upload-artifact@v4
