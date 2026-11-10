@@ -123,6 +123,8 @@ struct MessageView: View {
                         }
                     }
                     .buttonStyle(.plain)
+                    // In the app's language, not the SF Symbol's name in the system's.
+                    .accessibilityLabel(recorder.isPlaying ? L10n.pauseRecording : L10n.playRecording)
 
                     WaveformBarsView(levels: recorder.waveformLevels, activeCount: playbackActiveSegmentCount)
 

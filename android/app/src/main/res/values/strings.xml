@@ -78,6 +78,8 @@
     <string name="sentBadge">ODESLÁNO</string>
     <string name="messageRecorded">Vzkaz nahraný</string>
     <string name="listenOrRerecord">Poslechnout si nahrávku nebo nahrát znovu</string>
+    <string name="playRecording">Přehrát nahrávku</string>
+    <string name="pauseRecording">Pozastavit nahrávku</string>
     <string name="recordAgain">Nahrát znovu</string>
     <string name="messageSent">Vzkaz odeslán!</string>
     <string name="thankYouForMessage">Děkujeme za váš vzkaz. Redakce ho posoudí a možná zazní v éteru!</string>

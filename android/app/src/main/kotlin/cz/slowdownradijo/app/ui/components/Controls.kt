@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -92,11 +93,13 @@ fun ListRowIcon(icon: ImageVector) {
     }
 }
 
+/** A switch; [label] names what it turns on for TalkBack (the row's title). */
 @Composable
-fun AppSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+fun AppSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit, label: String? = null) {
     Switch(
         checked = checked,
         onCheckedChange = onCheckedChange,
+        modifier = if (label != null) Modifier.semantics { contentDescription = label } else Modifier,
         colors = SwitchDefaults.colors(
             checkedTrackColor = Theme.liveRed,
             checkedThumbColor = Theme.textPrimary,
@@ -139,7 +142,7 @@ fun PrimaryActionButton(title: String, enabled: Boolean = true, modifier: Modifi
     Row(
         modifier
             .fillMaxWidth()
-            .height(48.dp)
+            .heightIn(min = 48.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(Theme.liveRed.copy(alpha = if (enabled) 1f else 0.4f))
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
@@ -160,7 +163,7 @@ fun SecondaryActionButton(title: String, modifier: Modifier = Modifier, onClick:
     Box(
         modifier
             .fillMaxWidth()
-            .height(48.dp)
+            .heightIn(min = 48.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(Theme.hairline(0.08f))
             .clickable(role = Role.Button, onClick = onClick),

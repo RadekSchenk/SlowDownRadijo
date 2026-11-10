@@ -55,3 +55,20 @@ fun smooth(u: Double): Double {
     val x = u.coerceIn(0.0, 1.0)
     return x * x * (3 - 2 * x)
 }
+
+/**
+ * Text grows with the phone's font size, up to [max] times (iOS caps the
+ * app at Dynamic Type xxxLarge, about 135 %, and the tab bar at xLarge,
+ * about 112 %): beyond that the layouts of the designs no longer hold.
+ */
+@Composable
+fun CapFontScale(max: Float, content: @Composable () -> Unit) {
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    androidx.compose.runtime.CompositionLocalProvider(
+        androidx.compose.ui.platform.LocalDensity provides androidx.compose.ui.unit.Density(density.density, minOf(density.fontScale, max)),
+        content = content,
+    )
+}
+
+const val APP_MAX_FONT_SCALE = 1.35f
+const val TAB_BAR_MAX_FONT_SCALE = 1.12f

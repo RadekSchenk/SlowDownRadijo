@@ -111,6 +111,26 @@ Phase 2 (10 Nov 2026):
 - Not yet: the output picker, the system review prompt, swiping through
   earlier songs, the widget (phase 3).
 
+Phase 3 (10 Nov 2026):
+
+- Widget: `widget/` (Glance), see the parity table.
+- Accessibility: `AccessibilityTest` runs Google's Accessibility Test
+  Framework over every screen (touch targets ≥ 48 dp, labels, duplicate
+  descriptions) and fails on a finding. Fixed on the way: the recorded
+  message's play button had no label (on iOS too: new L10n keys
+  `playRecording` / `pauseRecording`, used by both apps), the switches
+  now say what they switch, the reminder bell's touch target is 48 dp.
+- **Contrast (design, both apps):** `liveRed` (#DB304E) as small text on
+  the dark backgrounds is 4.1:1 on `background`, 3.5:1 on
+  `statsCardRaised`, below WCAG's 4.5:1 for small text ("Vypnutí za…",
+  "#7 z 128", "Nastavení" in the blocked-notifications note). The ON-AIR
+  red (#D91F1F) is lower still. Reported by the test, not failed: the
+  colours come from Figma and are the same on iOS.
+- Text size: like iOS (Dynamic Type capped at xxxLarge, the tab bar at
+  xLarge), the app follows the phone's font size up to 135 % and the
+  bottom bar up to 112 %; fixed heights became minimum heights.
+  `ScreenSizesScreenshotTest` covers a 360 × 640 dp phone and 200 % text.
+
 ### Building
 
     python3 tools/android/l10n_to_strings.py     # after changing L10n.swift
@@ -144,6 +164,6 @@ closed test that new personal accounts must run before production.
 | Menu, news, settings, feedback | 1.0 | 2 |
 | Analytics consent, PostHog | 1.0 | 2 (PostHog's capture API, no SDK) |
 | Language switch (cs / en) | 1.0 | 2 |
-| Heading scale, typography | 1.1 | 0 (theme) |
+| Heading scale, typography | 1.1 | 0 (theme); text size capped as on iOS |
 | Home screen widget | 1.0 | 3 (Glance; system font, widgets cannot use Manrope) |
 | Review prompt (system) | 1.0 | — |

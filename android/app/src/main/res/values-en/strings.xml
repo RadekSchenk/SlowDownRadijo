@@ -78,6 +78,8 @@
     <string name="sentBadge">SENT</string>
     <string name="messageRecorded">Message recorded</string>
     <string name="listenOrRerecord">Listen back or record again</string>
+    <string name="playRecording">Play recording</string>
+    <string name="pauseRecording">Pause recording</string>
     <string name="recordAgain">Record again</string>
     <string name="messageSent">Message sent!</string>
     <string name="thankYouForMessage">Thanks for your message. Our team will take a listen — it might make it on air!</string>

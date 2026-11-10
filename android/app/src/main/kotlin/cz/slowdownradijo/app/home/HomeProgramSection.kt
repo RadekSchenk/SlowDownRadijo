@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -125,7 +126,7 @@ fun HomeProgramSection(
 private fun DayChip(label: String, day: Int, isSelected: Boolean, modifier: Modifier, onClick: () -> Unit) {
     Column(
         modifier
-            .height(58.dp)
+            .heightIn(min = 58.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(if (isSelected) Color(0xFF29213F) else Color.Transparent)
             .clickable(role = Role.Tab, onClick = onClick)
@@ -196,7 +197,8 @@ fun ReminderBell(show: Show, isOn: Boolean, onClick: () -> Unit) {
     val label = stringResource(R.string.reminderBellLabel, show.displayTitle)
     Box(
         Modifier
-            .size(44.dp, 28.dp)
+            // A 48 dp touch target around the 19 dp glyph.
+            .size(48.dp)
             .clickable(role = Role.Switch, onClick = onClick)
             .semantics { contentDescription = label; selected = isOn },
         contentAlignment = Alignment.Center,

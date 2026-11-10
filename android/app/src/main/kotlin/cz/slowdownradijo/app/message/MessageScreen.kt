@@ -39,6 +39,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cz.slowdownradijo.app.R
@@ -138,7 +140,7 @@ private fun Recorded(ui: MessageUi, seconds: Double, actions: MessageActions) {
     Column {
         ListDivider()
         Row(Modifier.padding(vertical = 20.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Theme.Spacing.md)) {
-            AccentCircle(actions.togglePlayback) {
+            AccentCircle(actions.togglePlayback, stringResource(if (ui.isPlaying) R.string.pauseRecording else R.string.playRecording)) {
                 if (ui.isPlaying) PauseIcon(17.dp, Theme.textPrimary) else PlayIcon(17.dp, Theme.textPrimary, Modifier.padding(start = 2.dp))
             }
             Box(Modifier.weight(1f)) { Waveform(ui.levels, (ui.playbackProgress * VoiceMessage.SEGMENTS).toInt()) }
@@ -177,14 +179,15 @@ private fun Header(title: String, subtitle: String) {
 }
 
 @Composable
-private fun AccentCircle(onClick: (() -> Unit)?, content: @Composable () -> Unit) {
+private fun AccentCircle(onClick: (() -> Unit)?, label: String? = null, content: @Composable () -> Unit) {
     Box(
         Modifier
             .shadow(6.dp, CircleShape)
             .size(46.dp)
             .clip(CircleShape)
             .background(Theme.liveRed)
-            .then(if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier),
+            .then(if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier)
+            .then(if (label != null) Modifier.semantics { contentDescription = label } else Modifier),
         contentAlignment = Alignment.Center,
     ) { content() }
 }
@@ -196,7 +199,7 @@ private fun ActionRow(title: String, subtitle: String?, onClick: (() -> Unit)?, 
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Theme.Spacing.md),
     ) {
-        AccentCircle(null, icon)
+        AccentCircle(null, content = icon)
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(title, style = Theme.Typography.Heading.item.tabular(), color = Theme.textPrimary)
             subtitle?.let { Text(it, style = Theme.Typography.Copy.body, color = Theme.mutedText) }

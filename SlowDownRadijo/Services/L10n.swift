@@ -647,6 +647,21 @@ enum L10n {
         }
     }
 
+    /// VoiceOver / TalkBack labels of the recorded message's play button.
+    static var playRecording: String {
+        switch lang {
+        case .cs: return "Přehrát nahrávku"
+        case .en: return "Play recording"
+        }
+    }
+
+    static var pauseRecording: String {
+        switch lang {
+        case .cs: return "Pozastavit nahrávku"
+        case .en: return "Pause recording"
+        }
+    }
+
     static var recordAgain: String {
         switch lang {
         case .cs: return "Nahrát znovu"

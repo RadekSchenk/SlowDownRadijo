@@ -117,6 +117,7 @@ dependencies {
     testImplementation(libs.roborazzi)
     testImplementation(libs.roborazzi.compose)
     testImplementation(libs.roborazzi.junit.rule)
+    testImplementation(libs.roborazzi.accessibility.check)
     testImplementation(libs.glance.appwidget.testing)
     testImplementation(libs.work.testing)
 }

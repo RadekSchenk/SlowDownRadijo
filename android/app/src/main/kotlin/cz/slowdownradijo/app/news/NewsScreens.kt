@@ -60,7 +60,7 @@ fun NewsListScreen(state: NewsStore.State, notificationsOn: Boolean, onNotificat
             ListRow(
                 stringResource(R.string.notificationsNewPostTitle), stringResource(R.string.notificationsNewPostDescription),
                 leading = { ListRowIcon(Icons.Rounded.Notifications) },
-            ) { AppSwitch(notificationsOn, onNotifications) }
+            ) { AppSwitch(notificationsOn, onNotifications, stringResource(R.string.notificationsNewPostTitle)) }
             ListDivider()
             when (state) {
                 NewsStore.State.Loading -> Box(Modifier.fillMaxWidth().padding(vertical = Theme.Spacing.xxl), contentAlignment = Alignment.Center) {

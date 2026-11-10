@@ -143,7 +143,7 @@ private val colorScheme = darkColorScheme(
 )
 
 @Composable
-fun SlowDownTheme(content: @Composable () -> Unit) {
+fun SlowDownTheme(content: @Composable () -> Unit) = cz.slowdownradijo.app.ui.components.CapFontScale(cz.slowdownradijo.app.ui.components.APP_MAX_FONT_SCALE) {
     MaterialTheme(
         colorScheme = colorScheme,
         typography = MaterialTheme.typography.run {

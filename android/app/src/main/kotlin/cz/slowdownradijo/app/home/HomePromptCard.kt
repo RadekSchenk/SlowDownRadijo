@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -52,7 +53,7 @@ fun HomePromptCard(icon: ImageVector, title: String, message: String, decline: S
 @Composable
 private fun Answer(title: String, primary: Boolean, modifier: Modifier, onClick: () -> Unit) {
     Box(
-        modifier.height(44.dp).clip(RoundedCornerShape(10.dp))
+        modifier.heightIn(min = 44.dp).clip(RoundedCornerShape(10.dp))
             .background(if (primary) Theme.liveRed else Theme.hairline(0.08f))
             .clickable(role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center,

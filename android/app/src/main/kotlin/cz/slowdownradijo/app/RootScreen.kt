@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -94,7 +95,7 @@ fun RootScreen(
  * 11 Bold labels, 10 above and 6 below, on the bar's own purple.
  */
 @Composable
-fun BottomBar(selected: Tab, onSelect: (Tab) -> Unit) {
+fun BottomBar(selected: Tab, onSelect: (Tab) -> Unit) = cz.slowdownradijo.app.ui.components.CapFontScale(cz.slowdownradijo.app.ui.components.TAB_BAR_MAX_FONT_SCALE) {
     Column(
         Modifier
             .fillMaxWidth()
@@ -124,7 +125,7 @@ fun BottomBar(selected: Tab, onSelect: (Tab) -> Unit) {
                         stringResource(tab.label),
                         style = Theme.Typography.manrope(Theme.TabBar.labelSize.value, FontWeight.Bold),
                         color = color, maxLines = 1,
-                        modifier = Modifier.height(15.dp),
+                        modifier = Modifier.heightIn(min = 15.dp),
                     )
                 }
             }

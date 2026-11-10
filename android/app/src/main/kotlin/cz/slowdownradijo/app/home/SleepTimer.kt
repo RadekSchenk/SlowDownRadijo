@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -170,7 +171,7 @@ fun SleepTimerSheetContent(
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .height(52.dp)
+                    .heightIn(min = 52.dp)
                     .clip(RoundedCornerShape(10.dp))
                     .background(if (endActive) Theme.liveRed else Theme.statsCardRaised)
                     .clickable(enabled = showEnd != null) { onSelect(SleepTimerOption.END_OF_SHOW) }
@@ -195,7 +196,7 @@ fun SleepTimerSheetContent(
             Box(
                 Modifier
                     .fillMaxWidth()
-                    .height(52.dp)
+                    .heightIn(min = 52.dp)
                     .clip(RoundedCornerShape(Theme.Radius.button))
                     .background(Theme.hairline(0.08f))
                     .clickable(onClick = onCancel),
@@ -212,7 +213,7 @@ private fun DurationTile(option: SleepTimerOption, isActive: Boolean, modifier: 
     val label = if (option == SleepTimerOption.HOUR1) stringResource(R.string.oneHour) else stringResource(R.string.minutesOption, option.minutes ?: 0)
     Column(
         modifier
-            .height(72.dp)
+            .heightIn(min = 72.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(if (isActive) Theme.liveRed else Theme.statsCardRaised)
             .clickable(onClick = onClick)

@@ -86,7 +86,7 @@ fun SettingsScreen(ui: SettingsUi, actions: SettingsActions, open: (MenuPage) ->
         Column {
             ListDivider()
             ListRow(stringResource(R.string.settingsAutoplayTitle), stringResource(R.string.settingsAutoplayDescription)) {
-                AppSwitch(ui.autoplay, actions.setAutoplay)
+                AppSwitch(ui.autoplay, actions.setAutoplay, stringResource(R.string.settingsAutoplayTitle))
             }
             ListDivider()
             ListRow(
@@ -95,11 +95,11 @@ fun SettingsScreen(ui: SettingsUi, actions: SettingsActions, open: (MenuPage) ->
             ) { ListRowChevron() }
             ListDivider()
             ListRow(stringResource(R.string.settingsStatsTitle), stringResource(R.string.settingsStatsDescription)) {
-                AppSwitch(ui.statsEnabled, actions.setStats)
+                AppSwitch(ui.statsEnabled, actions.setStats, stringResource(R.string.settingsStatsTitle))
             }
             ListDivider()
             ListRow(stringResource(R.string.settingsAnalyticsTitle), stringResource(R.string.settingsAnalyticsDescription)) {
-                AppSwitch(ui.analyticsEnabled, actions.setAnalytics)
+                AppSwitch(ui.analyticsEnabled, actions.setAnalytics, stringResource(R.string.settingsAnalyticsTitle))
             }
             ListDivider()
             ListRow(
@@ -195,7 +195,7 @@ fun ShowRemindersScreen(
             for (show in shows) {
                 ListDivider()
                 ListRow(show.displayTitle, show.hostName) {
-                    AppSwitch(show.id in followed) { onToggle(show, it) }
+                    AppSwitch(show.id in followed, { onToggle(show, it) }, show.displayTitle)
                 }
             }
             ListDivider()
