@@ -78,7 +78,16 @@ final class AppStoreScreenshotTests: XCTestCase {
         capture("5 message")
     }
 
+    /// Shows that must not appear in the App Store screenshots (the
+    /// station's call): capturing while one is on air, or listed in the
+    /// programme, fails the test, so those screens aren't used.
+    private static let excludedShows = ["Majkl"]
+
     private func capture(_ name: String) {
+        for show in Self.excludedShows {
+            let shown = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", show)).firstMatch
+            XCTAssertFalse(shown.exists, "\(name): \(show) is on screen — retake at another time")
+        }
         let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         attachment.name = "\(language) \(name)"
         attachment.lifetime = .keepAlways
