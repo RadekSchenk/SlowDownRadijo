@@ -5,11 +5,11 @@
 # text through uiautomator, not by coordinates, so it survives layout
 # changes. Writes out/walkthrough.mp4 and out/*.png.
 #
-#   tools/android/emulator_walkthrough.sh path/to/app-debug.apk out
+#   tools/android/emulator_walkthrough.sh path/to/app.apk out [package]
 set -euo pipefail
 APK=$1
 OUT=$2
-PKG=cz.slowdownradijo.app.debug
+PKG=${3:-cz.slowdownradijo.app.debug}
 mkdir -p "$OUT"
 
 adb install -r -g "$APK" >/dev/null

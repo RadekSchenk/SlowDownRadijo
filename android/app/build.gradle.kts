@@ -17,12 +17,29 @@ android {
         applicationId = "cz.slowdownradijo.app"
         minSdk = 26
         targetSdk = 37
-        versionCode = 1
+        // CI sets the build number (the run number); 1 locally.
+        versionCode = providers.environmentVariable("VERSION_CODE").orNull?.toInt() ?: 1
         versionName = "1.1"
+    }
+
+    // The Google Play upload key, from CI secrets (a base64 keystore). Without
+    // it, release builds are signed with the debug key: installable on an
+    // emulator for testing, refused by Google Play.
+    val uploadKeystore = providers.environmentVariable("UPLOAD_KEYSTORE_PATH").orNull
+    signingConfigs {
+        if (uploadKeystore != null) {
+            create("upload") {
+                storeFile = file(uploadKeystore)
+                storePassword = providers.environmentVariable("UPLOAD_KEYSTORE_PASSWORD").get()
+                keyAlias = providers.environmentVariable("UPLOAD_KEY_ALIAS").get()
+                keyPassword = providers.environmentVariable("UPLOAD_KEY_PASSWORD").get()
+            }
+        }
     }
 
     buildTypes {
         release {
+            signingConfig = signingConfigs.findByName("upload") ?: signingConfigs.getByName("debug")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")

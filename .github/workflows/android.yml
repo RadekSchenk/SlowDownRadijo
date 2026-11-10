@@ -46,6 +46,29 @@ jobs:
       - name: Build
         run: ./gradlew :app:assembleDebug
 
+      - name: Upload key
+        # The Google Play upload key, once it's in the repository's secrets
+        # (ANDROID_UPLOAD_KEYSTORE as base64, and its passwords and alias).
+        # Without it the release build is signed with the debug key.
+        env:
+          KEYSTORE: ${{ secrets.ANDROID_UPLOAD_KEYSTORE }}
+        run: |
+          if [ -n "$KEYSTORE" ]; then
+            echo "$KEYSTORE" | base64 -d > "$RUNNER_TEMP/upload.jks"
+            echo "UPLOAD_KEYSTORE_PATH=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
+            echo "Signing with the upload key"
+          else
+            echo "No upload key in the secrets: release signed with the debug key (not for Google Play)"
+          fi
+
+      - name: Release build (R8, app bundle)
+        env:
+          VERSION_CODE: ${{ github.run_number }}
+          UPLOAD_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASSWORD }}
+          UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
+          UPLOAD_KEY_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
+        run: ./gradlew :app:bundleRelease :app:assembleRelease
+
       - name: Unit and screenshot tests
         # Compares with the screenshots in app/src/test/screenshots and
         # writes the diffs next to them; record new ones locally with
@@ -68,3 +91,11 @@ jobs:
         with:
           name: slowdownradijo-debug-apk
           path: android/app/build/outputs/apk/debug/*.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: slowdownradijo-release
+          path: |
+            android/app/build/outputs/bundle/release/*.aab
+            android/app/build/outputs/apk/release/*.apk
+            android/app/build/outputs/mapping/release/mapping.txt
