@@ -283,7 +283,7 @@ jobs:
       - name: Frame
         run: |
           python3 -m pip install --break-system-packages --quiet pillow
-          # The background style: glow, panorama, sun, red or night.
+          # The background style: clouds, panorama, glow, sun, red or night.
           python3 tools/appstore/frame.py shots framed clouds
           # App Store Connect's iPhone slot (6.1"/6.3", Dynamic Island) takes
           # 1206 x 2622; the cards are made at 6.9" (1320 x 2868), the same
