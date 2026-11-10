@@ -70,6 +70,11 @@ struct HomeView: View {
             }
             .padding(.horizontal, 20)
             .padding(.bottom, Theme.Spacing.xl)
+            // Behind the header and the show, edge to edge, scrolling away
+            // with them.
+            .background(alignment: .top) {
+                HeaderClouds(isPlaying: nowPlaying.playbackState == .playing)
+            }
             .scrollsToTopOnTabReselect()
             // The content's top rests at the scroll view's top (the page
             // ignores the top safe area), so anything above 0 is pull.
@@ -117,106 +122,95 @@ struct HomeView: View {
         nowPlaying.showArtwork
     }
 
-    /// Figma "variation-3-card" (node 12341:1637): the logo, then the show
-    /// card with its equalizer, then the title, host and song (centred),
-    /// the programme progress and the player row — the remaining time and
-    /// sleep timer on the left, the play button on the right. The section
+    /// Figma "Homepage — kompaktní seznam" (node 12390:245): the logo in
+    /// the header between its pills, then the compact player — the cover
+    /// with its equalizer next to the show title and host, the song below,
+    /// then the programme progress and the player row. Behind the logo and
+    /// the show, `HeaderClouds` drift while the radio plays. The section
     /// ends with the player row, then the 32pt gap to the stats.
     ///
     /// Scrolling away, each part fades and recedes towards its bottom edge
-    /// as it passes under the top of the screen — the logo first, then
-    /// the card, then the text — so each stays attached to what follows.
+    /// as it passes under the top of the screen — the logo first, then the
+    /// show — so each stays attached to what follows.
     private var nowPlayingHeader: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Reaches up into the header, between its pills; taps pass
-            // through to them.
+            // Centred in the header, between its pills; taps pass through
+            // to them.
             AnimatedBrandLogo()
-                .frame(width: 78, height: 65)
+                .frame(width: 90, height: 75)
                 .allowsHitTesting(false)
-                // Pulled down, it grows and rises clear of the card
-                // growing up towards it.
-                .growsOnPull(pullDistance, by: 0.15, anchor: .bottom, lift: Self.cardPullGrowth)
+                .growsOnPull(pullDistance, by: 0.15, anchor: .bottom)
                 .frame(maxWidth: .infinity)
                 .fadesOutUnderTopEdge(startingAt: Self.logoTop, shrinkingTo: 0.8)
 
-            // Figma: 12pt to the "Hlavička" frame, which starts with 16pt
-            // of its own above the card.
-            NowPlayingCard(
-                artwork: heroImage,
-                isPlaying: nowPlaying.playbackState == .playing
-            )
-            .growsOnPull(pullDistance, by: Self.cardPullGrowth / NowPlayingCard.cardSize.height, anchor: .bottom)
-            .fadesOutUnderTopEdge(shrinkingTo: 0.8)
-            .padding(.top, 28)
-
-            showTitle
+            // Figma "Kompaktní přehrávač": 16pt between the show, the
+            // song and the controls.
+            showRow
                 .growsOnPull(pullDistance, by: 0.04, anchor: .top)
                 .fadesOutUnderTopEdge(shrinkingTo: 0.8)
-                .padding(.top, 32)
-
-            playerControls
-                .padding(.top, 24)
-        }
-        // Figma: the logo starts 33pt below the status bar, level with the
-        // top of the header's pills and centred between them — so it
-        // reaches 33pt up into the 66pt header.
-        .padding(.top, Self.logoTop - AppHeaderView.topInset - Self.headerHeight)
-    }
-
-    /// The header's height in Figma: 34pt pills and 16pt above and below.
-    private static let headerHeight: CGFloat = 66
-    /// Where the logo starts, from the top of the screen.
-    private static let logoTop = AppHeaderView.topInset + 33
-    /// How much taller the card gets at full pull (towards the logo).
-    private static let cardPullGrowth: CGFloat = 18
-
-    /// Figma "Player details": title, host and the song playing now.
-    private var showTitle: some View {
-        VStack(spacing: 8) {
-            // Here only, the show's own title without " s <host>"
-            // ("Kurátorská selekce", not "… s Philip TBC") — the host
-            // has its own line below. Everywhere else keeps the full name.
-            //
-            // A title that only just misses one line ("The Best of Slow
-            // Down" on a narrower iPhone or with larger text) steps down
-            // to 26 or 24pt to stay on it; longer ones wrap at 28pt.
-            ViewThatFits(in: .horizontal) {
-                showTitleText(size: 28).lineLimit(1)
-                showTitleText(size: 26).lineLimit(1)
-                showTitleText(size: 24).lineLimit(1)
-                showTitleText(size: 28)
-            }
-
-            if let hostName = nowPlaying.currentShow?.hostName {
-                // Figma sets this line and the song in Inter; the app uses
-                // Manrope throughout (see `Theme.Typography`).
-                Text("\(L10n.hostedByKicker) \(hostName)")
-                    .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .callout))
-                    .foregroundStyle(Theme.mutedText)
-                    .multilineTextAlignment(.center)
-                    .manropeLineHeight(22.4, fontSize: 16)
-            }
+                .padding(.top, 10)
 
             if let track = nowPlaying.verifiedTrack {
                 SongHistoryLine(
                     current: track,
                     showStart: currentShowStart,
                     shows: scheduleStore.days.flatMap(\.shows),
-                    showID: nowPlaying.currentShow?.id
+                    showID: nowPlaying.currentShow?.id,
+                    layout: .compact
                 )
+                .fadesOutUnderTopEdge()
+                .padding(.top, 16)
                 .transition(.reveal)
             }
+
+            playerControls
+                .padding(.top, 16)
         }
-        .frame(maxWidth: .infinity)
         .animation(Motion.cardResize, value: nowPlaying.verifiedTrack)
+        // Figma: the 75pt logo starts 1pt above the 74pt header frame
+        // ("Značka a navigace"), whose own bar is the 66pt `AppHeaderView`.
+        .padding(.top, Self.logoTop - AppHeaderView.topInset - Self.headerHeight)
     }
 
-    private func showTitleText(size: CGFloat) -> some View {
-        Text(nowPlaying.currentShow?.displayTitle ?? nowPlaying.showName)
-            .font(Theme.Typography.Manrope.extraBold(size: size, relativeTo: .title))
-            .foregroundStyle(Theme.textPrimary)
-            .multilineTextAlignment(.center)
-            .manropeLineHeight(size * 1.2, fontSize: size)
+    /// The header's height in Figma: 34pt pills and 16pt above and below.
+    private static let headerHeight: CGFloat = 66
+    /// Where the logo starts, from the top of the screen.
+    private static let logoTop = AppHeaderView.topInset - 1
+
+    /// Figma "Pořad": the cover with its equalizer, 14pt, then the show's
+    /// title and host.
+    private var showRow: some View {
+        HStack(spacing: 14) {
+            NowPlayingCover(
+                artwork: heroImage,
+                isPlaying: nowPlaying.playbackState == .playing
+            )
+
+            VStack(alignment: .leading, spacing: 6) {
+                // Here only, the show's own title without " s <host>"
+                // ("Kurátorská selekce", not "… s Philip TBC") — the host
+                // has its own line below. Everywhere else keeps the full
+                // name.
+                Text(nowPlaying.currentShow?.displayTitle ?? nowPlaying.showName)
+                    .font(Theme.Typography.Manrope.extraBold(size: 21, relativeTo: .title2))
+                    .foregroundStyle(Theme.textPrimary)
+                    .manropeLineHeight(25.2, fontSize: 21)
+                    .lineLimit(3)
+                    .minimumScaleFactor(0.85)
+
+                if let hostName = nowPlaying.currentShow?.hostName {
+                    // Figma sets this line in Inter; the app uses Manrope
+                    // throughout (see `Theme.Typography`).
+                    Text("\(L10n.hostedByKicker) \(hostName)")
+                        .font(Theme.Typography.Manrope.semibold(size: 13, relativeTo: .footnote))
+                        .foregroundStyle(Theme.mutedText)
+                        .lineLimit(2)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        // The equalizer's outer bars sit on the page's content edge.
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     /// When the show on air began — yesterday's date for one that started

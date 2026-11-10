@@ -27,6 +27,19 @@ struct SongHistoryLine: View {
     let shows: [Show]
     /// For the `spotifyOpened` event.
     let showID: String?
+    /// `.compact` is the home screen's compact player (Figma "Právě
+    /// hraje", node 12390:286): left-aligned 14pt text, the Spotify mark at
+    /// the row's right end. `.centered` the earlier big-card layout.
+    var layout: Layout = .centered
+
+    enum Layout {
+        case centered
+        case compact
+    }
+
+    private var isCompact: Bool { layout == .compact }
+    private var textAlignment: TextAlignment { isCompact ? .leading : .center }
+    private var frameAlignment: Alignment { isCompact ? .leading : .center }
 
     @Environment(\.openURL) private var openURL
 
@@ -65,7 +78,7 @@ struct SongHistoryLine: View {
             HStack(alignment: .top, spacing: 0) {
                 ForEach(pageIDs.reversed(), id: \.self) { id in
                     page(id)
-                        .frame(maxWidth: .infinity)
+                        .frame(maxWidth: .infinity, alignment: frameAlignment)
                         // Its own full height, whatever the row allows.
                         .fixedSize(horizontal: false, vertical: true)
                         .containerRelativeFrame(.horizontal)
@@ -111,7 +124,7 @@ struct SongHistoryLine: View {
             songLink(artist: current.artist, title: current.title)
         } else if id <= earlier.count {
             let song = earlier[id - 1]
-            VStack(spacing: 4) {
+            VStack(alignment: isCompact ? .leading : .center, spacing: 4) {
                 songLink(artist: song.artist, title: song.title)
                 TimelineView(.periodic(from: .now, by: 30)) { context in
                     Text(L10n.playedAgo(minutes: Int(context.date.timeIntervalSince(song.playedAt) / 60)))
@@ -123,14 +136,59 @@ struct SongHistoryLine: View {
             Text(L10n.noEarlierSongs)
                 .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .callout))
                 .foregroundStyle(Theme.mutedText)
-                .multilineTextAlignment(.center)
+                .multilineTextAlignment(textAlignment)
                 .manropeLineHeight(22.4, fontSize: 16)
         }
     }
 
     /// "Artist – Title" in white with the green Spotify mark after the last
     /// word; text and mark open a Spotify search for artist + title.
+    @ViewBuilder
     private func songLink(artist: String, title: String) -> some View {
+        if isCompact {
+            compactSongLink(artist: artist, title: title)
+        } else {
+            centeredSongLink(artist: artist, title: title)
+        }
+    }
+
+    /// Figma "Právě hraje": the song on the left, up to two lines, the
+    /// Spotify mark 8pt after it at the row's right end.
+    private func compactSongLink(artist: String, title: String) -> some View {
+        Button {
+            openSpotify(artist: artist, title: title)
+        } label: {
+            HStack(spacing: 8) {
+                Text(verbatim: "\(artist) – \(title)")
+                    .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
+                    .foregroundStyle(Theme.textPrimary)
+                    .multilineTextAlignment(.leading)
+                    .lineLimit(2)
+                    .manropeLineHeight(20.3, fontSize: 14)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentTransition(.opacity)
+                Image("SpotifyIcon")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 19, height: 19.62)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(artist) – \(title)")
+        .accessibilityHint(L10n.spotifyFindAction)
+        .accessibilityAddTraits(.isButton)
+    }
+
+    private func openSpotify(artist: String, title: String) {
+        if let url = spotifySearchURL(artist: artist, title: title) {
+            Analytics.shared.track(.spotifyOpened(showID: showID))
+            openURL(url)
+        }
+    }
+
+    private func centeredSongLink(artist: String, title: String) -> some View {
         Button {
             if let url = spotifySearchURL(artist: artist, title: title) {
                 Analytics.shared.track(.spotifyOpened(showID: showID))

@@ -3,7 +3,7 @@ import SwiftUI
 /// How far the current programme block has got (Figma "Programme
 /// progress", node 12318:5217): the block's start and end times, then a
 /// thin rounded track underneath, 10pt apart. The equalizer that used to
-/// sit on the track now flanks the show card (`CardSideEqualizer`), and
+/// sit on the track now flanks the show cover (`CardSideEqualizer`), and
 /// the remaining-time line moved next to the play button (`HomeView`).
 struct ShowProgressBar: View {
     let show: Show
