@@ -40,6 +40,40 @@ it. Decided 10 Nov 2026.
 | 3. Polish | Home screen widget (Glance), accessibility, screen sizes, emulator recordings |
 | 4. Google Play | Internal testing track, store listing, Data safety form, content rating, screenshots, review |
 
+## Status
+
+Phase 0 is done (10 Nov 2026):
+
+- `android/`: Gradle 9.8, AGP 9.5 (built-in Kotlin 2.4), Compose BOM
+  2026.09, Media3 1.11; minSdk 26, compile/targetSdk 37 (Android 17).
+  Package `cz.slowdownradijo.app` (debug builds `.debug`).
+- Shared data without copies: `buildSrc/SharedResources.kt` turns the
+  iOS imagesets into drawables (`ShowArtBassTime` →
+  `R.drawable.show_art_bass_time`, mapped by name in the generated
+  `SharedImages`), the Manrope TTFs into `R.font.manrope_*`, and
+  `schedule.json` into an asset.
+- Strings: `tools/android/l10n_to_strings.py` writes `values/strings.xml`
+  (cs) and `values-en/strings.xml` from `L10n.swift`, keeping the key
+  names. The few entries with logic (plurals, durations, dates) are in
+  `l10n/L10nLogic.kt`; `android/l10n-overrides.json` holds Android text
+  where iOS is named. CI fails when strings.xml is stale.
+- The language is the app's own (`l10n/AppLanguage.kt`), switched without
+  a restart, as on iOS.
+- Theme: `ui/theme/Theme.kt` mirrors `Theme.swift` (colours, Heading
+  page/hero/section/item, Copy body/reading/label/link/button, tab bar).
+- Launcher icon from the iOS AppIcon: `tools/android/icons.py`.
+- CI: `.github/workflows/android.yml` (string check, build, unit and
+  screenshot tests, debug APK and screenshots as artifacts). Robolectric
+  runs on API 36 until it supports 37.
+
+### Building
+
+    python3 tools/android/l10n_to_strings.py     # after changing L10n.swift
+    cd android
+    ./gradlew :app:assembleDebug                 # app/build/outputs/apk/debug
+    ./gradlew :app:testDebugUnitTest             # unit + screenshot tests
+    ./gradlew :app:testDebugUnitTest -Proborazzi.test.record=true   # new screenshots
+
 ## Google Play account
 
 Slow Down Radio s.r.o. opens an **organisation** developer account
@@ -64,7 +98,7 @@ closed test that new personal accounts must run before production.
 | Voice message | 1.0 | — |
 | Menu, news, settings, feedback | 1.0 | — |
 | Analytics consent, PostHog | 1.0 | — |
-| Language switch (cs / en) | 1.0 | — |
-| Heading scale, typography | 1.1 | — |
+| Language switch (cs / en) | 1.0 | strings + language store; toggle in phase 2 |
+| Heading scale, typography | 1.1 | 0 (theme) |
 | Home screen widget | 1.0 | — |
 | Review prompt (system) | 1.0 | — |

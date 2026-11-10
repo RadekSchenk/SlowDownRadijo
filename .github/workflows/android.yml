@@ -1,0 +1,70 @@
+# The Android app (android/): checks strings.xml is current with the iOS
+# L10n.swift, builds the debug APK, runs the unit and screenshot tests
+# (Robolectric + Roborazzi) and uploads the APK and the screenshots.
+name: Android
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "android/**"
+      - "tools/android/**"
+      - "SlowDownRadijo/Resources/**"
+      - "SlowDownRadijo/Services/L10n.swift"
+      - ".github/workflows/android.yml"
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: android
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Strings are current with L10n.swift
+        working-directory: .
+        run: python3 tools/android/l10n_to_strings.py --check
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Android SDK
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0" "build-tools;37.0.0" > /dev/null
+
+      - name: Build
+        run: ./gradlew :app:assembleDebug
+
+      - name: Unit and screenshot tests
+        # Compares with the screenshots in app/src/test/screenshots and
+        # writes the diffs next to them; record new ones locally with
+        # -Proborazzi.test.record=true.
+        run: ./gradlew :app:testDebugUnitTest -Proborazzi.test.compare=true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-report
+          path: android/app/build/reports/tests/
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshots
+          path: android/app/src/test/screenshots/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: slowdownradijo-debug-apk
+          path: android/app/build/outputs/apk/debug/*.apk
