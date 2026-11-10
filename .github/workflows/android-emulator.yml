@@ -56,27 +56,27 @@ jobs:
       - name: Contact sheet and errors
         if: always()
         run: |
-          echo "===== ERRORS"
-          cat walkthrough/errors.log || true
-          echo "===== END ERRORS"
           python3 -m pip install --break-system-packages --quiet pillow
           python3 - <<'PY'
           import glob
           from PIL import Image
           shots = sorted(glob.glob("walkthrough/*.png"))
           thumbs = [Image.open(p).convert("RGB") for p in shots]
-          thumbs = [t.resize((300, t.height * 300 // t.width)) for t in thumbs]
+          thumbs = [t.resize((150, t.height * 150 // t.width)) for t in thumbs]
           cols = 7
           rows = (len(thumbs) + cols - 1) // cols
           h = max(t.height for t in thumbs)
-          sheet = Image.new("RGB", (cols * 300, rows * h), (30, 30, 30))
+          sheet = Image.new("RGB", (cols * 150, rows * h), (30, 30, 30))
           for i, t in enumerate(thumbs):
-              sheet.paste(t, ((i % cols) * 300, (i // cols) * h))
-          sheet.save("walkthrough/sheet.jpg", quality=70)
+              sheet.paste(t, ((i % cols) * 150, (i // cols) * h))
+          sheet.save("walkthrough/sheet.jpg", quality=60)
           PY
           echo "===== IMAGE contact sheet"
           base64 -w 1000 walkthrough/sheet.jpg
           echo "===== END IMAGE"
+          echo "===== ERRORS"
+          cat walkthrough/errors.log || true
+          echo "===== END ERRORS"
 
       - uses: actions/upload-artifact@v4
         if: always()
