@@ -14,6 +14,8 @@ struct AppHeaderView: View {
     /// screen (Figma: the 40pt status bar), not at the system safe-area
     /// inset, so it sits at the same height on every tab.
     static let topInset: CGFloat = 40
+    /// 34pt pills with 16pt above and below (Figma "app-header").
+    static let height: CGFloat = 66
 
     @ObservedObject private var loc = LocalizationManager.shared
     @Environment(\.isHostedShowOnAir) private var isHostedShowOnAir
@@ -29,7 +31,7 @@ struct AppHeaderView: View {
             }
         }
         // Keeps the header's height when the badge is away.
-        .frame(minHeight: 34)
+        .frame(minHeight: Self.height - 2 * Theme.Spacing.md)
         // Matches the Figma "app-header" frame's own auto-layout padding
         // (20 horizontal — already provided by every tab root's own outer
         // inset, so not repeated here — and 16 vertical).

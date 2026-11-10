@@ -12,16 +12,8 @@ struct FavoritesView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
-                AppHeaderView()
-                    // Matches the home screen's header offset exactly (see
-                    // `HomeView.heroSection`) — a fixed distance from the
-                    // true top edge, not the system safe-area inset, and the
-                    // same 20pt horizontal inset as every other tab,
-                    // independent of this screen's own 16pt content margin
-                    // (applied to the inner VStack below, not shared with
-                    // the header).
-                    .padding(.top, AppHeaderView.topInset)
-                    .padding(.horizontal, 20)
+                // MENU and ON-AIR stay put over the page (`pinnedAppHeader`).
+                AppHeaderSpacer()
 
                 VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
                     Text(L10n.favoritesTitle)
@@ -43,6 +35,7 @@ struct FavoritesView: View {
             .padding(.bottom, Theme.Spacing.md)
         }
         .ignoresSafeArea(edges: .top)
+        .pinnedAppHeader()
         .background(Theme.background.ignoresSafeArea())
         .alert(
             L10n.favoritesDeleteTitle,

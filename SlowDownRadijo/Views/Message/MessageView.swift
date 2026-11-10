@@ -30,8 +30,8 @@ struct MessageView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                AppHeaderView()
-                    .padding(.top, AppHeaderView.topInset)
+                // MENU and ON-AIR stay put over the page (`pinnedAppHeader`).
+                AppHeaderSpacer()
 
                 content
                     .padding(.top, Theme.Spacing.sm)
@@ -41,6 +41,7 @@ struct MessageView: View {
             .scrollsToTopOnTabReselect()
         }
         .ignoresSafeArea(edges: .top)
+        .pinnedAppHeader()
         .background(Theme.background.ignoresSafeArea())
         .alert(L10n.micUnavailableTitle, isPresented: $viewModel.permissionDeniedAlert) {
             Button(L10n.ok, role: .cancel) {}

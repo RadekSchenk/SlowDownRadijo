@@ -32,8 +32,8 @@ struct HomeView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
-                AppHeaderView()
-                    .padding(.top, AppHeaderView.topInset)
+                // MENU and ON-AIR stay put over the page (`pinnedAppHeader`).
+                AppHeaderSpacer()
 
                 nowPlayingHeader
 
@@ -87,6 +87,7 @@ struct HomeView: View {
         // Like every other tab: the header starts `AppHeaderView.topInset`
         // below the true top edge (see `StatsView`).
         .ignoresSafeArea(edges: .top)
+        .pinnedAppHeader()
         .background(Theme.background.ignoresSafeArea())
         .onAppear {
             if FeatureFlags.nowPlayingHistoryAndFavorites { history.loadIfNeeded() }

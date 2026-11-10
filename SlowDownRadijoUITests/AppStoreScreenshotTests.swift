@@ -57,11 +57,12 @@ final class AppStoreScreenshotTests: XCTestCase {
         }
 
         // Down the home page until the programme's heading sits just under
-        // the status bar, the day picker below it. A drag doesn't move the
-        // page by exactly its length, so measure and correct once.
+        // the pinned MENU / ON-AIR bar, the day picker below it. A drag
+        // doesn't move the page by exactly its length, so measure and
+        // correct once.
         let heading = app.staticTexts.matching(NSPredicate(format: "label == %@ OR label == %@", "Pořady", "Shows")).firstMatch
         for _ in 0..<3 where heading.exists {
-            let offset = heading.frame.minY - 80
+            let offset = heading.frame.minY - 124
             if abs(offset) < 12 { break }
             scroll(by: offset)
             sleep(1)

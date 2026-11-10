@@ -16,8 +16,8 @@ struct SupportView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                AppHeaderView()
-                    .padding(.top, AppHeaderView.topInset)
+                // MENU and ON-AIR stay put over the page (`pinnedAppHeader`).
+                AppHeaderSpacer()
 
                 VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
                     intro
@@ -31,6 +31,7 @@ struct SupportView: View {
             .scrollsToTopOnTabReselect()
         }
         .ignoresSafeArea(edges: .top)
+        .pinnedAppHeader()
         .background(Theme.background.ignoresSafeArea())
         .sheet(isPresented: $isShowingSafari) {
             if let safariURL {

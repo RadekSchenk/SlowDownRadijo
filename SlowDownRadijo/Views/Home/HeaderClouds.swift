@@ -26,7 +26,7 @@ struct HeaderClouds: View {
     /// Extra room above and below the frame, so the blur fades out on its
     /// own instead of being cut off — above, for pulling the page down.
     private static let marginAbove: CGFloat = 160
-    private static let height: CGFloat = 520
+    private static let height: CGFloat = 720
 
     private struct Blob {
         /// Figma's ellipse frame, in the 390pt-wide design.
@@ -86,7 +86,7 @@ struct HeaderClouds: View {
 
     /// `date` nil draws them still, as in Figma.
     private func clouds(at date: Date?) -> some View {
-        let time = date.map { clock.time(at: $0) } ?? 0
+        let clockTime = date.map { clock.time(at: $0) } ?? 0
         let energy = date.map { clock.speed(at: $0) } ?? (isPlaying ? 1 : 0)
         // The beat runs on the clock the equalizer uses, so both swell
         // together — a light touch on top of the drift.
@@ -96,13 +96,19 @@ struct HeaderClouds: View {
             let scale = size.width / Self.designWidth
             for (index, blob) in Self.blobs.enumerated() {
                 let seed = Double(index) * 7.31 + blob.phase
+                // The drift's clock runs `tempo` times as fast as the
+                // periods below say.
+                let time = clockTime * Self.tempo
                 // Wandering: on each axis three slow waves whose periods
                 // are in irrational ratios (1 : φ : √5), so a cloud's path
                 // never closes on itself and the picture never repeats.
-                let dx = drift * 70 * Self.wander(time, period: blob.periods.x, seed: seed)
-                let dy = drift * (-10 + 38 * Self.wander(time, period: blob.periods.y, seed: seed + 3.7))
-                let stretch = drift * 0.22 * Self.wander(time, period: blob.periods.stretch, seed: seed + 9.1)
-                let turn = drift * 0.5 * Self.wander(time, period: blob.periods.stretch * 1.7, seed: seed + 5.3)
+                // Across most of the header's width and a good way up and
+                // down: clouds cross behind the logo and the show rather
+                // than just bobbing in place.
+                let dx = drift * 110 * Self.wander(time, period: blob.periods.x, seed: seed)
+                let dy = drift * (-6 + 55 * Self.wander(time, period: blob.periods.y, seed: seed + 3.7))
+                let stretch = drift * 0.26 * Self.wander(time, period: blob.periods.stretch, seed: seed + 9.1)
+                let turn = drift * 0.7 * Self.wander(time, period: blob.periods.stretch * 1.7, seed: seed + 5.3)
                 let glow = 1 + drift * 0.22 * Self.wander(time, period: blob.periods.glow, seed: seed + 2.2)
                     + 2 * blob.beat * beat * energy
                 let swell = 1 + blob.beat * beat * energy
@@ -129,7 +135,7 @@ struct HeaderClouds: View {
                     // morphs like smoke rather than just moving.
                     for lobe in 0..<3 {
                         let lobeSeed = seed + Double(lobe) * 11.7
-                        let reach = lobe == 0 ? 0 : drift * 0.22
+                        let reach = lobe == 0 ? 0 : drift * 0.28
                         let ox = reach * cloud.width * Self.wander(time, period: blob.periods.y * 0.8, seed: lobeSeed)
                         let oy = reach * cloud.height * Self.wander(time, period: blob.periods.x * 0.9, seed: lobeSeed + 1.9)
                         let shrink = lobe == 0 ? 1 : 0.62 + drift * 0.1 * Self.wander(time, period: blob.periods.glow, seed: lobeSeed + 4.4)
@@ -145,6 +151,11 @@ struct HeaderClouds: View {
 
     /// Smooth, never-repeating motion in about -1…1: three sines with
     /// periods `period`, `period`·φ and `period`·√5.
+    /// How much faster than their nominal periods the clouds drift: a
+    /// cloud crosses the header in roughly ten seconds — visibly moving,
+    /// never hurried.
+    private static let tempo = 1.35
+
     private static func wander(_ time: Double, period: Double, seed: Double) -> Double {
         let a = sin(2 * .pi * time / period + seed)
         let b = sin(2 * .pi * time / (period * 1.618_034) + seed * 1.7)
