@@ -104,6 +104,8 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
+    implementation(libs.glance.appwidget)
+    implementation(libs.work.runtime)
 
     testImplementation(libs.junit)
     testImplementation(libs.androidx.test.junit)
@@ -115,4 +117,6 @@ dependencies {
     testImplementation(libs.roborazzi)
     testImplementation(libs.roborazzi.compose)
     testImplementation(libs.roborazzi.junit.rule)
+    testImplementation(libs.glance.appwidget.testing)
+    testImplementation(libs.work.testing)
 }

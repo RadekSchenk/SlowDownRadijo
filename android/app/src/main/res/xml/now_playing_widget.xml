@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Small (2×2) and medium (4×2), as the iOS widget's families. Updates come
+     from WorkManager (every 15 min and at show changes), not from here. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/widgetDescription"
+    android:initialLayout="@layout/glance_default_loading_layout"
+    android:minWidth="110dp"
+    android:minHeight="110dp"
+    android:targetCellWidth="2"
+    android:targetCellHeight="2"
+    android:maxResizeWidth="400dp"
+    android:maxResizeHeight="200dp"
+    android:resizeMode="horizontal|vertical"
+    android:previewLayout="@layout/glance_default_loading_layout"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen" />

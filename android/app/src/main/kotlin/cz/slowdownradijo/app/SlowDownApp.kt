@@ -35,6 +35,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import cz.slowdownradijo.app.widget.WidgetUpdates
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import java.io.File
@@ -128,6 +131,12 @@ class SlowDownApp : Application() {
         scope.launch { stats.refreshAll() }
         // A new post on the web since the last launch.
         scope.launch { news.checkForNewPost(language.language.value, reminders.notificationsAllowed()) }
+        // The widget follows the show on air and the verified song while the app runs.
+        scope.launch {
+            nowPlaying.onAir.map { it.show?.id to it.verifiedTrack }.distinctUntilChanged().drop(1).collect {
+                runCatching { WidgetUpdates.updateIfPlaced(this@SlowDownApp) }
+            }
+        }
         // Reminders follow the week as the web has it.
         reminders.reschedule()
         scope.launch { schedule.days.drop(1).collect { reminders.reschedule() } }

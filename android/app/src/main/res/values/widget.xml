@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The widget's name and description in the widget picker. On iOS they are
+     in SlowDownRadijoWidgetBundle.swift (not L10n.swift), so they are here
+     by hand. -->
+<resources>
+    <string name="widgetName">Právě hraje</string>
+    <string name="widgetDescription">Aktuální pořad a poslední přehraná skladba na Slow Down Rádiu.</string>
+</resources>

@@ -145,5 +145,5 @@ closed test that new personal accounts must run before production.
 | Analytics consent, PostHog | 1.0 | 2 (PostHog's capture API, no SDK) |
 | Language switch (cs / en) | 1.0 | 2 |
 | Heading scale, typography | 1.1 | 0 (theme) |
-| Home screen widget | 1.0 | — |
+| Home screen widget | 1.0 | 3 (Glance; system font, widgets cannot use Manrope) |
 | Review prompt (system) | 1.0 | — |
