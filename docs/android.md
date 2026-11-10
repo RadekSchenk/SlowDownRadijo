@@ -83,8 +83,8 @@ Phase 1 (10 Nov 2026), in `android/app/src/main/kotlin/cz/slowdownradijo/app/`:
   tests run against the web's real responses (`src/test/resources/web`).
 - `home/HomeScreen.kt`, `NowPlayingCover.kt` (cover + side equalizer),
   `HeaderClouds.kt`, `PlayerControls.kt`, `SleepTimer.kt` (sheet + moon).
-- Not yet: the swipe through earlier songs on the song line, the output
-  picker, analytics events (phase 2 with PostHog).
+- Left for later then (done since): the swipe through earlier songs on
+  the song line, the output picker, analytics events.
 
 Phase 2 (10 Nov 2026):
 
@@ -108,8 +108,8 @@ Phase 2 (10 Nov 2026):
   Android SDK release was under two weeks old on 10 Nov 2026, and the
   direct API sends only what the iOS app sends (no device details, no
   person profiles). Events carry `platform: android`.
-- Not yet: the output picker, the system review prompt, swiping through
-  earlier songs, the widget (phase 3).
+- Left for phase 3 then (done since): the output picker, the system review
+  prompt, swiping through earlier songs, the widget.
 
 Phase 3 (10 Nov 2026):
 
@@ -130,6 +130,19 @@ Phase 3 (10 Nov 2026):
   xLarge), the app follows the phone's font size up to 135 % and the
   bottom bar up to 112 %; fixed heights became minimum heights.
   `ScreenSizesScreenshotTest` covers a 360 × 640 dp phone and 200 % text.
+
+After phase 3 (10 Nov 2026), while the Play account is set up:
+
+- Release build: R8 and resource shrinking, an app bundle (.aab) and an
+  APK, `versionCode` from the CI run number. Signed with the upload key
+  when CI has it (secrets `ANDROID_UPLOAD_KEYSTORE` as base64,
+  `ANDROID_UPLOAD_KEYSTORE_PASSWORD`, `ANDROID_UPLOAD_KEY_ALIAS`,
+  `ANDROID_UPLOAD_KEY_PASSWORD`), else with the debug key. The emulator
+  walkthrough runs the release APK, so R8 is tested too.
+- The system review prompt, the output picker and the swipe through
+  earlier songs (see the parity table). The output picker opens the
+  system's switcher; Cast to speakers that the phone does not offer there
+  would need the Google Cast SDK in the app (not done).
 
 ### Building
 
@@ -154,7 +167,7 @@ closed test that new personal accounts must run before production.
 | Live stream, background, lock screen | 1.0 | 1 (Media3; reconnect, audio focus, headphones) |
 | Song on air (ICY + server log, TrackTrust) | 1.0 | 1 |
 | Programme from the web (specials) | 1.1 | 1 (cached week) |
-| Home header: compact player, clouds, equalizer | 1.1 | 1 (song line without the swipe back through earlier songs) |
+| Home header: compact player, clouds, equalizer | 1.1 | 1; swipe back through earlier songs 3 (`RecentSongs`, a pager, back to now after 10 s) |
 | Sleep timer | 1.0 | 1 |
 | Output picker (AirPlay / Bluetooth / Cast) | 1.0 | 3 (the system output switcher: Bluetooth, wired, and Cast speakers where the phone offers them; red while elsewhere; `output_picker_opened`, `output_changed`. No Google Cast SDK of our own) |
 | Programme with photos, reminder bell | 1.1 | 2 |

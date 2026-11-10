@@ -6,7 +6,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeRight
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
 import com.github.takahirom.roborazzi.captureRoboImage
@@ -69,6 +72,20 @@ class HomeScreenshotTest {
         capture("home_playing_cs", AppLanguage.CS) {
             HomeScreen(HomeUi(onAir, PlaybackState.Playing, now.plus(Duration.ofSeconds(596)), now, cz.slowdownradijo.app.player.AudioOutputInfo("JBL Charge 3", "bluetooth", true)), HomeActions())
         }
+    }
+
+    /** The song line swiped back to the song before (`SongHistoryLine`). */
+    @Test fun earlierSong() {
+        val (onAir, now) = onAir("2026-11-09T12:30:00Z", NowPlayingTrack("Khruangbin", "Maria También"))
+        val earlier = listOf(cz.slowdownradijo.app.data.RecentSong("Men I Trust", "Show Me How", now.minusSeconds(6 * 60)))
+        compose.setContent {
+            CompositionLocalProvider(LocalAnimationsEnabled provides false) {
+                ProvideAppLanguage(AppLanguage.CS) { SlowDownTheme { HomeScreen(HomeUi(onAir, PlaybackState.Playing, null, now, earlierSongs = earlier), HomeActions()) } }
+            }
+        }
+        compose.onNodeWithText("Khruangbin – Maria También").performTouchInput { swipeRight() }
+        compose.waitForIdle()
+        compose.onRoot().captureRoboImage("src/test/screenshots/home_earlier_song_cs.png")
     }
 
     /** Monday 01:00: the rotation, no host, paused, in English. */

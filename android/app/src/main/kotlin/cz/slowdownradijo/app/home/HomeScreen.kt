@@ -1,6 +1,13 @@
 package cz.slowdownradijo.app.home
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.runtime.LaunchedEffect
+import cz.slowdownradijo.app.data.RecentSong
+import cz.slowdownradijo.app.l10n.AppLanguage
+import kotlinx.coroutines.delay
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -66,6 +73,8 @@ data class HomeUi(
     val sleepTimerFireAt: Instant?,
     val now: Instant,
     val output: AudioOutputInfo = AudioOutputInfo.phone,
+    /** The songs before the one playing now, newest first (`RecentSongs`). */
+    val earlierSongs: List<RecentSong> = emptyList(),
 )
 
 class HomeActions(
@@ -132,7 +141,7 @@ private fun NowPlayingHeader(ui: HomeUi, actions: HomeActions) {
             exit = fadeOut() + shrinkVertically(),
         ) {
             ui.onAir.verifiedTrack?.let { track ->
-                SongLine(track, Modifier.padding(top = 16.dp)) { actions.openSong(track) }
+                SongHistoryLine(track, ui.earlierSongs, ui.now, Modifier.padding(top = 16.dp), actions.openSong)
             }
         }
 
@@ -207,12 +216,70 @@ private fun ShowRow(ui: HomeUi) {
     }
 }
 
-/** "Artist – Title" and the Spotify mark; opens a Spotify search (`SongHistoryLine`, compact). */
+/**
+ * The song line under the show (`SongHistoryLine.swift`, compact): the
+ * song playing now and, swiped sideways, the ones before it, each opening
+ * its own Spotify search, with how long ago it played under it. After the
+ * last one a note says there are no earlier ones here. Swiping right goes
+ * back in time; left alone for 10 seconds it slides back to the song
+ * playing now. A pager, so sideways swipes are told apart from the page's
+ * vertical scroll and a swipe never counts as a tap.
+ */
 @Composable
-private fun SongLine(track: NowPlayingTrack, modifier: Modifier, onClick: () -> Unit) {
+private fun SongHistoryLine(
+    current: NowPlayingTrack,
+    earlier: List<RecentSong>,
+    now: Instant,
+    modifier: Modifier,
+    onOpen: (NowPlayingTrack) -> Unit,
+) {
+    val pages = if (earlier.isEmpty()) 1 else earlier.size + 2
+    val pager = rememberPagerState { pages }
+    // A new song playing now: back to it.
+    LaunchedEffect(current) { if (pager.currentPage != 0) pager.scrollToPage(0) }
+    LaunchedEffect(pager.settledPage) {
+        if (pager.settledPage == 0) return@LaunchedEffect
+        delay(10_000)
+        pager.animateScrollToPage(0, animationSpec = tween(500))
+    }
+    HorizontalPager(
+        state = pager,
+        // Page 0, the song playing now, on the right; the oldest on the left.
+        reverseLayout = true,
+        userScrollEnabled = earlier.isNotEmpty(),
+        verticalAlignment = Alignment.Top,
+        modifier = modifier.fillMaxWidth().animateContentSize(),
+    ) { page ->
+        when {
+            page == 0 -> SongLink(current) { onOpen(current) }
+            page <= earlier.size -> {
+                val song = earlier[page - 1]
+                val english = LocalAppLanguage.current == AppLanguage.EN
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    SongLink(song.track) { onOpen(song.track) }
+                    Text(
+                        L10nLogic.playedAgo(english, Duration.between(song.playedAt, now).toMinutes().toInt()),
+                        style = Theme.Typography.manrope(13f, FontWeight.SemiBold),
+                        color = Theme.mutedText,
+                    )
+                }
+            }
+            else -> Text(
+                stringResource(R.string.noEarlierSongs),
+                style = Theme.Typography.Copy.body.copy(lineHeight = 20.3.sp),
+                color = Theme.mutedText,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
+}
+
+/** "Artist – Title" and the Spotify mark; opens a Spotify search. */
+@Composable
+private fun SongLink(track: NowPlayingTrack, onClick: () -> Unit) {
     val hint = stringResource(R.string.spotifyFindAction)
     Row(
-        modifier
+        Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .semantics { contentDescription = "${track.artist} – ${track.title}. $hint" },

@@ -111,6 +111,10 @@ class SlowDownApp : Application() {
     val audioOutput by lazy { cz.slowdownradijo.app.player.AudioOutputWatcher(this) }
     val reviewPrompt by lazy { cz.slowdownradijo.app.review.ReviewPrompt(this) }
 
+    /** The songs before [current] in the show on air, for the swipe on the song line. */
+    suspend fun earlierSongs(current: NowPlayingTrack, showStart: Instant?): List<cz.slowdownradijo.app.data.RecentSong> =
+        cz.slowdownradijo.app.data.RecentSongs.load(remoteHistory, current, showStart, schedule.days.value.flatMap { it.shows })
+
     private var started = false
 
     /** The song and show polling, from when the UI first shows. */

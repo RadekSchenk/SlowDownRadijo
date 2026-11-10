@@ -299,8 +299,13 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
             delay(2_000)
         }
     }
+    val earlierSongs by produceState(emptyList<cz.slowdownradijo.app.data.RecentSong>(), onAir.verifiedTrack, onAir.showStart) {
+        value = emptyList()
+        val track = onAir.verifiedTrack ?: return@produceState
+        value = app.earlierSongs(track, onAir.showStart)
+    }
     HomeScreen(
-        HomeUi(onAir, playback, sleepFireAt, now, output),
+        HomeUi(onAir, playback, sleepFireAt, now, output, earlierSongs),
         HomeActions(
             togglePlay = { app.radio.togglePlayPause() },
             openSleepTimer = { showingSleepTimer = true },
