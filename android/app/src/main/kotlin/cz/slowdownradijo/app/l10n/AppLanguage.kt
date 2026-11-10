@@ -1,6 +1,9 @@
 package cz.slowdownradijo.app.l10n
 
 import android.content.Context
+import android.content.ContextWrapper
+import android.content.res.AssetManager
+import android.content.res.Resources
 import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -56,11 +59,22 @@ fun Context.inLanguage(language: AppLanguage): Context {
 
 val LocalAppLanguage = staticCompositionLocalOf { AppLanguage.CS }
 
+/**
+ * [base] itself (an Activity stays reachable through it, which permission
+ * dialogs, back handling and media need), only with its resources in
+ * [language].
+ */
+private class LanguageContext(base: Context, language: AppLanguage) : ContextWrapper(base) {
+    private val localized = base.inLanguage(language)
+    override fun getResources(): Resources = localized.resources
+    override fun getAssets(): AssetManager = localized.assets
+}
+
 /** Content whose `stringResource` reads [language], switched without a restart. */
 @Composable
 fun ProvideAppLanguage(language: AppLanguage, content: @Composable () -> Unit) {
     val base = LocalContext.current
-    val context = remember(base, language) { base.inLanguage(language) }
+    val context: Context = remember(base, language) { LanguageContext(base, language) }
     CompositionLocalProvider(
         LocalContext provides context,
         LocalConfiguration provides context.resources.configuration,

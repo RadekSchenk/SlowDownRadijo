@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -72,7 +73,8 @@ fun RootScreen(
                     Box(
                         Modifier
                             .fillMaxSize()
-                            .then(if (isSelected) Modifier else Modifier.size(0.dp))
+                            // A page kept for later is out of sight and out of TalkBack's reach.
+                            .then(if (isSelected) Modifier else Modifier.size(0.dp).clearAndSetSemantics {})
                     ) {
                         page(tab)
                     }
