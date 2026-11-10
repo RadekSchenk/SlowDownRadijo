@@ -96,6 +96,44 @@ Slow down with Slow Down Rádijo.
 No algorithm can do this.
 No music. No life.
 
+## What's New
+
+Per version, in App Store Connect → the version → "What's New in This
+Version" (cs and en). Version 1.0 had none.
+
+**1.1 — Czech**
+
+```
+• Program teď sedí s webem: speciální vysílání a změny v programu uvidíš hned, jak je rádio zveřejní.
+• Nová hlavička: kompaktní přehrávač s pořadem, moderátorem a skladbou, za kterým při poslechu pomalu plují barevné mraky.
+• Pořady v programu mají fotky a připomínku najdeš hned u času začátku.
+• Jednotnější písmo v celé aplikaci a víc místa pro logo na iPhonech s Dynamic Islandem.
+• Drobné opravy a vylepšení.
+```
+
+**1.1 — English**
+
+```
+• The schedule now matches the website: special broadcasts and programme changes show up as soon as the station publishes them.
+• A new header: a compact player with the show, host and song, with coloured clouds drifting slowly behind it while you listen.
+• Shows in the schedule have photos, and the reminder sits right next to the start time.
+• More consistent type across the app, and more room for the logo on iPhones with the Dynamic Island.
+• Small fixes and improvements.
+```
+
+## Releasing a new version
+
+1. Raise `MARKETING_VERSION` in `project.yml` (app and widget, the same
+   value) and commit.
+2. On the Mac, Xcode closed: `git pull`, then `tools/release/upload.sh`.
+   The build number is set from the time, nothing to edit.
+3. App Store Connect → the app → iOS App → **+** next to the versions →
+   the new version number. Fill in What's New (above), replace the
+   screenshots if the app looks different, pick the build under "Build"
+   once TestFlight has processed it.
+4. Add for Review → Submit. A version can only be submitted once the
+   previous one is out of review (approved, rejected or withdrawn).
+
 ## App Privacy (the privacy label)
 
 Matches `SlowDownRadijo/PrivacyInfo.xcprivacy` and the privacy policy.
