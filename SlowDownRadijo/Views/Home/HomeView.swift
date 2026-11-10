@@ -134,10 +134,10 @@ struct HomeView: View {
     /// show — so each stays attached to what follows.
     private var nowPlayingHeader: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Centred in the header, between its pills; taps pass through
-            // to them.
+            // Centred between the header's pills, hanging a little below
+            // them, clear of the Dynamic Island; taps pass through to them.
             AnimatedBrandLogo()
-                .frame(width: 90, height: 75)
+                .frame(width: Self.logoSize.width, height: Self.logoSize.height)
                 .allowsHitTesting(false)
                 .growsOnPull(pullDistance, by: 0.15, anchor: .bottom)
                 .frame(maxWidth: .infinity)
@@ -167,15 +167,18 @@ struct HomeView: View {
                 .padding(.top, 16)
         }
         .animation(Motion.cardResize, value: nowPlaying.verifiedTrack)
-        // Figma: the 75pt logo starts 1pt above the 74pt header frame
-        // ("Značka a navigace"), whose own bar is the 66pt `AppHeaderView`.
+        // Figma "Značka a navigace" (89pt): the 66pt `AppHeaderView` bar,
+        // and the logo 22pt below its top edge.
         .padding(.top, Self.logoTop - AppHeaderView.topInset - Self.headerHeight)
     }
 
     /// The header's height in Figma: 34pt pills and 16pt above and below.
     private static let headerHeight: CGFloat = 66
-    /// Where the logo starts, from the top of the screen.
-    private static let logoTop = AppHeaderView.topInset - 1
+    /// Where the logo starts, from the top of the screen: 22pt below the
+    /// 40pt status bar, so on an iPhone with a Dynamic Island (ending
+    /// about 48pt down) it has room to breathe instead of touching it.
+    private static let logoTop = AppHeaderView.topInset + 22
+    private static let logoSize = CGSize(width: 80, height: 67)
 
     /// Figma "Pořad": the cover with its equalizer, 14pt, then the show's
     /// title and host.
