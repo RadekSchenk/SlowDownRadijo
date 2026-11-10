@@ -14,6 +14,7 @@ import cz.slowdownradijo.app.l10n.LanguageStore
 import cz.slowdownradijo.app.l10n.inLanguage
 import cz.slowdownradijo.app.player.IcyMetadataPoller
 import cz.slowdownradijo.app.player.RadioEngine
+import cz.slowdownradijo.app.reminders.ShowReminders
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -33,6 +34,8 @@ class SlowDownApp : Application() {
     }
 
     val language by lazy { LanguageStore(this) }
+    val settings by lazy { AppSettings(this) }
+    val reminders by lazy { ShowReminders(this, schedule) }
 
     val schedule by lazy { ScheduleStore(ScheduleStore.bundled(this), File(cacheDir, "schedule-web.json")) }
     private val webSchedule by lazy { WebScheduleService(http) }
@@ -64,6 +67,9 @@ class SlowDownApp : Application() {
         nowPlaying.start(icy.track) { schedule.refresh(webSchedule::fetch) }
         // The lock screen's "Moderuje" follows the app's language.
         scope.launch { language.language.drop(1).collect { nowPlaying.publishNowPlaying() } }
+        // Reminders follow the week as the web has it.
+        reminders.reschedule()
+        scope.launch { schedule.days.drop(1).collect { reminders.reschedule() } }
     }
 
     /** The show's bundled photo, else its photo on the web. */
