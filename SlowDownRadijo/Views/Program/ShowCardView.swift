@@ -24,20 +24,7 @@ struct ShowCardView: View {
 
             // 2pt matches the home screen's track artwork (`TrackDetailsRow`),
             // not the previous 12pt — unified 2026-08-23.
-            Group {
-                if let name = show.artworkName {
-                    Image(name)
-                        .resizable()
-                        .scaledToFill()
-                        .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
-                } else if show.imageURL != nil {
-                    RemoteArtworkView(url: show.imageURL, cornerRadius: 2)
-                } else {
-                    // A special from the web without a photo.
-                    ShowArtworkPlaceholder()
-                }
-            }
-            .frame(width: 56, height: 56)
+            ShowArtworkView(show: show, size: 56, cornerRadius: 2)
 
             VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 HStack(spacing: Theme.Spacing.sm) {
