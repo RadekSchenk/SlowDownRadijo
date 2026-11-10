@@ -39,7 +39,7 @@ struct ProgramView: View {
                 .padding(.top, AppHeaderView.topInset)
 
             Text(L10n.tabProgram)
-                .font(Theme.Typography.Manrope.extraBold(size: 28, relativeTo: .title))
+                .font(Theme.Typography.Heading.page)
                 .foregroundStyle(Theme.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 16)

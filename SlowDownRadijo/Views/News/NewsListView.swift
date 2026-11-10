@@ -102,7 +102,7 @@ private struct NewsRowView: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(post.title)
-                    .font(Theme.Typography.Manrope.extraBold(size: 18, relativeTo: .headline))
+                    .font(Theme.Typography.Heading.item)
                     .foregroundStyle(Theme.textPrimary)
                     .lineLimit(3)
                 Text(L10n.formattedDate(post.date))

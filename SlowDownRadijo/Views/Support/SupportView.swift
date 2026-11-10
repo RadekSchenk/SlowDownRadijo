@@ -41,7 +41,9 @@ struct SupportView: View {
 
     private var intro: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-            sectionHeading(L10n.tabSupport)
+            Text(L10n.tabSupport)
+                .font(Theme.Typography.Heading.page)
+                .foregroundStyle(Theme.textPrimary)
             Text(L10n.supportIntro)
                 .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .subheadline))
                 .foregroundStyle(Theme.mutedText)
@@ -90,7 +92,7 @@ struct SupportView: View {
 
     private func sectionHeading(_ title: String) -> some View {
         Text(title)
-            .font(Theme.Typography.Manrope.extraBold(size: 24, relativeTo: .title2))
+            .font(Theme.Typography.Heading.section)
             .foregroundStyle(Theme.textPrimary)
     }
 }

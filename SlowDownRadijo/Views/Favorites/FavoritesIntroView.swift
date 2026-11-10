@@ -17,7 +17,7 @@ struct FavoritesIntroView: View {
 
             VStack(spacing: Theme.Spacing.sm) {
                 Text(L10n.favoritesIntroTitle)
-                    .font(Theme.Typography.Manrope.extraBold(size: 20, relativeTo: .title3))
+                    .font(Theme.Typography.Heading.hero)
                     .foregroundStyle(Theme.textPrimary)
                     .multilineTextAlignment(.center)
                 Text(L10n.favoritesIntroBody)

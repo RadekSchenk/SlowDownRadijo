@@ -27,7 +27,7 @@ struct NewsDetailView: View {
                         .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .subheadline))
                         .foregroundStyle(Theme.mutedText)
                     Text(post.title)
-                        .font(Theme.Typography.Manrope.extraBold(size: 22, relativeTo: .title2))
+                        .font(Theme.Typography.Heading.hero)
                         .foregroundStyle(Theme.textPrimary)
                 }
 

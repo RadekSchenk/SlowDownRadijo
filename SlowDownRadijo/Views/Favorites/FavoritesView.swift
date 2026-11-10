@@ -25,7 +25,7 @@ struct FavoritesView: View {
 
                 VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
                     Text(L10n.favoritesTitle)
-                        .font(Theme.Typography.Manrope.extraBold(size: 28, relativeTo: .title))
+                        .font(Theme.Typography.Heading.page)
                         .foregroundStyle(Theme.textPrimary)
 
                     if favorites.favorites.isEmpty {

@@ -19,7 +19,7 @@ struct StatsHomeBlock: View {
                 // player): section headings 19, item titles 17, text 14,
                 // labels 13, figures 20–22.
                 Text(L10n.statsHomeTitle)
-                    .font(Theme.Typography.Manrope.extraBold(size: 19, relativeTo: .headline))
+                    .font(Theme.Typography.Heading.section)
                     .foregroundStyle(Theme.textPrimary)
                     .manropeLineHeight(26, fontSize: 19)
 

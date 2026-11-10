@@ -42,7 +42,7 @@ struct ShowCardView: View {
             VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 HStack(spacing: Theme.Spacing.sm) {
                     Text(show.localizedName)
-                        .font(Theme.Typography.Manrope.extraBold(size: 16, relativeTo: .subheadline))
+                        .font(Theme.Typography.Heading.item)
                         .foregroundStyle(Theme.textPrimary)
                         .lineLimit(2)
                         .frame(maxWidth: .infinity, alignment: .leading)

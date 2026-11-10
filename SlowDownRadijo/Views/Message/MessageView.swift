@@ -182,12 +182,12 @@ struct MessageView: View {
 
     // MARK: - Building blocks
 
-    /// Section-heading scale from the home screen ("Pořady"), with the same
-    /// muted subtitle as "Pořad končí za…".
+    /// The screen's title (`Heading.page`), with the same muted subtitle as
+    /// "Pořad končí za…".
     private func header(title: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text(title)
-                .font(Theme.Typography.Manrope.extraBold(size: 24, relativeTo: .title2))
+                .font(Theme.Typography.Heading.page)
                 .foregroundStyle(Theme.textPrimary)
             Text(subtitle)
                 .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .subheadline))
@@ -204,7 +204,7 @@ struct MessageView: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(Theme.Typography.Manrope.extraBold(size: 22, relativeTo: .title2))
+                    .font(Theme.Typography.Heading.hero)
                     .foregroundStyle(Theme.textPrimary)
                     .monospacedDigit()
                 if let subtitle {

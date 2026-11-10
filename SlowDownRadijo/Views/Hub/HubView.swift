@@ -83,7 +83,7 @@ struct HubView: View {
     private var header: some View {
         HStack {
             Text(L10n.hubTitle)
-                .font(Theme.Typography.Manrope.extraBold(size: 24, relativeTo: .title2))
+                .font(Theme.Typography.Heading.page)
                 .foregroundStyle(Theme.textPrimary)
             Spacer(minLength: 0)
             HeaderIconButton(systemName: "xmark") { dismiss() }
@@ -141,7 +141,7 @@ struct HubView: View {
     private var socialSection: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             Text(L10n.hubSocialTitle)
-                .font(Theme.Typography.Manrope.extraBold(size: 24, relativeTo: .title2))
+                .font(Theme.Typography.Heading.section)
                 .foregroundStyle(Theme.textPrimary)
 
             SocialLinksRow()

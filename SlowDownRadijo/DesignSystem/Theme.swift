@@ -188,6 +188,25 @@ enum Theme {
                 UIFont(name: "ManropeExtraLight-\(weight)", size: size) ?? .systemFont(ofSize: size, weight: .semibold)
             }
         }
+
+        /// The app's four heading levels, all Manrope ExtraBold. Every
+        /// heading uses one of these, so a screen title is the same size on
+        /// every tab, a section heading the same in every list:
+        ///
+        /// * `page` 24 — a screen's own title ("Statistiky", "Pošli vzkaz
+        ///   do studia", "Menu", settings pages).
+        /// * `hero` 21 — the one big title of a sheet or a card: the show on
+        ///   air, the sleep timer, a news article, the voice-message player.
+        /// * `section` 19 — a section within a screen ("Pořady", "Tvoje
+        ///   statistiky poslechu").
+        /// * `item` 17 — an entry in a list: a show in the programme, a
+        ///   news post, a menu row.
+        enum Heading {
+            static let page = Manrope.extraBold(size: 24, relativeTo: .title2)
+            static let hero = Manrope.extraBold(size: 21, relativeTo: .title3)
+            static let section = Manrope.extraBold(size: 19, relativeTo: .headline)
+            static let item = Manrope.extraBold(size: 17, relativeTo: .headline)
+        }
     }
 }
 

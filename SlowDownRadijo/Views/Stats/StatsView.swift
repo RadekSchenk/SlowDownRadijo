@@ -49,9 +49,9 @@ struct StatsView: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
             VStack(alignment: .leading, spacing: 10) {
                 Text(L10n.statsTitle)
-                    .font(Theme.Typography.Manrope.extraBold(size: 36, relativeTo: .largeTitle))
+                    .font(Theme.Typography.Heading.page)
                     .foregroundStyle(Theme.textPrimary)
-                    .manropeLineHeight(44, fontSize: 36)
+                    .manropeLineHeight(30, fontSize: 24)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 StatsBodyText(L10n.statsSubtitle)
             }

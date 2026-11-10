@@ -89,7 +89,7 @@ struct HomeProgramSection: View {
             VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
                 // The home page's type scale: see `StatsHomeBlock`.
                 Text(L10n.homeProgramHeading)
-                    .font(Theme.Typography.Manrope.extraBold(size: 19, relativeTo: .headline))
+                    .font(Theme.Typography.Heading.section)
                     .foregroundStyle(Theme.textPrimary)
 
                 dayPicker
@@ -222,7 +222,7 @@ struct HomeProgramSection: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(show.displayTitle)
-                    .font(Theme.Typography.Manrope.extraBold(size: 17, relativeTo: .headline))
+                    .font(Theme.Typography.Heading.item)
                     .foregroundStyle(Theme.textPrimary)
                     .manropeLineHeight(22, fontSize: 17)
 

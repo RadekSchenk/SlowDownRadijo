@@ -22,7 +22,7 @@ struct HomePromptCard: View {
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text(title)
-                        .font(Theme.Typography.Manrope.extraBold(size: 16, relativeTo: .headline))
+                        .font(Theme.Typography.Heading.item)
                         .foregroundStyle(Theme.textPrimary)
                     Text(message)
                         .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))

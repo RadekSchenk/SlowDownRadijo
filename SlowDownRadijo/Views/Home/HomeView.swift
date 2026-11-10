@@ -195,7 +195,7 @@ struct HomeView: View {
                 // has its own line below. Everywhere else keeps the full
                 // name.
                 Text(nowPlaying.currentShow?.displayTitle ?? nowPlaying.showName)
-                    .font(Theme.Typography.Manrope.extraBold(size: 21, relativeTo: .title2))
+                    .font(Theme.Typography.Heading.hero)
                     .foregroundStyle(Theme.textPrimary)
                     .manropeLineHeight(25.2, fontSize: 21)
                     .lineLimit(3)
@@ -291,7 +291,7 @@ struct HomeView: View {
     private var nowPlayingSection: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             Text(L10n.nowPlayingHeading)
-                .font(Theme.Typography.Manrope.extraBold(size: 24, relativeTo: .title2))
+                .font(Theme.Typography.Heading.section)
                 .foregroundStyle(Theme.textPrimary)
 
             nowPlayingRow
@@ -365,7 +365,7 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.md) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(L10n.coHralo)
-                    .font(Theme.Typography.Manrope.extraBold(size: 24, relativeTo: .title2))
+                    .font(Theme.Typography.Heading.section)
                     .foregroundStyle(Theme.textPrimary)
                 Text(L10n.last24h)
                     .font(Theme.Typography.Manrope.semibold(size: 15, relativeTo: .footnote))

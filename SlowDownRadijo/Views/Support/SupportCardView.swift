@@ -19,7 +19,7 @@ struct SupportCardView: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(option.name)
-                    .font(Theme.Typography.Manrope.extraBold(size: 21, relativeTo: .title3))
+                    .font(Theme.Typography.Heading.item)
                     .foregroundStyle(Theme.textPrimary)
                 Text(option.price)
                     .font(Theme.Typography.Manrope.regular(size: 14, relativeTo: .subheadline))
