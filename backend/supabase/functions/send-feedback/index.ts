@@ -9,8 +9,8 @@ import { allowRelay } from "../_shared/rate-limit.ts";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const RECIPIENT_EMAIL = "jsem@radekschenk.cz";
 const MAX_MESSAGE_LENGTH = 4000;
-// The app sends short values ("iPhone15,3", "iOS 18.1"); anything longer or
-// not a string is dropped rather than relayed.
+// The apps send short values ("iPhone15,3", "iOS 18.1", "Android 17");
+// anything longer or not a string is dropped rather than relayed.
 const MAX_DEVICE_FIELD_LENGTH = 64;
 
 interface DeviceInfo {
@@ -52,7 +52,8 @@ function deviceInfoLines(raw: DeviceInfo | undefined): string {
   };
   const rows: [string, string | undefined][] = [
     ["Verze appky", device.appVersion && device.buildNumber ? `${device.appVersion} (${device.buildNumber})` : device.appVersion],
-    ["iOS", device.osVersion],
+    // "iOS 18.1" or "Android 17": the value names the system itself.
+    ["Systém", device.osVersion],
     ["Model", device.deviceModel],
     ["Jazyk appky", device.appLanguage],
     ["Vzhled", device.appearance],
