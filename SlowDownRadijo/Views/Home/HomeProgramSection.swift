@@ -206,7 +206,9 @@ struct HomeProgramSection: View {
     }
 
     /// A show in the list (Figma "Položka programu"): the start time with
-    /// the reminder bell at its end, the title and the host, and 14pt to
+    /// the reminder bell right after it (Figma component "Zvonek
+    /// připomínky" — the reminder is for that time), the title and the
+    /// host, and 14pt to
     /// their right the show's square photo, flush with the row's right edge
     /// — the home cover's look at list size (80pt, 8pt corners, the cover's
     /// 96 / 10 in proportion). The photo runs from the top of the time to
@@ -217,16 +219,16 @@ struct HomeProgramSection: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top, spacing: 14) {
                 VStack(alignment: .leading, spacing: 8) {
-                    HStack(alignment: .center) {
+                    HStack(alignment: .center, spacing: 0) {
                         Text(show.start)
                             .font(Theme.Typography.Manrope.light(size: 22, relativeTo: .title3))
                             .foregroundStyle(Theme.textPrimary)
                             .manropeLineHeight(28, fontSize: 22)
-                        Spacer(minLength: Theme.Spacing.sm)
-                        ReminderBellButton(show: show)
-                            // Optically flush with the column's right edge,
-                            // and no taller than the time it sits beside.
-                            .padding(.trailing, -10)
+                        // The glyph 10pt after the time (its 44pt tap area
+                        // reaches back over the gap), no taller than the
+                        // time it sits beside.
+                        ReminderBellButton(show: show, glyphSize: 17)
+                            .padding(.leading, -3)
                             .frame(height: 28)
                     }
 
