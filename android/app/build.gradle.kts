@@ -123,6 +123,7 @@ dependencies {
     implementation(libs.coil.network.okhttp)
     implementation(libs.glance.appwidget)
     implementation(libs.work.runtime)
+    implementation(libs.play.review)
 
     testImplementation(libs.junit)
     testImplementation(libs.androidx.test.junit)

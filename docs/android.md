@@ -166,4 +166,4 @@ closed test that new personal accounts must run before production.
 | Language switch (cs / en) | 1.0 | 2 |
 | Heading scale, typography | 1.1 | 0 (theme); text size capped as on iOS |
 | Home screen widget | 1.0 | 3 (Glance; system font, widgets cannot use Manrope) |
-| Review prompt (system) | 1.0 | — |
+| Review prompt (system) | 1.0 | 3 (Play In-App Review; the iOS rules: a week, 3 days of 10+ min in 60, 120 days apart, at most 3) |

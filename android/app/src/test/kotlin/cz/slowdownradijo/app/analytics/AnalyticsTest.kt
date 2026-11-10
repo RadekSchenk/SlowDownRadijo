@@ -82,4 +82,20 @@ class AnalyticsTest {
         assertEquals(35, AnalyticsEvent.rounded(37, 5))
         assertEquals(0, AnalyticsEvent.rounded(-3))
     }
+
+    @Test fun `listening is credited for the review prompt on stops and each minute`() = runTest {
+        fresh()
+        var clock = 0L
+        val credited = mutableListOf<Long>()
+        val engine = cz.slowdownradijo.app.player.RadioEngine(context, backgroundScope)
+        val playback = PlaybackAnalytics(engine, Analytics(context, Recorder(), backgroundScope, { "cs" }),
+            context.getSharedPreferences("analytics", Context.MODE_PRIVATE), { null }, { "speaker" },
+            now = { clock }, onListened = { credited += it })
+        playback.handle(PlaybackState.Connecting)
+        clock = 5_000; playback.handle(PlaybackState.Playing)
+        clock = 65_000; playback.save()
+        clock = 95_000; playback.handle(PlaybackState.Paused)
+        clock = 200_000; playback.save()
+        assertEquals(listOf(60L, 30L), credited)
+    }
 }

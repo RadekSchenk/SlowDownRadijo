@@ -104,8 +104,11 @@ class SlowDownApp : Application() {
     val analytics by lazy { Analytics(this, PostHogSink(http), scope, language = { language.language.value.code }) }
     private val playbackAnalytics by lazy {
         PlaybackAnalytics(radio, analytics, getSharedPreferences("analytics", MODE_PRIVATE),
-            currentShowId = { schedule.currentShow()?.id }, output = { AudioOutput.kind(this) })
+            currentShowId = { schedule.currentShow()?.id }, output = { AudioOutput.kind(this) },
+            onListened = { reviewPrompt.addListening(it) })
     }
+
+    val reviewPrompt by lazy { cz.slowdownradijo.app.review.ReviewPrompt(this) }
 
     private var started = false
 

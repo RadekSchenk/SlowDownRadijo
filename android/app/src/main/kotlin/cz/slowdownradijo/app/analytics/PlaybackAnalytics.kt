@@ -21,6 +21,8 @@ class PlaybackAnalytics(
     private val currentShowId: () -> String?,
     private val output: () -> String,
     private val now: () -> Long = System::currentTimeMillis,
+    /** Seconds heard, for `ReviewPrompt` (local only, nothing is sent). */
+    private val onListened: (seconds: Long) -> Unit = {},
 ) {
     @Serializable
     private data class OpenSession(val seconds: Double, val showId: String?, val reconnects: Int, val output: String)
@@ -32,6 +34,16 @@ class PlaybackAnalytics(
     private var reconnects = 0
     private var dropped = false
     private var failureReported = false
+    private var creditedUntil: Long? = null
+
+    /** Credits the listening since the last credit: on each stop and every minute while playing. */
+    private fun credit(at: Long) {
+        val since = creditedUntil ?: return
+        val seconds = (at - since) / 1000
+        if (seconds > 0) onListened(seconds)
+        // The part of a second left over is credited with the next minute.
+        creditedUntil = if (playingSince != null) since + seconds * 1000 else null
+    }
 
     fun start(scope: CoroutineScope) {
         prefs.getString(OPEN, null)?.let { saved ->
@@ -64,6 +76,7 @@ class PlaybackAnalytics(
                     reconnects++
                 }
                 playingSince = at
+                creditedUntil = at
                 failureReported = false
                 save(at)
             }
@@ -89,11 +102,13 @@ class PlaybackAnalytics(
     private fun pauseClock(at: Long) {
         playingSince?.let { heardSeconds += (at - it) / 1000.0 }
         playingSince = null
+        credit(at)
         save(at)
     }
 
     /** Called now and then while playing, so a killed app still reports roughly how long it played. */
     fun save(at: Long = now()) {
+        if (playingSince != null) credit(at)
         if (!inSession) return
         val seconds = heardSeconds + (playingSince?.let { (at - it) / 1000.0 } ?: 0.0)
         prefs.edit().putString(OPEN, Json.encodeToString(OpenSession.serializer(), OpenSession(seconds, currentShowId(), reconnects, output()))).apply()

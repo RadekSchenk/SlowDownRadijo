@@ -308,7 +308,17 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
         val stats = statsUi()
         if (stats.enabled) StatsHomeBlock(stats, onOpenStats, Modifier.padding(top = Theme.Spacing.xl))
         val consent by app.analytics.consent.collectAsStateWithLifecycle()
-        androidx.compose.animation.AnimatedVisibility(consent == cz.slowdownradijo.app.analytics.Analytics.Consent.UNKNOWN && app.analytics.shouldAskForConsent) {
+        val askingConsent = consent == cz.slowdownradijo.app.analytics.Analytics.Consent.UNKNOWN && app.analytics.shouldAskForConsent
+        // A returning listener: Google Play's own rating dialog, once the
+        // home screen has been up a moment and not over the analytics question.
+        val shouldAskReview by app.reviewPrompt.shouldAsk.collectAsStateWithLifecycle()
+        val activity = androidx.activity.compose.LocalActivity.current
+        androidx.compose.runtime.LaunchedEffect(shouldAskReview && !askingConsent) {
+            if (!shouldAskReview || askingConsent || activity == null) return@LaunchedEffect
+            delay(4_000)
+            app.reviewPrompt.ask(activity)
+        }
+        androidx.compose.animation.AnimatedVisibility(askingConsent) {
             AnalyticsConsentCard(app.analytics::setConsent, Modifier.padding(top = Theme.Spacing.xl))
         }
         HomeProgramSection(
