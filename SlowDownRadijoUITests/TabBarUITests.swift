@@ -28,13 +28,14 @@ final class TabBarUITests: XCTestCase {
         }
     }
 
-    /// The tabs' labels end 29pt above the screen's bottom edge (19pt
-    /// home-indicator strip + 10pt padding, Figma `bottom-nav`).
+    /// The tabs' labels end 25pt above the screen's bottom edge (19pt
+    /// home-indicator strip + 6pt padding, Figma `bottom-nav` as scaled
+    /// down in 1.1).
     func testTabBarSitsAtTheDesignedHeight() {
         let screenHeight = app.windows.firstMatch.frame.height
         for tag in tabs {
             let bottom = app.buttons["tab.\(tag)"].frame.maxY
-            XCTAssertEqual(bottom, screenHeight - 29, accuracy: 1, "tab \(tag) ends at \(bottom), screen \(screenHeight)")
+            XCTAssertEqual(bottom, screenHeight - 25, accuracy: 1, "tab \(tag) ends at \(bottom), screen \(screenHeight)")
         }
     }
 
