@@ -63,7 +63,14 @@ jobs:
           import glob
           from PIL import Image
           shots = sorted(glob.glob("walkthrough/*.png"))
-          thumbs = [Image.open(p).convert("RGB") for p in shots]
+          thumbs = []
+          for p in shots:
+              try:
+                  thumbs.append(Image.open(p).convert("RGB"))
+              except Exception:
+                  print("unreadable:", p)
+          if not thumbs:
+              raise SystemExit("no screenshots")
           thumbs = [t.resize((150, t.height * 150 // t.width)) for t in thumbs]
           cols = 7
           rows = (len(thumbs) + cols - 1) // cols
