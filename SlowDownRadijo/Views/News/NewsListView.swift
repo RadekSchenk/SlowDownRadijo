@@ -83,7 +83,7 @@ struct NewsListView: View {
 
     private func statusText(_ text: String) -> some View {
         Text(text)
-            .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .subheadline))
+            .font(Theme.Typography.Copy.body)
             .foregroundStyle(Theme.mutedText)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, 20)

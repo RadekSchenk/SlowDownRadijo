@@ -45,7 +45,7 @@ struct SupportView: View {
                 .font(Theme.Typography.Heading.page)
                 .foregroundStyle(Theme.textPrimary)
             Text(L10n.supportIntro)
-                .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .subheadline))
+                .font(Theme.Typography.Copy.body)
                 .foregroundStyle(Theme.mutedText)
         }
     }
@@ -65,7 +65,7 @@ struct SupportView: View {
                             .background(Theme.liveRed.opacity(0.15), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
 
                         Text(benefit)
-                            .font(Theme.Typography.Manrope.bold(size: 16, relativeTo: .body))
+                            .font(Theme.Typography.Copy.link)
                             .foregroundStyle(Theme.textPrimary)
                     }
                 }

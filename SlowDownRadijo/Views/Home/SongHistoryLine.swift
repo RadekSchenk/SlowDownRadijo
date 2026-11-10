@@ -134,10 +134,10 @@ struct SongHistoryLine: View {
             }
         } else {
             Text(L10n.noEarlierSongs)
-                .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .callout))
+                .font(isCompact ? Theme.Typography.Copy.body : Theme.Typography.Manrope.semibold(size: 16, relativeTo: .callout))
                 .foregroundStyle(Theme.mutedText)
                 .multilineTextAlignment(textAlignment)
-                .manropeLineHeight(22.4, fontSize: 16)
+                .manropeLineHeight(isCompact ? 20.3 : 22.4, fontSize: isCompact ? 14 : 16)
         }
     }
 

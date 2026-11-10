@@ -207,6 +207,25 @@ enum Theme {
             static let section = Manrope.extraBold(size: 19, relativeTo: .headline)
             static let item = Manrope.extraBold(size: 17, relativeTo: .headline)
         }
+
+        /// The app's text styles under the headings, the same on every
+        /// screen:
+        ///
+        /// * `body` 14 SemiBold — intros, subtitles under a screen title,
+        ///   descriptions (usually in `Theme.mutedText`).
+        /// * `reading` 16 Regular — only for long reading (a news article)
+        ///   and typing (the feedback message).
+        /// * `label` 13 SemiBold — dates, small captions, hosts.
+        /// * `link` 14 Bold — text links ("Nastavit časovač vypnutí",
+        ///   "Zrušit nahrávání").
+        /// * `button` 15 ExtraBold — full-width and sheet buttons.
+        enum Copy {
+            static let body = Manrope.semibold(size: 14, relativeTo: .subheadline)
+            static let reading = Manrope.regular(size: 16, relativeTo: .body)
+            static let label = Manrope.semibold(size: 13, relativeTo: .footnote)
+            static let link = Manrope.bold(size: 14, relativeTo: .subheadline)
+            static let button = Manrope.extraBold(size: 15, relativeTo: .headline)
+        }
     }
 }
 

@@ -16,7 +16,7 @@ struct FeedbackView: View {
                 BackHeaderView(title: L10n.settingsFeedbackTitle, onBack: { dismiss() })
 
                 Text(L10n.settingsFeedbackIntro)
-                    .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .subheadline))
+                    .font(Theme.Typography.Copy.body)
                     .foregroundStyle(Theme.mutedText)
 
                 switch feedbackViewModel.state {
@@ -48,14 +48,14 @@ struct FeedbackView: View {
             ZStack(alignment: .topLeading) {
                 if feedbackViewModel.message.isEmpty {
                     Text(L10n.settingsFeedbackPlaceholder)
-                        .font(Theme.Typography.Manrope.regular(size: 16, relativeTo: .body))
+                        .font(Theme.Typography.Copy.reading)
                         .foregroundStyle(Theme.subtleText)
                         .padding(.horizontal, 13)
                         .padding(.vertical, 16)
                         .allowsHitTesting(false)
                 }
                 TextEditor(text: $feedbackViewModel.message)
-                    .font(Theme.Typography.Manrope.regular(size: 16, relativeTo: .body))
+                    .font(Theme.Typography.Copy.reading)
                     .foregroundStyle(Theme.textPrimary)
                     .tint(Theme.liveRed)
                     .scrollContentBackground(.hidden)
@@ -93,7 +93,7 @@ struct FeedbackView: View {
             .background(Self.successGreen.opacity(0.15), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
 
             Text(L10n.settingsFeedbackSent)
-                .font(Theme.Typography.Manrope.bold(size: 16, relativeTo: .body))
+                .font(Theme.Typography.Copy.link)
                 .foregroundStyle(Theme.textPrimary)
 
             SecondaryActionButton(title: L10n.settingsFeedbackSendAnother) {

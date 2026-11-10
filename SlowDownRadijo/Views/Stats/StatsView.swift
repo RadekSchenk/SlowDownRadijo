@@ -145,7 +145,7 @@ struct StatsView: View {
                     .manropeLineHeight(58, fontSize: 48)
                     PopNumberText(
                         text: " \(L10n.statsRankOf) \(StatsFormat.number(total))",
-                        font: Theme.Typography.Manrope.semibold(size: 16, relativeTo: .body),
+                        font: Theme.Typography.Copy.body,
                         color: Theme.mutedText
                     )
                 }
