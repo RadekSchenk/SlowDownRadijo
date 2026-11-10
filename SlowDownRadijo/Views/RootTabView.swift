@@ -262,16 +262,16 @@ struct RootTabView: View {
                         .frame(maxWidth: .infinity)
                 }
             }
-            // Figma `bottom-nav` (node 12294:257), measured from the render:
-            // the bar has 16pt side padding and the tab row another 24pt, so
-            // the four tabs sit 40pt from each edge with `space-between`
-            // across the rest (≈44pt gaps). The three equal columns take a
-            // 24pt inset instead, which puts the outer tabs' centres about
-            // 80pt in. Tab row: 14pt padding above (below the 1pt hairline)
-            // and 10pt below the icons and labels.
+            // Figma `bottom-nav`: the bar has 16pt side padding and the tab
+            // row another 24pt, so the four tabs sit 40pt from each edge
+            // with `space-between` across the rest. The three equal columns
+            // take a 24pt inset instead, which puts the outer tabs' centres
+            // about 80pt in. Tab row: 10pt above (below the 1pt hairline)
+            // and 6pt below the icons and labels — scaled down in 1.1 to sit
+            // with the page's type scale rather than outweigh it.
             .padding(.horizontal, FeatureFlags.supportTab ? 40 : 24)
-            .padding(.top, 14)
-            .padding(.bottom, 10)
+            .padding(.top, 10)
+            .padding(.bottom, 6)
         }
         // The bar runs to the screen's bottom edge (`body` ignores the bottom
         // safe area); below the tabs it keeps the design's 19pt home-indicator
@@ -311,15 +311,18 @@ struct RootTabView: View {
                 selectedTab = tag
             }
         } label: {
-            VStack(spacing: 6) {
+            // 22pt icons, 11pt Bold labels 4pt below: a step under the
+            // page's 13pt labels, so the bar frames the page instead of
+            // competing with it.
+            VStack(spacing: 4) {
                 Image(image)
                     .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 24, height: 24)
+                    .frame(width: 22, height: 22)
                 Text(title)
-                    .font(Theme.Typography.Manrope.extraBold(size: 12))
-                    .frame(height: 16)
+                    .font(Theme.Typography.Manrope.bold(size: 11))
+                    .frame(height: 15)
             }
             .foregroundStyle(isSelected ? Theme.liveRed : Theme.tabBarUnselected)
             // The whole tab is tappable, not just the icon and label glyphs.
