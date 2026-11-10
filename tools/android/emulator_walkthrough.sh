@@ -13,10 +13,15 @@ OUT=$2
 PKG=${3:-cz.slowdownradijo.app.debug}
 mkdir -p "$OUT"
 
+# Every adb call gets a deadline, so an emulator that goes away can't hang
+# the walkthrough; the two long-running streams below call the real adb.
+ADB=$(command -v adb)
+adb() { timeout 60 "$ADB" "$@"; }
+
 adb install -r -g "$APK" >/dev/null || exit 1
 # The whole log, streamed to the host, so it survives the emulator going away.
 adb logcat -c || true
-adb logcat -v time > "$OUT/logcat.txt" 2>&1 &
+"$ADB" logcat -v time > "$OUT/logcat.txt" 2>&1 &
 LOGCAT=$!
 # Czech, as most listeners.
 adb shell "settings put system system_locales cs-CZ" || true
@@ -50,14 +55,14 @@ tap() {
 }
 
 shot() {
-  timeout 30 adb wait-for-device || echo "device gone before: $1"
+  timeout 30 "$ADB" wait-for-device || echo "device gone before: $1"
   adb exec-out screencap -p > "$OUT/$1.png" || echo "screenshot failed: $1"
 }
 
 swipe_up() { adb shell input swipe 540 1700 540 700 400; }
 swipe_down() { adb shell input swipe 540 700 540 1700 400; }
 
-adb shell screenrecord --bit-rate 6000000 --time-limit 170 /sdcard/walkthrough.mp4 &
+"$ADB" shell screenrecord --bit-rate 6000000 --time-limit 170 /sdcard/walkthrough.mp4 &
 RECORD=$!
 sleep 2
 
@@ -87,8 +92,9 @@ shot 13_home_again
 
 sleep 3
 kill -INT $RECORD 2>/dev/null || true
-wait $RECORD 2>/dev/null || true
-sleep 3
+sleep 5
+# A recording whose device went away never ends by itself.
+kill -9 $RECORD 2>/dev/null || true
 adb pull /sdcard/walkthrough.mp4 "$OUT/walkthrough.mp4" >/dev/null
 kill $LOGCAT 2>/dev/null || true
 # Crashes, ANRs, the app killed for memory, and the player's errors.
