@@ -58,6 +58,17 @@ import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import cz.slowdownradijo.app.home.AppHeader
+import cz.slowdownradijo.app.home.AnalyticsConsentCard
+import cz.slowdownradijo.app.analytics.AnalyticsEvent
+import cz.slowdownradijo.app.analytics.AnalyticsScreen
+import cz.slowdownradijo.app.news.NewsDetailScreen
+import cz.slowdownradijo.app.news.NewsListScreen
+import cz.slowdownradijo.app.feedback.DeviceInfo
+import cz.slowdownradijo.app.feedback.FeedbackScreen
+import cz.slowdownradijo.app.message.MessageActions
+import cz.slowdownradijo.app.message.MessageAlert
+import cz.slowdownradijo.app.message.MessageContent
+import cz.slowdownradijo.app.message.MessageUi
 import cz.slowdownradijo.app.stats.StatsContent
 import cz.slowdownradijo.app.stats.StatsHomeBlock
 import cz.slowdownradijo.app.stats.StatsUi
@@ -93,6 +104,10 @@ class MainActivity : ComponentActivity() {
                         RootScreen(
                             selected = tab,
                             onSelect = {
+                                if (it != tab) {
+                                    app.analytics.screen(when (it) { Tab.RADIO -> AnalyticsScreen.HOME; Tab.STATS -> AnalyticsScreen.STATS; Tab.MESSAGE -> AnalyticsScreen.MESSAGE })
+                                    if (it == Tab.STATS) app.analytics.track(AnalyticsEvent.StatsOpened(app.stats.communityUnlocked))
+                                }
                                 tab = it
                                 if (it == Tab.STATS) app.scope.launch { app.stats.refreshAll() }
                             },
@@ -100,9 +115,9 @@ class MainActivity : ComponentActivity() {
                             menu = { Menu(onClose = { menuOpen = false }) },
                         ) { page ->
                             when (page) {
-                                Tab.RADIO -> RadioPage(onOpenMenu = { menuOpen = true }, onOpenStats = { tab = Tab.STATS })
-                                Tab.STATS -> StatsPage(onOpenMenu = { menuOpen = true })
-                                Tab.MESSAGE -> Placeholder("Vzkaz")
+                                Tab.RADIO -> RadioPage(onOpenMenu = { menuOpen = true; app.analytics.screen(AnalyticsScreen.MENU) }, onOpenStats = { tab = Tab.STATS })
+                                Tab.STATS -> StatsPage(onOpenMenu = { menuOpen = true; app.analytics.screen(AnalyticsScreen.MENU) })
+                                Tab.MESSAGE -> MessagePage(onOpenMenu = { menuOpen = true; app.analytics.screen(AnalyticsScreen.MENU) }, onBackToRadio = { tab = Tab.RADIO })
                             }
                         }
                     }
@@ -122,6 +137,7 @@ class MainActivity : ComponentActivity() {
     private fun handleReminder(intent: Intent) {
         if (!intent.isReminder()) return
         selectTab(Tab.RADIO)
+        app.analytics.track(AnalyticsEvent.ShowNotificationOpened(intent.getStringExtra(ShowReminders.EXTRA_SHOW_ID), intent.getBooleanExtra(ShowReminders.EXTRA_LISTEN, false)))
         if (intent.getBooleanExtra(ShowReminders.EXTRA_LISTEN, false) && app.radio.state.value != PlaybackState.Playing) {
             app.radio.play(PlayTrigger.NOTIFICATION)
         }
@@ -131,12 +147,14 @@ class MainActivity : ComponentActivity() {
     /** Binds the playback service, so it is there to go foreground when the radio plays. */
     override fun onStart() {
         super.onStart()
+        app.analytics.onForeground()
         controller = MediaController.Builder(this, SessionToken(this, ComponentName(this, PlaybackService::class.java))).buildAsync()
         app.reminders.reschedule()
     }
 
     override fun onStop() {
         app.tracker.onBackground()
+        app.analytics.onBackground()
         controller?.let(MediaController::releaseFuture)
         controller = null
         super.onStop()
@@ -186,6 +204,74 @@ private fun StatsPage(onOpenMenu: () -> Unit) {
 private fun Modifier.androidx_verticalScroll() = verticalScroll(rememberScrollState())
 
 @Composable
+private fun MessagePage(onOpenMenu: () -> Unit, onBackToRadio: () -> Unit) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val app = context.app
+    val message = app.voiceMessage
+    val onAir by app.nowPlaying.onAir.collectAsStateWithLifecycle()
+    val state by message.state.collectAsStateWithLifecycle()
+    val elapsed by message.elapsed.collectAsStateWithLifecycle()
+    val levels by message.levels.collectAsStateWithLifecycle()
+    val playing by message.isPlaying.collectAsStateWithLifecycle()
+    val progress by message.playbackProgress.collectAsStateWithLifecycle()
+    val uploadFailed by message.uploadFailed.collectAsStateWithLifecycle()
+    var micDenied by remember { mutableStateOf(false) }
+    var startAfterGrant by remember { mutableStateOf<(() -> Unit)?>(null) }
+    val permission = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) startAfterGrant?.invoke() else micDenied = true
+        startAfterGrant = null
+    }
+    fun withMic(action: () -> Unit) {
+        if (androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.RECORD_AUDIO) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            action()
+        } else {
+            startAfterGrant = action
+            permission.launch(android.Manifest.permission.RECORD_AUDIO)
+        }
+    }
+
+    androidx.compose.foundation.layout.Column(
+        Modifier
+            .fillMaxSize()
+            .androidx_verticalScroll()
+            .padding(horizontal = 20.dp)
+            .padding(bottom = Theme.Spacing.xl)
+    ) {
+        androidx.compose.foundation.layout.Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
+        AppHeader(hostedShowOnAir = onAir.show?.hostName != null, onMenu = onOpenMenu)
+        MessageContent(
+            MessageUi(state, elapsed, levels, playing, progress),
+            MessageActions(
+                start = { withMic(message::startRecording) },
+                stop = message::stopRecording,
+                cancel = message::cancelRecording,
+                togglePlayback = message::togglePlayback,
+                submit = message::submit,
+                retry = { withMic(message::retry) },
+                discard = message::discardRecording,
+                recordAnother = message::recordAnother,
+                backToRadio = onBackToRadio,
+            ),
+        )
+    }
+    if (micDenied) {
+        MessageAlert(
+            androidx.compose.ui.res.stringResource(R.string.micUnavailableTitle),
+            androidx.compose.ui.res.stringResource(R.string.micUnavailableMessage),
+        ) { micDenied = false }
+    }
+    if (uploadFailed) {
+        MessageAlert(
+            androidx.compose.ui.res.stringResource(R.string.uploadFailedTitle),
+            androidx.compose.ui.res.stringResource(R.string.uploadFailedMessage),
+            message::dismissUploadFailed,
+        )
+    }
+}
+
+@Composable
 private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
     val app = androidx.compose.ui.platform.LocalContext.current.app
     val onAir by app.nowPlaying.onAir.collectAsStateWithLifecycle()
@@ -211,6 +297,7 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
             togglePlay = { app.radio.togglePlayPause() },
             openSleepTimer = { showingSleepTimer = true },
             openSong = { track ->
+                app.analytics.track(AnalyticsEvent.SpotifyOpened(onAir.show?.id))
                 spotifySearchUrl(track.artist, track.title)?.let {
                     runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it))) }
                 }
@@ -220,9 +307,17 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
     ) {
         val stats = statsUi()
         if (stats.enabled) StatsHomeBlock(stats, onOpenStats, Modifier.padding(top = Theme.Spacing.xl))
+        val consent by app.analytics.consent.collectAsStateWithLifecycle()
+        androidx.compose.animation.AnimatedVisibility(consent == cz.slowdownradijo.app.analytics.Analytics.Consent.UNKNOWN && app.analytics.shouldAskForConsent) {
+            AnalyticsConsentCard(app.analytics::setConsent, Modifier.padding(top = Theme.Spacing.xl))
+        }
         HomeProgramSection(
             days = days, currentShow = onAir.show, now = now, followed = followed,
-            onBell = { show -> toggleReminder(show, show.id !in followed) },
+            onBell = { show ->
+                val on = show.id !in followed
+                toggleReminder(show, on)
+                app.analytics.track(AnalyticsEvent.ShowReminderChanged(show.id, on, "bell"))
+            },
             modifier = Modifier.padding(top = Theme.Spacing.xl),
         )
     }
@@ -240,6 +335,7 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
                     end != null -> app.radio.scheduleSleepTimer(end)
                 }
                 sleepOption = option
+                app.analytics.track(AnalyticsEvent.SleepTimerSet(option.analyticsName))
                 showingSleepTimer = false
             },
             onCancel = {
@@ -258,44 +354,75 @@ private fun Menu(onClose: () -> Unit) {
     HubScreen(
         onLanguage = { app.language.set(it) },
         onClose = onClose,
+        onLinkOpened = { app.analytics.track(AnalyticsEvent.LinkOpened(it)) },
         pages = MenuPages(
             settings = { open, back ->
+                androidx.compose.runtime.LaunchedEffect(Unit) { app.analytics.screen(AnalyticsScreen.SETTINGS) }
+                val analyticsConsent by app.analytics.consent.collectAsStateWithLifecycle()
                 val autoplay by app.settings.autoplay.collectAsStateWithLifecycle()
                 val stats by app.settings.statsEnabled.collectAsStateWithLifecycle()
                 val followed by app.reminders.followed.collectAsStateWithLifecycle()
                 SettingsScreen(
-                    SettingsUi(autoplay, followed.size, stats, analyticsEnabled = false),
+                    SettingsUi(autoplay, followed.size, stats, analyticsEnabled = analyticsConsent == cz.slowdownradijo.app.analytics.Analytics.Consent.GRANTED),
                     SettingsActions(
                         setAutoplay = app.settings::setAutoplay,
                         setStats = {
                             app.settings.setStatsEnabled(it)
                             app.tracker.enabledPreferenceChanged()
                         },
+                        setAnalytics = app.analytics::setConsent,
                         deleteStats = { runCatching { app.tracker.deleteAllData() }.isSuccess },
                     ),
                     open, back,
                 )
             },
             showReminders = { back ->
+                androidx.compose.runtime.LaunchedEffect(Unit) { app.analytics.screen(AnalyticsScreen.SHOW_REMINDERS) }
                 val followed by app.reminders.followed.collectAsStateWithLifecycle()
-                val toggle = rememberReminderToggle()
+                val reminderToggle = rememberReminderToggle()
+                val toggle: (cz.slowdownradijo.app.data.Show, Boolean) -> Unit = { show, on ->
+                    reminderToggle(show, on)
+                    app.analytics.track(AnalyticsEvent.ShowReminderChanged(show.id, on, "settings"))
+                }
                 ShowRemindersScreen(
                     shows = app.reminders.allShows, followed = followed,
                     notificationsBlocked = followed.isNotEmpty() && !app.reminders.notificationsAllowed(),
                     onToggle = toggle, onUnfollowAll = app.reminders::unfollowAll, back = back,
                 )
             },
-            news = { _, back -> Placeholder("Novinky", back) },
-            newsDetail = { _, back -> Placeholder("Novinka", back) },
-            feedback = { back -> Placeholder("Zpětná vazba", back) },
+            news = { open, back ->
+                androidx.compose.runtime.LaunchedEffect(Unit) { app.analytics.screen(AnalyticsScreen.NEWS) }
+                val state by app.news.state.collectAsStateWithLifecycle()
+                val on by app.news.notificationsEnabled.collectAsStateWithLifecycle()
+                androidx.compose.runtime.LaunchedEffect(Unit) { app.news.loadIfNeeded() }
+                val permission = androidx.activity.compose.rememberLauncherForActivityResult(
+                    androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+                ) {}
+                NewsListScreen(
+                    state, on,
+                    onNotifications = {
+                        app.news.setNotificationsEnabled(it)
+                        if (it && android.os.Build.VERSION.SDK_INT >= 33 && !app.reminders.notificationsAllowed()) {
+                            permission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                    },
+                    onOpen = { open(cz.slowdownradijo.app.menu.MenuPage.NewsDetail(it.id)) },
+                    back = back,
+                )
+            },
+            newsDetail = { id, back -> NewsDetailScreen(app.news.post(id), back) },
+            feedback = { back ->
+                val message by app.feedback.message.collectAsStateWithLifecycle()
+                val state by app.feedback.state.collectAsStateWithLifecycle()
+                val language = cz.slowdownradijo.app.l10n.LocalAppLanguage.current
+                val scope = androidx.compose.runtime.rememberCoroutineScope()
+                FeedbackScreen(
+                    message, state, app.feedback::edit,
+                    onSubmit = { scope.launch { app.feedback.submit(DeviceInfo.current(language.code)) } },
+                    onReset = app.feedback::reset, back = back,
+                )
+            },
         ),
     )
 }
 
-/** Stands in for a page still being ported. */
-@Composable
-private fun Placeholder(title: String, back: (() -> Unit)? = null) {
-    Box(Modifier.fillMaxSize().padding(20.dp), contentAlignment = Alignment.Center) {
-        Text(title, style = Theme.Typography.Heading.page, color = Theme.textPrimary)
-    }
-}

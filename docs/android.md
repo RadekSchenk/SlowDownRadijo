@@ -86,6 +86,31 @@ Phase 1 (10 Nov 2026), in `android/app/src/main/kotlin/cz/slowdownradijo/app/`:
 - Not yet: the swipe through earlier songs on the song line, the output
   picker, analytics events (phase 2 with PostHog).
 
+Phase 2 (10 Nov 2026):
+
+- Frame: bottom bar (Rádio, Statistiky, Vzkaz) with the iOS tab icons,
+  converted from the shared SVGs to vector drawables at build time; the
+  menu over everything; autoplay on launch.
+- `home/HomeProgramSection.kt` (seven-day picker, past shows folded
+  away, bell); `reminders/` ("Právě začíná" with "Poslouchat", one alarm
+  for the next followed start, re-planned on programme, language and
+  reboot; Android 13+ asks for notifications at the first bell).
+- `stats/`: the anonymous Supabase account, `ListeningTracker` with the
+  iOS timings and batch ids, the Statistiky page and the home block.
+  The app version sent ends in "android".
+- `message/`: MediaRecorder AAC in MPEG-4 (.m4a, which the server checks
+  for), 18-segment waveform, preview, upload.
+- `menu/` (language switch, WhatsApp, social links), Settings, show
+  reminders list; `news/` (list, post, new-post notification at launch);
+  `feedback/` (device: "Android <version>", manufacturer and model).
+- `analytics/`: consent from the third launch, the iOS event names and
+  properties, sent to PostHog's capture API directly. Every PostHog
+  Android SDK release was under two weeks old on 10 Nov 2026, and the
+  direct API sends only what the iOS app sends (no device details, no
+  person profiles). Events carry `platform: android`.
+- Not yet: the output picker, the system review prompt, swiping through
+  earlier songs, the widget (phase 3).
+
 ### Building
 
     python3 tools/android/l10n_to_strings.py     # after changing L10n.swift
@@ -112,13 +137,13 @@ closed test that new personal accounts must run before production.
 | Home header: compact player, clouds, equalizer | 1.1 | 1 (song line without the swipe back through earlier songs) |
 | Sleep timer | 1.0 | 1 |
 | Output picker (AirPlay / Bluetooth / Cast) | 1.0 | — |
-| Programme with photos, reminder bell | 1.1 | — |
-| Show reminders (notifications) | 1.0 | — |
-| Listening stats (Supabase) | 1.0 | — |
-| Voice message | 1.0 | — |
-| Menu, news, settings, feedback | 1.0 | — |
-| Analytics consent, PostHog | 1.0 | — |
-| Language switch (cs / en) | 1.0 | strings + language store; toggle in phase 2 |
+| Programme with photos, reminder bell | 1.1 | 2 |
+| Show reminders (notifications) | 1.0 | 2 (one alarm at a time, exact when allowed, else within a minute) |
+| Listening stats (Supabase) | 1.0 | 2 |
+| Voice message | 1.0 | 2 |
+| Menu, news, settings, feedback | 1.0 | 2 |
+| Analytics consent, PostHog | 1.0 | 2 (PostHog's capture API, no SDK) |
+| Language switch (cs / en) | 1.0 | 2 |
 | Heading scale, typography | 1.1 | 0 (theme) |
 | Home screen widget | 1.0 | — |
 | Review prompt (system) | 1.0 | — |
