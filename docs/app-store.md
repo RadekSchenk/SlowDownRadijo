@@ -121,6 +121,26 @@ Version" (cs and en). Version 1.0 had none.
 • Small fixes and improvements.
 ```
 
+**1.2 — Czech**
+
+```
+• Slow Down Rádijo v autě: s CarPlay pustíš živé vysílání přímo z displeje auta a uvidíš pořad i skladbu, která právě hraje.
+• Drobné opravy a vylepšení.
+```
+
+**1.2 — English**
+
+```
+• Slow Down Rádijo in the car: with CarPlay, start the live stream right from the car's screen and see the show and the song on air.
+• Small fixes and improvements.
+```
+
+**1.2 — add to the App Review notes** (section 3, How to use it):
+
+```
+- CarPlay (CarPlay Audio entitlement granted to the team): connect an iPhone to CarPlay or use Xcode's CarPlay Simulator (I/O > External Displays > CarPlay). The app shows one item, "Živé vysílání" / "Live" (the station's live stream, with the show on air and the song when known); tapping it starts the stream and opens the system Now Playing screen.
+```
+
 ## Releasing a new version
 
 1. Raise `MARKETING_VERSION` in `project.yml` (app and widget, the same

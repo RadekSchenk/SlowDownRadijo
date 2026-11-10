@@ -67,4 +67,5 @@ closed test that new personal accounts must run before production.
 | Language switch (cs / en) | 1.0 | — |
 | Heading scale, typography | 1.1 | — |
 | Home screen widget | 1.0 | — |
+| In the car: CarPlay / Android Auto (live stream item, Now Playing) | 1.2 | — |
 | Review prompt (system) | 1.0 | — |

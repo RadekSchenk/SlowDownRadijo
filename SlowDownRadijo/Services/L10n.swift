@@ -62,6 +62,14 @@ enum L10n {
 
     static var onAir: String { "ON-AIR" }
 
+    /// The live-stream item on the car's screen (`CarPlaySceneDelegate`).
+    static var carPlayLive: String {
+        switch lang {
+        case .cs: return "Živé vysílání"
+        case .en: return "Live"
+        }
+    }
+
     /// "Moderuje JARO COSSIGA" under the show title on the home screen (`HomeView.showRow`).
     static var hostedByKicker: String {
         switch lang {

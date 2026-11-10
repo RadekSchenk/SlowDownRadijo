@@ -52,31 +52,15 @@ struct RootTabView: View {
     /// The last notification tap acted on (see `ShowReminderStore.OpenRequest`).
     @State private var handledOpenRequestID: UUID?
 
-    /// The services the state objects share, built on first access only.
-    /// SwiftUI may call `init()` again, but it evaluates each `StateObject`
-    /// autoclosure just once — so nothing is constructed eagerly here (a
-    /// stray `RadioPlayerService` re-activated the audio session and added
-    /// remote-command targets; a stray `ICYMetadataService` was never freed).
-    @MainActor
-    private final class SharedServices {
-        lazy var schedule = ScheduleStore()
-        lazy var player = RadioPlayerService()
-        lazy var metadata = ICYMetadataService()
-        lazy var historyStore = PlayHistoryStore()
-    }
-
     init() {
-        let services = SharedServices()
+        // The app's one player, schedule and now-playing state, shared with
+        // CarPlay (`AppServices`).
+        let services = AppServices.shared
 
         _scheduleStore = StateObject(wrappedValue: services.schedule)
         _player = StateObject(wrappedValue: services.player)
         _metadataService = StateObject(wrappedValue: services.metadata)
-        _nowPlayingViewModel = StateObject(wrappedValue: NowPlayingViewModel(
-            player: services.player,
-            metadataService: services.metadata,
-            scheduleStore: services.schedule,
-            historyStore: services.historyStore
-        ))
+        _nowPlayingViewModel = StateObject(wrappedValue: services.nowPlaying)
         _historyViewModel = StateObject(wrappedValue: HistoryViewModel(historyStore: services.historyStore))
         _voiceMessageViewModel = StateObject(wrappedValue: VoiceMessageViewModel(radioPlayer: services.player))
         _previewPlayer = StateObject(wrappedValue: PreviewPlayerService(radioPlayer: services.player))
