@@ -51,6 +51,16 @@ import cz.slowdownradijo.app.ui.components.systemReducesMotion
 import cz.slowdownradijo.app.ui.theme.SlowDownTheme
 import cz.slowdownradijo.app.ui.theme.Theme
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsTopHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import cz.slowdownradijo.app.home.AppHeader
+import cz.slowdownradijo.app.stats.StatsContent
+import cz.slowdownradijo.app.stats.StatsHomeBlock
+import cz.slowdownradijo.app.stats.StatsUi
 import java.time.Instant
 
 class MainActivity : ComponentActivity() {
@@ -82,13 +92,16 @@ class MainActivity : ComponentActivity() {
                     SlowDownTheme {
                         RootScreen(
                             selected = tab,
-                            onSelect = { tab = it },
+                            onSelect = {
+                                tab = it
+                                if (it == Tab.STATS) app.scope.launch { app.stats.refreshAll() }
+                            },
                             menuOpen = menuOpen,
                             menu = { Menu(onClose = { menuOpen = false }) },
                         ) { page ->
                             when (page) {
-                                Tab.RADIO -> RadioPage(onOpenMenu = { menuOpen = true })
-                                Tab.STATS -> Placeholder("Statistiky")
+                                Tab.RADIO -> RadioPage(onOpenMenu = { menuOpen = true }, onOpenStats = { tab = Tab.STATS })
+                                Tab.STATS -> StatsPage(onOpenMenu = { menuOpen = true })
                                 Tab.MESSAGE -> Placeholder("Vzkaz")
                             }
                         }
@@ -123,6 +136,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onStop() {
+        app.tracker.onBackground()
         controller?.let(MediaController::releaseFuture)
         controller = null
         super.onStop()
@@ -130,7 +144,49 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun RadioPage(onOpenMenu: () -> Unit) {
+private fun statsUi(): StatsUi {
+    val app = androidx.compose.ui.platform.LocalContext.current.app
+    val version by app.stats.version.collectAsStateWithLifecycle()
+    val enabled by app.settings.statsEnabled.collectAsStateWithLifecycle()
+    val measuring by app.tracker.measuring.collectAsStateWithLifecycle()
+    val failed by app.stats.loadFailed.collectAsStateWithLifecycle()
+    // `version` changes whenever a second is counted or a refresh lands.
+    val summary = remember(version, enabled) { app.stats.summary() }
+    return StatsUi(summary, enabled, measuring, app.stats.communityUnlocked, failed)
+}
+
+@Composable
+private fun StatsPage(onOpenMenu: () -> Unit) {
+    val app = androidx.compose.ui.platform.LocalContext.current.app
+    val onAir by app.nowPlaying.onAir.collectAsStateWithLifecycle()
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    androidx.compose.foundation.layout.Column(
+        Modifier
+            .fillMaxSize()
+            .androidx_verticalScroll()
+            .padding(horizontal = 20.dp)
+    ) {
+        androidx.compose.foundation.layout.Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
+        AppHeader(hostedShowOnAir = onAir.show?.hostName != null, onMenu = onOpenMenu)
+        androidx.compose.foundation.layout.Box(Modifier.padding(top = Theme.Spacing.md, bottom = 36.dp)) {
+            StatsContent(
+                statsUi(),
+                onEnable = {
+                    app.settings.setStatsEnabled(true)
+                    app.tracker.enabledPreferenceChanged()
+                    scope.launch { app.stats.refreshAll(force = true) }
+                },
+                onRetry = { scope.launch { app.stats.refreshAll(force = true) } },
+            )
+        }
+    }
+}
+
+@Composable
+private fun Modifier.androidx_verticalScroll() = verticalScroll(rememberScrollState())
+
+@Composable
+private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
     val app = androidx.compose.ui.platform.LocalContext.current.app
     val onAir by app.nowPlaying.onAir.collectAsStateWithLifecycle()
     val playback by app.radio.state.collectAsStateWithLifecycle()
@@ -162,6 +218,8 @@ private fun RadioPage(onOpenMenu: () -> Unit) {
             openMenu = onOpenMenu,
         ),
     ) {
+        val stats = statsUi()
+        if (stats.enabled) StatsHomeBlock(stats, onOpenStats, Modifier.padding(top = Theme.Spacing.xl))
         HomeProgramSection(
             days = days, currentShow = onAir.show, now = now, followed = followed,
             onBell = { show -> toggleReminder(show, show.id !in followed) },
@@ -207,7 +265,14 @@ private fun Menu(onClose: () -> Unit) {
                 val followed by app.reminders.followed.collectAsStateWithLifecycle()
                 SettingsScreen(
                     SettingsUi(autoplay, followed.size, stats, analyticsEnabled = false),
-                    SettingsActions(setAutoplay = app.settings::setAutoplay, setStats = app.settings::setStatsEnabled),
+                    SettingsActions(
+                        setAutoplay = app.settings::setAutoplay,
+                        setStats = {
+                            app.settings.setStatsEnabled(it)
+                            app.tracker.enabledPreferenceChanged()
+                        },
+                        deleteStats = { runCatching { app.tracker.deleteAllData() }.isSuccess },
+                    ),
                     open, back,
                 )
             },

@@ -110,17 +110,7 @@ private fun NowPlayingHeader(ui: HomeUi, actions: HomeActions) {
     Column {
         // The 66-high header bar, the logo hanging 22 below its top between the pills.
         Box(Modifier.fillMaxWidth()) {
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 66.dp)
-                    .padding(vertical = Theme.Spacing.md),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                MenuButton(actions.openMenu)
-                Spacer(Modifier.weight(1f))
-                if (show?.hostName != null) OnAirBadge()
-            }
+            AppHeader(hostedShowOnAir = show?.hostName != null, onMenu = actions.openMenu)
             Image(
                 painterResource(R.drawable.brand_logo), contentDescription = null,
                 modifier = Modifier
@@ -160,6 +150,22 @@ private fun NowPlayingHeader(ui: HomeUi, actions: HomeActions) {
             }
             StatusLabel(ui.playback)
         }
+    }
+}
+
+/** MENU on the left, ON-AIR on the right while a hosted show is on (`AppHeaderView.swift`). */
+@Composable
+fun AppHeader(hostedShowOnAir: Boolean, onMenu: () -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .heightIn(min = 66.dp)
+            .padding(vertical = Theme.Spacing.md),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        MenuButton(onMenu)
+        Spacer(Modifier.weight(1f))
+        if (hostedShowOnAir) OnAirBadge()
     }
 }
 

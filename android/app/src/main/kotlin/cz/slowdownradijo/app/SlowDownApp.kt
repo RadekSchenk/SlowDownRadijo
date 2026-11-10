@@ -13,7 +13,11 @@ import cz.slowdownradijo.app.home.NowPlayingModel
 import cz.slowdownradijo.app.l10n.LanguageStore
 import cz.slowdownradijo.app.l10n.inLanguage
 import cz.slowdownradijo.app.player.IcyMetadataPoller
+import cz.slowdownradijo.app.player.PlaybackState
 import cz.slowdownradijo.app.player.RadioEngine
+import cz.slowdownradijo.app.stats.ListeningStatsStore
+import cz.slowdownradijo.app.stats.ListeningTracker
+import cz.slowdownradijo.app.stats.SupabaseStatsApi
 import cz.slowdownradijo.app.reminders.ShowReminders
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -57,6 +61,22 @@ class SlowDownApp : Application() {
         )
     }
 
+    private val statsApi by lazy { SupabaseStatsApi(http, getSharedPreferences("stats-session", MODE_PRIVATE)) }
+    val tracker by lazy {
+        ListeningTracker(
+            api = statsApi,
+            prefs = getSharedPreferences("stats", MODE_PRIVATE),
+            scope = scope,
+            isEnabled = { settings.statsEnabled.value },
+            // Credit the show on air at each tick.
+            showProvider = { schedule.currentShow()?.id },
+            appVersion = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) android",
+        )
+    }
+    val stats by lazy {
+        ListeningStatsStore(statsApi, tracker, schedule, getSharedPreferences("stats", MODE_PRIVATE), scope, isEnabled = { settings.statsEnabled.value })
+    }
+
     private var started = false
 
     /** The song and show polling, from when the UI first shows. */
@@ -67,6 +87,9 @@ class SlowDownApp : Application() {
         nowPlaying.start(icy.track) { schedule.refresh(webSchedule::fetch) }
         // The lock screen's "Moderuje" follows the app's language.
         scope.launch { language.language.drop(1).collect { nowPlaying.publishNowPlaying() } }
+        // Listening stats: every way of playing goes through the engine's state.
+        scope.launch { radio.state.collect { tracker.update(isPlaying = it == PlaybackState.Playing) } }
+        scope.launch { stats.refreshAll() }
         // Reminders follow the week as the web has it.
         reminders.reschedule()
         scope.launch { schedule.days.drop(1).collect { reminders.reschedule() } }
