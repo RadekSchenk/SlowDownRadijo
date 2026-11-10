@@ -66,6 +66,26 @@ Phase 0 is done (10 Nov 2026):
   screenshot tests, debug APK and screenshots as artifacts). Robolectric
   runs on API 36 until it supports 37.
 
+Phase 1 (10 Nov 2026), in `android/app/src/main/kotlin/cz/slowdownradijo/app/`:
+
+- `player/RadioEngine.kt` (as `RadioPlayerService.swift`): ExoPlayer, a
+  fresh connection on every play, reconnect with 2…30 s back-off, a 20 s
+  connect deadline, reconnect when the network returns, audio focus and
+  unplugged headphones pause, the sleep timer. `PlaybackService.kt` is the
+  MediaSessionService (notification, lock screen, Bluetooth, Android Auto);
+  the notification shows what `NowPlayingModel` publishes, never the raw
+  stream title.
+- `player/IcyMetadataPoller.kt` (as `ICYMetadataService.swift`), every 20 s.
+- `home/NowPlayingModel.kt` (as `NowPlayingViewModel.swift`) with
+  `data/TrackTrust.kt` and the `played_tracks` check
+  (`data/RemoteHistoryService.kt`).
+- `data/WebScheduleService.kt` and the cached week in `ScheduleStore.kt`;
+  tests run against the web's real responses (`src/test/resources/web`).
+- `home/HomeScreen.kt`, `NowPlayingCover.kt` (cover + side equalizer),
+  `HeaderClouds.kt`, `PlayerControls.kt`, `SleepTimer.kt` (sheet + moon).
+- Not yet: the swipe through earlier songs on the song line, the output
+  picker, analytics events (phase 2 with PostHog).
+
 ### Building
 
     python3 tools/android/l10n_to_strings.py     # after changing L10n.swift
@@ -86,11 +106,11 @@ closed test that new personal accounts must run before production.
 
 | Feature | iOS | Android |
 |---|---|---|
-| Live stream, background, lock screen | 1.0 | — |
-| Song on air (ICY + server log, TrackTrust) | 1.0 | — |
-| Programme from the web (specials) | 1.1 | — |
-| Home header: compact player, clouds, equalizer | 1.1 | — |
-| Sleep timer | 1.0 | — |
+| Live stream, background, lock screen | 1.0 | 1 (Media3; reconnect, audio focus, headphones) |
+| Song on air (ICY + server log, TrackTrust) | 1.0 | 1 |
+| Programme from the web (specials) | 1.1 | 1 (cached week) |
+| Home header: compact player, clouds, equalizer | 1.1 | 1 (song line without the swipe back through earlier songs) |
+| Sleep timer | 1.0 | 1 |
 | Output picker (AirPlay / Bluetooth / Cast) | 1.0 | — |
 | Programme with photos, reminder bell | 1.1 | — |
 | Show reminders (notifications) | 1.0 | — |
