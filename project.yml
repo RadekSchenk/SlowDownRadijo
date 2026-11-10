@@ -109,6 +109,7 @@ targets:
       - path: SlowDownRadijoWidget
       - path: SlowDownRadijo/Models/Show.swift
       - path: SlowDownRadijo/Services/ScheduleStore.swift
+      - path: SlowDownRadijo/Services/WebScheduleService.swift
       - path: SlowDownRadijo/Models/RemotePlayedTrack.swift
       - path: SlowDownRadijo/Models/TrackTrust.swift
       - path: SlowDownRadijo/DesignSystem/Theme.swift

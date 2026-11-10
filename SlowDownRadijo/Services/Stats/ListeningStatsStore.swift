@@ -29,18 +29,12 @@ final class ListeningStatsStore: ObservableObject {
     private static let publicKey = "stats.publicStats"
     private static let minimumRefreshGap: TimeInterval = 20
 
-    private let showLookup: [String: Show]
+    private let scheduleStore: ScheduleStore
     private var lastRefresh = Date.distantPast
     private var cancellables = Set<AnyCancellable>()
 
     init(scheduleStore: ScheduleStore) {
-        var lookup: [String: Show] = [:]
-        for day in scheduleStore.days {
-            for show in day.shows where lookup[show.id] == nil {
-                lookup[show.id] = show
-            }
-        }
-        showLookup = lookup
+        self.scheduleStore = scheduleStore
 
         // An earlier build remembered "unlocked" permanently under this key.
         UserDefaults.standard.removeObject(forKey: "stats.available")
@@ -215,7 +209,7 @@ final class ListeningStatsStore: ObservableObject {
             .filter { $0.value > 0 }
             .sorted { $0.value == $1.value ? $0.key < $1.key : $0.value > $1.value }
             .map { id, seconds in
-                let show = showLookup[id]
+                let show = scheduleStore.knownShow(id: id)
                 return ListeningStatsSummary.ShowShare(
                     id: id,
                     name: show?.displayTitle ?? L10n.statsUnknownShow,

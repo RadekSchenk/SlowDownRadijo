@@ -29,6 +29,9 @@ struct NowPlayingProvider: TimelineProvider {
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<NowPlayingEntry>) -> Void) {
         Task {
+            // The week as the web has it (special broadcasts); the last one
+            // fetched, or the bundled one, if that fails.
+            await scheduleStore.refresh()
             let now = Date()
             let show = scheduleStore.currentShow(at: now)
             let track = await verifiedLatestTrack(now: now, show: show)

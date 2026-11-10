@@ -11,11 +11,12 @@ stats, has its own section further down):
 3. Radio-wide stats (`played_tracks` table + `collect-now-playing` +
    `get-stats`) — a scheduled function polls the live stream's ICY metadata
    independently of whether the app is open, logs every track change (plus
-   which show was airing, resolved from a bundled copy of the schedule) to
+   which show was airing — slowdownradijo.cz's `current-show`, so special
+   broadcasts on the web count, else a bundled copy of the schedule) to
    Postgres, and `get-stats` exposes diversity/repetition/first-play
    aggregates for the app's "Statistiky" tab.
 
-   **`collect-now-playing/schedule.json` is a duplicate** of
+   **`collect-now-playing/schedule.json` is a duplicate** (the fallback) of
    `SlowDownRadijo/Resources/schedule.json` — Edge Functions can only bundle
    files inside their own directory, so it can't be shared directly. If the
    app's schedule changes, re-copy the file and redeploy:

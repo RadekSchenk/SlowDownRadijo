@@ -130,7 +130,14 @@ struct RootTabView: View {
                 Task { await NewsNotificationManager.checkForNewPost() }
             }
             ShowReminderStore.shared.reschedule()
+            // The week as the web has it (special broadcasts).
+            Task { await scheduleStore.refresh(force: true) }
             Analytics.shared.screen(.home)
+        }
+        // Back in the app: the week again, if it's a while since the last
+        // look (`ScheduleStore.refreshInterval`).
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            Task { await scheduleStore.refresh() }
         }
         // A tap on a "Právě začíná" notification: home, and the radio for
         // "Poslouchat".

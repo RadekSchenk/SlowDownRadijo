@@ -29,11 +29,14 @@ struct Show: Codable, Identifiable, Hashable {
     /// Czech in `summary`, English in `summaryEn` (see `localizedSummary`).
     var summary: String? = nil
     var summaryEn: String? = nil
+    /// The show's post id on slowdownradijo.cz (`/wp-json/wp/v2/shows`),
+    /// which the web programme refers to (`WebScheduleService`).
+    var webID: Int? = nil
 
     var displayTitle: String { title ?? name }
 
     private enum CodingKeys: String, CodingKey {
-        case id, name, start, end, imageURL, language, hostName, hostImageName, artworkName, title, summary, summaryEn
+        case id, name, start, end, imageURL, language, hostName, hostImageName, artworkName, title, summary, summaryEn, webID
     }
 }
 

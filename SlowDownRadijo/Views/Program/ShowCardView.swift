@@ -30,8 +30,11 @@ struct ShowCardView: View {
                         .resizable()
                         .scaledToFill()
                         .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
-                } else {
+                } else if show.imageURL != nil {
                     RemoteArtworkView(url: show.imageURL, cornerRadius: 2)
+                } else {
+                    // A special from the web without a photo.
+                    ShowArtworkPlaceholder()
                 }
             }
             .frame(width: 56, height: 56)

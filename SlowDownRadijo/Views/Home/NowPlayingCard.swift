@@ -46,8 +46,9 @@ struct NowPlayingCard: View {
                 .clipped()
                 .transition(.opacity)
         } else {
-            // Artwork still loading (or the show has none).
-            Theme.statsCardRaised
+            // Artwork still loading, or the show has none (a special
+            // broadcast from the web).
+            ShowArtworkPlaceholder(cornerRadius: 0)
         }
     }
 

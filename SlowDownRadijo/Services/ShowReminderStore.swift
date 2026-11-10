@@ -57,6 +57,15 @@ final class ShowReminderStore: ObservableObject {
             .sink { [weak self] _ in self?.reschedule() }
             .store(in: &cancellables)
 
+        // The week changed on the web (a special broadcast): reminders
+        // follow the new times.
+        schedule.$days
+            .dropFirst()
+            .removeDuplicates()
+            .debounce(for: .seconds(1), scheduler: DispatchQueue.main)
+            .sink { [weak self] _ in self?.reschedule() }
+            .store(in: &cancellables)
+
         // Notification texts follow the app's language.
         LocalizationManager.shared.$language
             .dropFirst()

@@ -51,7 +51,7 @@ final class NowPlayingViewModel: ObservableObject {
     private var trackConfirmedStart: Date?
     private var lastServerCheck = Date.distantPast
     private var serverCheckTask: Task<Void, Never>?
-    private lazy var allShows: [Show] = scheduleStore.days.flatMap(\.shows)
+    private var allShows: [Show] { scheduleStore.days.flatMap(\.shows) }
     private var playbackAnalytics: PlaybackAnalytics?
 
     init(
@@ -98,6 +98,16 @@ final class NowPlayingViewModel: ObservableObject {
             }
             .store(in: &cancellables)
 
+        // A new week from the web (a special broadcast) changes what's on.
+        scheduleStore.$days
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.updateShowState()
+                self?.updateVerifiedTrack()
+            }
+            .store(in: &cancellables)
+
         updateShowState()
         // Ticks every 20s so the progress bar advances smoothly rather than
         // jumping once a minute; recomputing the schedule lookup is cheap.
@@ -105,6 +115,8 @@ final class NowPlayingViewModel: ObservableObject {
             Task { @MainActor [weak self] in
                 self?.updateShowState()
                 self?.updateVerifiedTrack()
+                // At most every `ScheduleStore.refreshInterval`.
+                await self?.scheduleStore.refresh()
             }
         }
 

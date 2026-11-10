@@ -143,7 +143,7 @@ The app is in Czech and English (Menu > language). The song line appears only wh
 - Live audio stream: Icecast servers of play.cz, the station's streaming provider.
 - Supabase (EU/UK region): anonymous listening stats, the log of songs played, and the functions that deliver voice messages and feedback.
 - Resend: e-mail delivery of voice messages and feedback to the station.
-- slowdownradijo.cz (WordPress REST API): station news.
+- slowdownradijo.cz (WordPress REST API): station news and the weekly programme.
 - Apple iTunes Search API: artwork for the song on air.
 - PostHog (EU): anonymous usage analytics, only after the user opts in.
 - Spotify: opened through a search link when the user taps a song; no Spotify SDK or login.

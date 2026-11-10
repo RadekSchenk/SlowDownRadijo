@@ -10,6 +10,10 @@
 // stopped relying on it in the first place.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
+// The show on air comes from slowdownradijo.cz's programme first
+// (`currentShowFromWeb`), so a special broadcast the station put on the
+// web is credited to that show; this copy is the fallback.
+//
 // A copy of SlowDownRadijo/Resources/schedule.json — Edge Functions can only
 // bundle files within their own directory, so this has to be duplicated
 // rather than shared. If the iOS app's schedule.json changes, re-copy it
@@ -78,6 +82,40 @@ function findCurrentShowName(date: Date): string | null {
     if (minutesOfDay >= start && minutesOfDay < end) return show.name;
   }
   return null;
+}
+
+const CURRENT_SHOW_URL = "https://slowdownradijo.cz/wp-json/proradio/v1/current-show";
+
+/// The show on air at `date` as slowdownradijo.cz has it — the same
+/// programme the app follows (`WebScheduleService`). `null` if the web
+/// doesn't answer in time or has no show for that moment (the station's
+/// rotation is left out on the web).
+async function currentShowFromWeb(date: Date): Promise<string | null> {
+  try {
+    const response = await fetch(CURRENT_SHOW_URL, { signal: AbortSignal.timeout(5000) });
+    if (!response.ok) return null;
+    const show = await response.json() as { title?: string; start?: string; end?: string };
+    const title = decodeEntities(show.title ?? "").replace(/\s+/g, " ").trim();
+    const start = show.start ? Date.parse(show.start) : NaN;
+    const end = show.end ? Date.parse(show.end) : NaN;
+    if (!title || Number.isNaN(start) || Number.isNaN(end)) return null;
+    if (date.getTime() < start || date.getTime() >= end) return null;
+    return title;
+  } catch (error) {
+    console.error("Current show fetch failed:", error);
+    return null;
+  }
+}
+
+function decodeEntities(text: string): string {
+  const named: Record<string, string> = { amp: "&", quot: '"', apos: "'", lt: "<", gt: ">", nbsp: " " };
+  return text.replace(/&(#x[0-9a-f]+|#[0-9]+|[a-z]+);/gi, (entity, code: string) => {
+    if (code[0] === "#") {
+      const value = code[1].toLowerCase() === "x" ? parseInt(code.slice(2), 16) : parseInt(code.slice(1), 10);
+      return Number.isNaN(value) ? entity : String.fromCodePoint(value);
+    }
+    return named[code.toLowerCase()] ?? entity;
+  });
 }
 
 interface ParsedTrack {
@@ -190,7 +228,7 @@ Deno.serve(async (_req) => {
   }
 
   const playedAt = new Date();
-  const showName = findCurrentShowName(playedAt);
+  const showName = (await currentShowFromWeb(playedAt)) ?? findCurrentShowName(playedAt);
 
   const { error } = await supabase.from("played_tracks").insert({
     artist: track.artist,

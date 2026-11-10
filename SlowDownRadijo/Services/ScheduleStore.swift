@@ -1,12 +1,16 @@
 import Foundation
 
-/// Loads the static weekly programme schedule bundled as `schedule.json` and
-/// resolves "what's on right now" for a given date/time.
+/// The weekly programme, and "what's on right now" for a given date/time.
 ///
-/// The schedule is hand-scraped from https://slowdownradijo.cz/program/ and
-/// will drift out of date whenever the station changes its lineup — it is
-/// **not** fetched live. Update `Resources/schedule.json` by re-running the
-/// scrape when the programme changes.
+/// The week comes from slowdownradijo.cz (`WebScheduleService`), so a
+/// special broadcast the station puts on the web shows in the app too. The
+/// last week fetched is kept on disk; before the first fetch, or offline
+/// on a first launch, the programme bundled as `schedule.json` stands in.
+/// The bundled file is also the catalogue of the station's regular shows
+/// (hosts, photos, descriptions) that the web's week is matched against.
+///
+/// Every instance (the app's, the reminders', the widget's) shows the same
+/// week: a refresh anywhere updates them all.
 final class ScheduleStore: ObservableObject {
     /// The schedule's times are the station's own (Prague) local time, the
     /// same zone `collect-now-playing` resolves shows in — not the phone's,
@@ -19,22 +23,136 @@ final class ScheduleStore: ObservableObject {
 
     @Published private(set) var days: [ScheduleDay] = []
 
+    /// How long a fetched week counts as fresh.
+    static let refreshInterval: TimeInterval = 15 * 60
+    private static let didUpdate = Notification.Name("ScheduleStore.didUpdate")
+
+    private var observer: NSObjectProtocol?
+
     init() {
-        load()
+        days = Self.state.withLock { $0.days } ?? Self.bundledDays
+        observer = NotificationCenter.default.addObserver(forName: Self.didUpdate, object: nil, queue: .main) { [weak self] note in
+            guard let days = note.object as? [ScheduleDay] else { return }
+            self?.days = days
+        }
     }
 
-    private func load() {
+    deinit {
+        if let observer { NotificationCenter.default.removeObserver(observer) }
+    }
+
+    // MARK: - The bundled programme
+
+    /// `schedule.json`: the programme shipped with the app.
+    static let bundledDays: [ScheduleDay] = {
         guard let url = Bundle.main.url(forResource: "schedule", withExtension: "json") else {
             assertionFailure("schedule.json missing from bundle")
-            return
+            return []
         }
         do {
             let data = try Data(contentsOf: url)
             let schedule = try JSONDecoder().decode(Schedule.self, from: data)
-            days = schedule.days.sorted { $0.weekday < $1.weekday }
+            return schedule.days.sorted { $0.weekday < $1.weekday }
         } catch {
             assertionFailure("Failed to decode schedule.json: \(error)")
+            return []
         }
+    }()
+
+    /// Every regular show once, from the bundled programme.
+    static let catalog: [Show] = {
+        var seen = Set<String>()
+        return bundledDays.flatMap(\.shows).filter { seen.insert($0.id).inserted }
+    }()
+
+    /// The show with `id` in this week's programme or among the regular
+    /// shows — for the listening stats, which outlive a special broadcast.
+    func knownShow(id: String) -> Show? {
+        for day in days {
+            if let show = day.shows.first(where: { $0.id == id }) { return show }
+        }
+        return Self.catalog.first { $0.id == id } ?? Self.state.withLock { $0.formerShows[id] }
+    }
+
+    // MARK: - Following the web
+
+    private struct State {
+        /// The week last fetched or read from disk; `nil` before either.
+        var days: [ScheduleDay]?
+        var fetchedAt = Date.distantPast
+        var isFetching = false
+        /// Shows from earlier weeks that aren't regulars (specials), kept
+        /// so their name and photo stay known once they're off the week.
+        var formerShows: [String: Show] = [:]
+    }
+
+    private static let state: LockedValue<State> = {
+        var state = State()
+        if let cache = readCache() {
+            state.days = cache.days
+            state.formerShows = Dictionary(cache.formerShows.map { ($0.id, $0) }, uniquingKeysWith: { _, last in last })
+        }
+        return LockedValue(state)
+    }()
+
+    /// Fetches the week from the web unless it was fetched in the last
+    /// `refreshInterval` (`force` skips that). On failure the programme
+    /// stays as it was.
+    func refresh(force: Bool = false) async {
+        let shouldFetch = Self.state.withLock { state -> Bool in
+            guard !state.isFetching else { return false }
+            guard force || Date().timeIntervalSince(state.fetchedAt) > Self.refreshInterval else { return false }
+            state.isFetching = true
+            return true
+        }
+        guard shouldFetch else { return }
+
+        let fetched = try? await WebScheduleService.fetch(catalog: Self.catalog)
+        let cache = Self.state.withLock { state -> CachedWeek? in
+            state.isFetching = false
+            guard let fetched else { return nil }
+            state.fetchedAt = Date()
+            let regulars = Set(Self.catalog.map(\.id))
+            var formerChanged = false
+            for show in fetched.flatMap(\.shows) where !regulars.contains(show.id) && state.formerShows[show.id] == nil {
+                state.formerShows[show.id] = show
+                formerChanged = true
+            }
+            guard fetched != state.days || formerChanged else { return nil }
+            state.days = fetched
+            return CachedWeek(days: fetched, formerShows: Array(state.formerShows.values))
+        }
+        guard let fetched else { return }
+        if let cache { Self.writeCache(cache) }
+        await MainActor.run {
+            if self.days != fetched {
+                NotificationCenter.default.post(name: Self.didUpdate, object: fetched)
+            }
+        }
+    }
+
+    // MARK: - The week on disk
+
+    private struct CachedWeek: Codable {
+        let days: [ScheduleDay]
+        let formerShows: [Show]
+    }
+
+    private static var cacheURL: URL? {
+        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first?
+            .appendingPathComponent("schedule-web.json")
+    }
+
+    private static func readCache() -> CachedWeek? {
+        guard let url = cacheURL, let data = try? Data(contentsOf: url),
+              let cache = try? JSONDecoder().decode(CachedWeek.self, from: data),
+              cache.days.count == 7 else { return nil }
+        return CachedWeek(days: cache.days.sorted { $0.weekday < $1.weekday }, formerShows: cache.formerShows)
+    }
+
+    private static func writeCache(_ cache: CachedWeek) {
+        guard let url = cacheURL, let data = try? JSONEncoder().encode(cache) else { return }
+        try? data.write(to: url, options: .atomic)
     }
 
     func day(for weekday: Int) -> ScheduleDay? {
@@ -137,5 +255,19 @@ final class ScheduleStore: ObservableObject {
               let hour = Int(parts[0]),
               let minute = Int(parts[1]) else { return nil }
         return hour * 60 + minute
+    }
+}
+
+/// A value behind a lock, for the state every `ScheduleStore` shares.
+private final class LockedValue<Value>: @unchecked Sendable {
+    private var value: Value
+    private let lock = NSLock()
+
+    init(_ value: Value) { self.value = value }
+
+    func withLock<Result>(_ body: (inout Value) -> Result) -> Result {
+        lock.lock()
+        defer { lock.unlock() }
+        return body(&value)
     }
 }
