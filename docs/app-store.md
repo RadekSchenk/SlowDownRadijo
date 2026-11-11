@@ -138,7 +138,7 @@ Version" (cs and en). Version 1.0 had none.
 **1.2 — add to the App Review notes** (section 3, How to use it):
 
 ```
-- CarPlay (CarPlay Audio entitlement granted to the team): connect an iPhone to CarPlay or use Xcode's CarPlay Simulator (I/O > External Displays > CarPlay). The app shows one item, "Živé vysílání" / "Live" (the station's live stream, with the show on air and the song when known); tapping it starts the stream and opens the system Now Playing screen.
+- CarPlay (CarPlay Audio entitlement granted to the team): connect an iPhone to a CarPlay car or head unit, or to Xcode's CarPlay Simulator. The app shows one item, "Živé vysílání" / "Live" (the station's live stream, with the show on air and the song when known); tapping it starts the stream and opens the system Now Playing screen.
 ```
 
 ## Releasing a new version
