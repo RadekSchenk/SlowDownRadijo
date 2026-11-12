@@ -25,7 +25,10 @@ android {
     // The Google Play upload key, from CI secrets (a base64 keystore). Without
     // it, release builds are signed with the debug key: installable on an
     // emulator for testing, refused by Google Play.
+    // The upload key only where CI hands over the keystore and its passwords
+    // (the release step); everywhere else the debug key.
     val uploadKeystore = providers.environmentVariable("UPLOAD_KEYSTORE_PATH").orNull
+        ?.takeIf { providers.environmentVariable("UPLOAD_KEYSTORE_PASSWORD").isPresent }
     signingConfigs {
         if (uploadKeystore != null) {
             create("upload") {
