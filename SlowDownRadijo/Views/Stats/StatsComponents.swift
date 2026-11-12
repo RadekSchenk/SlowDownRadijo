@@ -55,7 +55,7 @@ struct DurationText: View {
     }
 }
 
-/// Section heading: ExtraBold 24 on a 30pt line.
+/// Section heading: `Heading.section` (19) on a 26pt line.
 struct StatsHeading: View {
     let text: String
 
@@ -65,9 +65,9 @@ struct StatsHeading: View {
 
     var body: some View {
         Text(text)
-            .font(Theme.Typography.Manrope.extraBold(size: 24, relativeTo: .title2))
+            .font(Theme.Typography.Heading.section)
             .foregroundStyle(Theme.textPrimary)
-            .manropeLineHeight(30, fontSize: 24)
+            .manropeLineHeight(26, fontSize: 19)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

@@ -96,6 +96,64 @@ Slow down with Slow Down Rádijo.
 No algorithm can do this.
 No music. No life.
 
+## What's New
+
+Per version, in App Store Connect → the version → "What's New in This
+Version" (cs and en). Version 1.0 had none.
+
+**1.1 — Czech**
+
+```
+• Program teď sedí s webem: speciální vysílání a změny v programu uvidíš hned, jak je rádio zveřejní.
+• Nová hlavička: kompaktní přehrávač s pořadem, moderátorem a skladbou, za kterým při poslechu pomalu plují barevné mraky.
+• Pořady v programu mají fotky a připomínku najdeš hned u času začátku.
+• Jednotnější písmo v celé aplikaci a víc místa pro logo na iPhonech s Dynamic Islandem.
+• Drobné opravy a vylepšení.
+```
+
+**1.1 — English**
+
+```
+• The schedule now matches the website: special broadcasts and programme changes show up as soon as the station publishes them.
+• A new header: a compact player with the show, host and song, with coloured clouds drifting slowly behind it while you listen.
+• Shows in the schedule have photos, and the reminder sits right next to the start time.
+• More consistent type across the app, and more room for the logo on iPhones with the Dynamic Island.
+• Small fixes and improvements.
+```
+
+**1.2 — Czech**
+
+```
+• Slow Down Rádijo v autě: s CarPlay pustíš živé vysílání přímo z displeje auta a uvidíš pořad i skladbu, která právě hraje.
+• Drobné opravy a vylepšení.
+```
+
+**1.2 — English**
+
+```
+• Slow Down Rádijo in the car: with CarPlay, start the live stream right from the car's screen and see the show and the song on air.
+• Small fixes and improvements.
+```
+
+**1.2 — add to the App Review notes** (section 3, How to use it):
+
+```
+- CarPlay (CarPlay Audio entitlement granted to the team): connect an iPhone to a CarPlay car or head unit, or to Xcode's CarPlay Simulator. The app shows one item, "Živé vysílání" / "Live" (the station's live stream, with the show on air and the song when known); tapping it starts the stream and opens the system Now Playing screen.
+```
+
+## Releasing a new version
+
+1. Raise `MARKETING_VERSION` in `project.yml` (app and widget, the same
+   value) and commit.
+2. On the Mac, Xcode closed: `git pull`, then `tools/release/upload.sh`.
+   The build number is set from the time, nothing to edit.
+3. App Store Connect → the app → iOS App → **+** next to the versions →
+   the new version number. Fill in What's New (above), replace the
+   screenshots if the app looks different, pick the build under "Build"
+   once TestFlight has processed it.
+4. Add for Review → Submit. A version can only be submitted once the
+   previous one is out of review (approved, rejected or withdrawn).
+
 ## App Privacy (the privacy label)
 
 Matches `SlowDownRadijo/PrivacyInfo.xcprivacy` and the privacy policy.
@@ -119,6 +177,42 @@ info.
 
 Sign-in required: No.
 
-Notes:
+Notes (as resubmitted for 1.0 after App Review asked for more
+information under guideline 2.1; a screen recording from an iPhone on the
+latest iOS goes in Attachment, as .mov/.mp4 or zipped):
 
-> Slow Down Rádijo is the official app of the Slow Down Rádijo radio station (Slow Down Radio s.r.o., Prague). It plays the station's live stream; no account or sign-in is needed. The song line under the show appears once the stream's song is confirmed, which can take a minute after a new song starts. The microphone is used only in the "Vzkaz" (Message) tab, to record a voice message for the station when the listener starts a recording. Voice messages and feedback are delivered to the station by e-mail.
+```
+1. SCREEN RECORDING
+A screen recording made on an iPhone running the latest iOS is attached (App Review Information > Attachment). It starts at app launch and shows the typical flow: the live stream starting, the show, host and song on air, earlier songs, the sleep timer, the AirPlay picker, the weekly schedule with a show reminder, listening stats, recording and sending a voice message, and the menu (news, settings, feedback, language).
+The app has no account registration or login, no user-generated content visible to other users (voice messages and feedback go privately to the station by e-mail), and no paid content or In-App Purchases.
+
+2. PURPOSE AND AUDIENCE
+Slow Down Rádijo is the official app of Slow Down Radio s.r.o., an internet radio station in Prague playing hip hop, soul, funk, jazz, Afrobeat and electronica hand-picked by its DJs. It is for the station's listeners who want to listen on iPhone without a browser: one tap to play live, in the background and from the lock screen, with what is on air (show, host, song), the weekly schedule with show reminders, a sleep timer, personal listening stats, and a way to send a voice message to the studio.
+
+3. HOW TO USE IT
+No login, setup or sample files are needed. Open the app; the live stream starts (or tap Play).
+- Rádio tab: show, host and song on air. Tap the song to search it on Spotify; swipe it sideways for earlier songs. Moon icon: sleep timer. Round icon next to Play: AirPlay/Bluetooth output. Scroll down for the schedule; the bell sets a reminder before a show (asks for notification permission).
+- Statistiky tab: the listener's own listening time.
+- Vzkaz tab: record a voice message (asks for microphone permission), play it back, send it to the station.
+- Menu (top left): station news, settings (language, listening stats on/off and delete, anonymous analytics consent), feedback form.
+The app is in Czech and English (Menu > language). The song line appears only when the stream confirms the song; during talk and some mixtape shows there is none.
+
+4. EXTERNAL SERVICES
+- Live audio stream: Icecast servers of play.cz, the station's streaming provider.
+- Supabase (EU/UK region): anonymous listening stats, the log of songs played, and the functions that deliver voice messages and feedback.
+- Resend: e-mail delivery of voice messages and feedback to the station.
+- slowdownradijo.cz (WordPress REST API): station news and the weekly programme.
+- Apple iTunes Search API: artwork for the song on air.
+- PostHog (EU): anonymous usage analytics, only after the user opts in.
+- Spotify: opened through a search link when the user taps a song; no Spotify SDK or login.
+No authentication provider, payment processor or AI service is used.
+
+5. REGIONAL DIFFERENCES
+None. The app works the same in all regions: it plays the station's single live stream, and the interface is in Czech and English.
+
+6. THIRD-PARTY MATERIAL
+The app plays only the station's own live broadcast, the same stream offered at slowdownradijo.cz. Slow Down Radio s.r.o. holds licences for the internet broadcasting of music from OSA (authors) and INTERGRAM (performers and producers). Show photos and logos belong to the station.
+```
+
+Keep it in step with the app: a new external service, account,
+user-generated content or paid feature means updating these notes.

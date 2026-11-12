@@ -22,7 +22,7 @@ struct HomePromptCard: View {
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text(title)
-                        .font(Theme.Typography.Manrope.extraBold(size: 16, relativeTo: .headline))
+                        .font(Theme.Typography.Heading.item)
                         .foregroundStyle(Theme.textPrimary)
                     Text(message)
                         .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
@@ -44,7 +44,7 @@ struct HomePromptCard: View {
     private func answerButton(_ title: String, isPrimary: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title)
-                .font(Theme.Typography.Manrope.extraBold(size: 15, relativeTo: .subheadline))
+                .font(Theme.Typography.Copy.button)
                 .foregroundStyle(Theme.textPrimary)
                 .frame(maxWidth: .infinity)
                 .frame(height: 44)

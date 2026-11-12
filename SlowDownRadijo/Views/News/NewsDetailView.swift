@@ -24,10 +24,10 @@ struct NewsDetailView: View {
 
                 VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                     Text(L10n.formattedDate(post.date))
-                        .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .subheadline))
+                        .font(Theme.Typography.Copy.label)
                         .foregroundStyle(Theme.mutedText)
                     Text(post.title)
-                        .font(Theme.Typography.Manrope.extraBold(size: 22, relativeTo: .title2))
+                        .font(Theme.Typography.Heading.hero)
                         .foregroundStyle(Theme.textPrimary)
                 }
 
@@ -55,7 +55,7 @@ struct NewsDetailView: View {
         switch block {
         case .paragraph(let text):
             Text(text)
-                .font(Theme.Typography.Manrope.regular(size: 16, relativeTo: .body))
+                .font(Theme.Typography.Copy.reading)
                 .foregroundStyle(Theme.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
         case .image(let url):

@@ -19,7 +19,7 @@ struct ShowRemindersView: View {
                 BackHeaderView(title: L10n.showRemindersTitle, onBack: { dismiss() })
 
                 Text(L10n.showRemindersIntro)
-                    .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .subheadline))
+                    .font(Theme.Typography.Copy.body)
                     .foregroundStyle(Theme.mutedText)
 
                 if notificationsBlocked {

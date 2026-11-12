@@ -16,10 +16,10 @@ struct PrimaryActionButton: View {
                 }
                 Text(title)
             }
-            .font(Theme.Typography.Manrope.extraBold(size: 16, relativeTo: .headline))
+            .font(Theme.Typography.Copy.button)
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
-            .frame(height: 52)
+            .frame(height: 48)
             .background(Theme.liveRed.opacity(isEnabled ? 1 : 0.4), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
         .buttonStyle(.plain)
@@ -35,10 +35,10 @@ struct SecondaryActionButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(Theme.Typography.Manrope.extraBold(size: 16, relativeTo: .headline))
+                .font(Theme.Typography.Copy.button)
                 .foregroundStyle(Theme.textPrimary)
                 .frame(maxWidth: .infinity)
-                .frame(height: 52)
+                .frame(height: 48)
                 .background(Theme.hairline(0.08), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
         .buttonStyle(.plain)

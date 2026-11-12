@@ -24,7 +24,7 @@ struct ShowDividerRow: View {
                         .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .footnote))
                         .foregroundStyle(Theme.lavender)
                     Text(show.localizedName)
-                        .font(Theme.Typography.Manrope.bold(size: 18, relativeTo: .headline))
+                        .font(Theme.Typography.Heading.item)
                         .foregroundStyle(Theme.gold)
                         .lineLimit(1)
                 }

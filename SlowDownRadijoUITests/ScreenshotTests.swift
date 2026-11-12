@@ -15,6 +15,8 @@ final class ScreenshotTests: XCTestCase {
         app.launchArguments += [
             "-autoplayEnabled", "NO",
             "-app.language", language,
+            // Nothing from CI in the station's listening stats.
+            "-statsDryRun", "YES",
             "-UIPreferredContentSizeCategoryName", textSize,
             // The longest song line the station has played, to check that
             // it stays within the screen.

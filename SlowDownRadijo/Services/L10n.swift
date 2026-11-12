@@ -62,7 +62,15 @@ enum L10n {
 
     static var onAir: String { "ON-AIR" }
 
-    /// "Moderuje JARO COSSIGA" under the show title in `NowPlayingCard`.
+    /// The live-stream item on the car's screen (`CarPlaySceneDelegate`).
+    static var carPlayLive: String {
+        switch lang {
+        case .cs: return "Živé vysílání"
+        case .en: return "Live"
+        }
+    }
+
+    /// "Moderuje JARO COSSIGA" under the show title on the home screen (`HomeView.showRow`).
     static var hostedByKicker: String {
         switch lang {
         case .cs: return "Moderuje"
@@ -644,6 +652,21 @@ enum L10n {
         switch lang {
         case .cs: return "Poslechnout si nahrávku nebo nahrát znovu"
         case .en: return "Listen back or record again"
+        }
+    }
+
+    /// VoiceOver / TalkBack labels of the recorded message's play button.
+    static var playRecording: String {
+        switch lang {
+        case .cs: return "Přehrát nahrávku"
+        case .en: return "Play recording"
+        }
+    }
+
+    static var pauseRecording: String {
+        switch lang {
+        case .cs: return "Pozastavit nahrávku"
+        case .en: return "Pause recording"
         }
     }
 

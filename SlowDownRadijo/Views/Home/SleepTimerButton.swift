@@ -210,7 +210,7 @@ struct SleepTimerSheet: View {
         HStack(alignment: .center, spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(L10n.sleepTimerSheetTitle)
-                    .font(Theme.Typography.Manrope.extraBold(size: 22, relativeTo: .title2))
+                    .font(Theme.Typography.Heading.hero)
                     .foregroundStyle(Theme.textPrimary)
 
                 if let fireDate {
@@ -273,7 +273,7 @@ struct SleepTimerSheet: View {
         } label: {
             HStack {
                 Text(L10n.endOfShow)
-                    .font(Theme.Typography.Manrope.extraBold(size: 16, relativeTo: .headline))
+                    .font(Theme.Typography.Copy.button)
                     .foregroundStyle(Theme.textPrimary)
                 Spacer(minLength: 8)
                 if let currentShowEndDate {

@@ -84,7 +84,7 @@ struct TrackDetailsRow: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(Theme.Typography.Manrope.bold(size: 18, relativeTo: .headline))
+                    .font(Theme.Typography.Heading.item)
                     .foregroundStyle(Theme.textPrimary)
                     .lineLimit(2)
                     .contentTransition(.opacity)

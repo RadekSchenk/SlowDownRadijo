@@ -1,0 +1,7 @@
+{
+  "_comment": "Android text for the few L10n.swift strings that name iOS. Read by tools/android/l10n_to_strings.py.",
+  "notificationsBlockedToast": {
+    "cs": "Notifikace má appka v nastavení Androidu vypnuté.",
+    "en": "Notifications are turned off for the app in Android settings."
+  }
+}

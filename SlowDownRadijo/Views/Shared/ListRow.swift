@@ -28,7 +28,7 @@ struct ListRow<Leading: View, Trailing: View>: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(Theme.Typography.Manrope.extraBold(size: 18, relativeTo: .headline))
+                    .font(Theme.Typography.Heading.item)
                     .foregroundStyle(Theme.textPrimary)
                 if let subtitle {
                     Text(subtitle)

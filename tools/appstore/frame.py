@@ -3,14 +3,15 @@
 
 Takes the plain screens from AppStoreScreenshotTests ("cs 1 home.png", ...)
 and puts each on a 1320 x 2868 card: a benefit in Manrope ExtraBold at the
-top, the screen in a phone outline below it, over a glow in the logo's
-sunset colours fading into the app's night blue. The glows move from card
-to card, so the five read as one strip in the App Store.
+top, the screen in a phone outline below it, over the app's night blue with
+soft clouds in the colours of the home screen's own (HeaderClouds). The
+clouds run on from card to card, so the five read as one strip in the App
+Store.
 
     python3 tools/appstore/frame.py <screens dir> <output dir> [style]
 
-Styles (the background): panorama (the one in use, the default), glow,
-sun, red, night.
+Styles (the background): clouds (the one in use, the default), panorama
+(the sunset strip of 1.0), glow, sun, red, night.
 
 Needs Pillow. Run by the appstore-screenshots job in
 .github/workflows/ui-tests.yml.
@@ -32,6 +33,38 @@ SUN_ORANGE = (232, 101, 43)
 SUN_RED = (224, 74, 79)
 VIOLET = (107, 79, 191)
 LAVENDER = (184, 175, 220)  # Theme.mutedText
+
+# The home screen's clouds (Views/Home/HeaderClouds.swift).
+CLOUD_RED = (196, 24, 58)       # #C4183A
+CLOUD_VIOLET = (107, 63, 160)   # #6B3FA0
+CLOUD_PINK = (224, 32, 106)     # #E0206A
+CLOUD_INDIGO = (59, 31, 122)    # #3B1F7A
+CLOUD_LILAC = (155, 127, 212)   # #9B7FD4
+
+# The clouds behind all five cards, laid out on one 5-card-wide strip
+# (x 0…6600, y 0…2868): centre x, centre y, radius x, radius y, colour,
+# strength. Most sit around the captions; the ones at 1320, 2640, 3960
+# and 5280 straddle two cards so each card runs on into the next. A few
+# lower ones show beside and below the phones. Bigger, softer and fainter
+# than the app's own, so the phone's screen reads as the same light seen
+# closer, not a second layer competing with it.
+CLOUDS = [
+    (560, 260, 820, 640, CLOUD_RED, 0.55),
+    (1320, 120, 760, 600, CLOUD_VIOLET, 0.55),
+    (2080, 430, 700, 560, CLOUD_PINK, 0.38),
+    (2640, 180, 860, 660, CLOUD_RED, 0.5),
+    (3360, 470, 760, 620, CLOUD_INDIGO, 0.75),
+    (3960, 150, 800, 620, CLOUD_VIOLET, 0.55),
+    (4640, 400, 760, 580, CLOUD_PINK, 0.4),
+    (5280, 190, 860, 660, CLOUD_RED, 0.5),
+    (6150, 420, 720, 600, CLOUD_LILAC, 0.32),
+    (0, 2050, 560, 620, CLOUD_VIOLET, 0.4),
+    (1320, 2350, 640, 560, CLOUD_INDIGO, 0.6),
+    (2640, 2550, 600, 520, CLOUD_LILAC, 0.22),
+    (3960, 2250, 640, 600, CLOUD_RED, 0.3),
+    (5280, 2500, 600, 520, CLOUD_VIOLET, 0.42),
+    (6600, 2150, 560, 600, CLOUD_INDIGO, 0.55),
+]
 
 # Per screen: the caption in each language and the glow behind it
 # (colour, centre x as a fraction of the width).
@@ -108,6 +141,31 @@ def panorama_background(index):
     return card
 
 
+_cloud_strip = None
+
+
+def cloud_strip():
+    """All five cards' background at once (drawn at a quarter size, as it's
+    only soft blur), so the clouds cross from one card to the next."""
+    global _cloud_strip
+    if _cloud_strip is None:
+        k = 4
+        sw, sh = W * len(ORDER) // k, H // k
+        strip = Image.new("RGB", (sw, sh), NIGHT)
+        for cx, cy, rx, ry, colour, strength in CLOUDS:
+            mask = Image.new("L", (sw, sh), 0)
+            ImageDraw.Draw(mask).ellipse(((cx - rx) / k, (cy - ry) / k, (cx + rx) / k, (cy + ry) / k),
+                                         fill=int(255 * strength))
+            mask = mask.filter(ImageFilter.GaussianBlur(300 / k))
+            strip.paste(Image.new("RGB", (sw, sh), colour), (0, 0), mask)
+        _cloud_strip = strip.resize((W * len(ORDER), H), Image.BICUBIC)
+    return _cloud_strip
+
+
+def clouds_background(index):
+    return cloud_strip().crop((index * W, 0, index * W + W, H)).copy()
+
+
 def sun_background(index):
     """The logo's striped sun rising behind the phone, on night blue."""
     card = Image.new("RGB", (W, H), NIGHT)
@@ -151,6 +209,8 @@ def night_background(index):
 
 def background(spec, style):
     index = ORDER.index(spec)
+    if style == "clouds":
+        return clouds_background(index)
     if style == "panorama":
         return panorama_background(index)
     if style == "sun":
@@ -168,7 +228,7 @@ def rounded(size, radius):
     return mask
 
 
-def frame(screen_path, lang, key, out_path, style="panorama"):
+def frame(screen_path, lang, key, out_path, style="clouds"):
     spec = SCREENS[key]
     card = background(key, style)
 
@@ -219,7 +279,7 @@ def frame(screen_path, lang, key, out_path, style="panorama"):
 
 def main():
     src, out = sys.argv[1], sys.argv[2]
-    style = sys.argv[3] if len(sys.argv) > 3 else "panorama"
+    style = sys.argv[3] if len(sys.argv) > 3 else "clouds"
     os.makedirs(out, exist_ok=True)
     for path in sorted(glob.glob(os.path.join(src, "*"))):
         name = os.path.splitext(os.path.basename(path))[0].replace("_", " ")

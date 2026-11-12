@@ -52,31 +52,15 @@ struct RootTabView: View {
     /// The last notification tap acted on (see `ShowReminderStore.OpenRequest`).
     @State private var handledOpenRequestID: UUID?
 
-    /// The services the state objects share, built on first access only.
-    /// SwiftUI may call `init()` again, but it evaluates each `StateObject`
-    /// autoclosure just once — so nothing is constructed eagerly here (a
-    /// stray `RadioPlayerService` re-activated the audio session and added
-    /// remote-command targets; a stray `ICYMetadataService` was never freed).
-    @MainActor
-    private final class SharedServices {
-        lazy var schedule = ScheduleStore()
-        lazy var player = RadioPlayerService()
-        lazy var metadata = ICYMetadataService()
-        lazy var historyStore = PlayHistoryStore()
-    }
-
     init() {
-        let services = SharedServices()
+        // The app's one player, schedule and now-playing state, shared with
+        // CarPlay (`AppServices`).
+        let services = AppServices.shared
 
         _scheduleStore = StateObject(wrappedValue: services.schedule)
         _player = StateObject(wrappedValue: services.player)
         _metadataService = StateObject(wrappedValue: services.metadata)
-        _nowPlayingViewModel = StateObject(wrappedValue: NowPlayingViewModel(
-            player: services.player,
-            metadataService: services.metadata,
-            scheduleStore: services.schedule,
-            historyStore: services.historyStore
-        ))
+        _nowPlayingViewModel = StateObject(wrappedValue: services.nowPlaying)
         _historyViewModel = StateObject(wrappedValue: HistoryViewModel(historyStore: services.historyStore))
         _voiceMessageViewModel = StateObject(wrappedValue: VoiceMessageViewModel(radioPlayer: services.player))
         _previewPlayer = StateObject(wrappedValue: PreviewPlayerService(radioPlayer: services.player))
@@ -130,7 +114,14 @@ struct RootTabView: View {
                 Task { await NewsNotificationManager.checkForNewPost() }
             }
             ShowReminderStore.shared.reschedule()
+            // The week as the web has it (special broadcasts).
+            Task { await scheduleStore.refresh(force: true) }
             Analytics.shared.screen(.home)
+        }
+        // Back in the app: the week again, if it's a while since the last
+        // look (`ScheduleStore.refreshInterval`).
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            Task { await scheduleStore.refresh() }
         }
         // A tap on a "Právě začíná" notification: home, and the radio for
         // "Poslouchat".
@@ -255,16 +246,16 @@ struct RootTabView: View {
                         .frame(maxWidth: .infinity)
                 }
             }
-            // Figma `bottom-nav` (node 12294:257), measured from the render:
-            // the bar has 16pt side padding and the tab row another 24pt, so
-            // the four tabs sit 40pt from each edge with `space-between`
-            // across the rest (≈44pt gaps). The three equal columns take a
-            // 24pt inset instead, which puts the outer tabs' centres about
-            // 80pt in. Tab row: 14pt padding above (below the 1pt hairline)
-            // and 10pt below the icons and labels.
+            // Figma `bottom-nav`: the bar has 16pt side padding and the tab
+            // row another 24pt, so the four tabs sit 40pt from each edge
+            // with `space-between` across the rest. The three equal columns
+            // take a 24pt inset instead, which puts the outer tabs' centres
+            // about 80pt in. Tab row: 10pt above (below the 1pt hairline)
+            // and 6pt below the icons and labels — scaled down in 1.1 to sit
+            // with the page's type scale rather than outweigh it.
             .padding(.horizontal, FeatureFlags.supportTab ? 40 : 24)
-            .padding(.top, 14)
-            .padding(.bottom, 10)
+            .padding(.top, 10)
+            .padding(.bottom, 6)
         }
         // The bar runs to the screen's bottom edge (`body` ignores the bottom
         // safe area); below the tabs it keeps the design's 19pt home-indicator
@@ -304,15 +295,18 @@ struct RootTabView: View {
                 selectedTab = tag
             }
         } label: {
-            VStack(spacing: 6) {
+            // 22pt icons, 11pt Bold labels 4pt below: a step under the
+            // page's 13pt labels, so the bar frames the page instead of
+            // competing with it.
+            VStack(spacing: 4) {
                 Image(image)
                     .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 24, height: 24)
+                    .frame(width: 22, height: 22)
                 Text(title)
-                    .font(Theme.Typography.Manrope.extraBold(size: 12))
-                    .frame(height: 16)
+                    .font(Theme.Typography.Manrope.bold(size: 11))
+                    .frame(height: 15)
             }
             .foregroundStyle(isSelected ? Theme.liveRed : Theme.tabBarUnselected)
             // The whole tab is tappable, not just the icon and label glyphs.

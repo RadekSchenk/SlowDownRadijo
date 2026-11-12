@@ -12,7 +12,7 @@ struct BackHeaderView: View {
             HeaderIconButton(systemName: "chevron.left", action: onBack)
 
             Text(title)
-                .font(Theme.Typography.Manrope.extraBold(size: 24, relativeTo: .title2))
+                .font(Theme.Typography.Heading.page)
                 .foregroundStyle(Theme.textPrimary)
                 .lineLimit(1)
 

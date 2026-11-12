@@ -14,10 +14,19 @@ on:
       - ".github/workflows/ui-tests.yml"
       - ".github/screenshots.conf"
   workflow_dispatch:
+    inputs:
+      appstore:
+        description: "Take the App Store screenshots (instead of running the UI tests)"
+        type: boolean
+        default: false
+      programme_day:
+        description: "App Store screenshots: the programme screen shows this weekday (1 = Sunday … 7 = Saturday) instead of today"
+        type: string
+        default: ""
 
 jobs:
   ui-tests:
-    if: ${{ !contains(github.event.head_commit.message, '[screenshots]') && !contains(github.event.head_commit.message, '[appstore]') }}
+    if: ${{ !contains(github.event.head_commit.message, '[screenshots]') && !contains(github.event.head_commit.message, '[appstore]') && !inputs.appstore }}
     runs-on: macos-26
     timeout-minutes: 45
     steps:
@@ -196,7 +205,9 @@ jobs:
   # plain screens); the plain ones are printed into the log (JPEG,
   # base64), to look at or frame in another style without a new run.
   appstore-screenshots:
-    if: contains(github.event.head_commit.message, '[appstore]')
+    # Or run it from the Actions tab with "appstore" ticked — handy for
+    # timing it to a particular show on air.
+    if: ${{ contains(github.event.head_commit.message, '[appstore]') || inputs.appstore }}
     runs-on: macos-26
     timeout-minutes: 60
     steps:
@@ -247,6 +258,7 @@ jobs:
           mkdir -p shots
           for lang in cs en; do
             TEST_RUNNER_SCREENSHOT_LANGUAGE="$lang" \
+            TEST_RUNNER_SCREENSHOT_PROGRAMME_DAY="${{ inputs.programme_day }}" \
             xcodebuild test-without-building \
               -project SlowDownRadijo.xcodeproj \
               -scheme SlowDownRadijo \
@@ -276,8 +288,8 @@ jobs:
       - name: Frame
         run: |
           python3 -m pip install --break-system-packages --quiet pillow
-          # The background style: glow, panorama, sun, red or night.
-          python3 tools/appstore/frame.py shots framed panorama
+          # The background style: clouds, panorama, glow, sun, red or night.
+          python3 tools/appstore/frame.py shots framed clouds
           # App Store Connect's iPhone slot (6.1"/6.3", Dynamic Island) takes
           # 1206 x 2622; the cards are made at 6.9" (1320 x 2868), the same
           # shape, so they're scaled down.

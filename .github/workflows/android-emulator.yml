@@ -1,0 +1,102 @@
+# The Android app on an emulator: installs the debug build, walks through
+# it with the live stream playing (tools/android/emulator_walkthrough.sh)
+# and uploads the screen recording and screenshots as the
+# "android-walkthrough" artifact.
+#
+# Run it from the Actions tab, or push a commit whose message contains
+# [emulator].
+name: Android emulator
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/android]
+
+jobs:
+  walkthrough:
+    if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[emulator]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Android SDK
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0" "build-tools;37.0.0" > /dev/null
+
+      - name: Build
+        working-directory: android
+        # The release build (R8-shrunk), as listeners get it; signed with the
+        # debug key here.
+        run: ./gradlew :app:assembleRelease
+
+      - name: KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Walk through on the emulator
+        timeout-minutes: 20
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_7
+          ram-size: 4096M
+          cores: 4
+          disable-animations: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          script: tools/android/emulator_walkthrough.sh android/app/build/outputs/apk/release/app-release.apk walkthrough cz.slowdownradijo.app
+
+      - name: Contact sheet and errors
+        if: always()
+        run: |
+          python3 -m pip install --break-system-packages --quiet pillow
+          python3 - <<'PY'
+          import glob
+          from PIL import Image
+          shots = sorted(glob.glob("walkthrough/*.png"))
+          thumbs = []
+          for p in shots:
+              try:
+                  thumbs.append(Image.open(p).convert("RGB"))
+              except Exception:
+                  print("unreadable:", p)
+          if not thumbs:
+              raise SystemExit("no screenshots")
+          thumbs = [t.resize((150, t.height * 150 // t.width)) for t in thumbs]
+          cols = 7
+          rows = (len(thumbs) + cols - 1) // cols
+          h = max(t.height for t in thumbs)
+          sheet = Image.new("RGB", (cols * 150, rows * h), (30, 30, 30))
+          for i, t in enumerate(thumbs):
+              sheet.paste(t, ((i % cols) * 150, (i // cols) * h))
+          sheet.save("walkthrough/sheet.jpg", quality=60)
+          PY
+          echo "===== IMAGE contact sheet"
+          base64 -w 1000 walkthrough/sheet.jpg
+          echo "===== END IMAGE"
+          echo "===== ERRORS"
+          cat walkthrough/errors.log || true
+          echo "----- crash buffer"
+          cat walkthrough/crashes.log || true
+          cat walkthrough/status.txt || true
+          echo "----- last lines of logcat"
+          tail -n 60 walkthrough/logcat.txt || true
+          echo "===== END ERRORS"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-walkthrough
+          path: walkthrough/

@@ -10,6 +10,8 @@ import UIKit
 /// Reduce Motion keeps only the swap.
 struct ReminderBellButton: View {
     let show: Show
+    /// The glyph's point size; the tap area stays 44 × 38.
+    var glyphSize: CGFloat = 19
 
     @ObservedObject private var reminders = ShowReminderStore.shared
     @ObservedObject private var loc = LocalizationManager.shared
@@ -28,7 +30,7 @@ struct ReminderBellButton: View {
                     .id(isOn)
                     .transition(.iconSwap)
             }
-            .font(.system(size: 19, weight: .semibold))
+            .font(.system(size: glyphSize, weight: .semibold))
             .foregroundStyle(isOn ? Theme.liveRed : Theme.mutedText)
             .keyframeAnimator(initialValue: 0.0, trigger: ringCount) { content, angle in
                 content.rotationEffect(.degrees(angle), anchor: .top)

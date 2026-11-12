@@ -95,7 +95,7 @@ struct MessageView: View {
                 actionRow(title: Self.formatted(recorder.elapsed), subtitle: L10n.maxOneMinute) {
                     RoundedRectangle(cornerRadius: 4, style: .continuous)
                         .fill(.white)
-                        .frame(width: 18, height: 18)
+                        .frame(width: 15, height: 15)
                 }
             }
             .buttonStyle(.plain)
@@ -117,12 +117,14 @@ struct MessageView: View {
                 ListDivider()
                 HStack(spacing: Theme.Spacing.md) {
                     Button(action: viewModel.togglePlayback) {
-                        AccentCircle {
+                        AccentCircle(diameter: 46) {
                             accentIcon(recorder.isPlaying ? "pause.fill" : "play.fill")
                                 .offset(x: recorder.isPlaying ? 0 : 1)
                         }
                     }
                     .buttonStyle(.plain)
+                    // In the app's language, not the SF Symbol's name in the system's.
+                    .accessibilityLabel(recorder.isPlaying ? L10n.pauseRecording : L10n.playRecording)
 
                     WaveformBarsView(levels: recorder.waveformLevels, activeCount: playbackActiveSegmentCount)
 
@@ -182,29 +184,30 @@ struct MessageView: View {
 
     // MARK: - Building blocks
 
-    /// Section-heading scale from the home screen ("Pořady"), with the same
-    /// muted subtitle as "Pořad končí za…".
+    /// The screen's title (`Heading.page`), with the same muted subtitle as
+    /// "Pořad končí za…".
     private func header(title: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             Text(title)
-                .font(Theme.Typography.Manrope.extraBold(size: 24, relativeTo: .title2))
+                .font(Theme.Typography.Heading.page)
                 .foregroundStyle(Theme.textPrimary)
             Text(subtitle)
-                .font(Theme.Typography.Manrope.semibold(size: 16, relativeTo: .subheadline))
+                .font(Theme.Typography.Copy.body)
                 .foregroundStyle(Theme.mutedText)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    /// Mirrors the home hero's play button + show title row.
+    /// The home play button's 46pt circle and an item-sized title.
     private func actionRow<Icon: View>(title: String, subtitle: String?, @ViewBuilder icon: () -> Icon) -> some View {
         let iconView = icon()
         return HStack(spacing: Theme.Spacing.md) {
-            AccentCircle { iconView }
+            // The home play button's size.
+            AccentCircle(diameter: 46) { iconView }
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(Theme.Typography.Manrope.extraBold(size: 22, relativeTo: .title2))
+                    .font(Theme.Typography.Heading.item)
                     .foregroundStyle(Theme.textPrimary)
                     .monospacedDigit()
                 if let subtitle {
@@ -221,7 +224,7 @@ struct MessageView: View {
 
     private func accentIcon(_ systemName: String) -> some View {
         Image(systemName: systemName)
-            .font(.system(size: 20, weight: .bold))
+            .font(.system(size: 17, weight: .bold))
             .foregroundStyle(.white)
     }
 
@@ -258,9 +261,9 @@ struct MessageView: View {
         Button(action: action) {
             HStack(spacing: 6) {
                 Image(systemName: systemImage)
-                    .font(.system(size: 14, weight: .bold))
+                    .font(.system(size: 13, weight: .bold))
                 Text(title)
-                    .font(Theme.Typography.Manrope.bold(size: 16, relativeTo: .footnote))
+                    .font(Theme.Typography.Copy.link)
             }
             .foregroundStyle(Theme.textPrimary)
         }

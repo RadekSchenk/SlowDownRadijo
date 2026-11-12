@@ -13,19 +13,12 @@ struct FavoritesView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
                 AppHeaderView()
-                    // Matches the home screen's header offset exactly (see
-                    // `HomeView.heroSection`) — a fixed distance from the
-                    // true top edge, not the system safe-area inset, and the
-                    // same 20pt horizontal inset as every other tab,
-                    // independent of this screen's own 16pt content margin
-                    // (applied to the inner VStack below, not shared with
-                    // the header).
                     .padding(.top, AppHeaderView.topInset)
                     .padding(.horizontal, 20)
 
                 VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
                     Text(L10n.favoritesTitle)
-                        .font(Theme.Typography.Manrope.extraBold(size: 28, relativeTo: .title))
+                        .font(Theme.Typography.Heading.page)
                         .foregroundStyle(Theme.textPrimary)
 
                     if favorites.favorites.isEmpty {
