@@ -69,6 +69,10 @@ jobs:
           UPLOAD_KEY_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
         run: ./gradlew :app:bundleRelease :app:assembleRelease
 
+      - name: Release signer
+        # Who signed the bundle: the upload key's owner, or "Android Debug".
+        run: keytool -printcert -jarfile app/build/outputs/bundle/release/app-release.aab | grep -E "Owner|SHA256:" | head -2
+
       - name: Unit and screenshot tests
         # Compares with the screenshots in app/src/test/screenshots and
         # writes the diffs next to them; record new ones locally with
