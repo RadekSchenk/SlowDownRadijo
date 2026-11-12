@@ -10,6 +10,7 @@
     <string name="tabSupport">Support</string>
     <string name="tabFavorites">Favorites</string>
     <string name="onAir">ON-AIR</string>
+    <string name="carPlayLive">Live</string>
     <string name="hostedByKicker">Hosted by</string>
     <string name="nowPlayingHeading">Now playing</string>
     <string name="connecting">Connecting…</string>

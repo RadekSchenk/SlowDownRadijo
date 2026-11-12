@@ -56,6 +56,14 @@ final class AppStoreScreenshotTests: XCTestCase {
             sleep(2)
         }
 
+        // Another day's programme, when today's has nothing left to show —
+        // picked before scrolling, as a short day can't scroll that far
+        // (`SCREENSHOT_PROGRAMME_DAY`, a Calendar weekday, 1 = Sunday).
+        if let day = ProcessInfo.processInfo.environment["SCREENSHOT_PROGRAMME_DAY"], !day.isEmpty {
+            let chip = app.buttons["day.\(day)"]
+            if chip.waitForExistence(timeout: 5) { chip.tap() }
+        }
+
         // Down the home page until the programme's heading sits just under
         // the status bar, the day picker below it. A drag doesn't move the
         // page by exactly its length, so measure and correct once.
@@ -84,9 +92,14 @@ final class AppStoreScreenshotTests: XCTestCase {
     private static let excludedShows = ["Majkl"]
 
     private func capture(_ name: String) {
+        // Only what is on the screen counts: a show further down the
+        // programme, out of the picture, is fine.
+        let screen = app.windows.firstMatch.frame
         for show in Self.excludedShows {
-            let shown = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", show)).firstMatch
-            XCTAssertFalse(shown.exists, "\(name): \(show) is on screen — retake at another time")
+            let matches = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", show)).allElementsBoundByIndex
+            for element in matches where element.exists && screen.intersects(element.frame) {
+                XCTFail("\(name): \(show) is on screen — retake at another time")
+            }
         }
         let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         attachment.name = "\(language) \(name)"

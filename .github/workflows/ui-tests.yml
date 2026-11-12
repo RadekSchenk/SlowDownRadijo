@@ -19,6 +19,10 @@ on:
         description: "Take the App Store screenshots (instead of running the UI tests)"
         type: boolean
         default: false
+      programme_day:
+        description: "App Store screenshots: the programme screen shows this weekday (1 = Sunday … 7 = Saturday) instead of today"
+        type: string
+        default: ""
 
 jobs:
   ui-tests:
@@ -254,6 +258,7 @@ jobs:
           mkdir -p shots
           for lang in cs en; do
             TEST_RUNNER_SCREENSHOT_LANGUAGE="$lang" \
+            TEST_RUNNER_SCREENSHOT_PROGRAMME_DAY="${{ inputs.programme_day }}" \
             xcodebuild test-without-building \
               -project SlowDownRadijo.xcodeproj \
               -scheme SlowDownRadijo \

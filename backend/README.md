@@ -220,10 +220,11 @@ same user to a permanent account, so history carries over.
    stats are still removed and Postgres logs "auth user not deleted".
 9. **The community switch.** A listener's own stats are always visible in the
    app (zeros at first). `stats_config` has one row, `min_listeners`
-   (default 20) and `min_listener_seconds` (default 60); the **leaderboard
-   and the "Celkem všichni Slow Down Riders" total** unlock for everyone once
-   that many listeners have listened at least that long. For testing before
-   then:
+   (default 20) and `min_listener_seconds` (600 since 019: ten minutes, so
+   Xcode runs, simulators and App Review devices don't count); the
+   **leaderboard and the "Celkem všichni Slow Down Riders" total** unlock for
+   everyone once that many listeners, each at least a day old, have listened
+   at least that long. For testing before then:
    ```sql
    update stats_config set force_enabled = true;   -- unlock them now
    update stats_config set force_enabled = false;  -- back to the threshold
