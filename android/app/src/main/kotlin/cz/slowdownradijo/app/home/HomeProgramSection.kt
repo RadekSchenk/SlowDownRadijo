@@ -108,7 +108,9 @@ fun HomeProgramSection(
             ListDivider()
         }
 
-        if (displayed.isEmpty()) {
+        // Today, the show on air may simply be the day's last one: then
+        // nothing is left to list, but there's no "no programme" to say.
+        if (displayed.isEmpty() && currentIndex == null) {
             Text(
                 stringResource(R.string.noProgramForDay), style = Theme.Typography.manrope(13f, FontWeight.Normal),
                 color = Theme.lavender, modifier = Modifier.padding(vertical = Theme.Spacing.md),

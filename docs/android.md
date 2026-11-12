@@ -152,6 +152,10 @@ After phase 3 (10 Nov 2026), while the Play account is set up:
   the unit and screenshot tests, `MainActivityTest` (the real activity)
   among them.
 
+Version 1.2 (12 Nov 2026), with the iOS 1.2 branch merged in: Android
+Auto (the live stream item, as CarPlay), and no "no programme" note
+under the day's last show. The leaderboard's 10 minutes are the server's.
+
 ### Building
 
     python3 tools/android/l10n_to_strings.py     # after changing L10n.swift
@@ -187,5 +191,5 @@ closed test that new personal accounts must run before production.
 | Language switch (cs / en) | 1.0 | 2 |
 | Heading scale, typography | 1.1 | 0 (theme); text size capped as on iOS |
 | Home screen widget | 1.0 | 3 (Glance; system font, widgets cannot use Manrope) |
-| In the car: CarPlay / Android Auto (live stream item, Now Playing) | 1.2 | — |
+| In the car: CarPlay / Android Auto (live stream item, Now Playing) | 1.2 | 1.2 (`MediaLibraryService` with one item, `CarLibrary`; Now Playing is the media session; trigger `android_auto`. Not tried in a car or the Desktop Head Unit yet) |
 | Review prompt (system) | 1.0 | 3 (Play In-App Review; the iOS rules: a week, 3 days of 10+ min in 60, 120 days apart, at most 3) |

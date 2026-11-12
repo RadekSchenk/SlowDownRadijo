@@ -60,12 +60,25 @@ class RadioEngine(
     /** What the session sees: play and pause from the notification, lock screen or headphones go through here. */
     val sessionPlayer: Player by lazy {
         object : ForwardingPlayer(player) {
-            override fun play() = this@RadioEngine.play(PlayTrigger.LOCK_SCREEN)
+            override fun play() = this@RadioEngine.play(takeSessionTrigger())
             override fun pause() = this@RadioEngine.pause()
             override fun setPlayWhenReady(playWhenReady: Boolean) =
                 if (playWhenReady) play() else pause()
+            // A car picking "Živé vysílání" sets its item; the stream is the
+            // one item there is, so the engine's own stays.
+            override fun setMediaItem(mediaItem: MediaItem) = Unit
+            override fun setMediaItem(mediaItem: MediaItem, resetPosition: Boolean) = Unit
+            override fun setMediaItem(mediaItem: MediaItem, startPositionMs: Long) = Unit
+            override fun setMediaItems(mediaItems: MutableList<MediaItem>) = Unit
+            override fun setMediaItems(mediaItems: MutableList<MediaItem>, resetPosition: Boolean) = Unit
+            override fun setMediaItems(mediaItems: MutableList<MediaItem>, startIndex: Int, startPositionMs: Long) = Unit
+            override fun prepare() = Unit
         }
     }
+
+    /** What the next play through the session counts as: set by the car, else the lock screen. */
+    var nextSessionTrigger: PlayTrigger? = null
+    private fun takeSessionTrigger() = (nextSessionTrigger ?: PlayTrigger.LOCK_SCREEN).also { nextSessionTrigger = null }
 
     private var metadata: MediaMetadata = MediaMetadata.Builder().setTitle("Slow Down Rádijo").setArtist("Slow Down Rádijo").build()
     private val handler = Handler(Looper.getMainLooper())

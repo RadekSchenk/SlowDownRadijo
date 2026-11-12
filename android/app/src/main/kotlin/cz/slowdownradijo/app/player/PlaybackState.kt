@@ -12,6 +12,8 @@ sealed interface PlaybackState {
 /** What last started playback, as `RadioPlayerService.PlayTrigger` (analytics names). */
 enum class PlayTrigger(val analyticsName: String) {
     USER("user"), AUTOPLAY("autoplay"), LOCK_SCREEN("lock_screen"), NOTIFICATION("notification"), RESUME("resume"), PREVIEW("preview"),
+    /** The live item on the car's screen, as iOS's "carplay". */
+    ANDROID_AUTO("android_auto"),
 }
 
 /** What last stopped it, as `RadioPlayerService.StopReason`. */
