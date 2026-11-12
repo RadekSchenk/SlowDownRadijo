@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -62,8 +63,13 @@ class StoreScreenshotTest {
     @get:Rule val compose = createComposeRule()
 
     private val store = ScheduleStore(ScheduleStore.parse(File("../../SlowDownRadijo/Resources/schedule.json").readText()))
-    /** Monday 9 Nov 2026, 13:30 in Prague: Show podle Majkla, hosted. */
-    private val now = Instant.parse("2026-11-09T12:30:00Z")
+    /**
+     * Sunday 8 Nov 2026, 17:30 in Prague: Kurátorská selekce, hosted, with only
+     * shows with bundled photos after it. Sunday is the one day without Show
+     * podle Majkla, which must not appear in the store's screenshots (the
+     * station's call, as `excludedShows` in `AppStoreScreenshotTests.swift`).
+     */
+    private val now = Instant.parse("2026-11-08T16:30:00Z")
     private val show = store.currentShow(now)!!
     private val onAir = OnAir(
         show = show,
@@ -79,8 +85,14 @@ class StoreScreenshotTest {
                 ProvideAppLanguage(language) { SlowDownTheme { content() } }
             }
         }
+        for (show in excludedShows) {
+            check(compose.onAllNodes(hasText(show, substring = true)).fetchSemanticsNodes().isEmpty()) { "$name: $show is on screen" }
+        }
         compose.onRoot().captureRoboImage("../store/screenshots/${language.code}/$name.png")
     }
+
+    /** Shows that must not appear in the store's screenshots (the station's call). */
+    private val excludedShows = listOf("Majkl")
 
     /** A tab's page as the app lays it out: the header, then the content. */
     @Composable
@@ -115,7 +127,7 @@ class StoreScreenshotTest {
         },
         weekSeconds = 27_120, weekStart = LocalDate.parse("2026-11-03"), weekEnd = LocalDate.parse("2026-11-09"),
         shows = listOf(
-            StatsSummary.ShowShare("show-podle-majkla", "Show podle Majkla", "Vrtulník Michael V.", null, null, 40_000, 0.42),
+            StatsSummary.ShowShare("africa-incorporated-s-chuck-diesal", "Africa Incorporated", "Chuck Diesal", null, null, 40_000, 0.42),
             StatsSummary.ShowShare("beat-brunch-s-jaro-cossiga", "Beat Brunch", "Jaro Cossiga", null, null, 30_000, 0.31),
             StatsSummary.ShowShare("morning-coffee-s-dj-pufaz", "Morning Coffee", "DJ Pufaz", null, null, 25_000, 0.27),
         ),
