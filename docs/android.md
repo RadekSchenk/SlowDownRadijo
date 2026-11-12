@@ -20,7 +20,10 @@ it. Decided 10 Nov 2026.
 - **Figma is the design source** for both apps.
 - **Phones only** for 1.0, as on iOS.
 - **Testing:** unit and screenshot tests (Robolectric / Roborazzi) and a
-  screen recording from an emulator in CI; no Android phone at hand yet.
+  screen recording from an emulator in CI. 1.2 (build 21) runs on a
+  tester's phone from Google Play's internal test (12 Nov 2026): the live
+  stream and the Spotify link work. Swiping the app away from recents keeps
+  the radio playing (on purpose, `PlaybackService.onTaskRemoved`).
 
 ## Keeping the two apps the same
 
@@ -171,6 +174,13 @@ Slow Down Radio s.r.o. opens an **organisation** developer account
 number (the one Apple has), a verified website and contact. Verification
 can take several days. Organisation accounts skip the 14-day / 12-tester
 closed test that new personal accounts must run before production.
+
+12 Nov 2026: the listing (cs, en), content rating (12+), data safety and
+the other declarations are filled in (answers in `docs/google-play.md`).
+Build 21 (1.2) is on internal testing and on closed testing (list
+"Slowriders"), sent to Google for review. Managed publishing could not be
+turned on before the first review; production has countries set but no
+release yet.
 
 ## Parity
 
