@@ -6,7 +6,8 @@
 Writes android/store/icon-512.png (the app icon, 512 x 512) and
 android/store/feature-graphic.png (1024 x 500: the logo over the home
 screen's dark sky with its red and purple clouds, and the genres).
-The phone screenshots come from StoreScreenshotTest.
+The phone screenshots come from StoreScreenshotTest (about 1078 x 1918);
+this brings them to exactly 1080 x 1920, the 9:16 that Play requires.
 """
 
 from pathlib import Path
@@ -56,8 +57,16 @@ def feature_graphic() -> None:
     image.convert("RGB").save(OUT / "feature-graphic.png")
 
 
+def screenshots() -> None:
+    for path in sorted(OUT.glob("screenshots/*/*.png")):
+        shot = Image.open(path).convert("RGB")
+        if shot.size != (1080, 1920):
+            shot.resize((1080, 1920), Image.LANCZOS).save(path)
+
+
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
     icon()
     feature_graphic()
+    screenshots()
     print("written:", *(p.relative_to(ROOT) for p in sorted(OUT.glob("*.png"))))

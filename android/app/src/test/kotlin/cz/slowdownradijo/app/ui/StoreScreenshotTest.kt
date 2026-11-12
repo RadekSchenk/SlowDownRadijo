@@ -50,13 +50,14 @@ import java.time.LocalDate
 /**
  * Phone screenshots for the Google Play listing (`docs/google-play.md`),
  * in Czech and English, written to `android/store/screenshots/`. A
- * Pixel 7 cut to 1079 x 2152: Play takes no screenshot longer than 2:1.
+ * Pixel 7's width at 9:16, which is all Play takes; tools/android/store_graphics.py
+ * then brings them to exactly 1080 x 1920.
  *
  *     ./gradlew :app:testDebugUnitTest --tests '*StoreScreenshotTest*' -Proborazzi.test.record=true
  */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(qualifiers = "w411dp-h820dp-normal-long-notround-any-420dpi-keyshidden-nonav")
+@Config(qualifiers = "w411dp-h731dp-normal-notlong-notround-any-420dpi-keyshidden-nonav")
 class StoreScreenshotTest {
     @get:Rule val compose = createComposeRule()
 

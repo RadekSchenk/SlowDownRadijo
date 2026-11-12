@@ -11,7 +11,7 @@ Grafika je v `android/store/`:
 |---|---|---|
 | `icon-512.png` | Ikona aplikace (512 × 512) | `python3 tools/android/store_graphics.py` |
 | `feature-graphic.png` | Úvodní grafika (1024 × 500) | totéž |
-| `screenshots/cs/*.png`, `screenshots/en/*.png` | Snímky obrazovky telefonu (1079 × 2152), v pořadí podle čísla | `StoreScreenshotTest` (`-Proborazzi.test.record=true`) |
+| `screenshots/cs/*.png`, `screenshots/en/*.png` | Snímky obrazovky telefonu (1080 × 1920, Play chce přesně 9 : 16), v pořadí podle čísla | `StoreScreenshotTest` (`-Proborazzi.test.record=true`), pak `store_graphics.py` |
 
 ## Nastavení obchodu (Růst → Nastavení obchodu)
 
