@@ -23,15 +23,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.saveable.Saver
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -48,8 +46,8 @@ enum class Tab(val label: Int, val icon: Int) {
 
 /**
  * The app's frame (`RootTabView.swift`): the selected tab's page over the
- * bottom bar, and the menu over everything. A page is built on its first
- * visit and kept, so it keeps its scroll and state.
+ * bottom bar, and the menu over everything. A page keeps its saved state
+ * (scroll position) while another is shown.
  */
 @Composable
 fun RootScreen(
@@ -59,25 +57,15 @@ fun RootScreen(
     menu: @Composable () -> Unit,
     page: @Composable (Tab) -> Unit,
 ) {
-    var visited by rememberSaveable(stateSaver = Saver<Set<Tab>, List<Int>>({ it.map(Tab::ordinal) }, { list -> list.map { Tab.entries[it] }.toSet() })) {
-        mutableStateOf(setOf(selected))
-    }
-    if (selected !in visited) visited = visited + selected
+    // Only the selected page is on screen; the others keep their saved
+    // state (scroll position and the like) for when they come back.
+    val pages = rememberSaveableStateHolder()
 
     Box(Modifier.fillMaxSize().background(Theme.background)) {
         Column(Modifier.fillMaxSize()) {
             ToastHost(Modifier.weight(1f).fillMaxWidth()) {
-                for (tab in Tab.entries) {
-                    if (tab !in visited) continue
-                    val isSelected = tab == selected
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            // A page kept for later is out of sight and out of TalkBack's reach.
-                            .then(if (isSelected) Modifier else Modifier.size(0.dp).clearAndSetSemantics {})
-                    ) {
-                        page(tab)
-                    }
+                Box(Modifier.fillMaxSize()) {
+                    pages.SaveableStateProvider(selected) { page(selected) }
                 }
             }
             BottomBar(selected, onSelect)

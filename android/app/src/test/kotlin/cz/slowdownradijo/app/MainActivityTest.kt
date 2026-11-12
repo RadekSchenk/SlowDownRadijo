@@ -50,6 +50,20 @@ class MainActivityTest {
         compose.onNodeWithText("Automatické přehrávání").assertExists()
     }
 
+    /**
+     * One page on screen at a time. Pages kept for later used to be drawn
+     * under the selected one (seen on the emulator): Statistiky over Rádio.
+     * Now only the selected page is composed at all.
+     */
+    @Test fun `only the selected tab is drawn`() {
+        compose.onNodeWithText("Statistiky").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Pořady").assertDoesNotExist()
+        compose.onNodeWithText("Rádio").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Pořady").assertExists()
+    }
+
     @Test fun `switching the language keeps the activity working`() {
         compose.activity.app.language.set(cz.slowdownradijo.app.l10n.AppLanguage.EN)
         compose.waitForIdle()
