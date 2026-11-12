@@ -13,13 +13,15 @@ Grafika je v `android/store/`:
 | `feature-graphic.png` | Úvodní grafika (1024 × 500) | totéž |
 | `screenshots/cs/*.png`, `screenshots/en/*.png` | Snímky obrazovky telefonu (1080 × 1920, Play chce přesně 9 : 16), v pořadí podle čísla | `StoreScreenshotTest` (`-Proborazzi.test.record=true`), pak `store_graphics.py` |
 
-## Nastavení obchodu (Růst → Nastavení obchodu)
+## Nastavení obchodu (Zvýšení počtu uživatelů → Nastavení obchodu)
 
 | Pole | Hodnota |
 |---|---|
 | Kategorie | Aplikace → Hudba a zvuk |
 | Štítky | Rádio, Hudba, Streamování hudby (co Play nabídne) |
-| E-mail | veřejný kontaktní e-mail rádia (povinný, uvidí ho uživatelé) |
+| E-mail | info@slowdownradijo.cz (povinný, uvidí ho uživatelé) |
+| Telefon | nevyplněno |
+| Externí marketing | zapnutý |
 | Web | https://slowdownradijo.cz |
 
 ## Hlavní záznam v obchodu – čeština (výchozí)
@@ -109,22 +111,31 @@ The first Slow Down Rádijo for Android: the live stream, the schedule with remi
 | Položka | Odpověď |
 |---|---|
 | Zásady ochrany soukromí | https://slowdownradijo.cz/ochrana-osobnich-udaju/ |
-| Přístup k aplikaci | Všechny funkce jsou dostupné bez zvláštního přístupu (žádné přihlášení) |
+| Přihlašovací údaje (dříve Přístup k aplikaci) | Ne, žádná část aplikace není omezená |
 | Reklamy | Aplikace neobsahuje reklamy |
 | Cílová skupina | 13–15, 16–17, 18 a více (ne pod 13: to by zapnulo pravidla pro rodiny a děti) |
 | Zpravodajská aplikace | Ne |
-| Vládní aplikace | Ne |
+| Státní aplikace | Ne |
+| Status obchodníka | Ano, vztahuje se (Slow Down Radio s.r.o.); smluvní podmínky nevyplněné |
+| Reklamní ID | Ne (aplikace nemá oprávnění AD_ID) |
 | Finanční funkce | Žádné |
 | Zdraví | Žádné zdravotní funkce |
 | Služby na popředí (pokud se zeptá) | Přehrávání médií: živé vysílání rádia hraje na pozadí a ovládá se z notifikace a zamčené obrazovky. Spouští ho uživatel. |
 
 ### Hodnocení obsahu (dotazník IARC)
 
+Vyplněno 12. 11. 2026. Výsledek: IARC 12+, PEGI „Dohled rodičů“, ESRB Teen,
+USK 12, ClassInd 14.
+
 - Kategorie: **Všechny ostatní typy aplikací**.
-- Násilí, sex, drogy, hazard: **Ne**.
-- Interakce uživatelů: **Ne**. Vzkazy a zpětná vazba jdou soukromě rádiu, ostatní uživatelé je nevidí.
-- Sdílení polohy: **Ne**. Digitální nákupy: **Ne**.
-- Vulgární jazyk: rádio vysílá hudbu, kterou appka neupravuje. Na iOS je aplikace hodnocená 4+. Pokud dotazník rozlišuje hudbu s explicitními texty, odpověz podle toho, co rádio hraje.
+- Stažená aplikace (hodnocený obsah v balíčku): **Ne**.
+- Sdílení uživatelského obsahu: **Ne**. Vzkazy a zpětná vazba jdou soukromě rádiu.
+- Online obsah: **Ano** (živé vysílání, novinky a program z webu).
+- Násilí: **Ne**. Sexualita: **Ne**.
+- Jazyk: **Ano**. Rádio může pustit necenzurované verze skladeb. Hlavní zaměření: Ne; mírné klení: Ano; mírné nadávky: Ano; diskriminační mluva: Ne; sexuální nadávky: podle odpovědi v Play Console.
+- Drogy: **Ano**, odkazy v textech písní (vyobrazení: Ne).
+- Propagace produktů s věkovým omezením: **Ne**.
+- Různé (poloha, digitální nákupy, odměny, prohlížeč, zpravodajství): vše **Ne**.
 
 ### Bezpečnost údajů
 
@@ -132,7 +143,9 @@ Odpovídá štítku soukromí v App Store (`docs/app-store.md`) a zásadám ochr
 
 - Shromažďuje aplikace data? **Ano**.
 - Jsou všechna data při přenosu šifrovaná? **Ano** (vše jde přes HTTPS).
-- Mohou uživatelé požádat o smazání? **Ano**: Nastavení → statistiky poslechu → smazat. Ostatní přes e-mail rádia.
+- Metody vytvoření účtu: **Aplikace uživatelům vytvoření účtu neumožňuje**.
+- Mohou uživatelé požádat o smazání? **Ano**, URL: https://slowdownradijo.cz/ochrana-osobnich-udaju/ (Menu → Nastavení → Smazat moje statistiky; ostatní přes e-mail rádia).
+- U všech typů: jen shromažďováno (ne sdíleno), nezpracovává se dočasně, uživatelé si mohou zvolit.
 - Sdílení s třetími stranami: **Ne**. Supabase, PostHog a Resend jsou zpracovatelé (poskytovatelé služeb), to se podle Googlu za sdílení nepočítá.
 
 | Typ dat (Play Console) | Co to je | Účel | Povinné? |
@@ -141,11 +154,12 @@ Odpovídá štítku soukromí v App Store (`docs/app-store.md`) a zásadám ochr
 | ID zařízení nebo jiná ID | Náhodné anonymní ID pro statistiky poslechu; náhodné ID analytiky (jen se souhlasem) | Funkce aplikace, Analytika | Volitelné |
 | Zvuk → Hlasové nebo zvukové nahrávky | Hlasové vzkazy, které posluchač nahraje a odešle | Funkce aplikace | Volitelné |
 | Zprávy → Jiné zprávy v aplikaci | Text zpětné vazby | Funkce aplikace | Volitelné |
-| Informace o aplikaci a výkonu → Jiné údaje o výkonu aplikace | Verze appky a Androidu a model telefonu, poslané se zpětnou vazbou | Funkce aplikace | Volitelné |
+| Informace o aplikaci a výkonu → Jiné údaje o výkonu aplikace | Verze appky a Androidu a model telefonu, poslané se zpětnou vazbou; verze appky a Androidu u událostí analytiky (jen se souhlasem) | Funkce aplikace, Analytika | Volitelné |
 
 Neshromažďuje se: jméno, e-mail, telefon, poloha, kontakty, fotky,
 platby, historie prohlížení, zdravotní ani finanční údaje, záznamy o
-pádech.
+pádech, diagnostika. PostHog má zapnuté anonymizování IP adres, takže
+se nezjišťuje ani přibližná poloha.
 
 ## Vydání
 
