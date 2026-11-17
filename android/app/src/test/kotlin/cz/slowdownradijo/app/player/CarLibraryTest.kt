@@ -31,4 +31,13 @@ class CarLibraryTest {
         assertEquals("Show podle Majkla", CarLibrary.live("Živé vysílání", show, null, null).mediaMetadata.subtitle)
         assertEquals("Slow Down Rádijo", CarLibrary.live("Live", null, null, null).mediaMetadata.subtitle)
     }
+
+    @Test fun `opening the app in the car plays unless it already plays or the system is asking`() {
+        assertTrue(CarLibrary.autoplaysOnOpen(PlaybackState.Idle, isSystemQuery = false))
+        assertTrue(CarLibrary.autoplaysOnOpen(PlaybackState.Paused, isSystemQuery = false))
+        assertTrue(CarLibrary.autoplaysOnOpen(PlaybackState.Error, isSystemQuery = false))
+        assertFalse(CarLibrary.autoplaysOnOpen(PlaybackState.Playing, isSystemQuery = false))
+        assertFalse(CarLibrary.autoplaysOnOpen(PlaybackState.Connecting, isSystemQuery = false))
+        assertFalse(CarLibrary.autoplaysOnOpen(PlaybackState.Idle, isSystemQuery = true))
+    }
 }
