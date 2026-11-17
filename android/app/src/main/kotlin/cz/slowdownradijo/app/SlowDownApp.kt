@@ -30,6 +30,9 @@ import cz.slowdownradijo.app.message.VoiceMessageUploader
 import cz.slowdownradijo.app.stats.ListeningStatsStore
 import cz.slowdownradijo.app.stats.ListeningTracker
 import cz.slowdownradijo.app.stats.SupabaseStatsApi
+import cz.slowdownradijo.app.account.AccountService
+import cz.slowdownradijo.app.account.SupabaseSessionProvider
+import cz.slowdownradijo.app.account.createAppSupabase
 import cz.slowdownradijo.app.reminders.ShowReminders
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -76,7 +79,12 @@ class SlowDownApp : Application() {
         )
     }
 
-    private val statsApi by lazy { SupabaseStatsApi(http, getSharedPreferences("stats-session", MODE_PRIVATE)) }
+    /** Accounts, the chat and the stats session (see account/SupabaseSession.kt). */
+    val supabase by lazy { createAppSupabase(this) }
+    private val sessions by lazy { SupabaseSessionProvider(supabase, getSharedPreferences("stats-session", MODE_PRIVATE)) }
+    val account by lazy { AccountService(supabase, sessions, scope) }
+
+    private val statsApi by lazy { SupabaseStatsApi(http, sessions) }
     val tracker by lazy {
         ListeningTracker(
             api = statsApi,
@@ -121,6 +129,7 @@ class SlowDownApp : Application() {
     fun startNowPlaying() {
         if (started) return
         started = true
+        account.start()
         analytics.start()
         playbackAnalytics.start(scope)
         scope.launch {

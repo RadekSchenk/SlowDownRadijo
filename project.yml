@@ -12,6 +12,16 @@ packages:
   PostHog:
     url: https://github.com/PostHog/posthog-ios
     from: 3.92.0
+  # Accounts and the chat (Auth, PostgREST, Realtime) — see
+  # SlowDownRadijo/Services/Account/ and docs/chat-implementation.md.
+  Supabase:
+    url: https://github.com/supabase/supabase-swift
+    from: 2.0.0
+  # "Pokračovat s Google": Google's own sign-in sheet, its ID token goes to
+  # Supabase.
+  GoogleSignIn:
+    url: https://github.com/google/GoogleSignIn-iOS
+    from: 8.0.0
 
 settings:
   base:
@@ -34,6 +44,10 @@ targets:
       path: SlowDownRadijo/SlowDownRadijo.entitlements
       properties:
         com.apple.developer.carplay-audio: true
+        # "Pokračovat s Apple" (Profil, chat). The capability must be on for
+        # the App ID cz.slowdownradijo.app in the Apple Developer account.
+        com.apple.developer.applesignin:
+          - Default
     info:
       path: SlowDownRadijo/Info.plist
       properties:
@@ -54,6 +68,17 @@ targets:
           - UIInterfaceOrientationPortrait
         UIBackgroundModes:
           - audio
+        # Sign-in: Google's iOS OAuth client (from the build settings below)
+        # and the app's own scheme, where the e-mail link and Google's sheet
+        # return (slowdownradijo://auth).
+        GIDClientID: "$(GOOGLE_IOS_CLIENT_ID)"
+        CFBundleURLTypes:
+          - CFBundleURLName: cz.slowdownradijo.app
+            CFBundleURLSchemes:
+              - slowdownradijo
+          - CFBundleURLName: com.google.signin
+            CFBundleURLSchemes:
+              - "$(GOOGLE_IOS_URL_SCHEME)"
         # CarPlay Audio: a second scene for the car's screen; the phone's
         # window stays SwiftUI's own (WindowGroup).
         UIApplicationSceneManifest:
@@ -89,10 +114,19 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         MARKETING_VERSION: "1.2"
         CURRENT_PROJECT_VERSION: "1"
+        # Google Cloud → APIs & Services → Credentials → the iOS OAuth client:
+        # its client id, and the "iOS URL scheme" (the id reversed). Until
+        # they are filled in, "Pokračovat s Google" says it's unavailable.
+        GOOGLE_IOS_CLIENT_ID: ""
+        GOOGLE_IOS_URL_SCHEME: "com.googleusercontent.apps.not-configured"
     dependencies:
       - target: SlowDownRadijoWidgetExtension
         embed: true
       - package: PostHog
+      - package: Supabase
+        product: Supabase
+      - package: GoogleSignIn
+        product: GoogleSignIn
 
   # Drives the app in the simulator (tab bar); run by
   # .github/workflows/ui-tests.yml, or Cmd+U in Xcode.

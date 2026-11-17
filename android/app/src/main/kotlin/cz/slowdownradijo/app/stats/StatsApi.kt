@@ -1,10 +1,9 @@
 package cz.slowdownradijo.app.stats
 
-import android.content.SharedPreferences
+import cz.slowdownradijo.app.account.SessionException
+import cz.slowdownradijo.app.account.SessionProvider
 import cz.slowdownradijo.app.data.RemoteHistoryService
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -64,25 +63,15 @@ interface StatsApi {
 }
 
 /**
- * Supabase with an anonymous account per phone: signed up on the first
- * upload, the session kept in [prefs] and refreshed when it runs out.
+ * The stats functions over plain REST; the session (an anonymous user per phone, made on
+ * the first upload, upgraded to a permanent account when the listener signs in) comes
+ * from [sessions], shared with the account and the chat. As `StatsAPIClient.swift`.
  */
 class SupabaseStatsApi(
     private val client: OkHttpClient,
-    private val prefs: SharedPreferences,
+    private val sessions: SessionProvider,
     private val baseUrl: String = "https://toqoqrshyutyezoyxvlj.supabase.co",
-    private val now: () -> Long = System::currentTimeMillis,
 ) : StatsApi {
-    @Serializable
-    private data class Session(val accessToken: String, val refreshToken: String, val expiresAt: Long)
-
-    @Serializable
-    private data class AuthResponse(
-        @SerialName("access_token") val accessToken: String,
-        @SerialName("refresh_token") val refreshToken: String,
-        @SerialName("expires_in") val expiresIn: Long,
-    )
-
     @Serializable
     private data class RecordBody(
         @SerialName("p_batch_id") val batchId: String,
@@ -91,70 +80,43 @@ class SupabaseStatsApi(
     )
 
     private val json = Json { ignoreUnknownKeys = true; explicitNulls = false }
-    private val mutex = Mutex()
-    private var session: Session? = prefs.getString(SESSION, null)?.let { runCatching { json.decodeFromString<Session>(it) }.getOrNull() }
 
     override suspend fun recordListening(batchId: String, rows: List<ListeningRow>, appVersion: String) {
-        authenticatedRpc("record_listening", json.encodeToString(RecordBody.serializer(), RecordBody(batchId, rows, appVersion)))
+        authenticatedRpc("record_listening", json.encodeToString(RecordBody.serializer(), RecordBody(batchId, rows, appVersion)), createAnonymous = true)
     }
 
-    override suspend fun fetchMyStats(): StatsSnapshot? {
-        if (session == null) return null
-        return json.decodeFromString<StatsSnapshot>(authenticatedRpc("get_my_stats", "{}"))
-    }
+    override suspend fun fetchMyStats(): StatsSnapshot? =
+        authenticatedRpc("get_my_stats", "{}", createAnonymous = false)?.let { json.decodeFromString<StatsSnapshot>(it) }
 
     override suspend fun fetchPublicStats(): PublicStats =
         json.decodeFromString(send("rest/v1/rpc/public_stats", body = "{}", bearer = null))
 
     override suspend fun deleteMyData() {
         // No session: nothing was ever uploaded, and asking would create an account just to delete it.
-        if (session == null) return
-        authenticatedRpc("delete_my_listening_data", "{}")
-        session = null
-        prefs.edit().remove(SESSION).apply()
+        authenticatedRpc("delete_my_listening_data", "{}", createAnonymous = false) ?: return
+        // An anonymous listener's user is gone on the server; a signed-in one keeps the account.
+        sessions.forgetIfAnonymous()
     }
 
-    private suspend fun currentSession(): Session = mutex.withLock {
-        session?.takeIf { it.expiresAt - now() > 60_000 } ?: renewSession()
-    }
-
-    private suspend fun renewSession(): Session {
-        session?.let { stored ->
-            try {
-                return store(send("auth/v1/token", query = "grant_type" to "refresh_token", body = """{"refresh_token":"${stored.refreshToken}"}""", bearer = null))
-            } catch (_: StatsApi.Failure.Rejected) {
-                // The refresh token is no longer valid: a new anonymous user below.
-            }
-            // Network or server trouble propagates: keep the identity, retry later.
-        }
-        return try {
-            store(send("auth/v1/signup", body = "{}", bearer = null))
-        } catch (e: StatsApi.Failure.Transport) {
-            throw e
-        } catch (_: Exception) {
-            throw StatsApi.Failure.AuthFailed()
-        }
-    }
-
-    private fun store(response: String): Session {
-        val auth = runCatching { json.decodeFromString<AuthResponse>(response) }.getOrNull() ?: throw StatsApi.Failure.AuthFailed()
-        val fresh = Session(auth.accessToken, auth.refreshToken, now() + auth.expiresIn * 1000)
-        session = fresh
-        prefs.edit().putString(SESSION, json.encodeToString(Session.serializer(), fresh)).apply()
-        return fresh
-    }
-
-    private suspend fun authenticatedRpc(name: String, body: String): String {
+    /** `null` when there's no session and [createAnonymous] is false. */
+    private suspend fun authenticatedRpc(name: String, body: String, createAnonymous: Boolean): String? {
         val path = "rest/v1/rpc/$name"
-        val current = currentSession()
+        val token = mapSession { sessions.accessToken(createAnonymous) } ?: return null
         return try {
-            send(path, body = body, bearer = current.accessToken)
+            send(path, body = body, bearer = token)
         } catch (e: StatsApi.Failure.Server) {
             if (e.code != 401) throw e
             // Revoked on the server: renew once and retry.
-            val renewed = mutex.withLock { renewSession() }
-            send(path, body = body, bearer = renewed.accessToken)
+            send(path, body = body, bearer = mapSession { sessions.refreshedAccessToken() })
         }
+    }
+
+    private suspend fun <T> mapSession(block: suspend () -> T): T = try {
+        block()
+    } catch (e: SessionException.Transport) {
+        throw StatsApi.Failure.Transport(e)
+    } catch (_: SessionException) {
+        throw StatsApi.Failure.AuthFailed()
     }
 
     private suspend fun send(path: String, query: Pair<String, String>? = null, body: String, bearer: String?): String =
@@ -179,7 +141,4 @@ class SupabaseStatsApi(
             }
         }
 
-    private companion object {
-        const val SESSION = "supabase.session"
-    }
 }

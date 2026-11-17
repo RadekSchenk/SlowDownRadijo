@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import io.github.jan.supabase.auth.handleDeeplinks
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -91,6 +92,7 @@ class MainActivity : ComponentActivity() {
             app.radio.play(PlayTrigger.AUTOPLAY)
         }
         handleReminder(intent)
+        handleAuthReturn(intent)
 
         setContent {
             val language by app.language.language.collectAsStateWithLifecycle()
@@ -129,6 +131,13 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleReminder(intent)
+        handleAuthReturn(intent)
+    }
+
+    /** Apple's web sign-in and the e-mail link come back to slowdownradijo://auth. */
+    private fun handleAuthReturn(intent: Intent) {
+        if (intent.data?.scheme != "slowdownradijo") return
+        app.supabase.handleDeeplinks(intent, onError = app.account::handleDeeplinkError)
     }
 
     private fun Intent.isReminder() = hasExtra(ShowReminders.EXTRA_SHOW_ID)

@@ -29,6 +29,13 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- Sign-in returns (Apple's web sign-in, the e-mail link): slowdownradijo://auth -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="slowdownradijo" android:host="auth" />
+            </intent-filter>
         </activity>
 
         <!-- The live stream's media session: notification, lock screen,

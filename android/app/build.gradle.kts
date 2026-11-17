@@ -20,6 +20,10 @@ android {
         // CI sets the build number (the run number); 1 locally.
         versionCode = providers.environmentVariable("VERSION_CODE").orNull?.toInt() ?: 1
         versionName = "1.2"
+        // "Pokračovat s Google": the *Web* OAuth client id from Google Cloud
+        // (the one Supabase checks the ID token against). Empty until set
+        // up; the Google button then says it's unavailable.
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"${providers.gradleProperty("googleWebClientId").orNull ?: ""}\"")
     }
 
     // The Google Play upload key, from CI secrets (a base64 keystore). Without
@@ -127,6 +131,13 @@ dependencies {
     implementation(libs.glance.appwidget)
     implementation(libs.work.runtime)
     implementation(libs.play.review)
+    implementation(platform(libs.supabase.bom))
+    implementation(libs.supabase.auth)
+    implementation(libs.supabase.postgrest)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services)
+    implementation(libs.googleid)
 
     testImplementation(libs.junit)
     testImplementation(libs.androidx.test.junit)

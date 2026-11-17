@@ -11,6 +11,9 @@ struct SlowDownRadijoApp: App {
     var body: some Scene {
         WindowGroup {
             AppRootView()
+                .task { AccountService.shared.start() }
+                // Google's sign-in sheet returns through its URL scheme.
+                .onOpenURL { url in AccountService.handle(url) }
         }
     }
 }
