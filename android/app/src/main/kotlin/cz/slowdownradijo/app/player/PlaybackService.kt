@@ -59,7 +59,15 @@ class PlaybackService : MediaLibraryService() {
     private inner class Callback : MediaLibrarySession.Callback {
         override fun onGetLibraryRoot(
             session: MediaLibrarySession, browser: MediaSession.ControllerInfo, params: LibraryParams?,
-        ): ListenableFuture<LibraryResult<MediaItem>> = Futures.immediateFuture(LibraryResult.ofItem(CarLibrary.root(), params))
+        ): ListenableFuture<LibraryResult<MediaItem>> {
+            // Android Auto asks for the root when the listener opens the app in the car.
+            val isCar = session.isAutoCompanionController(browser) || session.isAutomotiveController(browser)
+            val isSystemQuery = params?.isRecent == true || params?.isSuggested == true
+            if (isCar && CarLibrary.autoplaysOnOpen(app.radio.state.value, isSystemQuery)) {
+                app.radio.play(PlayTrigger.ANDROID_AUTO)
+            }
+            return Futures.immediateFuture(LibraryResult.ofItem(CarLibrary.root(), params))
+        }
 
         override fun onGetChildren(
             session: MediaLibrarySession, browser: MediaSession.ControllerInfo, parentId: String,

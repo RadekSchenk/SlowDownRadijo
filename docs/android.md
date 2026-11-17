@@ -201,5 +201,5 @@ release yet.
 | Language switch (cs / en) | 1.0 | 2 |
 | Heading scale, typography | 1.1 | 0 (theme); text size capped as on iOS |
 | Home screen widget | 1.0 | 3 (Glance; system font, widgets cannot use Manrope) |
-| In the car: CarPlay / Android Auto (live stream item, Now Playing) | 1.2 | 1.2 (`MediaLibraryService` with one item, `CarLibrary`; Now Playing is the media session; trigger `android_auto`. Not tried in a car or the Desktop Head Unit yet) |
+| In the car: CarPlay / Android Auto (live stream item, Now Playing; opening the app in the car plays at once) | 1.2 | 1.2 (`MediaLibraryService` with one item, `CarLibrary`; Now Playing is the media session; trigger `android_auto`. Opening the app plays from `onGetLibraryRoot` for Android Auto, not for the system's recent/suggested queries; iOS also pushes Now Playing, Android Auto decides its own screen. Not tried in a car or the Desktop Head Unit yet) |
 | Review prompt (system) | 1.0 | 3 (Play In-App Review; the iOS rules: a week, 3 days of 10+ min in 60, 120 days apart, at most 3) |

@@ -9,8 +9,10 @@ import cz.slowdownradijo.app.data.Show
 /**
  * What Android Auto lists, as `CarPlaySceneDelegate.swift`: one item, the
  * live stream, with the show on air and its photo, and the song when the
- * app vouches for it. Picking it plays the radio; the car's Now Playing
- * screen is the media session's, the same as the lock screen's.
+ * app vouches for it. Opening the app in the car plays the radio
+ * ([autoplaysOnOpen]), as CarPlay does; picking the item does too. The
+ * car's Now Playing screen is the media session's, the same as the lock
+ * screen's.
  */
 object CarLibrary {
     const val ROOT_ID = "root"
@@ -48,4 +50,14 @@ object CarLibrary {
             )
             .build()
     }
+
+    /**
+     * Whether opening the app in Android Auto starts the stream: only when
+     * it isn't already playing or connecting, and never for the system's
+     * "recent" or "suggested" queries (the car starting up, the launcher's
+     * media card), which aren't the listener opening the app. Google's car
+     * quality rule MA-1 allows playback started by selecting the app.
+     */
+    fun autoplaysOnOpen(state: PlaybackState, isSystemQuery: Boolean): Boolean =
+        !isSystemQuery && (state == PlaybackState.Idle || state == PlaybackState.Paused || state == PlaybackState.Error)
 }

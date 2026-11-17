@@ -5,10 +5,15 @@ import UIKit
 /// Slow Down Rádijo on the car's screen (CarPlay Audio): one item, the live
 /// stream — the show on air with its photo, and the song when the app
 /// vouches for it (`NowPlayingViewModel.verifiedTrack`), with the playing
-/// indicator while it plays. Tapping it starts the radio and opens the
-/// system's Now Playing screen, which shows and controls the same stream
-/// as the lock screen (`RadioPlayerService`'s now-playing info and remote
-/// commands).
+/// indicator while it plays. Opening the app in the car starts the radio
+/// and goes straight to the system's Now Playing screen, which shows and
+/// controls the same stream as the lock screen (`RadioPlayerService`'s
+/// now-playing info and remote commands). The list stays underneath as the
+/// root — CarPlay doesn't allow Now Playing as the root template — and Back
+/// leads to it; tapping its item does the same as opening the app.
+///
+/// Autoplay on opening follows the CarPlay HIG exception for apps whose
+/// purpose is a single audio source: there is nothing else to choose.
 ///
 /// Works with the app closed on the phone: the services come from
 /// `AppServices`, built here if the tab interface hasn't been.
@@ -42,17 +47,18 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         item.playingIndicatorLocation = .trailing
         item.handler = { [weak self] _, completion in
             MainActor.assumeIsolated {
-                if services.player.state != .playing {
-                    services.player.play(trigger: .carPlay)
-                }
-                self?.showNowPlaying()
+                self?.playLive()
             }
             completion()
         }
         liveItem = item
 
         let list = CPListTemplate(title: "Slow Down Rádijo", sections: [CPListSection(items: [item])])
-        interfaceController.setRootTemplate(list, animated: false, completion: nil)
+        interfaceController.setRootTemplate(list, animated: false) { [weak self] _, _ in
+            MainActor.assumeIsolated {
+                self?.playLive()
+            }
+        }
 
         let nowPlaying = services.nowPlaying
         nowPlaying.$currentShow
@@ -76,6 +82,20 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         liveItem.setDetailText(detail)
         liveItem.setImage(artwork ?? UIImage(named: "BrandLogo"))
         liveItem.isPlaying = state == .playing
+    }
+
+    /// Starts the stream unless it's already playing or connecting, and
+    /// shows Now Playing.
+    @MainActor
+    private func playLive() {
+        let player = AppServices.shared.player
+        switch player.state {
+        case .playing, .connecting:
+            break
+        case .idle, .paused, .error:
+            player.play(trigger: .carPlay)
+        }
+        showNowPlaying()
     }
 
     @MainActor
