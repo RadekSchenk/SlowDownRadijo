@@ -101,3 +101,19 @@ enum AccountError: Error, Equatable {
         return ISO8601DateFormatter().date(from: text)
     }
 }
+
+extension AccountError {
+    /// A short text for a toast or an error line under a field.
+    var userMessage: String {
+        switch self {
+        case .offline: return L10n.errorOffline
+        case .tooManyRequests, .rateLimited: return L10n.errorTooManyRequests
+        case .codeInvalid: return L10n.emailCodeInvalid
+        case .nicknameTaken: return L10n.nicknameTaken
+        case .nicknameReserved: return L10n.nicknameReserved
+        case .nicknameInvalid: return L10n.nicknameInvalid
+        case .providerUnavailable: return L10n.signInUnavailable
+        default: return L10n.errorGeneric
+        }
+    }
+}

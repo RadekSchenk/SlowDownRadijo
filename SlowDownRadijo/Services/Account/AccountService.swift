@@ -75,6 +75,18 @@ final class AccountService: ObservableObject {
         case ok, invalid, reserved, taken
     }
 
+    /// Someone this listener hid from their chat (`my_hidden_chat_users`).
+    struct HiddenUser: Decodable, Identifiable, Equatable {
+        let userID: UUID
+        let name: String?
+        var id: UUID { userID }
+
+        enum CodingKeys: String, CodingKey {
+            case userID = "user_id"
+            case name
+        }
+    }
+
     @Published private(set) var state: State = .loading
 
     private var client: SupabaseClient { AppSupabase.client }
@@ -278,6 +290,22 @@ final class AccountService: ObservableObject {
             case "nickname_taken": return .taken
             default: return .invalid
             }
+        } catch {
+            throw AccountError.from(error)
+        }
+    }
+
+    func hiddenUsers() async throws -> [HiddenUser] {
+        do {
+            return try await client.rpc("my_hidden_chat_users").execute().value
+        } catch {
+            throw AccountError.from(error)
+        }
+    }
+
+    func unhide(_ userID: UUID) async throws {
+        do {
+            try await client.rpc("unhide_chat_user", params: ["p_user": userID.uuidString]).execute()
         } catch {
             throw AccountError.from(error)
         }

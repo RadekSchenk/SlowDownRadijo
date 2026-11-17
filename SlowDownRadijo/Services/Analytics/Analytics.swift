@@ -145,7 +145,7 @@ final class Analytics: ObservableObject {
 
 /// Screens as they appear in the data.
 enum AnalyticsScreen: String {
-    case home, message, stats, support, menu, settings, showReminders = "show_reminders", news
+    case home, message, stats, support, profile, menu, settings, showReminders = "show_reminders", news
 }
 
 /// Every event the app sends — names and properties in one place, the same

@@ -16,6 +16,8 @@ struct RootTabView: View {
     /// The Statistiky page's tab tag (0 radio, 1–2 feature-flagged, 3 Vzkaz,
     /// 4 Podpora).
     private static let statsTab = 5
+    /// Profil (1.3): signing in, the nickname, the account.
+    private static let profileTab = 6
 
     /// Figma's `bottom-nav` is 70pt tall; below it the design reserves a
     /// (hidden) 19pt strip for the home indicator. A real iPhone's bottom
@@ -180,6 +182,8 @@ struct RootTabView: View {
             }
 
             tabPage(Self.statsTab) { StatsView() }
+
+            tabPage(Self.profileTab) { ProfileView() }
         }
     }
 
@@ -216,8 +220,8 @@ struct RootTabView: View {
     /// The hand-built tab bar (Figma `bottom-nav`, node 12294:257: 40pt
     /// side insets, tabs spread across the width). Visible tabs are
     /// hardcoded (not derived from the pages above):
-    /// Rádio, Statistiky, Vzkaz, Podpora (Figma 12318:5147) — Podpora only
-    /// with `FeatureFlags.supportTab`. The other feature-flagged pages are
+    /// Rádio, Statistiky, Vzkaz, Profil (Figma 12318:5147; Profil since
+    /// 1.3, in the place of the hidden Podpora page). The other feature-flagged pages are
     /// kept out of the nav entirely, not just hidden from this bar.
     private var bottomNav: some View {
         VStack(spacing: 0) {
@@ -226,34 +230,17 @@ struct RootTabView: View {
                 .frame(height: 1)
 
             HStack(spacing: 0) {
-                if FeatureFlags.supportTab {
-                    tabBarButton(tag: 0, title: L10n.tabRadio, image: "TabIconRadio")
-                    Spacer(minLength: 0)
-                    tabBarButton(tag: Self.statsTab, title: L10n.tabStats, image: "TabIconStats")
-                    Spacer(minLength: 0)
-                    tabBarButton(tag: 3, title: L10n.tabMessage, image: "TabIconMessage")
-                    Spacer(minLength: 0)
-                    tabBarButton(tag: 4, title: L10n.tabSupport, image: "TabIconSupport")
-                } else {
-                    // Three tabs spread edge to edge left wide gaps and
-                    // the outer two out at the screen's edges; three equal
-                    // columns (like the system tab bar) keep them together.
-                    tabBarButton(tag: 0, title: L10n.tabRadio, image: "TabIconRadio")
-                        .frame(maxWidth: .infinity)
-                    tabBarButton(tag: Self.statsTab, title: L10n.tabStats, image: "TabIconStats")
-                        .frame(maxWidth: .infinity)
-                    tabBarButton(tag: 3, title: L10n.tabMessage, image: "TabIconMessage")
-                        .frame(maxWidth: .infinity)
-                }
+                // Rádio, Statistiky, Vzkaz, Profil (Figma bottom-nav, 1.3):
+                // Profil took the place of the hidden Podpora.
+                tabBarButton(tag: 0, title: L10n.tabRadio, image: "TabIconRadio")
+                Spacer(minLength: 0)
+                tabBarButton(tag: Self.statsTab, title: L10n.tabStats, image: "TabIconStats")
+                Spacer(minLength: 0)
+                tabBarButton(tag: 3, title: L10n.tabMessage, image: "TabIconMessage")
+                Spacer(minLength: 0)
+                tabBarButton(tag: Self.profileTab, title: L10n.tabProfile, image: "TabIconProfile")
             }
-            // Figma `bottom-nav`: the bar has 16pt side padding and the tab
-            // row another 24pt, so the four tabs sit 40pt from each edge
-            // with `space-between` across the rest. The three equal columns
-            // take a 24pt inset instead, which puts the outer tabs' centres
-            // about 80pt in. Tab row: 10pt above (below the 1pt hairline)
-            // and 6pt below the icons and labels — scaled down in 1.1 to sit
-            // with the page's type scale rather than outweigh it.
-            .padding(.horizontal, FeatureFlags.supportTab ? 40 : 24)
+            .padding(.horizontal, 40)
             .padding(.top, 10)
             .padding(.bottom, 6)
         }
@@ -282,6 +269,7 @@ struct RootTabView: View {
         case 3: return .message
         case 4: return .support
         case statsTab: return .stats
+        case profileTab: return .profile
         default: return .home
         }
     }
