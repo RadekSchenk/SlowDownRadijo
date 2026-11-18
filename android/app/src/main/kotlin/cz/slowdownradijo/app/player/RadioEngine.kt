@@ -3,6 +3,7 @@ package cz.slowdownradijo.app.player
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
+import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
@@ -36,12 +37,18 @@ import java.time.Instant
  * Audio focus and unplugged headphones are ExoPlayer's: a call or another
  * app pauses the radio (and a short interruption resumes it), unplugging
  * headphones pauses it.
+ *
+ * Which stream plays follows [StreamQuality] (MP3 or AAC, by the setting and
+ * whether the network is metered); when one keeps failing, reconnects
+ * alternate with the other one.
  */
 @OptIn(UnstableApi::class)
 class RadioEngine(
     private val context: Context,
     private val scope: CoroutineScope,
     private val playerFactory: (Context) -> ExoPlayer = ::defaultPlayer,
+    /** The listener's choice in Settings. */
+    private val quality: () -> StreamQuality = { StreamQuality.AUTO },
 ) {
     private val _state = MutableStateFlow<PlaybackState>(PlaybackState.Idle)
     val state: StateFlow<PlaybackState> = _state.asStateFlow()
@@ -86,6 +93,12 @@ class RadioEngine(
     private var reconnectJob: Job? = null
     private var connectTimeoutJob: Job? = null
     private var sleepTimerJob: Job? = null
+
+    /** The stream playing (or connecting) now; `null` before the first play. */
+    var currentStream: LiveStream? = null
+        private set
+    /** Mobile data or a hotspot, as the system reports it. */
+    private var networkMetered = false
 
     fun togglePlayPause(trigger: PlayTrigger = PlayTrigger.USER) {
         when (_state.value) {
@@ -150,16 +163,44 @@ class RadioEngine(
         _sleepTimerFireAt.value = null
     }
 
+    /** Settings changed the quality: a playing radio moves to the newly chosen stream. */
+    fun streamQualityChanged() = restartIfStreamChanged()
+
+    // Stream choice
+
+    /** The setting, for analytics. */
+    val streamQuality: StreamQuality get() = quality()
+
+    private val preferredStream: LiveStream get() = quality().stream(networkMetered)
+
+    /**
+     * The first reconnect retries the same stream (most drops are the network); from then on
+     * every even attempt tries the other one, in case only one of the two mounts is down.
+     */
+    private val streamForThisAttempt: LiveStream
+        get() = if (reconnectAttempt >= 2 && reconnectAttempt % 2 == 0) preferredStream.other else preferredStream
+
+    /** Wi-Fi ↔ mobile data or a new setting while playing: switch to the stream that fits now. */
+    private fun restartIfStreamChanged() {
+        val playing = _state.value == PlaybackState.Playing || _state.value == PlaybackState.Connecting
+        val current = currentStream ?: return
+        if (!playing || current == preferredStream) return
+        cancelReconnect()
+        reconnectAttempt = 0
+        startPlayback()
+    }
+
     // Playback
 
     private fun mediaItem() = MediaItem.Builder()
         .setMediaId("live")
-        .setUri(STREAM_URL)
+        .setUri((currentStream ?: preferredStream).url)
         .setMediaMetadata(metadata)
         .build()
 
     /** A fresh connection to the live edge, never stale buffered audio. */
     private fun startPlayback() {
+        currentStream = streamForThisAttempt
         enterConnecting()
         player.setMediaItem(mediaItem())
         player.prepare()
@@ -246,6 +287,7 @@ class RadioEngine(
 
     init {
         val connectivity = context.getSystemService(ConnectivityManager::class.java)
+        networkMetered = connectivity?.isActiveNetworkMetered ?: false
         runCatching {
             connectivity?.registerDefaultNetworkCallback(object : ConnectivityManager.NetworkCallback() {
                 private var hadNetwork = true
@@ -258,13 +300,22 @@ class RadioEngine(
                 override fun onLost(network: Network) {
                     hadNetwork = false
                 }
+
+                override fun onCapabilitiesChanged(network: Network, capabilities: NetworkCapabilities) {
+                    val metered = !capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+                    handler.post {
+                        if (metered == networkMetered) return@post
+                        networkMetered = metered
+                        restartIfStreamChanged()
+                    }
+                }
             })
         }
     }
 
     companion object {
-        /** HTTPS AAC, as on iOS (the MP3 mount is plain HTTP only). */
-        const val STREAM_URL = "https://icecast5.play.cz/slowdown.aac"
+        /** The stream the song-on-air metadata is read from: the light AAC one, whatever plays. */
+        val STREAM_URL = LiveStream.AAC.url
         val CONNECT_TIMEOUT: Duration = Duration.ofSeconds(20)
 
         private fun defaultPlayer(context: Context): ExoPlayer = ExoPlayer.Builder(context)

@@ -141,6 +141,20 @@ Version" (cs and en). Version 1.0 had none.
 - CarPlay (CarPlay Audio entitlement granted to the team): connect an iPhone to a CarPlay car or head unit, or to Xcode's CarPlay Simulator. The app shows one item, "Živé vysílání" / "Live" (the station's live stream, with the show on air and the song when known); tapping it starts the stream and opens the system Now Playing screen.
 ```
 
+**1.3 — Czech**
+
+```
+• Lepší zvuk: na Wi-Fi hraje rádio ve vysoké kvalitě (MP3 160 kbps), na mobilních datech dál úsporně. Změníš to v Nastavení → Kvalita zvuku.
+• Drobné opravy a vylepšení.
+```
+
+**1.3 — English**
+
+```
+• Better sound: on Wi-Fi the radio plays in high quality (MP3 160 kbps), on mobile data it still saves data. Change it in Settings → Sound quality.
+• Small fixes and improvements.
+```
+
 ## Releasing a new version
 
 1. Raise `MARKETING_VERSION` in `project.yml` (app and widget, the same

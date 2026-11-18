@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,7 +17,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.NotificationsOff
+import androidx.compose.material.icons.rounded.UnfoldMore
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -37,6 +41,7 @@ import cz.slowdownradijo.app.R
 import cz.slowdownradijo.app.data.Show
 import cz.slowdownradijo.app.l10n.L10nLogic
 import cz.slowdownradijo.app.l10n.LocalAppLanguage
+import cz.slowdownradijo.app.player.StreamQuality
 import cz.slowdownradijo.app.reminders.openNotificationSettings
 import cz.slowdownradijo.app.ui.components.AppSwitch
 import cz.slowdownradijo.app.ui.components.BackHeader
@@ -53,12 +58,14 @@ data class SettingsUi(
     val remindersCount: Int,
     val statsEnabled: Boolean,
     val analyticsEnabled: Boolean,
+    val streamQuality: StreamQuality = StreamQuality.AUTO,
 )
 
 class SettingsActions(
     val setAutoplay: (Boolean) -> Unit = {},
     val setStats: (Boolean) -> Unit = {},
     val setAnalytics: (Boolean) -> Unit = {},
+    val setStreamQuality: (StreamQuality) -> Unit = {},
     /** Deletes the listening stats; reports success. */
     val deleteStats: suspend () -> Boolean = { true },
 )
@@ -88,6 +95,8 @@ fun SettingsScreen(ui: SettingsUi, actions: SettingsActions, open: (MenuPage) ->
             ListRow(stringResource(R.string.settingsAutoplayTitle), stringResource(R.string.settingsAutoplayDescription)) {
                 AppSwitch(ui.autoplay, actions.setAutoplay, stringResource(R.string.settingsAutoplayTitle))
             }
+            ListDivider()
+            StreamQualityRow(ui.streamQuality, actions.setStreamQuality)
             ListDivider()
             ListRow(
                 stringResource(R.string.showRemindersTitle), L10nLogic.showRemindersSummary(english, ui.remindersCount),
@@ -150,6 +159,48 @@ fun SettingsScreen(ui: SettingsUi, actions: SettingsActions, open: (MenuPage) ->
             text = message?.let { { Text(it, style = Theme.Typography.Copy.body, color = Theme.mutedText) } },
             confirmButton = { TextButton(onClick = { result = null }) { Text(stringResource(R.string.ok), color = Theme.liveRed) } },
         )
+    }
+}
+
+@Composable
+private fun StreamQuality.title(): String = stringResource(
+    when (this) {
+        StreamQuality.AUTO -> R.string.streamQualityAuto
+        StreamQuality.HIGH -> R.string.streamQualityHigh
+        StreamQuality.LOW -> R.string.streamQualityLow
+    },
+)
+
+/** Kvalita zvuku: the chosen option on the right, the three in a menu on tap (a `Menu` on iOS). */
+@Composable
+private fun StreamQualityRow(selected: StreamQuality, onSelect: (StreamQuality) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    ListRow(
+        stringResource(R.string.streamQualityTitle), stringResource(R.string.streamQualityDescription),
+        onClick = { expanded = true },
+    ) {
+        Box {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(selected.title(), style = Theme.Typography.manrope(15f, FontWeight.SemiBold), color = Theme.textPrimary)
+                Icon(Icons.Rounded.UnfoldMore, null, tint = Theme.textPrimary, modifier = Modifier.size(18.dp))
+            }
+            DropdownMenu(expanded, onDismissRequest = { expanded = false }, containerColor = Theme.statsCard) {
+                for (option in StreamQuality.entries) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                option.title(), style = Theme.Typography.Copy.body,
+                                color = if (option == selected) Theme.liveRed else Theme.textPrimary,
+                            )
+                        },
+                        onClick = {
+                            expanded = false
+                            if (option != selected) onSelect(option)
+                        },
+                    )
+                }
+            }
+        }
     }
 }
 

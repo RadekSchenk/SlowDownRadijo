@@ -70,7 +70,12 @@ class PlaybackAnalytics(
                     dropped = false
                     val connectMs = connectingSince?.let { (at - it).toInt() }
                     connectingSince = null
-                    analytics.track(AnalyticsEvent.PlaybackStarted(engine.lastPlayTrigger.analyticsName, currentShowId(), connectMs, output()))
+                    analytics.track(
+                        AnalyticsEvent.PlaybackStarted(
+                            engine.lastPlayTrigger.analyticsName, currentShowId(), connectMs, output(),
+                            stream = engine.currentStream?.id ?: "_", quality = engine.streamQuality.id,
+                        ),
+                    )
                 } else if (dropped) {
                     dropped = false
                     reconnects++

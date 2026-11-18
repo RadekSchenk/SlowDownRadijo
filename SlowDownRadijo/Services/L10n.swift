@@ -992,6 +992,41 @@ enum L10n {
         }
     }
 
+    static var streamQualityTitle: String {
+        switch lang {
+        case .cs: return "Kvalita zvuku"
+        case .en: return "Sound quality"
+        }
+    }
+
+    static var streamQualityDescription: String {
+        switch lang {
+        case .cs: return "Automaticky hraje na Wi-Fi ve vysoké kvalitě (MP3 160 kbps), na mobilních datech úsporně (AAC 32 kbps)."
+        case .en: return "Automatic plays in high quality on Wi-Fi (MP3 160 kbps) and saves data on mobile (AAC 32 kbps)."
+        }
+    }
+
+    static var streamQualityAuto: String {
+        switch lang {
+        case .cs: return "Automaticky"
+        case .en: return "Automatic"
+        }
+    }
+
+    static var streamQualityHigh: String {
+        switch lang {
+        case .cs: return "Vždy vysoká"
+        case .en: return "Always high"
+        }
+    }
+
+    static var streamQualityLow: String {
+        switch lang {
+        case .cs: return "Úsporná"
+        case .en: return "Data saver"
+        }
+    }
+
     static var settingsLanguageTitle: String {
         switch lang {
         case .cs: return "Jazyk"

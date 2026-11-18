@@ -106,6 +106,18 @@ První verze Slow Down Rádija pro Android: živé vysílání, program s připo
 The first Slow Down Rádijo for Android: the live stream, the schedule with reminders, a sleep timer, listening stats, voice messages to the station, a widget and Android Auto.
 ```
 
+**1.3 – čeština**
+
+```
+Lepší zvuk: na Wi-Fi hraje rádio ve vysoké kvalitě (MP3 160 kbps), na mobilních datech dál úsporně. Změníš to v Nastavení → Kvalita zvuku.
+```
+
+**1.3 – English**
+
+```
+Better sound: on Wi-Fi the radio plays in high quality (MP3 160 kbps), on mobile data it still saves data. Change it in Settings → Sound quality.
+```
+
 ## Obsah aplikace (Zásady → Obsah aplikace)
 
 | Položka | Odpověď |
