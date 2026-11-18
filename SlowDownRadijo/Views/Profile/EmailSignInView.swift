@@ -147,7 +147,7 @@ struct EmailSignInView: View {
                 TimelineView(.periodic(from: .now, by: 1)) { context in
                     let left = Int(resendAt.timeIntervalSince(context.date).rounded(.up))
                     if left > 0 {
-                        Text(L10n.emailResendIn(String(format: "0:%02d", left)))
+                        Text(L10n.emailResendIn(String(format: "%d:%02d", left / 60, left % 60)))
                             .font(Theme.Typography.Copy.body)
                             .foregroundStyle(Theme.subtleText)
                             .monospacedDigit()

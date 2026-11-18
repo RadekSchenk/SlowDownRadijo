@@ -86,6 +86,10 @@ class AccountService(
 
     enum class NicknameCheck { OK, INVALID, RESERVED, TAKEN }
 
+    /** Someone this listener hid from their chat (`my_hidden_chat_users`). */
+    @Serializable
+    data class HiddenUser(@SerialName("user_id") val userId: String, val name: String? = null)
+
     private val auth get() = supabase.auth
     private val _state = MutableStateFlow<State>(State.Loading)
     val state: StateFlow<State> = _state.asStateFlow()
@@ -238,6 +242,15 @@ class AccountService(
             "nickname_taken" -> NicknameCheck.TAKEN
             else -> NicknameCheck.INVALID
         }
+    }
+
+    suspend fun hiddenUsers(): List<HiddenUser> = wrap {
+        supabase.postgrest.rpc("my_hidden_chat_users").decodeList<HiddenUser>()
+    }
+
+    suspend fun unhide(userId: String) = wrap {
+        supabase.postgrest.rpc("unhide_chat_user", buildJsonObject { put("p_user", userId) })
+        Unit
     }
 
     /** A DJ opened their invite link (`https://slowdownradijo.cz/dj/<code>`). */

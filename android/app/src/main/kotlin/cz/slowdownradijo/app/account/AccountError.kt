@@ -1,5 +1,7 @@
 package cz.slowdownradijo.app.account
 
+import cz.slowdownradijo.app.R
+
 import io.github.jan.supabase.auth.exception.AuthErrorCode
 import io.github.jan.supabase.auth.exception.AuthRestException
 import io.github.jan.supabase.postgrest.exception.PostgrestRestException
@@ -15,6 +17,18 @@ import java.time.temporal.ChronoField
  * `AccountError.swift`; the texts live in `L10n`.
  */
 sealed class AccountError(message: String) : Exception(message) {
+    /** The text for a toast or an error line under a field (`userMessage` on iOS). */
+    val messageRes: Int get() = when (this) {
+        Offline -> R.string.errorOffline
+        TooManyRequests, RateLimited -> R.string.errorTooManyRequests
+        CodeInvalid -> R.string.emailCodeInvalid
+        NicknameTaken -> R.string.nicknameTaken
+        NicknameReserved -> R.string.nicknameReserved
+        NicknameInvalid -> R.string.nicknameInvalid
+        ProviderUnavailable -> R.string.signInUnavailable
+        else -> R.string.errorGeneric
+    }
+
     data object Offline : AccountError("offline")
     data object NotSignedIn : AccountError("not_authenticated")
     data object AccountRequired : AccountError("account_required")

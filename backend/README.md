@@ -286,7 +286,11 @@ listener's anonymous stats user, so their stats stay. Design and rules:
    - *Apple*: on. Client IDs: the iOS bundle id (native sign-in) and the
      Services ID (Android, web flow), with the `.p8` key, Key ID and Team ID.
    - *Google*: on. Client IDs: the Web client (with its secret), plus the iOS
-     and Android client ids in "Authorized Client IDs".
+     and Android client ids in "Authorized Client IDs". Turn on **Skip nonce
+     check**: GoogleSignIn-iOS 8 can't pass our own nonce (Android does).
+     The apps take the client ids from `GOOGLE_IOS_CLIENT_ID` /
+     `GOOGLE_IOS_URL_SCHEME` in `project.yml` (iOS) and the Gradle property
+     `googleWebClientId` (Android, the *Web* client id).
    - *Allow manual linking*: on (an anonymous stats user becomes permanent).
 3. **Authentication → SMTP:** custom SMTP via Resend (`smtp.resend.com`, port
    465, user `resend`, password = `RESEND_API_KEY`), sender

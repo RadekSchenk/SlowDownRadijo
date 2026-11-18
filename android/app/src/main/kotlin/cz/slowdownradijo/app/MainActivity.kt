@@ -107,7 +107,7 @@ class MainActivity : ComponentActivity() {
                             selected = tab,
                             onSelect = {
                                 if (it != tab) {
-                                    app.analytics.screen(when (it) { Tab.RADIO -> AnalyticsScreen.HOME; Tab.STATS -> AnalyticsScreen.STATS; Tab.MESSAGE -> AnalyticsScreen.MESSAGE })
+                                    app.analytics.screen(when (it) { Tab.RADIO -> AnalyticsScreen.HOME; Tab.STATS -> AnalyticsScreen.STATS; Tab.MESSAGE -> AnalyticsScreen.MESSAGE; Tab.PROFILE -> AnalyticsScreen.PROFILE })
                                     if (it == Tab.STATS) app.analytics.track(AnalyticsEvent.StatsOpened(app.stats.communityUnlocked))
                                 }
                                 tab = it
@@ -120,6 +120,7 @@ class MainActivity : ComponentActivity() {
                                 Tab.RADIO -> RadioPage(onOpenMenu = { menuOpen = true; app.analytics.screen(AnalyticsScreen.MENU) }, onOpenStats = { tab = Tab.STATS })
                                 Tab.STATS -> StatsPage(onOpenMenu = { menuOpen = true; app.analytics.screen(AnalyticsScreen.MENU) })
                                 Tab.MESSAGE -> MessagePage(onOpenMenu = { menuOpen = true; app.analytics.screen(AnalyticsScreen.MENU) }, onBackToRadio = { tab = Tab.RADIO })
+                                Tab.PROFILE -> cz.slowdownradijo.app.profile.ProfilePage(onOpenMenu = { menuOpen = true; app.analytics.screen(AnalyticsScreen.MENU) })
                             }
                         }
                     }

@@ -27,7 +27,7 @@ import kotlin.math.roundToInt
 
 /** The screens, with the iOS names (`AnalyticsScreen`). */
 enum class AnalyticsScreen(val id: String) {
-    HOME("home"), MESSAGE("message"), STATS("stats"), MENU("menu"), SETTINGS("settings"), SHOW_REMINDERS("show_reminders"), NEWS("news"),
+    HOME("home"), MESSAGE("message"), STATS("stats"), PROFILE("profile"), MENU("menu"), SETTINGS("settings"), SHOW_REMINDERS("show_reminders"), NEWS("news"),
 }
 
 /** The events, with the iOS names and properties (`AnalyticsEvent` in Analytics.swift). */
