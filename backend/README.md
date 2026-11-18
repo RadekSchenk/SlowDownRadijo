@@ -331,7 +331,8 @@ listener's anonymous stats user, so their stats stay. Design and rules:
     (Profil ▸ Správa chatu); the SQL in step 5 is the fallback.
 12. **Run `supabase/sql/023_chat_spam.sql`** (after 022): the same text from
     the same person within a minute is refused (a single emoji is exempt),
-    and links need an account. On top of 5 messages per 30 s and 60 per hour.
+    and links need an account. On top of 5 messages per 30 s and 60 per hour. On production
+    since 18. 11. 2026.
 9. **Invite links on slowdownradijo.cz.** Until these two files are on the
    web, the `https://slowdownradijo.cz/dj/<code>` link opens the website, not
    the app; `slowdownradijo://dj/<code>` works right away in both apps.
