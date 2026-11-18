@@ -120,6 +120,7 @@ Přehledy v PostHogu pro v3:
 | Kolik lidí v chatu píše | Trends `chat_message_sent` (success), unikátní uživatelé, breakdown `account` |
 | Kdo se po první zprávě vrátí | Retention: `chat_message_sent` (`first` = true) → `chat_message_sent` |
 | Funguje motivace k registraci | Funnel `registration_prompt_shown` → `account_registered`, breakdown `reason` |
+| Kolik je registrovaných (všichni, i bez souhlasu) | Dashboard „Slow Down Rádijo – appka“: „Registrovaní Slowriders“, „Registrace podle platformy“, „Nové registrace podle způsobu přihlášení“. Data warehouse `radiopostgres_account_registrations` ze Supabase (`posthog_export.account_registrations`, 024 a 025), jen počty |
 | Odkud přicházejí registrace | Trends `account_registered`, breakdown `source` a `method` |
 | Odrazuje okno přezdívky | Funnel `chat_nickname_prompt_shown` → `chat_nickname_set` → `chat_message_sent` |
 
