@@ -89,6 +89,40 @@ nástroj za ním se dá vyměnit nebo doplnit (Google Analytics) beze změny vol
 
 U chatu se nikdy neposílá text zpráv, přezdívky ani kdo komu psal.
 
+#### Chat v3 a účty (plán, přijde s implementací v3)
+
+`account` u událostí chatu: `none` (bez anonymního účtu), `anonymous` (píše bez registrace), `registered`.
+
+| událost | kdy | vlastnosti |
+|---|---|---|
+| `chat_opened` | otevření chatu | `source`: `home_section` / `home_field` / `invite`; `account` (nahrazuje `signed_in`) |
+| `chat_message_sent` | odeslání zprávy | `kind`: `text` / `emoji` / `starter`; `success`; `first` (první zpráva vůbec); `account` |
+| `chat_nickname_prompt_shown` | při první zprávě vyjelo „Tvoje přezdívka“ | — |
+| `chat_nickname_set` | přezdívka uložena | `when`: `first_message` / `change` |
+| `registration_prompt_shown` | výzva k registraci | `reason`: `nickname_change`, `profile_card`, `profile_empty` |
+| `account_registered` | anonym se zaregistroval (klíčová konverze) | `method`: `apple` / `google` / `email`; `source`: `nickname_change`, `profile_card`, `profile_empty`, `invite`; `had_nickname` |
+| `account_signed_in` | přihlášení existujícím účtem („Už máš účet?“) | `method`; `source` |
+| `account_deleted` | smazání účtu nebo údajů | `registered` |
+| `profile_dashboard_viewed` | Profil s přehledem Tvůj Slowride | `days_member` (zaokrouhleno na týdny) |
+| `chat_moderated`, `chat_reported`, `chat_user_hidden` | beze změny | |
+| `dj_invite_opened`, `dj_invite_claimed` | beze změny | |
+| `admin_dj_invite_created` | superadmin vytvořil pozvánku | `existing_host` (z programu / host mimo program) |
+| `admin_dj_invite_shared` | Sdílet nebo Kopírovat | `via`: `share` / `copy` |
+| `admin_dj_unlinked` | odpojení DJe | — |
+| `admin_moderator_changed` | přidání / odebrání správce | `action`: `add` / `remove` |
+
+`chat_join_shown` z 1.3 zmizí (psaní už přihlášení nevyžaduje).
+
+Přehledy v PostHogu pro v3:
+
+| otázka | jak |
+|---|---|
+| Kolik lidí v chatu píše | Trends `chat_message_sent` (success), unikátní uživatelé, breakdown `account` |
+| Kdo se po první zprávě vrátí | Retention: `chat_message_sent` (`first` = true) → `chat_message_sent` |
+| Funguje motivace k registraci | Funnel `registration_prompt_shown` → `account_registered`, breakdown `reason` |
+| Odkud přicházejí registrace | Trends `account_registered`, breakdown `source` a `method` |
+| Odrazuje okno přezdívky | Funnel `chat_nickname_prompt_shown` → `chat_nickname_set` → `chat_message_sent` |
+
 `show_id` je id pořadu ze `schedule.json`, `_` když žádný neběží.
 
 ### Doporučené přehledy v PostHogu
