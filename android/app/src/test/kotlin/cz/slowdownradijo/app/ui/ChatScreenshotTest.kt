@@ -19,7 +19,6 @@ import cz.slowdownradijo.app.chat.ChatMessage
 import cz.slowdownradijo.app.chat.ChatService
 import cz.slowdownradijo.app.chat.ChatTimeline
 import cz.slowdownradijo.app.chat.ChatWriter
-import cz.slowdownradijo.app.chat.JoinButtons
 import cz.slowdownradijo.app.chat.OutgoingChatMessage
 import cz.slowdownradijo.app.data.Show
 import cz.slowdownradijo.app.l10n.AppLanguage
@@ -160,8 +159,17 @@ class ChatScreenshotTest {
         cz.slowdownradijo.app.chat.HostInviteContent(cz.slowdownradijo.app.chat.InvitePhase.Invalid(false), false, ProfileActions(), {}, {})
     }
 
-    @Test fun join() = capture("chat_join_cs") {
-        JoinButtons(busy = false, actions = ProfileActions(), onDismiss = {}, onRules = {})
+    @Test fun nicknameFirstMessage() = capture("chat_nickname_first_cs") {
+        cz.slowdownradijo.app.chat.NicknameFirstStep(ProfileActions(), registered = false, onSaved = {}, onSignIn = {},
+            initial = "vinylovy_tom", initialStatus = cz.slowdownradijo.app.profile.NicknameStatus.OK)
+    }
+
+    @Test fun signInExisting() = capture("chat_sign_in_existing_cs") {
+        cz.slowdownradijo.app.chat.SignInExisting(busy = false, actions = ProfileActions(), onBack = {}, onRules = {})
+    }
+
+    @Test fun sheetAnonymousWriter() = capture("chat_sheet_anonymous_cs") {
+        sheet(ChatService.State(messages = yesterday + today, loaded = true), signedOut.copy(name = "vinylovy_tom"))
     }
 
 }

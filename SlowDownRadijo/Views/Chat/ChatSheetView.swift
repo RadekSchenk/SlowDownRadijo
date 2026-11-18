@@ -124,7 +124,7 @@ struct ChatSheetView: View {
     private func menuActions(for message: ChatMessage) -> [ChatMenuAction] {
         ChatMenu.actions(
             for: message,
-            viewer: account.isSignedIn ? account.me?.userID : nil,
+            viewer: account.me?.userID,
             isModerator: isModerator,
             isPinned: chat.pinned?.id == message.id,
             status: menuStatus
@@ -185,16 +185,11 @@ struct ChatSheetView: View {
         case .block:
             blockTarget = message
         case .report:
-            if account.isSignedIn {
-                run {
-                    try await chat.report(message)
-                    Analytics.shared.track(.chatReported)
-                    toast(L10n.chatReportedToast, icon: "flag")
-                }
-            } else {
-                Analytics.shared.track(.chatJoinShown(reason: "report"))
-                pendingText = nil
-                isShowingJoin = true
+            run {
+                _ = try? await SupabaseSession.accessToken(creatingAnonymous: true)
+                try await chat.report(message)
+                Analytics.shared.track(.chatReported)
+                toast(L10n.chatReportedToast, icon: "flag")
             }
         case .hide:
             guard let author = message.userID else { return }
@@ -545,13 +540,13 @@ struct ChatSheetView: View {
 
     @ViewBuilder
     private var footer: some View {
-        if let name = account.me?.chatName, account.isSignedIn {
+        if let name = account.me?.chatName {
             (Text(L10n.chatWritingAs + " ").foregroundColor(Theme.subtleText)
              + Text(name).font(Theme.Typography.Manrope.extraBold(size: 13, relativeTo: .footnote)).foregroundColor(Theme.mutedText))
                 .font(Theme.Typography.Copy.label)
                 .lineLimit(1)
         } else {
-            Text(L10n.chatSignInToSend)
+            Text(L10n.chatFirstMessageHint)
                 .font(Theme.Typography.Copy.label)
                 .foregroundStyle(Theme.subtleText)
         }
@@ -588,29 +583,32 @@ struct ChatSheetView: View {
 
     // MARK: - Sending
 
-    private var hasName: Bool { account.isSignedIn && account.me?.chatName != nil }
-
     private func submit(_ raw: String, clearsDraft: Bool, kind: String = "text") {
         let text = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
-        guard hasName else {
-            // Draft-first: sign in, then this goes out by itself.
-            Analytics.shared.track(.chatJoinShown(reason: "send"))
+        guard account.canWriteInChat else {
+            // The first message: a nickname first (no account needed), then
+            // this goes out by itself (Figma Chat J1–J3).
+            Analytics.shared.track(.chatNicknamePromptShown)
             pendingText = text
             pendingKind = kind
             isComposerFocused = false
             isShowingJoin = true
             return
         }
-        if clearsDraft { draft = "" }
+        if clearsDraft {
+            withAnimation(Motion.smoothOut(Motion.fast)) { draft = "" }
+        }
         send(text, announce: false, kind: kind)
     }
 
     private func send(_ text: String, announce: Bool, kind: String) {
+        let first = (account.me?.chatMessagesCount ?? 0) == 0 && !chat.messages.contains { $0.userID == account.me?.userID }
         Task {
             do {
                 try await chat.send(text, show: scheduleStore.currentShow() ?? nowPlaying.currentShow)
-                Analytics.shared.track(.chatMessageSent(kind: kind, success: true))
+                Analytics.shared.track(.chatMessageSent(kind: kind, success: true, first: first, account: account.analyticsAccount))
+                UIImpactFeedbackGenerator(style: .soft).impactOccurred()
                 if announce, let name = account.me?.chatName {
                     ToastCenter.shared.show(.init(systemImage: "checkmark.circle", message: L10n.chatSentAs(name)))
                 }
@@ -619,7 +617,7 @@ struct ChatSheetView: View {
                 pendingKind = kind
                 isShowingJoin = true
             } catch let error as AccountError {
-                Analytics.shared.track(.chatMessageSent(kind: kind, success: false))
+                Analytics.shared.track(.chatMessageSent(kind: kind, success: false, first: first, account: account.analyticsAccount))
                 if case .offline = error { return } // shown on the message itself
                 ToastCenter.shared.show(.init(systemImage: "exclamationmark.circle", message: error.userMessage))
             } catch {}
@@ -630,13 +628,17 @@ struct ChatSheetView: View {
         isShowingJoin = false
         guard let text = pendingText else { return }
         pendingText = nil
-        if draft.trimmingCharacters(in: .whitespacesAndNewlines) == text { draft = "" }
+        if draft.trimmingCharacters(in: .whitespacesAndNewlines) == text {
+            withAnimation(Motion.smoothOut(Motion.fast)) { draft = "" }
+        }
         send(text, announce: true, kind: pendingKind)
     }
 }
 
-/// "Připoj se do chatu" (Figma H), then the nickname (J) for a new account.
-/// Calls `onReady` once the listener can write.
+/// Before the first message (Figma Chat J1–J3): "Tvoje přezdívka", no
+/// account needed. "Už máš účet? Přihlas se" turns it into signing in with an
+/// existing account (H), which brings the nickname and stats back.
+/// Calls `onReady` once the listener has a name to write under.
 struct ChatJoinSheet: View {
     let onReady: () -> Void
 
@@ -644,33 +646,45 @@ struct ChatJoinSheet: View {
     @ObservedObject private var loc = LocalizationManager.shared
     @Environment(\.dismiss) private var dismiss
     @State private var path: [Route] = []
-    @State private var detent: PresentationDetent = .medium
+    @State private var mode: Mode = .nickname
+    @State private var nickname = ""
+    @State private var status: NicknameField.Status = .empty
+    @State private var isSaving = false
     @State private var isShowingRules = false
     @State private var didFinish = false
 
     enum Route: Hashable { case email }
+    enum Mode { case nickname, signIn }
 
     var body: some View {
         NavigationStack(path: $path) {
             ScrollView {
-                content
-                    .padding(.horizontal, 20)
-                    .padding(.top, 28)
-                    .padding(.bottom, 24)
+                Group {
+                    if account.canWriteInChat {
+                        ProgressView().tint(.white).frame(maxWidth: .infinity).padding(.top, 40)
+                    } else if mode == .signIn && !account.isSignedIn {
+                        signIn.transition(.reveal)
+                    } else {
+                        nicknameStep.transition(.reveal)
+                    }
+                }
+                .animation(Motion.smoothOut(Motion.medium), value: mode)
+                .padding(.horizontal, 20)
+                .padding(.top, 28)
+                .padding(.bottom, 24)
             }
+            .scrollDismissesKeyboard(.interactively)
             .background(Theme.statsCard.ignoresSafeArea())
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(for: Route.self) { _ in
                 EmailSignInView(onSignedIn: { path.removeAll() })
             }
         }
-        .presentationDetents([.medium, .large], selection: $detent)
+        .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
         .presentationBackground(Theme.statsCard)
-        .onChange(of: path) { _, new in detent = new.isEmpty && !needsNickname ? .medium : .large }
         .onChange(of: account.state, initial: true) { _, _ in
-            if needsNickname { detent = .large }
-            if canWrite, !didFinish {
+            if account.canWriteInChat, !didFinish {
                 didFinish = true
                 onReady()
             }
@@ -680,38 +694,67 @@ struct ChatJoinSheet: View {
         }
     }
 
-    private var needsNickname: Bool {
-        guard account.isSignedIn, let me = account.me else { return false }
-        return me.chatName == nil
-    }
+    // J1–J3
 
-    private var canWrite: Bool {
-        account.isSignedIn && account.me?.chatName != nil
-    }
-
-    @ViewBuilder
-    private var content: some View {
-        if needsNickname {
-            NicknameSetupView()
-        } else if account.isSignedIn {
-            ProgressView().tint(.white).frame(maxWidth: .infinity)
-        } else {
-            VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
-                ProfileHeading(title: L10n.chatJoinTitle, bodyText: L10n.chatJoinBody, titleFont: Theme.Typography.Heading.hero)
-                SignInButtons(onEmail: { path.append(.email) })
-                Button(L10n.chatNotNow) { dismiss() }
-                    .font(Theme.Typography.Copy.link)
-                    .foregroundStyle(Theme.mutedText)
-                    .frame(maxWidth: .infinity)
-                Button { isShowingRules = true } label: {
-                    Text(L10n.chatJoinLegal)
-                        .font(Theme.Typography.Copy.label)
-                        .foregroundStyle(Theme.subtleText)
-                        .multilineTextAlignment(.center)
+    private var nicknameStep: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+            ProfileHeading(title: L10n.chatNicknameTitle, bodyText: L10n.chatNicknameBody, titleFont: Theme.Typography.Heading.hero)
+            VStack(alignment: .leading, spacing: 8) {
+                NicknameField(text: $nickname, status: $status)
+                Text(L10n.chatNicknameRules)
+                    .font(Theme.Typography.Copy.label)
+                    .foregroundStyle(Theme.subtleText)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            PrimaryActionButton(title: L10n.chatNicknameSend, isEnabled: status.canSave && !isSaving, action: save)
+                .animation(Motion.smoothOut(Motion.fast), value: status.canSave)
+            if !account.isSignedIn {
+                Button {
+                    Analytics.shared.track(.registrationPromptShown(reason: "chat_existing_account"))
+                    AccountService.shared.registrationSource = "chat_existing_account"
+                    mode = .signIn
+                } label: {
+                    (Text(L10n.chatHaveAccount + " ").foregroundColor(Theme.mutedText)
+                     + Text(L10n.chatSignInLink).foregroundColor(Theme.textPrimary).underline())
+                        .font(Theme.Typography.Copy.body)
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.plain)
             }
+        }
+    }
+
+    private func save() {
+        isSaving = true
+        Task {
+            defer { isSaving = false }
+            do {
+                try await account.setNickname(nickname.trimmingCharacters(in: .whitespaces))
+                Analytics.shared.track(.chatNicknameSet(when: "first_message"))
+            } catch let error as AccountError {
+                applyError(error, to: &status)
+            } catch {}
+        }
+    }
+
+    // H
+
+    private var signIn: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+            ProfileHeading(title: L10n.chatSignInTitle, bodyText: L10n.chatSignInBody, titleFont: Theme.Typography.Heading.hero)
+            SignInButtons(onEmail: { path.append(.email) })
+            Button(L10n.chatBackToNickname) { mode = .nickname }
+                .font(Theme.Typography.Copy.link)
+                .foregroundStyle(Theme.mutedText)
+                .frame(maxWidth: .infinity)
+            Button { isShowingRules = true } label: {
+                Text(L10n.chatJoinLegal)
+                    .font(Theme.Typography.Copy.label)
+                    .foregroundStyle(Theme.subtleText)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.plain)
         }
     }
 }

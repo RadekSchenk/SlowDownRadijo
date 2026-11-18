@@ -19,30 +19,74 @@ import UIKit
 final class AccountService: ObservableObject {
     static let shared = AccountService()
 
-    /// What `chat_me()` returns (backend/supabase/sql/020_chat.sql).
+    /// What `chat_me()` returns (backend/supabase/sql/020_chat.sql, 022_chat_v3.sql).
     struct Me: Decodable, Equatable {
         enum Role: String, Decodable { case listener, supporter, dj, admin }
 
-        let userID: UUID
-        let nickname: String?
-        let nicknameNextChangeAt: Date?
-        let role: Role
-        let hostID: String?
-        let hostName: String?
-        let isModerator: Bool
-        let mutedUntil: Date?
-        let blocked: Bool
+        var userID: UUID
+        var isAnonymous = false
+        /// When the listener became a Slowrider ("Jsi součástí Slowriders od …").
+        var registeredAt: Date?
+        var nickname: String?
+        /// Anonymous with a nickname: changing it needs registration.
+        var nicknameLocked = false
+        var nicknameNextChangeAt: Date?
+        var role: Role = .listener
+        var hostID: String?
+        var hostName: String?
+        var isModerator = false
+        var isAdmin = false
+        var isSuperadmin = false
+        var chatMessagesCount = 0
+        var voiceMessagesCount = 0
+        var mutedUntil: Date?
+        var blocked = false
 
         enum CodingKeys: String, CodingKey {
             case userID = "user_id"
+            case isAnonymous = "is_anonymous"
+            case registeredAt = "registered_at"
             case nickname
+            case nicknameLocked = "nickname_locked"
             case nicknameNextChangeAt = "nickname_next_change_at"
             case role
             case hostID = "host_id"
             case hostName = "host_name"
             case isModerator = "is_moderator"
+            case isAdmin = "is_admin"
+            case isSuperadmin = "is_superadmin"
+            case chatMessagesCount = "chat_messages_count"
+            case voiceMessagesCount = "voice_messages_count"
             case mutedUntil = "muted_until"
             case blocked
+        }
+
+        init(userID: UUID, nickname: String? = nil) {
+            self.userID = userID
+            self.nickname = nickname
+        }
+
+        init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            userID = try c.decode(UUID.self, forKey: .userID)
+            func date(_ key: CodingKeys) -> Date? {
+                (try? c.decodeIfPresent(String.self, forKey: key)).flatMap { $0 }.flatMap(ChatMessage.parseDate)
+            }
+            isAnonymous = (try? c.decodeIfPresent(Bool.self, forKey: .isAnonymous)) ?? false
+            registeredAt = date(.registeredAt)
+            nickname = try? c.decodeIfPresent(String.self, forKey: .nickname)
+            nicknameLocked = (try? c.decodeIfPresent(Bool.self, forKey: .nicknameLocked)) ?? false
+            nicknameNextChangeAt = date(.nicknameNextChangeAt)
+            role = (try? c.decodeIfPresent(Role.self, forKey: .role)) ?? .listener
+            hostID = try? c.decodeIfPresent(String.self, forKey: .hostID)
+            hostName = try? c.decodeIfPresent(String.self, forKey: .hostName)
+            isModerator = (try? c.decodeIfPresent(Bool.self, forKey: .isModerator)) ?? false
+            isAdmin = (try? c.decodeIfPresent(Bool.self, forKey: .isAdmin)) ?? false
+            isSuperadmin = (try? c.decodeIfPresent(Bool.self, forKey: .isSuperadmin)) ?? false
+            chatMessagesCount = (try? c.decodeIfPresent(Int.self, forKey: .chatMessagesCount)) ?? 0
+            voiceMessagesCount = (try? c.decodeIfPresent(Int.self, forKey: .voiceMessagesCount)) ?? 0
+            mutedUntil = date(.mutedUntil)
+            blocked = (try? c.decodeIfPresent(Bool.self, forKey: .blocked)) ?? false
         }
 
         /// The name the listener writes under: the DJ name or the nickname.
@@ -57,8 +101,12 @@ final class AccountService: ObservableObject {
     enum State: Equatable {
         /// Not known yet (first moments after launch).
         case loading
-        /// No permanent account (maybe an anonymous stats user).
+        /// No permanent account and no nickname yet (maybe an anonymous
+        /// stats user).
         case signedOut
+        /// Writes in the chat without an account: the phone's anonymous user
+        /// with a nickname (Figma Profil M7). Registering keeps everything.
+        case anonymous(me: Me)
         /// Signed in; `me` is nil until `chat_me()` answered (offline).
         case signedIn(method: SignInMethod?, email: String?, me: Me?)
     }
@@ -88,6 +136,8 @@ final class AccountService: ObservableObject {
     }
 
     @Published private(set) var state: State = .loading
+    /// Where the listener started registering, for `account_registered`.
+    var registrationSource = "profile_empty"
 
     private var client: SupabaseClient { AppSupabase.client }
     private var observeTask: Task<Void, Never>?
@@ -111,26 +161,73 @@ final class AccountService: ObservableObject {
         }
     }
 
+    /// The listener in the chat: registered or writing without an account.
     var me: Me? {
-        if case .signedIn(_, _, let me) = state { return me }
-        return nil
+        switch state {
+        case .signedIn(_, _, let me): return me
+        case .anonymous(let me): return me
+        default: return nil
+        }
     }
 
+    /// A registered Slowrider (not just an anonymous writer).
     var isSignedIn: Bool {
         if case .signedIn = state { return true }
         return false
     }
 
+    /// Writing without an account, with a nickname.
+    var isAnonymousWriter: Bool {
+        if case .anonymous = state { return true }
+        return false
+    }
+
+    /// The listener has a name to write under (registered or not).
+    var canWriteInChat: Bool { me?.chatName != nil }
+
+    /// For analytics: `none`, `anonymous`, `registered`.
+    var analyticsAccount: String {
+        switch state {
+        case .signedIn: return "registered"
+        case .anonymous: return "anonymous"
+        default: return "none"
+        }
+    }
+
     /// Re-reads the account (after sign-in, a nickname change, a mute, …).
     func refresh() async {
-        guard let user = client.auth.currentUser, !user.isAnonymous else {
+        guard let user = client.auth.currentUser else {
             state = .signedOut
             return
         }
+        if user.isAnonymous {
+            // Writing without an account: the anonymous user with a nickname.
+            do {
+                let me: Me = try await client.rpc("chat_me").execute().value
+                state = me.nickname == nil ? .signedOut : .anonymous(me: me)
+            } catch {
+                if case .anonymous = state { return } // offline: keep it
+                state = .signedOut
+            }
+            return
+        }
         let method = Self.signInMethod(of: user)
+        let wasRegistered = isSignedIn
+        let hadNickname = me?.nickname != nil
         do {
             let me: Me = try await client.rpc("chat_me").execute().value
             state = .signedIn(method: method, email: user.email, me: me)
+            if !wasRegistered, let since = me.registeredAt, Date().timeIntervalSince(since) < 600 {
+                // Just registered (Figma Profil M9).
+                ToastCenter.shared.show(.init(
+                    systemImage: "sparkles",
+                    message: hadNickname || me.nickname != nil ? L10n.welcomeSlowriderNickname : L10n.welcomeSlowrider
+                ))
+                Analytics.shared.track(.accountRegistered(method: method?.rawValue ?? "unknown", source: registrationSource, hadNickname: hadNickname))
+            } else if !wasRegistered {
+                Analytics.shared.track(.accountSignedIn(method: method?.rawValue ?? "unknown", source: registrationSource))
+            }
+            registrationSource = "profile_empty"
         } catch {
             // Offline: keep what we knew about this account.
             if case .signedIn(_, _, let old) = state {
@@ -269,11 +366,18 @@ final class AccountService: ObservableObject {
 
     // MARK: - Nickname, DJ, account
 
+    /// Sets the first nickname (also without an account: the phone's
+    /// anonymous user is made if there's none yet) or changes it.
     func setNickname(_ nickname: String) async throws {
         do {
+            _ = try await SupabaseSession.accessToken(creatingAnonymous: true)
             let me: Me = try await client.rpc("set_nickname", params: ["p_nickname": nickname]).execute().value
-            if case .signedIn(let method, let email, _) = state {
+            switch state {
+            case .signedIn(let method, let email, _):
                 state = .signedIn(method: method, email: email, me: me)
+            default:
+                state = me.isAnonymous ? .anonymous(me: me) : state
+                if !me.isAnonymous { await refresh() }
             }
         } catch {
             throw AccountError.from(error)
@@ -321,6 +425,13 @@ final class AccountService: ObservableObject {
         } catch {
             throw AccountError.from(error)
         }
+    }
+
+    /// "Hlasové vzkazy" on the Profil dashboard: counts a sent voice message
+    /// for the listener, if the phone has an account (registered or not).
+    func countVoiceMessage() async {
+        guard (try? await SupabaseSession.accessToken(creatingAnonymous: false)) != nil else { return }
+        _ = try? await client.rpc("count_voice_message").execute()
     }
 
     /// Signs out on this phone. Listening stats start again under a new

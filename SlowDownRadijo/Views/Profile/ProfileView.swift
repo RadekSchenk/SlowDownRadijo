@@ -1,24 +1,35 @@
 import SwiftUI
 
-/// The Profil tab (Figma page "Profil"): signing in, the nickname, the
-/// account. Its states follow `AccountService.state`:
+/// The Profil tab (Figma page "Profil", v3). Its states follow
+/// `AccountService.state`:
 ///
-/// * signed out — M2: "Přihlas se a piš do chatu" + Apple / Google / e‑mail
-/// * signed in without a nickname — R1: "Ještě přezdívka"
-/// * signed in — M1 (listener), M3 (DJ), M4 (muted or blocked banner)
+/// * signed out — M2: "Staň se Slowriderem", the account's benefits and
+///   Apple / Google / e‑mail
+/// * writing without an account — M7: the nickname (locked), the Slowrider
+///   card; changing the nickname asks to register (M8)
+/// * registered — M1/M11: "Jsi součástí Slowriders od …", the "Tvůj
+///   Slowride" dashboard, the chat and the account; the superadmin also gets
+///   "Správa chatu" (M10, A1–A6)
 ///
-/// Sub-screens (e‑mail code, nickname, hidden listeners, chat rules) are
-/// pushed inside the tab; sign-out and account deletion are confirmed.
+/// Sub-screens are pushed inside the tab; sign-out and account deletion are
+/// confirmed.
 struct ProfileView: View {
+    @ObservedObject var scheduleStore: ScheduleStore
     @ObservedObject private var loc = LocalizationManager.shared
     @ObservedObject private var account = AccountService.shared
     @State private var path: [Route] = []
     @State private var isConfirmingSignOut = false
     @State private var isConfirmingDelete = false
     @State private var isShowingPrivacyPolicy = false
+    @State private var registerReason: RegisterReason?
 
     enum Route: Hashable {
         case email, nickname, hiddenUsers, rules
+        case admin(AdminRoute)
+    }
+
+    struct RegisterReason: Identifiable {
+        let id: String
     }
 
     private static let privacyPolicyURL = URL(string: "https://slowdownradijo.cz/ochrana-osobnich-udaju/")!
@@ -33,6 +44,7 @@ struct ProfileView: View {
                     content
                         .padding(.top, Theme.Spacing.md)
                         .padding(.bottom, 36)
+                        .animation(Motion.smoothOut(Motion.medium), value: stateKey)
                 }
                 .padding(.horizontal, 20)
                 .scrollsToTopOnTabReselect()
@@ -46,11 +58,16 @@ struct ProfileView: View {
                 case .nickname: NicknameEditView()
                 case .hiddenUsers: HiddenUsersView()
                 case .rules: ChatRulesView()
+                case .admin(let admin): adminDestination(admin)
                 }
             }
         }
         .sheet(isPresented: $isShowingPrivacyPolicy) {
             SafariView(url: Self.privacyPolicyURL)
+        }
+        .sheet(item: $registerReason) { reason in
+            RegisterSheet(reason: reason.id)
+                .appTextSizeLimit()
         }
         .confirmationDialog(L10n.signOutConfirmTitle, isPresented: $isConfirmingSignOut, titleVisibility: .visible) {
             Button(L10n.profileSignOut, role: .destructive) {
@@ -60,13 +77,23 @@ struct ProfileView: View {
         } message: {
             Text(L10n.signOutConfirmBody)
         }
-        .confirmationDialog(L10n.deleteAccountConfirmTitle, isPresented: $isConfirmingDelete, titleVisibility: .visible) {
-            Button(L10n.profileDeleteAccount, role: .destructive) { deleteAccount() }
+        .confirmationDialog(account.isSignedIn ? L10n.deleteAccountConfirmTitle : L10n.deleteDataConfirmTitle, isPresented: $isConfirmingDelete, titleVisibility: .visible) {
+            Button(account.isSignedIn ? L10n.profileDeleteAccount : L10n.profileDeleteData, role: .destructive) { deleteAccount() }
             Button(L10n.cancel, role: .cancel) {}
         } message: {
-            Text(L10n.deleteAccountConfirmBody)
+            Text(account.isSignedIn ? L10n.deleteAccountConfirmBody : L10n.deleteDataConfirmBody)
         }
         .task { await account.refresh() }
+    }
+
+    /// Changes the content's animation when the kind of state changes.
+    private var stateKey: String {
+        switch account.state {
+        case .loading: return "loading"
+        case .signedOut: return "out"
+        case .anonymous: return "anon"
+        case .signedIn: return "in"
+        }
     }
 
     @ViewBuilder
@@ -78,13 +105,18 @@ struct ProfileView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.top, Theme.Spacing.xxl)
         case .signedOut:
-            signedOut
+            signedOut.transition(.reveal)
+        case .anonymous(let me):
+            anonymous(me).transition(.reveal)
         case .signedIn(let method, let email, let me):
-            if let me, me.nickname == nil, !me.isHost {
-                NicknameSetupView()
-            } else {
-                signedIn(method: method, email: email, me: me)
+            Group {
+                if let me, me.nickname == nil, !me.isHost {
+                    NicknameSetupView()
+                } else {
+                    signedIn(method: method, email: email, me: me)
+                }
             }
+            .transition(.reveal)
         }
     }
 
@@ -96,21 +128,75 @@ struct ProfileView: View {
                 Text(L10n.profileTitle)
                     .font(Theme.Typography.Heading.page)
                     .foregroundStyle(Theme.textPrimary)
-                ProfileHeading(title: L10n.profileSignInTitle, bodyText: L10n.profileSignInBody, titleFont: Theme.Typography.Heading.hero)
+                ProfileHeading(title: L10n.slowriderTitle, bodyText: L10n.slowriderBenefitsIntro, titleFont: Theme.Typography.Heading.hero)
+                SlowriderBenefits()
                 SignInButtons(onEmail: { path.append(.email) })
             }
             ProfileSection(title: L10n.profileOtherSection) {
                 rulesRow
                 ListDivider()
-                Button { isShowingPrivacyPolicy = true } label: {
-                    ProfileRow(title: L10n.settingsPrivacyPolicy)
+                privacyRow
+            }
+        }
+        .onAppear { account.registrationSource = "profile_empty" }
+    }
+
+    // MARK: - M7
+
+    private func anonymous(_ me: AccountService.Me) -> some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+                Text(L10n.profileTitle)
+                    .font(Theme.Typography.Heading.page)
+                    .foregroundStyle(Theme.textPrimary)
+                identity(name: me.nickname ?? "", subtitle: L10n.profileWritingWithoutAccount, isHost: false)
+                if me.blocked || me.mutedUntil.map({ $0 > Date() }) == true {
+                    MutedBanner(mutedUntil: me.mutedUntil, blocked: me.blocked)
+                }
+                SlowriderCard(nickname: me.nickname ?? "") { registerReason = .init(id: "profile_card") }
+            }
+            ProfileSection(title: L10n.profileChatSection) {
+                Button { registerReason = .init(id: "nickname_change") } label: {
+                    HStack(spacing: Theme.Spacing.sm) {
+                        Text(L10n.profileNickname)
+                            .font(Theme.Typography.Heading.item)
+                            .foregroundStyle(Theme.textPrimary)
+                        Spacer(minLength: Theme.Spacing.sm)
+                        Text(me.nickname ?? "")
+                            .font(Theme.Typography.Copy.body)
+                            .foregroundStyle(Theme.mutedText)
+                        Image(systemName: "lock.fill")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(Theme.mutedText)
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(Theme.mutedText)
+                    }
+                    .padding(.vertical, 16)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityHint(L10n.registerNicknameTitle)
+                ListDivider()
+                NavigationLink(value: Route.hiddenUsers) {
+                    ProfileRow(title: L10n.profileHiddenUsers)
+                }
+                .buttonStyle(.plain)
+                ListDivider()
+                rulesRow
+            }
+            ProfileSection(title: L10n.profileOtherSection) {
+                privacyRow
+                ListDivider()
+                Button { isConfirmingDelete = true } label: {
+                    ProfileRow(title: L10n.profileDeleteData, showsChevron: false, isDestructive: true)
                 }
                 .buttonStyle(.plain)
             }
         }
     }
 
-    // MARK: - M1 / M3 / M4
+    // MARK: - M1 / M3 / M4 / M10 / M11
 
     private func signedIn(method: AccountService.SignInMethod?, email: String?, me: AccountService.Me?) -> some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
@@ -118,28 +204,33 @@ struct ProfileView: View {
                 Text(L10n.profileTitle)
                     .font(Theme.Typography.Heading.page)
                     .foregroundStyle(Theme.textPrimary)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 8) {
-                        Text(me?.chatName ?? email ?? "")
-                            .font(Theme.Typography.Heading.hero)
-                            .foregroundStyle(Theme.textPrimary)
-                        if me?.isHost == true {
-                            Text("DJ")
-                                .font(Theme.Typography.Manrope.extraBold(size: 12, relativeTo: .caption))
-                                .foregroundStyle(Theme.liveRed)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 1)
-                                .background(Theme.liveRed.opacity(0.16), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
-                        }
-                    }
-                    Text(me?.isHost == true ? L10n.profileHostRole : L10n.signedInWith(ProfileFormat.methodName(method)))
-                        .font(Theme.Typography.Copy.body)
-                        .foregroundStyle(Theme.mutedText)
-                }
-
+                identity(
+                    name: me?.chatName ?? email ?? "",
+                    subtitle: me?.isHost == true ? L10n.profileHostRole
+                        : (me?.registeredAt.map { L10n.slowriderSinceLong(ProfileFormat.date($0)) } ?? L10n.signedInWith(ProfileFormat.methodName(method))),
+                    isHost: me?.isHost == true,
+                    isSuperadmin: me?.isSuperadmin == true
+                )
                 if let me, me.blocked || me.mutedUntil.map({ $0 > Date() }) == true {
                     MutedBanner(mutedUntil: me.mutedUntil, blocked: me.blocked)
+                }
+            }
+
+            if let me {
+                SlowrideDashboard(me: me)
+            }
+
+            if me?.isSuperadmin == true {
+                ProfileSection(title: L10n.adminSection) {
+                    NavigationLink(value: Route.admin(.moderators)) {
+                        ProfileRow(title: L10n.adminModerators)
+                    }
+                    .buttonStyle(.plain)
+                    ListDivider()
+                    NavigationLink(value: Route.admin(.admins)) {
+                        ProfileRow(title: L10n.adminAdmins)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
 
@@ -177,6 +268,29 @@ struct ProfileView: View {
         }
     }
 
+    private func identity(name: String, subtitle: String, isHost: Bool, isSuperadmin: Bool = false) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 8) {
+                Text(name)
+                    .font(Theme.Typography.Heading.hero)
+                    .foregroundStyle(Theme.textPrimary)
+                    .lineLimit(1)
+                if isHost { ChatHostTag() }
+                if isSuperadmin {
+                    Text(L10n.adminSuperadmin)
+                        .font(Theme.Typography.Manrope.extraBold(size: 12, relativeTo: .caption))
+                        .foregroundStyle(Theme.liveRed)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 1)
+                        .background(Theme.liveRed.opacity(0.16), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+                }
+            }
+            Text(subtitle)
+                .font(Theme.Typography.Copy.body)
+                .foregroundStyle(Theme.mutedText)
+        }
+    }
+
     private var rulesRow: some View {
         NavigationLink(value: Route.rules) {
             ProfileRow(title: L10n.chatRulesTitle)
@@ -184,10 +298,31 @@ struct ProfileView: View {
         .buttonStyle(.plain)
     }
 
+    private var privacyRow: some View {
+        Button { isShowingPrivacyPolicy = true } label: {
+            ProfileRow(title: L10n.settingsPrivacyPolicy)
+        }
+        .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private func adminDestination(_ route: AdminRoute) -> some View {
+        switch route {
+        case .moderators: AdminModeratorsView(scheduleStore: scheduleStore)
+        case .invite(let preselected): AdminInviteView(scheduleStore: scheduleStore, preselected: preselected, path: $path)
+        case .inviteReady(let invite, let name): AdminInviteReadyView(invite: invite, name: name)
+        case .moderator(let id): AdminModeratorDetailView(scheduleStore: scheduleStore, hostID: id, path: $path)
+        case .admins: AdminAdminsView()
+        case .addAdmin: AdminAddAdminView()
+        }
+    }
+
     private func deleteAccount() {
+        let registered = account.isSignedIn
         Task {
             do {
                 try await account.deleteAccount()
+                Analytics.shared.track(.accountDeleted(registered: registered))
             } catch let error as AccountError {
                 ToastCenter.shared.show(.init(systemImage: "exclamationmark.circle", message: error.userMessage))
             } catch {}

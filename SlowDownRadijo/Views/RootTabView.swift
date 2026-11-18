@@ -192,7 +192,7 @@ struct RootTabView: View {
 
             tabPage(Self.statsTab) { StatsView() }
 
-            tabPage(Self.profileTab) { ProfileView() }
+            tabPage(Self.profileTab) { ProfileView(scheduleStore: scheduleStore) }
         }
     }
 

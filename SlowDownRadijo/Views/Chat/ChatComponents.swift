@@ -27,10 +27,12 @@ enum ChatStyle {
     ]
 }
 
-/// "DJ" next to a host's name.
-struct ChatDJTag: View {
+/// "Moderátor" next to a host's name.
+struct ChatHostTag: View {
+    @ObservedObject private var loc = LocalizationManager.shared
+
     var body: some View {
-        Text("DJ")
+        Text(L10n.chatHostBadge)
             .font(Theme.Typography.Manrope.extraBold(size: 12, relativeTo: .caption))
             .foregroundStyle(Theme.liveRed)
             .padding(.horizontal, 6)
@@ -56,7 +58,7 @@ struct ChatAuthorLine: View {
                     .foregroundStyle(Theme.gold)
             }
             if role == .dj {
-                ChatDJTag()
+                ChatHostTag()
             }
         }
     }

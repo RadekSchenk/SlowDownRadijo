@@ -183,12 +183,30 @@ enum AnalyticsEvent {
     case messageSent(success: Bool, seconds: Int)
     case feedbackSent(success: Bool)
     // Chat (1.3). Never the text, the names or who wrote what.
+    // `account`: none, anonymous, registered (`AccountService.analyticsAccount`).
     /// `source`: home_section, home_field, invite.
-    case chatOpened(source: String, signedIn: Bool)
-    /// `kind`: text, emoji, starter.
-    case chatMessageSent(kind: String, success: Bool)
-    /// The "Připoj se do chatu" sheet; `reason`: send, report.
-    case chatJoinShown(reason: String)
+    case chatOpened(source: String, account: String)
+    /// `kind`: text, emoji, starter; `first`: the listener's first message ever.
+    case chatMessageSent(kind: String, success: Bool, first: Bool, account: String)
+    /// "Tvoje přezdívka" before the first message.
+    case chatNicknamePromptShown
+    /// `when`: first_message, change.
+    case chatNicknameSet(when: String)
+    /// `reason`: nickname_change, profile_card, profile_empty, report.
+    case registrationPromptShown(reason: String)
+    /// The anonymous listener became a Slowrider (the key conversion).
+    case accountRegistered(method: String, source: String, hadNickname: Bool)
+    /// Signed in to an account that already existed ("Už máš účet?").
+    case accountSignedIn(method: String, source: String)
+    case accountDeleted(registered: Bool)
+    case profileDashboardViewed(weeksMember: Int)
+    /// Superadmin (Profil → Správa chatu).
+    case adminInviteCreated(fromProgramme: Bool)
+    /// `via`: share, copy.
+    case adminInviteShared(via: String)
+    case adminHostUnlinked
+    /// `action`: add, remove.
+    case adminAdminsChanged(action: String)
     /// `action`: pin, unpin, delete, restore, mute, unmute, block.
     case chatModerated(action: String, minutes: Int?)
     case chatReported
@@ -217,7 +235,17 @@ enum AnalyticsEvent {
         case .feedbackSent: return "feedback_sent"
         case .chatOpened: return "chat_opened"
         case .chatMessageSent: return "chat_message_sent"
-        case .chatJoinShown: return "chat_join_shown"
+        case .chatNicknamePromptShown: return "chat_nickname_prompt_shown"
+        case .chatNicknameSet: return "chat_nickname_set"
+        case .registrationPromptShown: return "registration_prompt_shown"
+        case .accountRegistered: return "account_registered"
+        case .accountSignedIn: return "account_signed_in"
+        case .accountDeleted: return "account_deleted"
+        case .profileDashboardViewed: return "profile_dashboard_viewed"
+        case .adminInviteCreated: return "admin_invite_created"
+        case .adminInviteShared: return "admin_invite_shared"
+        case .adminHostUnlinked: return "admin_host_unlinked"
+        case .adminAdminsChanged: return "admin_admins_changed"
         case .chatModerated: return "chat_moderated"
         case .chatReported: return "chat_reported"
         case .chatUserHidden: return "chat_user_hidden"
@@ -270,12 +298,30 @@ enum AnalyticsEvent {
             return ["success": success, "duration_s": Self.rounded(seconds, to: 5)]
         case .feedbackSent(let success):
             return ["success": success]
-        case .chatOpened(let source, let signedIn):
-            return ["source": source, "signed_in": signedIn]
-        case .chatMessageSent(let kind, let success):
-            return ["kind": kind, "success": success]
-        case .chatJoinShown(let reason):
+        case .chatOpened(let source, let account):
+            return ["source": source, "account": account]
+        case .chatMessageSent(let kind, let success, let first, let account):
+            return ["kind": kind, "success": success, "first": first, "account": account]
+        case .chatNicknamePromptShown, .adminHostUnlinked:
+            return [:]
+        case .chatNicknameSet(let when):
+            return ["when": when]
+        case .registrationPromptShown(let reason):
             return ["reason": reason]
+        case .accountRegistered(let method, let source, let hadNickname):
+            return ["method": method, "source": source, "had_nickname": hadNickname]
+        case .accountSignedIn(let method, let source):
+            return ["method": method, "source": source]
+        case .accountDeleted(let registered):
+            return ["registered": registered]
+        case .profileDashboardViewed(let weeksMember):
+            return ["weeks_member": weeksMember]
+        case .adminInviteCreated(let fromProgramme):
+            return ["from_programme": fromProgramme]
+        case .adminInviteShared(let via):
+            return ["via": via]
+        case .adminAdminsChanged(let action):
+            return ["action": action]
         case .chatModerated(let action, let minutes):
             var properties: [String: Any] = ["action": action]
             if let minutes { properties["minutes"] = minutes }

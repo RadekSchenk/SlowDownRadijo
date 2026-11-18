@@ -30,6 +30,8 @@ sealed class AccountError(message: String) : Exception(message) {
         InviteInvalid -> R.string.inviteInvalidBody
         RestoreExpired -> R.string.errorRestoreExpired
         NotModerator, NotAdmin -> R.string.errorNotModerator
+        NotSuperadmin -> R.string.errorNotSuperadmin
+        HostInvalid -> R.string.errorHostInvalid
         UserInvalid -> R.string.errorUserInvalid
         MessageNotFound -> R.string.errorMessageNotFound
         is Muted -> R.string.errorMuted
@@ -55,6 +57,8 @@ sealed class AccountError(message: String) : Exception(message) {
     data object RateLimited : AccountError("rate_limited")
     data object NotModerator : AccountError("not_moderator")
     data object NotAdmin : AccountError("not_admin")
+    data object NotSuperadmin : AccountError("not_superadmin")
+    data object HostInvalid : AccountError("host_invalid")
     data object UserInvalid : AccountError("user_invalid")
     data object MuteInvalid : AccountError("mute_invalid")
     data object RestoreExpired : AccountError("restore_expired")
@@ -102,6 +106,8 @@ sealed class AccountError(message: String) : Exception(message) {
                 "rate_limited" -> RateLimited
                 "not_moderator" -> NotModerator
                 "not_admin" -> NotAdmin
+                "not_superadmin" -> NotSuperadmin
+                "host_invalid" -> HostInvalid
                 "user_invalid" -> UserInvalid
                 "mute_invalid" -> MuteInvalid
                 "restore_expired" -> RestoreExpired

@@ -46,7 +46,8 @@ class ProfileScreenshotTest {
     private val now = Instant.parse("2026-11-18T14:30:00Z")
     private val listener = AccountService.Me(userId = "u1", nickname = "vinylovy_tom")
 
-    private fun capture(name: String, language: AppLanguage = AppLanguage.CS, padded: Boolean = true, content: @Composable () -> Unit) {
+    private fun capture(name: String, language: AppLanguage = AppLanguage.CS, padded: Boolean = true, tall: Boolean = false, content: @Composable () -> Unit) {
+        if (tall) org.robolectric.RuntimeEnvironment.setQualifiers("+h1400dp")
         compose.setContent {
             CompositionLocalProvider(LocalAnimationsEnabled provides false) {
                 ProvideAppLanguage(language) {
@@ -63,8 +64,41 @@ class ProfileScreenshotTest {
 
     @Test fun signedOutEnglish() = capture("profile_signed_out_en", AppLanguage.EN) { ProfileContent(State.SignedOut, busy = false, ProfileActions(), now) }
 
-    @Test fun signedIn() = capture("profile_signed_in_cs") {
-        ProfileContent(State.SignedIn(SignInMethod.APPLE, "tom@example.cz", listener), busy = false, ProfileActions(), now)
+    private val slowrider = listener.copy(registeredAtText = "2026-11-07T09:00:00+00:00", chatMessagesCount = 48, voiceMessagesCount = 3)
+    private val stats = cz.slowdownradijo.app.profile.SlowrideStats(310_440, listOf("Morning Coffee" to 115_200, "Noční linka" to 75_600, "Weekend Aftertaste" to 32_400))
+
+    @Test fun signedIn() = capture("profile_signed_in_cs", tall = true) {
+        ProfileContent(State.SignedIn(SignInMethod.APPLE, "tom@example.cz", slowrider), busy = false, ProfileActions(), now, stats)
+    }
+
+    @Test fun anonymousWriter() = capture("profile_anonymous_cs", tall = true) {
+        ProfileContent(State.Anonymous(listener.copy(isAnonymous = true, nicknameLocked = true)), busy = false, ProfileActions(), now)
+    }
+
+    @Test fun superadmin() = capture("profile_superadmin_cs", tall = true) {
+        ProfileContent(State.SignedIn(SignInMethod.EMAIL, "radek@example.cz", slowrider.copy(nickname = "radek", isAdmin = true, isSuperadmin = true)), busy = false, ProfileActions(), now, stats)
+    }
+
+    @Test fun registerToChangeNickname() = capture("profile_register_nickname_cs", padded = false) {
+        cz.slowdownradijo.app.profile.RegisterContent("nickname_change", "vinylovy_tom", busy = false, ProfileActions(), onDismiss = {})
+    }
+
+    @Test fun adminModerators() = capture("admin_moderators_cs", padded = false) {
+        cz.slowdownradijo.app.profile.AdminModeratorsScreen(
+            listOf(
+                cz.slowdownradijo.app.profile.ModeratorRow("dj-pufaz", "DJ Pufaz", "Propojený · Morning Coffee, Noční linka", pending = false, linked = true),
+                cz.slowdownradijo.app.profile.ModeratorRow("philip-tbc", "Philip TBC", "Pozvánka čeká, platí do 25. 11. 2026", pending = true, linked = false),
+                cz.slowdownradijo.app.profile.ModeratorRow("cube-positive", "Cube Positive", "Bez účtu", pending = false, linked = false),
+            ),
+            onOpen = {}, onInvite = {}, back = {},
+        )
+    }
+
+    @Test fun adminInviteReady() = capture("admin_invite_ready_cs", padded = false) {
+        cz.slowdownradijo.app.profile.AdminInviteReadyScreen(
+            cz.slowdownradijo.app.chat.ChatAdmin.Invite("a1b2c3d4e5f6", "2026-11-25T14:30:00Z", "cube-positive"), "Cube Positive",
+            onShare = {}, onCopy = {}, back = {},
+        )
     }
 
     @Test fun host() = capture("profile_dj_cs") {

@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -92,7 +93,7 @@ import cz.slowdownradijo.app.l10n.LocalAppLanguage
 import cz.slowdownradijo.app.profile.ChatRulesScreen
 import cz.slowdownradijo.app.profile.EmailSignInScreen
 import cz.slowdownradijo.app.profile.MutedBanner
-import cz.slowdownradijo.app.profile.NicknameSetup
+import cz.slowdownradijo.app.profile.asNicknameStatus
 import cz.slowdownradijo.app.profile.ProfileActions
 import cz.slowdownradijo.app.profile.ProfileHeading
 import cz.slowdownradijo.app.profile.SignInButtons
@@ -112,11 +113,16 @@ data class ChatWriter(
     val blocked: Boolean,
 ) {
     val canWrite: Boolean get() = !blocked && mutedUntil == null
-    val hasName: Boolean get() = signedIn && name != null
+    /** Has a name to write under: registered or writing without an account. */
+    val hasName: Boolean get() = name != null
 
     companion object {
         fun of(state: AccountService.State, now: Instant): ChatWriter {
-            val me = (state as? AccountService.State.SignedIn)?.me
+            val me = when (state) {
+                is AccountService.State.SignedIn -> state.me
+                is AccountService.State.Anonymous -> state.me
+                else -> null
+            }
             return ChatWriter(
                 signedIn = state is AccountService.State.SignedIn,
                 name = me?.chatName,
@@ -301,7 +307,7 @@ fun ChatContent(
                         style = Theme.Typography.Copy.label, maxLines = 1,
                     )
                 } else {
-                    Text(stringResource(R.string.chatSignInToSend), style = Theme.Typography.Copy.label, color = Theme.subtleText)
+                    Text(stringResource(R.string.chatFirstMessageHint), style = Theme.Typography.Copy.label, color = Theme.subtleText)
                 }
                 AnimatedVisibility(emojiOpen, enter = fadeIn(), exit = fadeOut()) {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -374,7 +380,11 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
     var menuStatus by remember { mutableStateOf<ChatService.UserStatus?>(null) }
     var muteTarget by remember { mutableStateOf<ChatMessage?>(null) }
     var blockTarget by remember { mutableStateOf<ChatMessage?>(null) }
-    val me = (accountState as? AccountService.State.SignedIn)?.me
+    val me = when (val a = accountState) {
+        is AccountService.State.SignedIn -> a.me
+        is AccountService.State.Anonymous -> a.me
+        else -> null
+    }
     val isModerator = me?.isModerator == true
     val clipboard = androidx.compose.ui.platform.LocalClipboardManager.current
     val haptics = androidx.compose.ui.platform.LocalHapticFeedback.current
@@ -448,14 +458,11 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
                 toast(context.getString(R.string.chatUnmutedToast, name), Icons.AutoMirrored.Rounded.VolumeUp)
             }
             ChatMenuAction.BLOCK -> blockTarget = message
-            ChatMenuAction.REPORT -> if (writer.signedIn) run {
+            ChatMenuAction.REPORT -> run {
+                runCatching { app.sessions.accessToken(createAnonymous = true) }
                 chat.report(message)
                 track(AnalyticsEvent.ChatReported())
                 toast(context.getString(R.string.chatReportedToast), Icons.Outlined.Flag)
-            } else {
-                track(AnalyticsEvent.ChatJoinShown("report"))
-                pending = null
-                joining = true
             }
             ChatMenuAction.HIDE -> if (author != null) run {
                 chat.hide(author)
@@ -466,15 +473,18 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
     }
 
     fun send(text: String, announce: Boolean, kind: String) {
+        val first = (me?.chatMessagesCount ?: 0) == 0 && state.messages.none { it.userId != null && it.userId == me?.userId }
+        val accountKind = app.account.analyticsAccount
         scope.launch {
             try {
                 chat.send(text, app.schedule.currentShow() ?: show)
-                track(AnalyticsEvent.ChatMessageSent(kind, success = true))
+                track(AnalyticsEvent.ChatMessageSent(kind, success = true, first = first, account = accountKind))
+                haptics.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
                 if (announce) writer.name?.let { name ->
                     ToastCenter.show(ToastCenter.Toast(Icons.Rounded.CheckCircleOutline, context.getString(R.string.chatSentAs, name)))
                 }
             } catch (e: AccountError) {
-                track(AnalyticsEvent.ChatMessageSent(kind, success = false))
+                track(AnalyticsEvent.ChatMessageSent(kind, success = false, first = first, account = accountKind))
                 when (e) {
                     AccountError.NicknameRequired -> {
                         pending = text
@@ -497,7 +507,8 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
             else -> "text"
         }
         if (!writer.hasName) {
-            track(AnalyticsEvent.ChatJoinShown("send"))
+            // The first message: a nickname first (no account needed), then it goes out by itself.
+            track(AnalyticsEvent.ChatNicknamePromptShown())
             pending = text
             pendingKind = kind
             joining = true
@@ -543,7 +554,7 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
         ) {
             ChatMessageMenu(
                 message,
-                ChatMenu.actions(message, if (writer.signedIn) me?.userId else null, isModerator, state.pinned?.id == message.id, menuStatus),
+                ChatMenu.actions(message, me?.userId, isModerator, state.pinned?.id == message.id, menuStatus),
                 menuStatus, Instant.now(),
             ) { action ->
                 menuMessage = null
@@ -613,25 +624,30 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
     }
 }
 
-/** "Připoj se do chatu" (Figma H), then the nickname (J) for a new account. */
+/**
+ * Before the first message (Figma Chat J1–J3): "Tvoje přezdívka", no account needed.
+ * "Už máš účet? Přihlas se" turns it into signing in with an existing account (H),
+ * which brings the nickname and stats back. As `ChatJoinSheet` in ChatSheetView.swift.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatJoinSheet(onReady: () -> Unit, onDismiss: () -> Unit, onRules: () -> Unit) {
     val context = LocalContext.current
-    val account = context.app.account
+    val app = context.app
+    val account = app.account
     val state by account.state.collectAsState()
     var busy by remember { mutableStateOf(false) }
     var email by remember { mutableStateOf(false) }
+    var signIn by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val actions = signInActions(context, scope, account, setBusy = { busy = it }, onEmail = { email = true })
-    val ready = (state as? AccountService.State.SignedIn)?.me?.chatName != null
 
     LaunchedEffect(Unit) {
-        snapshotFlow { (account.state.value as? AccountService.State.SignedIn)?.me?.chatName != null }
+        snapshotFlow { account.me?.chatName != null }
             .distinctUntilChanged()
             .collect { if (it) onReady() }
     }
-    BackHandler(email) { email = false }
+    BackHandler(email || signIn) { if (email) email = false else signIn = false }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -639,53 +655,125 @@ fun ChatJoinSheet(onReady: () -> Unit, onDismiss: () -> Unit, onRules: () -> Uni
         containerColor = Theme.statsCard,
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
     ) {
-        ChatJoinContent(state, ready, busy, email, actions, onBackFromEmail = { email = false }, onDismiss = onDismiss, onRules = onRules)
+        ChatJoinContent(
+            state = state, busy = busy, email = email, signIn = signIn, actions = actions,
+            onSaved = { app.analytics.track(AnalyticsEvent.ChatNicknameSet("first_message")) },
+            onSignIn = {
+                app.analytics.track(AnalyticsEvent.RegistrationPromptShown("chat_existing_account"))
+                account.registrationSource = "chat_existing_account"
+                signIn = true
+            },
+            onBackToNickname = { signIn = false },
+            onBackFromEmail = { email = false },
+            onRules = onRules,
+        )
     }
 }
 
 @Composable
 fun ChatJoinContent(
     state: AccountService.State,
-    ready: Boolean,
     busy: Boolean,
     email: Boolean,
+    signIn: Boolean,
     actions: ProfileActions,
+    onSaved: () -> Unit,
+    onSignIn: () -> Unit,
+    onBackToNickname: () -> Unit,
     onBackFromEmail: () -> Unit,
-    onDismiss: () -> Unit,
     onRules: () -> Unit,
 ) {
     val context = LocalContext.current
-    val signedIn = state as? AccountService.State.SignedIn
-    when {
-        signedIn != null && signedIn.me != null && !ready -> Column(Modifier.padding(horizontal = 20.dp).padding(bottom = 24.dp).navigationBarsPadding().imePadding()) {
-            NicknameSetup(actions)
+    val registered = state is AccountService.State.SignedIn
+    val mode = when {
+        email && !registered -> "email"
+        signIn && !registered -> "signIn"
+        else -> "nickname"
+    }
+    androidx.compose.animation.AnimatedContent(
+        targetState = mode,
+        transitionSpec = {
+            (fadeIn(androidx.compose.animation.core.tween(250)) + androidx.compose.animation.slideInVertically { it / 12 }) togetherWith
+                fadeOut(androidx.compose.animation.core.tween(150))
+        },
+        label = "join",
+    ) { current ->
+        when (current) {
+            "email" -> Box(Modifier.fillMaxHeight(0.9f).imePadding()) {
+                EmailSignInScreen(
+                    sendCode = context.app.account::sendEmailCode,
+                    verify = context.app.account::verifyEmailCode,
+                    back = onBackFromEmail,
+                    onSignedIn = onBackFromEmail,
+                )
+            }
+            "signIn" -> SignInExisting(busy, actions, onBackToNickname, onRules)
+            else -> NicknameFirstStep(actions, registered, onSaved, onSignIn)
         }
-        signedIn != null -> Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(color = Theme.textPrimary, strokeWidth = 2.dp, modifier = Modifier.size(28.dp))
-        }
-        email -> Box(Modifier.fillMaxHeight(0.9f).imePadding()) {
-            EmailSignInScreen(
-                sendCode = context.app.account::sendEmailCode,
-                verify = context.app.account::verifyEmailCode,
-                back = onBackFromEmail,
-                onSignedIn = onBackFromEmail,
-            )
-        }
-        else -> JoinButtons(busy, actions, onDismiss, onRules)
     }
 }
 
+/** "Tvoje přezdívka" before the first message (J1–J3). */
 @Composable
-fun JoinButtons(busy: Boolean, actions: ProfileActions, onDismiss: () -> Unit, onRules: () -> Unit) {
+fun NicknameFirstStep(
+    actions: ProfileActions,
+    registered: Boolean,
+    onSaved: () -> Unit,
+    onSignIn: () -> Unit,
+    initial: String = "",
+    initialStatus: cz.slowdownradijo.app.profile.NicknameStatus = cz.slowdownradijo.app.profile.NicknameStatus.EMPTY,
+) {
+    var nickname by rememberSaveable { mutableStateOf(initial) }
+    var status by remember { mutableStateOf(initialStatus) }
+    var saving by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    Column(
+        Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(top = 8.dp, bottom = 24.dp).navigationBarsPadding().imePadding(),
+        verticalArrangement = Arrangement.spacedBy(Theme.Spacing.lg),
+    ) {
+        ProfileHeading(stringResource(R.string.chatNicknameTitle), stringResource(R.string.chatNicknameBody), hero = true)
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            cz.slowdownradijo.app.profile.NicknameField(nickname, { nickname = it }, status, { status = it }, actions.checkNickname)
+            Text(stringResource(R.string.chatNicknameRules), style = Theme.Typography.Copy.label, color = Theme.subtleText)
+        }
+        cz.slowdownradijo.app.ui.components.PrimaryActionButton(
+            stringResource(R.string.chatNicknameSend),
+            enabled = status == cz.slowdownradijo.app.profile.NicknameStatus.OK && !saving,
+        ) {
+            saving = true
+            scope.launch {
+                val error = actions.saveNickname(nickname.trim())
+                if (error == null) onSaved() else error.asNicknameStatus()?.let { status = it }
+                saving = false
+            }
+        }
+        if (!registered) {
+            Text(
+                buildAnnotatedString {
+                    withStyle(SpanStyle(color = Theme.mutedText)) { append(stringResource(R.string.chatHaveAccount) + " ") }
+                    withStyle(SpanStyle(color = Theme.textPrimary, fontWeight = FontWeight.ExtraBold, textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline)) {
+                        append(stringResource(R.string.chatSignInLink))
+                    }
+                },
+                style = Theme.Typography.Copy.body, textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().clickable(onClick = onSignIn).padding(vertical = 4.dp),
+            )
+        }
+    }
+}
+
+/** "Přihlas se" with an existing account (H). */
+@Composable
+fun SignInExisting(busy: Boolean, actions: ProfileActions, onBack: () -> Unit, onRules: () -> Unit) {
     Column(
         Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(top = 8.dp, bottom = 24.dp).navigationBarsPadding(),
         verticalArrangement = Arrangement.spacedBy(Theme.Spacing.lg),
     ) {
-        ProfileHeading(stringResource(R.string.chatJoinTitle), stringResource(R.string.chatJoinBody), hero = true)
+        ProfileHeading(stringResource(R.string.chatSignInTitle), stringResource(R.string.chatSignInBody), hero = true)
         SignInButtons(busy, actions.onApple, actions.onGoogle, actions.onEmail)
         Text(
-            stringResource(R.string.chatNotNow), style = Theme.Typography.Copy.link, color = Theme.mutedText, textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth().clickable(onClick = onDismiss).padding(vertical = 4.dp),
+            stringResource(R.string.chatBackToNickname), style = Theme.Typography.Copy.link, color = Theme.mutedText, textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth().clickable(onClick = onBack).padding(vertical = 4.dp),
         )
         Text(
             stringResource(R.string.chatJoinLegal), style = Theme.Typography.Copy.label, color = Theme.subtleText, textAlign = TextAlign.Center,
@@ -693,7 +781,6 @@ fun JoinButtons(busy: Boolean, actions: ProfileActions, onDismiss: () -> Unit, o
         )
     }
 }
-
 
 /** Opening a DJ invite link (Figma P1–P3), shown over any tab. */
 @OptIn(ExperimentalMaterial3Api::class)

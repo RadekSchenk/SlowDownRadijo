@@ -6,7 +6,7 @@ Tento dokument popisuje, jaké údaje aplikace Slow Down Rádijo pro iOS a Andro
 
 ## Účet je dobrovolný
 
-Rádio, program, statistiky poslechu i čtení chatu fungují bez registrace a přihlášení. **Účet potřebuješ jen k psaní do chatu posluchačů** (záložka Profil); co se s ním ukládá, popisujeme níže v části „Účet a chat posluchačů“. Neshromažďujeme reklamní ID ani identifikátory zařízení od Applu nebo Googlu a aplikace nikoho nesleduje napříč jinými appkami nebo weby.
+Rádio, program, statistiky poslechu i chat posluchačů fungují bez registrace. Psát do chatu můžeš pod přezdívkou i bez účtu. **Registrace (Slowrider)** je dobrovolná: přidá správu profilu včetně změny přezdívky a statistiky uložené k účtu, které ti zůstanou i na novém telefonu. Co se ukládá, popisujeme níže v části „Účet a chat posluchačů“. Neshromažďujeme reklamní ID ani identifikátory zařízení od Applu nebo Googlu a aplikace nikoho nesleduje napříč jinými appkami nebo weby.
 
 Bez účtu aplikace používá nanejvýš dvě **náhodná anonymní ID**, která spolu nejsou nijak propojená: jedno pro statistiky poslechu a druhé pro anonymní měření používání, jen pokud s ním souhlasíš (viz níže). Žádné z nich nevzniká z tvého jména, e-mailu, telefonu ani z identifikátoru zařízení a nelze z nich tebe jako osobu odvodit. Když se přihlásíš, stane se z ID pro statistiky poslechu tvůj účet (viz níže), aby ti statistiky zůstaly.
 
@@ -32,16 +32,18 @@ Bez účtu aplikace používá nanejvýš dvě **náhodná anonymní ID**, kter�
 - Přehledy obsahují jen součty a průměry, nikdy údaje o jednom konkrétním posluchači. Nejsou veřejné a nepředáváme je třetím stranám v podobě, podle které by šlo kohokoli určit.
 - Právní základ, doba uchování i vypnutí jsou stejné jako u statistik poslechu výše: kdo statistiky vypne nebo smaže, do dalších přehledů se nezapočítá.
 
-**Účet a chat posluchačů (jen pokud se přihlásíš):**
+**Chat posluchačů a účet (jen pokud píšeš nebo se zaregistruješ):**
+- **Psaní bez účtu:** při první zprávě si zvolíš přezdívku. Uloží se k náhodnému anonymnímu ID v telefonu (tomu, které slouží statistikám poslechu), spolu s tvými zprávami. Přezdívku pak změníš jen s registrací; registrace převede anonymní ID na účet, takže přezdívka, zprávy i statistiky zůstanou.
 - **Čtení chatu** je bez účtu. Appka k tomu stahuje zprávy posledních 7 dní a při otevřené appce přijímá nové; nic o tobě se přitom neodesílá.
 - **Přihlášení:** přes Apple, Google nebo e-mail s jednorázovým kódem. Ukládáme e-mail (u přihlášení přes Apple můžeš použít skrytý e-mail, který Apple přeposílá), identifikátor účtu u Applu či Googlu, způsob přihlášení a čas posledního přihlášení. Heslo nikde nevzniká. Přihlašovací kód ti posíláme e-mailem přes službu Resend. Při přihlášení vidí poskytovatel Supabase v bezpečnostních záznamech IP adresu a typ aplikace, a to jen pro zajištění provozu a ochranu účtů.
-- **Profil v chatu:** přezdívka (měnit jde jednou za 24 hodin), u moderátorů vazba na jméno DJ z programu rádia.
+- **Profil v chatu:** přezdívka (u registrovaných měnit jde jednou za 24 hodin), datum registrace („Jsi součástí Slowriders od …“), počet tvých zpráv v chatu a odeslaných hlasových vzkazů (pro přehled „Tvůj Slowride“ v Profilu), u moderátorů vazba na jméno z programu rádia a u správců jejich role.
 - **Zprávy:** text zprávy, čas, pořad, během kterého jsi psal(a), a tvoje přezdívka. **Zprávy jsou veřejné pro všechny uživatele aplikace**, i nepřihlášené — nepiš do nich nic, co nechceš sdílet.
 - **Moderace a bezpečnost:** když zprávu nahlásíš, uložíme, kdo a kterou zprávu nahlásil. Moderátoři (DJové rádia a správce) mohou zprávy mazat a psaní dočasně pozastavit nebo zablokovat; ukládáme, kdo to udělal, u které zprávy a do kdy. Text smazané zprávy držíme 1 den, aby šlo smazání vrátit. Seznam lidí, jejichž zprávy sis skryl(a), vidíš jen ty.
 - **Ochrana proti spamu:** server počítá, kolik zpráv jsi poslal(a) za poslední hodinu, a nadměrné posílání odmítne.
 - **Právní základ:** plnění smlouvy, tedy poskytnutí služby chatu, o kterou sis řekl(a) přihlášením (čl. 6 odst. 1 písm. b) GDPR); moderace, nahlášení a ochrana proti spamu z oprávněného zájmu na bezpečném chatu (čl. 6 odst. 1 písm. f) GDPR).
-- **Doba uchování:** zprávy 90 dní, pak se automaticky mažou (v appce se zobrazuje posledních 7 dní); záznamy o ztlumení 30 dní po jeho konci; nahlášení se smažou spolu se zprávou. Účet a profil do doby, než účet smažeš.
-- **Smazání účtu:** kdykoli v appce (Profil ▸ Smazat účet). Smaže se účet, e-mail, přezdívka, statistiky poslechu, seznam skrytých uživatelů i tvoje nahlášení. Tvoje už odeslané zprávy zůstanou v chatu do konce 90denní lhůty bez přezdívky, jako „Smazaný účet“, aby konverzace dávala smysl.
+- **Doba uchování:** zprávy 90 dní (v appce se zobrazuje posledních 7 dní); záznamy o ztlumení 30 dní po jeho konci; nahlášení se smažou spolu se zprávou. Účet a profil do doby, než účet nebo údaje smažeš.
+- **Archiv a statistiky chatu:** po 90 dnech zprávu z chatu smažeme a její text si ponecháme v interním archivu **bez vazby na účet, ID i přezdívku** (zůstane jen text, čas, pořad a to, jestli psal posluchač, nebo moderátor). Archiv a denní souhrnná čísla (počty zpráv, pisatelů, pořady, kde se nejvíc píše) slouží jen rádiu k analýzám, nejsou veřejné a nepředáváme je dál. Text zprávy může sám obsahovat osobní údaje, které do něj autor napsal, proto do zpráv nepiš nic, co nechceš sdílet. **Právní základ:** oprávněný zájem rádia porozumět, jak se chat používá (čl. 6 odst. 1 písm. f) GDPR).
+- **Smazání účtu:** kdykoli v appce (Profil ▸ Smazat účet, bez registrace Profil ▸ Smazat moje údaje). Smaže se účet, e-mail, přezdívka, statistiky poslechu, seznam skrytých uživatelů i tvoje nahlášení. Tvoje už odeslané zprávy zůstanou v chatu do konce 90denní lhůty bez přezdívky, jako „Smazaný účet“, aby konverzace dávala smysl.
 
 **Anonymní měření používání (jen se souhlasem, ve výchozím stavu vypnuté):**
 - Po několika spuštěních se appka jednou zeptá, jestli smí anonymně měřit, **které funkce používáš**. Dokud neklepneš na „Povolit“, nic se neměří ani neodesílá. Volbu můžeš kdykoli změnit v Menu ▸ Nastavení ▸ Anonymní měření používání.

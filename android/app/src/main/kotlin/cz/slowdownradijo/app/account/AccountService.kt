@@ -51,19 +51,29 @@ class AccountService(
     private val sessions: SupabaseSessionProvider,
     private val scope: CoroutineScope,
 ) {
-    /** What `chat_me()` returns (backend/supabase/sql/020_chat.sql). */
+    /** What `chat_me()` returns (backend/supabase/sql/020_chat.sql, 022_chat_v3.sql). */
     @Serializable
     data class Me(
         @SerialName("user_id") val userId: String,
+        @SerialName("is_anonymous") val isAnonymous: Boolean = false,
+        /** When the listener became a Slowrider ("Jsi součástí Slowriders od …"). */
+        @SerialName("registered_at") val registeredAtText: String? = null,
         val nickname: String? = null,
+        /** Anonymous with a nickname: changing it needs registration. */
+        @SerialName("nickname_locked") val nicknameLocked: Boolean = false,
         @SerialName("nickname_next_change_at") val nicknameNextChangeAtText: String? = null,
         val role: String = "listener",
         @SerialName("host_id") val hostId: String? = null,
         @SerialName("host_name") val hostName: String? = null,
         @SerialName("is_moderator") val isModerator: Boolean = false,
+        @SerialName("is_admin") val isAdmin: Boolean = false,
+        @SerialName("is_superadmin") val isSuperadmin: Boolean = false,
+        @SerialName("chat_messages_count") val chatMessagesCount: Int = 0,
+        @SerialName("voice_messages_count") val voiceMessagesCount: Int = 0,
         @SerialName("muted_until") val mutedUntilText: String? = null,
         val blocked: Boolean = false,
     ) {
+        val registeredAt: Instant? get() = registeredAtText?.let(::parseIso)
         val nicknameNextChangeAt: Instant? get() = nicknameNextChangeAtText?.let(::parseIso)
         val mutedUntil: Instant? get() = mutedUntilText?.let(::parseIso)
         /** The name the listener writes under: the DJ name or the nickname. */
@@ -75,8 +85,10 @@ class AccountService(
 
     sealed interface State {
         data object Loading : State
-        /** No permanent account (maybe an anonymous stats user). */
+        /** No permanent account and no nickname yet (maybe an anonymous stats user). */
         data object SignedOut : State
+        /** Writes in the chat without an account (Figma Profil M7); registering keeps everything. */
+        data class Anonymous(val me: Me) : State
         /** Signed in; [me] is null until `chat_me()` answered (offline). */
         data class SignedIn(val method: SignInMethod?, val email: String?, val me: Me?) : State
     }
@@ -93,7 +105,31 @@ class AccountService(
     private val auth get() = supabase.auth
     private val _state = MutableStateFlow<State>(State.Loading)
     val state: StateFlow<State> = _state.asStateFlow()
-    val me: Me? get() = (state.value as? State.SignedIn)?.me
+    /** The listener in the chat: registered or writing without an account. */
+    val me: Me? get() = when (val s = state.value) {
+        is State.SignedIn -> s.me
+        is State.Anonymous -> s.me
+        else -> null
+    }
+    val isRegistered: Boolean get() = state.value is State.SignedIn
+
+    /** For analytics: `none`, `anonymous`, `registered`. */
+    val analyticsAccount: String get() = when (state.value) {
+        is State.SignedIn -> "registered"
+        is State.Anonymous -> "anonymous"
+        else -> "none"
+    }
+
+    /** What happened when someone signed in, for analytics and the welcome toast. */
+    sealed interface Event {
+        data class Registered(val method: SignInMethod?, val source: String, val hadNickname: Boolean) : Event
+        data class SignedInExisting(val method: SignInMethod?, val source: String) : Event
+    }
+    private val _events = kotlinx.coroutines.flow.MutableSharedFlow<Event>(extraBufferCapacity = 4)
+    val events: kotlinx.coroutines.flow.SharedFlow<Event> = _events
+
+    /** Where the listener started registering, for `account_registered`. */
+    @Volatile var registrationSource: String = "profile_empty"
 
     /** Set while Apple's browser sign-in tries to link an anonymous user. */
     @Volatile private var appleLinkPending = false
@@ -114,14 +150,35 @@ class AccountService(
     /** Re-reads the account (after sign-in, a nickname change, a mute, …). */
     suspend fun refresh() {
         val user = auth.currentUserOrNull()
-        if (user == null || user.isAnonymous == true) {
+        if (user == null) {
             _state.value = State.SignedOut
             return
         }
+        if (user.isAnonymous == true) {
+            // Writing without an account: the anonymous user with a nickname.
+            val me = runCatching { supabase.postgrest.rpc("chat_me").decodeAs<Me>() }.getOrNull()
+            _state.value = when {
+                me?.nickname != null -> State.Anonymous(me)
+                me == null && state.value is State.Anonymous -> state.value // offline: keep it
+                else -> State.SignedOut
+            }
+            return
+        }
         val method = signInMethod(user)
-        val me = runCatching { supabase.postgrest.rpc("chat_me").decodeAs<Me>() }.getOrNull()
-            ?: (state.value as? State.SignedIn)?.me
+        val wasRegistered = state.value is State.SignedIn
+        val hadNickname = this.me?.nickname != null
+        val fresh = runCatching { supabase.postgrest.rpc("chat_me").decodeAs<Me>() }.getOrNull()
+        val me = fresh ?: (state.value as? State.SignedIn)?.me
         _state.value = State.SignedIn(method, user.email, me)
+        if (!wasRegistered && fresh != null) {
+            val since = fresh.registeredAt
+            if (since != null && java.time.Duration.between(since, Instant.now()).seconds < 600) {
+                _events.tryEmit(Event.Registered(method, registrationSource, hadNickname || fresh.nickname != null))
+            } else {
+                _events.tryEmit(Event.SignedInExisting(method, registrationSource))
+            }
+            registrationSource = "profile_empty"
+        }
     }
 
     // E-mail code
@@ -228,9 +285,20 @@ class AccountService(
 
     // Nickname, DJ, account
 
+    /** Sets the first nickname (also without an account: the anonymous user is made if needed) or changes it. */
     suspend fun setNickname(nickname: String) = wrap {
+        runCatching { sessions.accessToken(createAnonymous = true) }
         val me = supabase.postgrest.rpc("set_nickname", buildJsonObject { put("p_nickname", nickname) }).decodeAs<Me>()
-        (state.value as? State.SignedIn)?.let { _state.value = it.copy(me = me) }
+        when (val s = state.value) {
+            is State.SignedIn -> _state.value = s.copy(me = me)
+            else -> if (me.isAnonymous) _state.value = State.Anonymous(me) else refresh()
+        }
+    }
+
+    /** "Hlasové vzkazy" on the Profil dashboard: counts a sent voice message, if the phone has an account. */
+    suspend fun countVoiceMessage() {
+        val token = runCatching { sessions.accessToken(createAnonymous = false) }.getOrNull() ?: return
+        if (token.isNotEmpty()) runCatching { supabase.postgrest.rpc("count_voice_message") }
     }
 
     suspend fun checkNickname(nickname: String): NicknameCheck = wrap {

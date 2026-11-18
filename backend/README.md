@@ -313,6 +313,17 @@ listener's anonymous stats user, so their stats stay. Design and rules:
    `host_invite_info(code)`, which the invite screen calls before the DJ signs
    in ("Propoj účet jako DJ Pufaz", "platí do 24. 11."). Without it the apps
    show a generic title and the claim still works.
+10. **Run `supabase/sql/022_chat_v3.sql`** (after 021): writing without an
+    account (the anonymous user sets a nickname with its first message;
+    changing it needs registration), `registered_at`, dashboard counters,
+    superadmin functions (`admin_*`), the anonymised archive `chat_archive`
+    and daily statistics (`chat_daily_stats`, `chat_show_daily`, views
+    `chat_stats_*`, cron `chat-daily-stats` at 03:10). The statistics are
+    readable only with the service role (SQL Editor).
+11. **Superadmin:** once Radek has registered in the app,
+    `update profiles set is_superadmin = true, is_admin = true where id = (select id from auth.users where email = '<his e-mail>');`
+    From then on moderators and admins are managed in the app
+    (Profil ▸ Správa chatu); the SQL in step 5 is the fallback.
 9. **Invite links on slowdownradijo.cz.** Until these two files are on the
    web, the `https://slowdownradijo.cz/dj/<code>` link opens the website, not
    the app; `slowdownradijo://dj/<code>` works right away in both apps.

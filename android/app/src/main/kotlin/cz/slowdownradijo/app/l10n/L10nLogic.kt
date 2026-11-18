@@ -11,6 +11,15 @@ import java.util.Locale
  * step with L10n.swift by hand; every other string comes from strings.xml.
  */
 object L10nLogic {
+    /** "12 dní" on the Profil dashboard: "den", "dny", "dní" (EN "day", "days"). */
+    fun slowrideDays(english: Boolean, count: Int): String = if (english) {
+        if (count == 1) "day" else "days"
+    } else when {
+        count == 1 -> "den"
+        count in 2..4 -> "dny"
+        else -> "dní"
+    }
+
     /** "↓ 3 nové zprávy": "1 nová zpráva", "2–4 nové zprávy", "5 nových zpráv". */
     fun chatNewMessages(english: Boolean, count: Int): String = if (english) {
         if (count == 1) "1 new message" else "$count new messages"

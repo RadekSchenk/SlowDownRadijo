@@ -2622,6 +2622,582 @@ extension L10n {
 
 }
 
+// MARK: - Chat v3: Slowriders, dashboard, admin (app 1.3)
+
+extension L10n {
+    static var chatNicknameTitle: String {
+        switch lang {
+        case .cs: return "Tvoje přezdívka"
+        case .en: return "Your nickname"
+        }
+    }
+
+    static var chatNicknameBody: String {
+        switch lang {
+        case .cs: return "Pod tímhle jménem tě uvidí ostatní v chatu. Účet k tomu nepotřebuješ."
+        case .en: return "Others in the chat will see you under this name. No account needed."
+        }
+    }
+
+    static var chatNicknameRules: String {
+        switch lang {
+        case .cs: return "3–20 znaků: písmena bez diakritiky, číslice, tečka a podtržítko. Změnit ji půjde po registraci v Profilu."
+        case .en: return "3–20 characters: letters without accents, digits, dot and underscore. You can change it after registering, in Profile."
+        }
+    }
+
+    static var chatNicknameSend: String {
+        switch lang {
+        case .cs: return "Uložit a odeslat zprávu"
+        case .en: return "Save and send"
+        }
+    }
+
+    static var chatHaveAccount: String {
+        switch lang {
+        case .cs: return "Už máš účet?"
+        case .en: return "Already have an account?"
+        }
+    }
+
+    static var chatSignInLink: String {
+        switch lang {
+        case .cs: return "Přihlas se"
+        case .en: return "Sign in"
+        }
+    }
+
+    static var chatSignInTitle: String {
+        switch lang {
+        case .cs: return "Přihlas se"
+        case .en: return "Sign in"
+        }
+    }
+
+    static var chatSignInBody: String {
+        switch lang {
+        case .cs: return "Máš účet z jiného telefonu? Přihlas se a vrátí se ti přezdívka i statistiky poslechu."
+        case .en: return "Have an account from another phone? Sign in to get your nickname and listening stats back."
+        }
+    }
+
+    static var chatBackToNickname: String {
+        switch lang {
+        case .cs: return "Zpět k přezdívce"
+        case .en: return "Back to the nickname"
+        }
+    }
+
+    static var chatFirstMessageHint: String {
+        switch lang {
+        case .cs: return "Při první zprávě si zvolíš přezdívku"
+        case .en: return "You'll pick a nickname with your first message"
+        }
+    }
+
+    static var chatHostBadge: String {
+        switch lang {
+        case .cs: return "Moderátor"
+        case .en: return "Host"
+        }
+    }
+
+    static var welcomeSlowrider: String {
+        switch lang {
+        case .cs: return "Vítej mezi Slowriders!"
+        case .en: return "Welcome to the Slowriders!"
+        }
+    }
+
+    static var welcomeSlowriderNickname: String {
+        switch lang {
+        case .cs: return "Vítej mezi Slowriders! Přezdívku teď můžeš změnit."
+        case .en: return "Welcome to the Slowriders! You can change your nickname now."
+        }
+    }
+
+    static var benefitProfileTitle: String {
+        switch lang {
+        case .cs: return "Správu profilu"
+        case .en: return "Your own profile"
+        }
+    }
+
+    static var benefitProfileBody: String {
+        switch lang {
+        case .cs: return "Přezdívku v chatu si změníš, kdy budeš chtít."
+        case .en: return "Change your chat nickname whenever you like."
+        }
+    }
+
+    static var benefitStatsTitle: String {
+        switch lang {
+        case .cs: return "Statistiky u tebe, ne u telefonu"
+        case .en: return "Stats that stay with you"
+        }
+    }
+
+    static var benefitStatsBody: String {
+        switch lang {
+        case .cs: return "Poslech se ukládá k účtu, takže ti zůstane i na novém telefonu."
+        case .en: return "Listening is saved to your account, so it moves with you to a new phone."
+        }
+    }
+
+    static var benefitMoreTitle: String {
+        switch lang {
+        case .cs: return "Víc funkcí"
+        case .en: return "More to come"
+        }
+    }
+
+    static var benefitMoreBody: String {
+        switch lang {
+        case .cs: return "Další výhody pro Slowridery budou přibývat."
+        case .en: return "More perks for Slowriders are on the way."
+        }
+    }
+
+    static var slowriderTitle: String {
+        switch lang {
+        case .cs: return "Staň se Slowriderem"
+        case .en: return "Become a Slowrider"
+        }
+    }
+
+    static var slowriderBenefitsIntro: String {
+        switch lang {
+        case .cs: return "Poslouchat i psát do chatu můžeš bez účtu. Registrace ti k tomu přidá:"
+        case .en: return "You can listen and write in the chat without an account. Registering adds:"
+        }
+    }
+
+    static var slowriderRegister: String {
+        switch lang {
+        case .cs: return "Zaregistrovat se"
+        case .en: return "Register"
+        }
+    }
+
+    static var slowrideTitle: String {
+        switch lang {
+        case .cs: return "Tvůj Slowride"
+        case .en: return "Your Slowride"
+        }
+    }
+
+    static var slowrideMember: String {
+        switch lang {
+        case .cs: return "Slowriderem"
+        case .en: return "Slowrider for"
+        }
+    }
+
+    static var slowrideListened: String {
+        switch lang {
+        case .cs: return "Odposloucháno"
+        case .en: return "Listened"
+        }
+    }
+
+    static var slowrideChatMessages: String {
+        switch lang {
+        case .cs: return "Zprávy v chatu"
+        case .en: return "Chat messages"
+        }
+    }
+
+    static var slowrideVoiceMessages: String {
+        switch lang {
+        case .cs: return "Hlasové vzkazy"
+        case .en: return "Voice messages"
+        }
+    }
+
+    static var slowrideTopShows: String {
+        switch lang {
+        case .cs: return "Nejoblíbenější pořady"
+        case .en: return "Favourite shows"
+        }
+    }
+
+    static var registerNicknameTitle: String {
+        switch lang {
+        case .cs: return "Přezdívku změníš s účtem"
+        case .en: return "Register to change your nickname"
+        }
+    }
+
+    static var profileWritingWithoutAccount: String {
+        switch lang {
+        case .cs: return "Píšeš do chatu bez účtu"
+        case .en: return "Writing in the chat without an account"
+        }
+    }
+
+    static var profileDeleteData: String {
+        switch lang {
+        case .cs: return "Smazat moje údaje"
+        case .en: return "Delete my data"
+        }
+    }
+
+    static var deleteDataConfirmTitle: String {
+        switch lang {
+        case .cs: return "Smazat moje údaje?"
+        case .en: return "Delete my data?"
+        }
+    }
+
+    static var deleteDataConfirmBody: String {
+        switch lang {
+        case .cs: return "Smaže se přezdívka a statistiky poslechu z tohohle telefonu. Zprávy v chatu zůstanou jako „Smazaný účet“."
+        case .en: return "Your nickname and the listening stats from this phone will be deleted. Chat messages stay as “Deleted account”."
+        }
+    }
+
+    static var adminSection: String {
+        switch lang {
+        case .cs: return "Správa chatu"
+        case .en: return "Chat admin"
+        }
+    }
+
+    static var adminModerators: String {
+        switch lang {
+        case .cs: return "Moderátoři"
+        case .en: return "Hosts"
+        }
+    }
+
+    static var adminModeratorsBody: String {
+        switch lang {
+        case .cs: return "Moderátor s propojeným účtem píše v chatu pod jménem z programu se štítkem a může moderovat všechny své pořady."
+        case .en: return "A host with a linked account writes under their name from the programme, with a tag, and can moderate all their shows."
+        }
+    }
+
+    static var adminInviteModerator: String {
+        switch lang {
+        case .cs: return "Pozvat moderátora"
+        case .en: return "Invite a host"
+        }
+    }
+
+    static var adminLinked: String {
+        switch lang {
+        case .cs: return "Propojený"
+        case .en: return "Linked"
+        }
+    }
+
+    static var adminNoAccount: String {
+        switch lang {
+        case .cs: return "Bez účtu"
+        case .en: return "No account"
+        }
+    }
+
+    static var adminInviteBody: String {
+        switch lang {
+        case .cs: return "Vyber moderátora z programu; propojí se všechny jeho pořady. Odkaz platí 7 dní a jde použít jen jednou."
+        case .en: return "Pick a host from the programme; all their shows are linked. The link works for 7 days, once."
+        }
+    }
+
+    static var adminAlreadyLinked: String {
+        switch lang {
+        case .cs: return "Už propojený"
+        case .en: return "Already linked"
+        }
+    }
+
+    static var adminGuestHost: String {
+        switch lang {
+        case .cs: return "Host mimo program"
+        case .en: return "Guest host"
+        }
+    }
+
+    static var adminGuestHostBody: String {
+        switch lang {
+        case .cs: return "Zadáš jméno, pod kterým bude psát"
+        case .en: return "You'll enter the name they write under"
+        }
+    }
+
+    static var adminGuestNamePlaceholder: String {
+        switch lang {
+        case .cs: return "Jméno hosta"
+        case .en: return "Guest's name"
+        }
+    }
+
+    static var adminCreateInvite: String {
+        switch lang {
+        case .cs: return "Vytvořit pozvánku"
+        case .en: return "Create an invite"
+        }
+    }
+
+    static var adminInviteReady: String {
+        switch lang {
+        case .cs: return "Pozvánka je připravená"
+        case .en: return "The invite is ready"
+        }
+    }
+
+    static var adminShareLink: String {
+        switch lang {
+        case .cs: return "Sdílet odkaz"
+        case .en: return "Share the link"
+        }
+    }
+
+    static var adminCopyLink: String {
+        switch lang {
+        case .cs: return "Kopírovat odkaz"
+        case .en: return "Copy the link"
+        }
+    }
+
+    static var adminCopied: String {
+        switch lang {
+        case .cs: return "Zkopírováno"
+        case .en: return "Copied"
+        }
+    }
+
+    static var adminShows: String {
+        switch lang {
+        case .cs: return "Pořady"
+        case .en: return "Shows"
+        }
+    }
+
+    static var adminAccount: String {
+        switch lang {
+        case .cs: return "Účet"
+        case .en: return "Account"
+        }
+    }
+
+    static var adminWritesAs: String {
+        switch lang {
+        case .cs: return "V chatu píše jako"
+        case .en: return "Writes in the chat as"
+        }
+    }
+
+    static var adminSendNewInvite: String {
+        switch lang {
+        case .cs: return "Poslat novou pozvánku"
+        case .en: return "Send a new invite"
+        }
+    }
+
+    static var adminUnlink: String {
+        switch lang {
+        case .cs: return "Odpojit účet"
+        case .en: return "Unlink the account"
+        }
+    }
+
+    static var adminUnlinkNote: String {
+        switch lang {
+        case .cs: return "Po odpojení bude psát pod svou přezdívkou, bez štítku Moderátor a bez moderování."
+        case .en: return "Once unlinked they write under their nickname, without the Host tag or moderation."
+        }
+    }
+
+    static var adminAdmins: String {
+        switch lang {
+        case .cs: return "Správci"
+        case .en: return "Admins"
+        }
+    }
+
+    static var adminAdminsBody: String {
+        switch lang {
+        case .cs: return "Správce moderuje chat pod svou přezdívkou a může zrušit blokaci. Superadmin navíc zve moderátory a spravuje správce."
+        case .en: return "An admin moderates under their nickname and can lift blocks. The superadmin also invites hosts and manages admins."
+        }
+    }
+
+    static var adminYou: String {
+        switch lang {
+        case .cs: return "ty"
+        case .en: return "you"
+        }
+    }
+
+    static var adminSuperadmin: String {
+        switch lang {
+        case .cs: return "Superadmin"
+        case .en: return "Superadmin"
+        }
+    }
+
+    static var adminAddAdmin: String {
+        switch lang {
+        case .cs: return "Přidat správce"
+        case .en: return "Add an admin"
+        }
+    }
+
+    static var adminRemove: String {
+        switch lang {
+        case .cs: return "Odebrat"
+        case .en: return "Remove"
+        }
+    }
+
+    static var adminAddAdminBody: String {
+        switch lang {
+        case .cs: return "Správcem může být jen registrovaný Slowrider. Najdi ho podle přezdívky."
+        case .en: return "Only a registered Slowrider can be an admin. Find them by nickname."
+        }
+    }
+
+    static var adminSearchPlaceholder: String {
+        switch lang {
+        case .cs: return "Přezdívka"
+        case .en: return "Nickname"
+        }
+    }
+
+    static var adminAlreadyAdmin: String {
+        switch lang {
+        case .cs: return "Už je správce"
+        case .en: return "Already an admin"
+        }
+    }
+
+    static var adminNotRegistered: String {
+        switch lang {
+        case .cs: return "Píše bez účtu, nejde vybrat"
+        case .en: return "Writes without an account, can't be chosen"
+        }
+    }
+
+    static var adminMakeAdmin: String {
+        switch lang {
+        case .cs: return "Udělat správcem"
+        case .en: return "Make admin"
+        }
+    }
+
+    static var errorNotSuperadmin: String {
+        switch lang {
+        case .cs: return "Na tohle potřebuješ roli superadmina."
+        case .en: return "This needs the superadmin role."
+        }
+    }
+
+    static var errorHostInvalid: String {
+        switch lang {
+        case .cs: return "Tohle jméno moderátora nejde použít."
+        case .en: return "This host name can't be used."
+        }
+    }
+
+    static func slowriderCardBody(_ nickname: String) -> String {
+        switch lang {
+        case .cs: return "Přezdívka \(nickname) ti zůstane a změníš ji, kdy budeš chtít. Statistiky poslechu se uloží k účtu, takže je nepřijdeš ani s novým telefonem."
+        case .en: return "You keep \(nickname) and can change it whenever you like. Your listening stats are saved to the account, so a new phone won't lose them."
+        }
+    }
+
+    static func registerBody(_ nickname: String) -> String {
+        switch lang {
+        case .cs: return "Zaregistruj se a \(nickname) ti zůstane i se všemi zprávami. Hned potom ji můžeš změnit, bez čekání."
+        case .en: return "Register and keep \(nickname) with all your messages. You can change it right after, no waiting."
+        }
+    }
+
+    static func slowriderSinceLong(_ date: String) -> String {
+        switch lang {
+        case .cs: return "Jsi součástí Slowriders od \(date)"
+        case .en: return "A Slowrider since \(date)"
+        }
+    }
+
+    static func slowriderSince(_ date: String) -> String {
+        switch lang {
+        case .cs: return "Slowrider od \(date)"
+        case .en: return "Slowrider since \(date)"
+        }
+    }
+
+    static func adminInvitePending(_ date: String) -> String {
+        switch lang {
+        case .cs: return "Pozvánka čeká, platí do \(date)"
+        case .en: return "Invite pending, valid until \(date)"
+        }
+    }
+
+    static func adminInviteReadyBody(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Pošli odkaz pro \(name), třeba přes WhatsApp. Po otevření se v appce přihlásí a účet se propojí."
+        case .en: return "Send the link to \(name), e.g. on WhatsApp. Opening it, they sign in in the app and the account is linked."
+        }
+    }
+
+    static func adminInviteValidity(_ date: String) -> String {
+        switch lang {
+        case .cs: return "Platí do \(date) · jen jednou"
+        case .en: return "Valid until \(date) · once"
+        }
+    }
+
+    static func adminInviteShareMessage(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Pozvánka do chatu Slow Down Rádija pro \(name)"
+        case .en: return "Slow Down Rádijo chat invite for \(name)"
+        }
+    }
+
+    static func adminLinkedOn(_ date: String) -> String {
+        switch lang {
+        case .cs: return "propojený \(date)"
+        case .en: return "linked \(date)"
+        }
+    }
+
+    static func adminUnlinkConfirm(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Odpojit účet \(name)?"
+        case .en: return "Unlink \(name)?"
+        }
+    }
+
+    static func adminAdminSince(_ date: String) -> String {
+        switch lang {
+        case .cs: return "Správce od \(date)"
+        case .en: return "Admin since \(date)"
+        }
+    }
+
+    static func adminRemoveAdmin(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Odebrat \(name) ze správců?"
+        case .en: return "Remove \(name) from admins?"
+        }
+    }
+
+    /// "den" / "dny" / "dní" after a number (Android: `L10nLogic.slowrideDays`).
+    static func slowrideDays(_ count: Int) -> String {
+        switch lang {
+        case .cs:
+            if count == 1 { return "den" }
+            if (2...4).contains(count) { return "dny" }
+            return "dní"
+        case .en:
+            return count == 1 ? "day" : "days"
+        }
+    }
+}
+
 extension Show {
     /// The description in the app's language (English falls back to Czech).
     var localizedSummary: String? {

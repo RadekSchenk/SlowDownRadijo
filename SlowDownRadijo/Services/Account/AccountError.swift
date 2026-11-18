@@ -24,6 +24,8 @@ enum AccountError: Error, Equatable {
     case rateLimited
     case notModerator
     case notAdmin
+    case notSuperadmin
+    case hostInvalid
     case userInvalid
     case muteInvalid
     case restoreExpired
@@ -82,6 +84,8 @@ enum AccountError: Error, Equatable {
         case "rate_limited": return .rateLimited
         case "not_moderator": return .notModerator
         case "not_admin": return .notAdmin
+        case "not_superadmin": return .notSuperadmin
+        case "host_invalid": return .hostInvalid
         case "user_invalid": return .userInvalid
         case "mute_invalid": return .muteInvalid
         case "restore_expired": return .restoreExpired
@@ -117,6 +121,8 @@ extension AccountError {
         case .inviteInvalid: return L10n.inviteInvalidBody
         case .restoreExpired: return L10n.errorRestoreExpired
         case .notModerator, .notAdmin: return L10n.errorNotModerator
+        case .notSuperadmin: return L10n.errorNotSuperadmin
+        case .hostInvalid: return L10n.errorHostInvalid
         case .userInvalid: return L10n.errorUserInvalid
         case .messageNotFound: return L10n.errorMessageNotFound
         case .muted: return L10n.errorMuted

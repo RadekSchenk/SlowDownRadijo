@@ -351,14 +351,14 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
         androidx.compose.runtime.LaunchedEffect(openRequests) {
             if (openRequests != handledOpen) {
                 handledOpen = openRequests
-                app.analytics.track(cz.slowdownradijo.app.analytics.AnalyticsEvent.ChatOpened("invite", app.account.state.value is cz.slowdownradijo.app.account.AccountService.State.SignedIn))
+                app.analytics.track(cz.slowdownradijo.app.analytics.AnalyticsEvent.ChatOpened("invite", app.account.analyticsAccount))
                 chatOpening = false
             }
         }
         cz.slowdownradijo.app.chat.ChatHomeSection(
             chatState,
             onOpen = {
-                app.analytics.track(cz.slowdownradijo.app.analytics.AnalyticsEvent.ChatOpened(if (it) "home_field" else "home_section", app.account.state.value is cz.slowdownradijo.app.account.AccountService.State.SignedIn))
+                app.analytics.track(cz.slowdownradijo.app.analytics.AnalyticsEvent.ChatOpened(if (it) "home_field" else "home_section", app.account.analyticsAccount))
                 chatOpening = it
             },
             onSeen = app.chat::markSeen,

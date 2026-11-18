@@ -103,6 +103,19 @@ class ChatTimelineTest {
         assertEquals("Včera 23:41 · Noční linka", ChatTimeline.timeLine(m, now, zone, words))
     }
 
+    @Test fun daysPlural() {
+        assertEquals("den", L10nLogic.slowrideDays(false, 1))
+        assertEquals("dny", L10nLogic.slowrideDays(false, 3))
+        assertEquals("dní", L10nLogic.slowrideDays(false, 12))
+        assertEquals("days", L10nLogic.slowrideDays(true, 12))
+    }
+
+    @Test fun hostIdsFromProgrammeNames() {
+        assertEquals("dj-pufaz", ChatAdmin.hostId("DJ Pufaz"))
+        assertEquals("don-hoblinon", ChatAdmin.hostId("Don Hobliňon"))
+        assertEquals("slowdown-crew", ChatAdmin.hostId("  Slowdown Crew! "))
+    }
+
     @Test fun newMessagesPlural() {
         assertEquals("1 nová zpráva", L10nLogic.chatNewMessages(false, 1))
         assertEquals("3 nové zprávy", L10nLogic.chatNewMessages(false, 3))

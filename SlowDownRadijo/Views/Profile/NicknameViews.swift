@@ -228,7 +228,7 @@ struct NicknameEditView: View {
 }
 
 @MainActor
-private func applyError(_ error: AccountError, to status: inout NicknameField.Status) {
+func applyError(_ error: AccountError, to status: inout NicknameField.Status) {
     switch error {
     case .nicknameTaken: status = .taken
     case .nicknameReserved: status = .reserved

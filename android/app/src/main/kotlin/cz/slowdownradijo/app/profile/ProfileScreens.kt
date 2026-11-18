@@ -1,5 +1,7 @@
 package cz.slowdownradijo.app.profile
 
+import androidx.compose.animation.togetherWith
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -90,26 +92,56 @@ data class ProfileActions(
     val onPrivacy: () -> Unit = {},
     val onSignOut: () -> Unit = {},
     val onDeleteAccount: () -> Unit = {},
+    /** Opens "Přezdívku změníš s účtem" / the sign-up; the reason goes to analytics. */
+    val onRegister: (reason: String) -> Unit = {},
+    val onAdminModerators: () -> Unit = {},
+    val onAdminAdmins: () -> Unit = {},
     val checkNickname: suspend (String) -> NicknameCheck? = { null },
     /** Saves the nickname; returns the error to show, or null on success. */
     val saveNickname: suspend (String) -> AccountError? = { null },
 )
 
 /**
- * The Profil tab's main page (`ProfileView.swift`): signed out (M2), the nickname right
- * after the first sign-in (R1), or the account (M1 listener, M3 DJ, M4 muted).
+ * The Profil tab's main page (`ProfileView.swift`, v3): signed out (M2, "Staň se
+ * Slowriderem"), writing without an account (M7), the nickname right after the first
+ * sign-in (R1), or the Slowrider (M1/M11 with "Tvůj Slowride", M3 moderator, M4 muted,
+ * M10 superadmin).
  */
 @Composable
-fun ProfileContent(state: State, busy: Boolean, actions: ProfileActions, now: Instant = Instant.now()) {
-    when (state) {
-        State.Loading -> Box(Modifier.fillMaxWidth().padding(top = 48.dp), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(color = Theme.textPrimary, strokeWidth = 2.dp, modifier = Modifier.size(28.dp))
-        }
-        State.SignedOut -> SignedOut(busy, actions)
-        is State.SignedIn -> {
-            val me = state.me
-            if (me != null && me.nickname == null && !me.isHost) NicknameSetup(actions)
-            else SignedIn(state, actions, now)
+fun ProfileContent(
+    state: State,
+    busy: Boolean,
+    actions: ProfileActions,
+    now: Instant = Instant.now(),
+    stats: SlowrideStats = SlowrideStats(),
+) {
+    val key = when (state) {
+        State.Loading -> "loading"
+        State.SignedOut -> "out"
+        is State.Anonymous -> "anon"
+        is State.SignedIn -> "in"
+    }
+    androidx.compose.animation.AnimatedContent(
+        targetState = key,
+        transitionSpec = {
+            (androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(300)) +
+                androidx.compose.animation.slideInVertically(androidx.compose.animation.core.tween(300)) { it / 20 }) togetherWith
+                androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(150))
+        },
+        label = "profile",
+    ) { current ->
+        if (current != key) return@AnimatedContent
+        when (state) {
+            State.Loading -> Box(Modifier.fillMaxWidth().padding(top = 48.dp), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = Theme.textPrimary, strokeWidth = 2.dp, modifier = Modifier.size(28.dp))
+            }
+            State.SignedOut -> SignedOut(busy, actions)
+            is State.Anonymous -> Anonymous(state.me, actions, now)
+            is State.SignedIn -> {
+                val me = state.me
+                if (me != null && me.nickname == null && !me.isHost) NicknameSetup(actions)
+                else SignedIn(state, actions, now, stats)
+            }
         }
     }
 }
@@ -119,7 +151,8 @@ private fun SignedOut(busy: Boolean, actions: ProfileActions) {
     Column(verticalArrangement = Arrangement.spacedBy(Theme.Spacing.xl)) {
         Column(verticalArrangement = Arrangement.spacedBy(Theme.Spacing.lg)) {
             Text(stringResource(R.string.profileTitle), style = Theme.Typography.Heading.page, color = Theme.textPrimary)
-            ProfileHeading(stringResource(R.string.profileSignInTitle), stringResource(R.string.profileSignInBody), hero = true)
+            ProfileHeading(stringResource(R.string.slowriderTitle), stringResource(R.string.slowriderBenefitsIntro), hero = true)
+            SlowriderBenefits()
             SignInButtons(busy, actions.onApple, actions.onGoogle, actions.onEmail)
         }
         ProfileSection(stringResource(R.string.profileOtherSection)) {
@@ -131,24 +164,76 @@ private fun SignedOut(busy: Boolean, actions: ProfileActions) {
 }
 
 @Composable
-private fun SignedIn(state: State.SignedIn, actions: ProfileActions, now: Instant) {
+private fun Identity(name: String, subtitle: String, isHost: Boolean = false, isSuperadmin: Boolean = false) {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(name, style = Theme.Typography.Heading.hero, color = Theme.textPrimary, maxLines = 1)
+            if (isHost) DjTag()
+            if (isSuperadmin) Tag(stringResource(R.string.adminSuperadmin))
+        }
+        Text(subtitle, style = Theme.Typography.Copy.body, color = Theme.mutedText)
+    }
+}
+
+@Composable
+private fun Tag(text: String) {
+    Text(
+        text, style = Theme.Typography.manrope(12f, FontWeight.ExtraBold), color = Theme.liveRed,
+        modifier = Modifier.background(Theme.liveRed.copy(alpha = 0.16f), RoundedCornerShape(6.dp)).padding(horizontal = 6.dp, vertical = 1.dp),
+    )
+}
+
+@Composable
+private fun Anonymous(me: AccountService.Me, actions: ProfileActions, now: Instant) {
+    Column(verticalArrangement = Arrangement.spacedBy(Theme.Spacing.xl)) {
+        Column(verticalArrangement = Arrangement.spacedBy(Theme.Spacing.lg)) {
+            Text(stringResource(R.string.profileTitle), style = Theme.Typography.Heading.page, color = Theme.textPrimary)
+            Identity(me.nickname.orEmpty(), stringResource(R.string.profileWritingWithoutAccount))
+            if (me.blocked || (me.mutedUntil?.isAfter(now) == true)) MutedBanner(me.mutedUntil, me.blocked, now)
+            SlowriderCard(me.nickname.orEmpty()) { actions.onRegister("profile_card") }
+        }
+        ProfileSection(stringResource(R.string.profileChatSection)) {
+            ProfileRow(stringResource(R.string.profileNickname), me.nickname.orEmpty() + "  🔒", onClick = { actions.onRegister("nickname_change") })
+            ListDivider()
+            ProfileRow(stringResource(R.string.profileHiddenUsers), onClick = actions.onHiddenUsers)
+            ListDivider()
+            ProfileRow(stringResource(R.string.chatRulesTitle), onClick = actions.onRules)
+        }
+        ProfileSection(stringResource(R.string.profileOtherSection)) {
+            ProfileRow(stringResource(R.string.settingsPrivacyPolicy), onClick = actions.onPrivacy)
+            ListDivider()
+            ProfileRow(stringResource(R.string.profileDeleteData), chevron = false, destructive = true, onClick = actions.onDeleteAccount)
+        }
+    }
+}
+
+@Composable
+private fun SignedIn(state: State.SignedIn, actions: ProfileActions, now: Instant, stats: SlowrideStats) {
     val me = state.me
     val isHost = me?.isHost == true
     val method = methodName(state.method)
     Column(verticalArrangement = Arrangement.spacedBy(Theme.Spacing.xl)) {
         Column(verticalArrangement = Arrangement.spacedBy(Theme.Spacing.lg)) {
             Text(stringResource(R.string.profileTitle), style = Theme.Typography.Heading.page, color = Theme.textPrimary)
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(me?.chatName ?: state.email.orEmpty(), style = Theme.Typography.Heading.hero, color = Theme.textPrimary)
-                    if (isHost) DjTag()
-                }
-                Text(
-                    if (isHost) stringResource(R.string.profileHostRole) else stringResource(R.string.signedInWith, method),
-                    style = Theme.Typography.Copy.body, color = Theme.mutedText,
-                )
-            }
+            val since = me?.registeredAt?.atZone(java.time.ZoneId.systemDefault())?.let { "${it.dayOfMonth}. ${it.monthValue}. ${it.year}" }
+            Identity(
+                me?.chatName ?: state.email.orEmpty(),
+                when {
+                    isHost -> stringResource(R.string.profileHostRole)
+                    since != null -> stringResource(R.string.slowriderSinceLong, since)
+                    else -> stringResource(R.string.signedInWith, method)
+                },
+                isHost = isHost, isSuperadmin = me?.isSuperadmin == true,
+            )
             if (me != null && (me.blocked || (me.mutedUntil?.isAfter(now) == true))) MutedBanner(me.mutedUntil, me.blocked, now)
+        }
+        if (me != null) SlowrideDashboard(me, stats, now)
+        if (me?.isSuperadmin == true) {
+            ProfileSection(stringResource(R.string.adminSection)) {
+                ProfileRow(stringResource(R.string.adminModerators), onClick = actions.onAdminModerators)
+                ListDivider()
+                ProfileRow(stringResource(R.string.adminAdmins), onClick = actions.onAdminAdmins)
+            }
         }
         ProfileSection(stringResource(R.string.profileChatSection)) {
             if (isHost) {
@@ -181,7 +266,7 @@ private fun methodName(method: SignInMethod?): String = when (method) {
 @Composable
 fun DjTag() {
     Text(
-        "DJ",
+        stringResource(R.string.chatHostBadge),
         style = Theme.Typography.manrope(12f, FontWeight.ExtraBold), color = Theme.liveRed,
         modifier = Modifier.background(Theme.liveRed.copy(alpha = 0.16f), RoundedCornerShape(6.dp)).padding(horizontal = 6.dp, vertical = 1.dp),
     )

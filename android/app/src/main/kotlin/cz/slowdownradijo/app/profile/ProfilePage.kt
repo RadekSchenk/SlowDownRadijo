@@ -1,5 +1,9 @@
 package cz.slowdownradijo.app.profile
 
+import androidx.compose.foundation.layout.imePadding
+
+import androidx.compose.foundation.layout.fillMaxHeight
+
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -41,7 +45,7 @@ import cz.slowdownradijo.app.ui.theme.Theme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-private enum class ProfileRoute { MAIN, EMAIL, NICKNAME, HIDDEN, RULES }
+private enum class ProfileRoute { MAIN, EMAIL, NICKNAME, HIDDEN, RULES, ADMIN }
 
 private const val PRIVACY_POLICY = "https://slowdownradijo.cz/ochrana-osobnich-udaju/"
 
@@ -59,6 +63,14 @@ fun ProfilePage(onOpenMenu: () -> Unit) {
     var confirmingDelete by remember { mutableStateOf(false) }
     var hiddenUsers by remember { mutableStateOf<List<AccountService.HiddenUser>?>(null) }
     val scope = rememberCoroutineScope()
+    var adminRoute by remember { mutableStateOf<AdminRoute>(AdminRoute.Moderators) }
+    var registerReason by remember { mutableStateOf<String?>(null) }
+    var registerEmail by remember { mutableStateOf(false) }
+    val statsVersion by app.stats.version.collectAsStateWithLifecycle()
+    val slowride = remember(statsVersion) {
+        val summary = app.stats.summary()
+        SlowrideStats(summary.totalSeconds, summary.shows.take(3).map { (it.name ?: "—") to it.seconds })
+    }
 
     LaunchedEffect(Unit) { account.refresh() }
     BackHandler(route != ProfileRoute.MAIN) { route = ProfileRoute.MAIN }
@@ -74,7 +86,23 @@ fun ProfilePage(onOpenMenu: () -> Unit) {
         onPrivacy = { runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY))) } },
         onSignOut = { confirmingSignOut = true },
         onDeleteAccount = { confirmingDelete = true },
+        onRegister = { reason ->
+            account.registrationSource = reason
+            app.analytics.track(cz.slowdownradijo.app.analytics.AnalyticsEvent.RegistrationPromptShown(reason))
+            registerEmail = false
+            registerReason = reason
+        },
+        onAdminModerators = { adminRoute = AdminRoute.Moderators; route = ProfileRoute.ADMIN },
+        onAdminAdmins = { adminRoute = AdminRoute.Admins; route = ProfileRoute.ADMIN },
     )
+    LaunchedEffect(state) { if (state is AccountService.State.SignedIn) registerReason = null }
+    BackHandler(route == ProfileRoute.ADMIN) {
+        adminRoute = when (adminRoute) {
+            is AdminRoute.Invite, is AdminRoute.InviteReady, is AdminRoute.Moderator -> AdminRoute.Moderators
+            AdminRoute.AddAdmin -> AdminRoute.Admins
+            else -> { route = ProfileRoute.MAIN; adminRoute }
+        }
+    }
 
     fun toast(text: String) = ToastCenter.show(ToastCenter.Toast(Icons.Rounded.ErrorOutline, text))
 
@@ -85,9 +113,10 @@ fun ProfilePage(onOpenMenu: () -> Unit) {
             Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
             AppHeader(hostedShowOnAir = onAir.show?.hostName != null, onMenu = onOpenMenu)
             Box(Modifier.padding(top = Theme.Spacing.md, bottom = 36.dp)) {
-                ProfileContent(state, busy, actions)
+                ProfileContent(state, busy, actions, stats = slowride)
             }
         }
+        ProfileRoute.ADMIN -> AdminFlow(adminRoute) { next -> if (next == null) route = ProfileRoute.MAIN else adminRoute = next }
         ProfileRoute.EMAIL -> EmailSignInScreen(
             sendCode = account::sendEmailCode,
             verify = account::verifyEmailCode,
@@ -115,6 +144,10 @@ fun ProfilePage(onOpenMenu: () -> Unit) {
         ProfileRoute.RULES -> ChatRulesScreen(back = { route = ProfileRoute.MAIN })
     }
 
+    registerReason?.let { reason ->
+        RegisterSheet(reason, account.me?.nickname.orEmpty(), busy, registerEmail, actions.copy(onEmail = { registerEmail = true }),
+            onBackFromEmail = { registerEmail = false }, onDismiss = { registerReason = null })
+    }
     if (confirmingSignOut) {
         ConfirmDialog(
             stringResource(R.string.signOutConfirmTitle), stringResource(R.string.signOutConfirmBody),
@@ -126,13 +159,16 @@ fun ProfilePage(onOpenMenu: () -> Unit) {
     }
     if (confirmingDelete) {
         ConfirmDialog(
-            stringResource(R.string.deleteAccountConfirmTitle), stringResource(R.string.deleteAccountConfirmBody),
+            stringResource(if (account.isRegistered) R.string.deleteAccountConfirmTitle else R.string.deleteDataConfirmTitle),
+            stringResource(if (account.isRegistered) R.string.deleteAccountConfirmBody else R.string.deleteDataConfirmBody),
             stringResource(R.string.profileDeleteAccount), destructive = true, onDismiss = { confirmingDelete = false },
         ) {
             confirmingDelete = false
             scope.launch {
                 try {
+                    val registered = account.isRegistered
                     account.deleteAccount()
+                    app.analytics.track(cz.slowdownradijo.app.analytics.AnalyticsEvent.AccountDeleted(registered))
                 } catch (e: AccountError) {
                     toast(context.getString(e.messageRes))
                 }
@@ -195,4 +231,38 @@ private tailrec fun Context.findActivity(): Activity? = when (this) {
     is Activity -> this
     is ContextWrapper -> baseContext.findActivity()
     else -> null
+}
+
+/** "Přezdívku změníš s účtem" / the Slowrider card's sign-up (Figma Profil M8). */
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+private fun RegisterSheet(
+    reason: String,
+    nickname: String,
+    busy: Boolean,
+    email: Boolean,
+    actions: ProfileActions,
+    onBackFromEmail: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val context = LocalContext.current
+    androidx.compose.material3.ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = Theme.statsCard,
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+    ) {
+        if (email) {
+            Box(Modifier.fillMaxHeight(0.9f).imePadding()) {
+                EmailSignInScreen(
+                    sendCode = context.app.account::sendEmailCode,
+                    verify = context.app.account::verifyEmailCode,
+                    back = onBackFromEmail,
+                    onSignedIn = onBackFromEmail,
+                )
+            }
+        } else {
+            RegisterContent(reason, nickname, busy, actions, onDismiss)
+        }
+    }
 }

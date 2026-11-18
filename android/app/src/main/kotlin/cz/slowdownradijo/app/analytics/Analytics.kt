@@ -58,12 +58,33 @@ sealed class AnalyticsEvent(val name: String, val properties: Map<String, Any>) 
     class MessageSent(success: Boolean, seconds: Int) : AnalyticsEvent("message_sent", mapOf("success" to success, "duration_s" to rounded(seconds, 5)))
     class FeedbackSent(success: Boolean) : AnalyticsEvent("feedback_sent", mapOf("success" to success))
     // Chat (1.3). Never the text, the names or who wrote what.
+    // [account]: none, anonymous, registered (`AccountService.analyticsAccount`).
     /** [source]: home_section, home_field, invite. */
-    class ChatOpened(source: String, signedIn: Boolean) : AnalyticsEvent("chat_opened", mapOf("source" to source, "signed_in" to signedIn))
-    /** [kind]: text, emoji, starter. */
-    class ChatMessageSent(kind: String, success: Boolean) : AnalyticsEvent("chat_message_sent", mapOf("kind" to kind, "success" to success))
-    /** The "Připoj se do chatu" sheet; [reason]: send, report. */
-    class ChatJoinShown(reason: String) : AnalyticsEvent("chat_join_shown", mapOf("reason" to reason))
+    class ChatOpened(source: String, account: String) : AnalyticsEvent("chat_opened", mapOf("source" to source, "account" to account))
+    /** [kind]: text, emoji, starter; [first]: the listener's first message ever. */
+    class ChatMessageSent(kind: String, success: Boolean, first: Boolean, account: String) : AnalyticsEvent(
+        "chat_message_sent", mapOf("kind" to kind, "success" to success, "first" to first, "account" to account),
+    )
+    /** "Tvoje přezdívka" before the first message. */
+    class ChatNicknamePromptShown : AnalyticsEvent("chat_nickname_prompt_shown", emptyMap())
+    /** [whenSet]: first_message, change. */
+    class ChatNicknameSet(whenSet: String) : AnalyticsEvent("chat_nickname_set", mapOf("when" to whenSet))
+    /** [reason]: nickname_change, profile_card, profile_empty, chat_existing_account. */
+    class RegistrationPromptShown(reason: String) : AnalyticsEvent("registration_prompt_shown", mapOf("reason" to reason))
+    /** The anonymous listener became a Slowrider (the key conversion). */
+    class AccountRegistered(method: String, source: String, hadNickname: Boolean) : AnalyticsEvent(
+        "account_registered", mapOf("method" to method, "source" to source, "had_nickname" to hadNickname),
+    )
+    /** Signed in to an account that already existed ("Už máš účet?"). */
+    class AccountSignedIn(method: String, source: String) : AnalyticsEvent("account_signed_in", mapOf("method" to method, "source" to source))
+    class AccountDeleted(registered: Boolean) : AnalyticsEvent("account_deleted", mapOf("registered" to registered))
+    class ProfileDashboardViewed(weeksMember: Int) : AnalyticsEvent("profile_dashboard_viewed", mapOf("weeks_member" to weeksMember))
+    class AdminInviteCreated(fromProgramme: Boolean) : AnalyticsEvent("admin_invite_created", mapOf("from_programme" to fromProgramme))
+    /** [via]: share, copy. */
+    class AdminInviteShared(via: String) : AnalyticsEvent("admin_invite_shared", mapOf("via" to via))
+    class AdminHostUnlinked : AnalyticsEvent("admin_host_unlinked", emptyMap())
+    /** [action]: add, remove. */
+    class AdminAdminsChanged(action: String) : AnalyticsEvent("admin_admins_changed", mapOf("action" to action))
     /** [action]: pin, unpin, delete, restore, mute, unmute, block. */
     class ChatModerated(action: String, minutes: Int? = null) : AnalyticsEvent(
         "chat_moderated", buildMap<String, Any> { this["action"] = action; if (minutes != null) this["minutes"] = minutes },

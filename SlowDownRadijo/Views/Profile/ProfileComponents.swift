@@ -117,6 +117,12 @@ enum ProfileFormat {
         return (day.trimmingCharacters(in: .whitespaces), time)
     }
 
+    /// "18. 11. 2026"
+    static func date(_ date: Date) -> String {
+        let calendar = Calendar.current
+        return "\(calendar.component(.day, from: date)). \(calendar.component(.month, from: date)). \(calendar.component(.year, from: date))"
+    }
+
     static func methodName(_ method: AccountService.SignInMethod?) -> String {
         switch method {
         case .apple: return "Apple"
