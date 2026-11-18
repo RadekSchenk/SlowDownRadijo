@@ -197,7 +197,7 @@ Výstup z Figma Make byl nahrazen ručně postavenými editovatelnými artboardy
 - Ztlumení je tiché — ostatní posluchači nic nevidí. Ztlumený vidí místo pole pro psaní „Psaní máš pozastavené do zítra 8:04“ a stejný banner v Profilu.
 - U zprávy ztlumeného uživatele vidí DJ v menu „Ztlumený do … · ztlumil DJ …“ a akci „Zrušit ztlumení · zbývá 17 h“.
 
-## 2e. Chat v3 — psaní bez účtu, Slowriders a správa (schváleno 18. 11. 2026, v obou appkách; backend `022_chat_v3.sql`)
+## 2e. Chat v3 — psaní bez účtu, Slowriders a správa (schváleno 18. 11. 2026, v obou appkách; backend `022_chat_v3.sql`, na produkci od 18. 11. 2026)
 
 Registrace je **předpoklad pro budoucí prémiové funkce**, ne podmínka chatu. Chat se nezamyká; registraci motivuje první funkce navíc: změna přezdívky.
 
