@@ -2013,6 +2013,232 @@ extension L10n {
     }
 }
 
+// MARK: - Chat (app 1.3)
+
+extension L10n {
+    static var chatTitle: String {
+        switch lang {
+        case .cs: return "Chat"
+        case .en: return "Chat"
+        }
+    }
+
+    static var chatOpen: String {
+        switch lang {
+        case .cs: return "Otevřít chat"
+        case .en: return "Open the chat"
+        }
+    }
+
+    static var chatToday: String {
+        switch lang {
+        case .cs: return "Dnes"
+        case .en: return "Today"
+        }
+    }
+
+    static var chatYesterday: String {
+        switch lang {
+        case .cs: return "Včera"
+        case .en: return "Yesterday"
+        }
+    }
+
+    static var chatNoShow: String {
+        switch lang {
+        case .cs: return "Hudba bez moderace"
+        case .en: return "Music, no host"
+        }
+    }
+
+    static var chatPlaceholder: String {
+        switch lang {
+        case .cs: return "Napiš zprávu…"
+        case .en: return "Write a message…"
+        }
+    }
+
+    static var chatWritingAs: String {
+        switch lang {
+        case .cs: return "Píšeš jako"
+        case .en: return "Writing as"
+        }
+    }
+
+    static var chatSignInToSend: String {
+        switch lang {
+        case .cs: return "Pro odeslání se přihlas"
+        case .en: return "Sign in to send"
+        }
+    }
+
+    static var chatPinned: String {
+        switch lang {
+        case .cs: return "Připnuto"
+        case .en: return "Pinned"
+        }
+    }
+
+    static var chatDeletedByModerator: String {
+        switch lang {
+        case .cs: return "Zprávu odstranil moderátor"
+        case .en: return "Removed by a moderator"
+        }
+    }
+
+    static var chatQuietTitle: String {
+        switch lang {
+        case .cs: return "Dnes tu zatím ticho"
+        case .en: return "Quiet here today"
+        }
+    }
+
+    static var chatQuietBody: String {
+        switch lang {
+        case .cs: return "Začni ty — pozdrav ostatní nebo napiš, co posloucháš."
+        case .en: return "Start it off — say hi or tell us what you're listening to."
+        }
+    }
+
+    static var chatHomeQuiet: String {
+        switch lang {
+        case .cs: return "Dnes tu zatím ticho — pozdrav ostatní 👋"
+        case .en: return "Quiet here today — say hi 👋"
+        }
+    }
+
+    static var chatStarterHello: String {
+        switch lang {
+        case .cs: return "Ahoj 👋"
+        case .en: return "Hi 👋"
+        }
+    }
+
+    static var chatStarterWhatPlayed: String {
+        switch lang {
+        case .cs: return "Co to teď hrálo?"
+        case .en: return "What was that track?"
+        }
+    }
+
+    static var chatSending: String {
+        switch lang {
+        case .cs: return "Odesílám…"
+        case .en: return "Sending…"
+        }
+    }
+
+    static var chatNotSent: String {
+        switch lang {
+        case .cs: return "Neodesláno"
+        case .en: return "Not sent"
+        }
+    }
+
+    static var chatRetry: String {
+        switch lang {
+        case .cs: return "Zkusit znovu"
+        case .en: return "Try again"
+        }
+    }
+
+    static var chatJoinTitle: String {
+        switch lang {
+        case .cs: return "Připoj se do chatu"
+        case .en: return "Join the chat"
+        }
+    }
+
+    static var chatJoinBody: String {
+        switch lang {
+        case .cs: return "Číst může každý. Psát můžeš po přihlášení — zabere to pár vteřin a rozepsaná zpráva se pak odešle sama."
+        case .en: return "Anyone can read. To write, sign in — it takes a few seconds and your message is sent right after."
+        }
+    }
+
+    static var chatNotNow: String {
+        switch lang {
+        case .cs: return "Teď ne"
+        case .en: return "Not now"
+        }
+    }
+
+    static var chatJoinLegal: String {
+        switch lang {
+        case .cs: return "Pokračováním souhlasíš s Pravidly chatu a Zásadami ochrany soukromí."
+        case .en: return "By continuing you agree to the Chat rules and the Privacy policy."
+        }
+    }
+
+    static var chatCopy: String {
+        switch lang {
+        case .cs: return "Kopírovat"
+        case .en: return "Copy"
+        }
+    }
+
+    static var chatEmoji: String {
+        switch lang {
+        case .cs: return "Emoji"
+        case .en: return "Emoji"
+        }
+    }
+
+    static var chatSend: String {
+        switch lang {
+        case .cs: return "Odeslat"
+        case .en: return "Send"
+        }
+    }
+
+    static var chatClose: String {
+        switch lang {
+        case .cs: return "Zavřít"
+        case .en: return "Close"
+        }
+    }
+
+    static var chatLoadFailed: String {
+        switch lang {
+        case .cs: return "Chat se teď nepodařilo načíst."
+        case .en: return "The chat couldn't load right now."
+        }
+    }
+
+    static var chatShowRules: String {
+        switch lang {
+        case .cs: return "Pravidla chatu"
+        case .en: return "Chat rules"
+        }
+    }
+
+    static func chatSentAs(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Odesláno jako \(name)"
+        case .en: return "Sent as \(name)"
+        }
+    }
+
+    static func chatNamesAndMore(_ names: String, _ count: Int) -> String {
+        switch lang {
+        case .cs: return "\(names) a \(count) další"
+        case .en: return "\(names) and \(count) more"
+        }
+    }
+
+    /// "↓ 3 nové zprávy" (plural; Android: `L10nLogic.chatNewMessages`).
+    static func chatNewMessages(_ count: Int) -> String {
+        switch lang {
+        case .cs:
+            if count == 1 { return "1 nová zpráva" }
+            if (2...4).contains(count) { return "\(count) nové zprávy" }
+            return "\(count) nových zpráv"
+        case .en:
+            return count == 1 ? "1 new message" : "\(count) new messages"
+        }
+    }
+}
+
 extension Show {
     /// The description in the app's language (English falls back to Czech).
     var localizedSummary: String? {

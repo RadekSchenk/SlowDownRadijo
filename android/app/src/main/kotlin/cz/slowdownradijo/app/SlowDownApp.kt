@@ -83,6 +83,8 @@ class SlowDownApp : Application() {
     val supabase by lazy { createAppSupabase(this) }
     private val sessions by lazy { SupabaseSessionProvider(supabase, getSharedPreferences("stats-session", MODE_PRIVATE)) }
     val account by lazy { AccountService(supabase, sessions, scope) }
+    /** The listeners' chat; follows new messages while the app is in front. */
+    val chat by lazy { cz.slowdownradijo.app.chat.ChatService(supabase, account, getSharedPreferences("chat", MODE_PRIVATE), scope) }
 
     private val statsApi by lazy { SupabaseStatsApi(http, sessions) }
     val tracker by lazy {

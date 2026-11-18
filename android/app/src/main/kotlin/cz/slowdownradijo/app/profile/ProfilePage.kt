@@ -38,6 +38,7 @@ import cz.slowdownradijo.app.app
 import cz.slowdownradijo.app.home.AppHeader
 import cz.slowdownradijo.app.ui.components.ToastCenter
 import cz.slowdownradijo.app.ui.theme.Theme
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 private enum class ProfileRoute { MAIN, EMAIL, NICKNAME, HIDDEN, RULES }
@@ -62,32 +63,7 @@ fun ProfilePage(onOpenMenu: () -> Unit) {
     LaunchedEffect(Unit) { account.refresh() }
     BackHandler(route != ProfileRoute.MAIN) { route = ProfileRoute.MAIN }
 
-    fun toast(text: String) = ToastCenter.show(ToastCenter.Toast(Icons.Rounded.ErrorOutline, text))
-
-    fun signIn(provider: String, block: suspend () -> Unit) {
-        busy = true
-        scope.launch {
-            try {
-                block()
-            } catch (e: AccountError) {
-                when (e) {
-                    AccountError.Cancelled -> Unit
-                    AccountError.ProviderUnavailable, AccountError.Offline -> toast(context.getString(e.messageRes))
-                    else -> toast(context.getString(R.string.signInFailed, provider))
-                }
-            } finally {
-                busy = false
-            }
-        }
-    }
-
-    val actions = ProfileActions(
-        onApple = { signIn("Apple") { account.signInWithApple() } },
-        onGoogle = {
-            val activity = context.findActivity()
-            if (activity != null) signIn("Google") { account.signInWithGoogle(activity) }
-        },
-        onEmail = { route = ProfileRoute.EMAIL },
+    val actions = signInActions(context, scope, account, setBusy = { busy = it }, onEmail = { route = ProfileRoute.EMAIL }).copy(
         onNickname = { route = ProfileRoute.NICKNAME },
         onHiddenUsers = {
             hiddenUsers = null
@@ -98,17 +74,9 @@ fun ProfilePage(onOpenMenu: () -> Unit) {
         onPrivacy = { runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY))) } },
         onSignOut = { confirmingSignOut = true },
         onDeleteAccount = { confirmingDelete = true },
-        checkNickname = { runCatching { account.checkNickname(it) }.getOrNull() },
-        saveNickname = { nickname ->
-            try {
-                account.setNickname(nickname)
-                null
-            } catch (e: AccountError) {
-                if (e.asNicknameStatus() == null) toast(context.getString(e.messageRes))
-                e
-            }
-        },
     )
+
+    fun toast(text: String) = ToastCenter.show(ToastCenter.Toast(Icons.Rounded.ErrorOutline, text))
 
     when (route) {
         ProfileRoute.MAIN -> Column(
@@ -171,6 +139,56 @@ fun ProfilePage(onOpenMenu: () -> Unit) {
             }
         }
     }
+}
+
+/**
+ * Signing in with Apple, Google or e-mail and choosing the nickname, as the Profil tab
+ * and the chat's "Připoj se do chatu" sheet both do it.
+ */
+fun signInActions(
+    context: Context,
+    scope: CoroutineScope,
+    account: AccountService,
+    setBusy: (Boolean) -> Unit,
+    onEmail: () -> Unit,
+): ProfileActions {
+    fun toast(text: String) = ToastCenter.show(ToastCenter.Toast(Icons.Rounded.ErrorOutline, text))
+
+    fun signIn(provider: String, block: suspend () -> Unit) {
+        setBusy(true)
+        scope.launch {
+            try {
+                block()
+            } catch (e: AccountError) {
+                when (e) {
+                    AccountError.Cancelled -> Unit
+                    AccountError.ProviderUnavailable, AccountError.Offline -> toast(context.getString(e.messageRes))
+                    else -> toast(context.getString(R.string.signInFailed, provider))
+                }
+            } finally {
+                setBusy(false)
+            }
+        }
+    }
+
+    return ProfileActions(
+        onApple = { signIn("Apple") { account.signInWithApple() } },
+        onGoogle = {
+            val activity = context.findActivity()
+            if (activity != null) signIn("Google") { account.signInWithGoogle(activity) }
+        },
+        onEmail = onEmail,
+        checkNickname = { runCatching { account.checkNickname(it) }.getOrNull() },
+        saveNickname = { nickname ->
+            try {
+                account.setNickname(nickname)
+                null
+            } catch (e: AccountError) {
+                if (e.asNicknameStatus() == null) toast(context.getString(e.messageRes))
+                e
+            }
+        },
+    )
 }
 
 private tailrec fun Context.findActivity(): Activity? = when (this) {

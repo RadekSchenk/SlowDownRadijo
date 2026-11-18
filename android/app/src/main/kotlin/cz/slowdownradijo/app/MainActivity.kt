@@ -160,9 +160,11 @@ class MainActivity : ComponentActivity() {
         app.analytics.onForeground()
         controller = MediaController.Builder(this, SessionToken(this, ComponentName(this, PlaybackService::class.java))).buildAsync()
         app.reminders.reschedule()
+        app.chat.resume()
     }
 
     override fun onStop() {
+        app.chat.pause()
         app.tracker.onBackground()
         app.analytics.onBackground()
         controller?.let(MediaController::releaseFuture)
@@ -332,6 +334,18 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
             },
         ),
     ) {
+        val chatState by app.chat.state.collectAsStateWithLifecycle()
+        var chatOpening by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<Boolean?>(null) }
+        cz.slowdownradijo.app.chat.ChatHomeSection(
+            chatState,
+            onOpen = { chatOpening = it },
+            onSeen = app.chat::markSeen,
+            modifier = Modifier.padding(top = Theme.Spacing.xl),
+            now = now,
+        )
+        chatOpening?.let { withKeyboard ->
+            cz.slowdownradijo.app.chat.ChatSheet(withKeyboard, onAir.show) { chatOpening = null }
+        }
         val stats = statsUi()
         if (stats.enabled) StatsHomeBlock(stats, onOpenStats, Modifier.padding(top = Theme.Spacing.xl))
         val consent by app.analytics.consent.collectAsStateWithLifecycle()

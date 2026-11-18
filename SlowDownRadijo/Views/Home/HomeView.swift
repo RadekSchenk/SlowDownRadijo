@@ -24,6 +24,14 @@ struct HomeView: View {
     /// explainer sheet below only appears once, ever.
     @AppStorage("hasSeenFavoritesIntro") private var hasSeenFavoritesIntro = false
     @State private var isShowingFavoritesIntro = false
+    /// The chat sheet, opened from the home page section — with the
+    /// keyboard up when the listener tapped the field.
+    @State private var chatOpening: ChatOpening?
+
+    struct ChatOpening: Identifiable {
+        let id = UUID()
+        let withKeyboard: Bool
+    }
 
     var body: some View {
         ScrollView {
@@ -32,6 +40,12 @@ struct HomeView: View {
                     .padding(.top, AppHeaderView.topInset)
 
                 nowPlayingHeader
+
+                ChatHomeSection { withKeyboard in
+                    chatOpening = ChatOpening(withKeyboard: withKeyboard)
+                }
+                .movesWithScroll()
+                .padding(.top, Theme.Spacing.xl)
 
                 // Figma's "scroll-content" wrapper spaces its top-level
                 // sections (now-playing card, stats, Pořady) 32pt apart —
@@ -87,6 +101,15 @@ struct HomeView: View {
             guard FeatureFlags.nowPlayingHistoryAndFavorites, newCount > oldCount, !hasSeenFavoritesIntro else { return }
             hasSeenFavoritesIntro = true
             isShowingFavoritesIntro = true
+        }
+        .sheet(item: $chatOpening) { opening in
+            ChatSheetView(nowPlaying: nowPlaying, scheduleStore: scheduleStore, focusComposer: opening.withKeyboard)
+                .presentationDetents([.fraction(0.72), .large])
+                .presentationDragIndicator(.visible)
+                .presentationCornerRadius(24)
+                .presentationBackground(Theme.statsCard)
+                .presentationContentInteraction(.scrolls)
+                .appTextSizeLimit()
         }
         .sheet(isPresented: $isShowingFavoritesIntro) {
             FavoritesIntroView()

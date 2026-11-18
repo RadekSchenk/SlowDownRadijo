@@ -11,6 +11,15 @@ import java.util.Locale
  * step with L10n.swift by hand; every other string comes from strings.xml.
  */
 object L10nLogic {
+    /** "↓ 3 nové zprávy": "1 nová zpráva", "2–4 nové zprávy", "5 nových zpráv". */
+    fun chatNewMessages(english: Boolean, count: Int): String = if (english) {
+        if (count == 1) "1 new message" else "$count new messages"
+    } else when {
+        count == 1 -> "1 nová zpráva"
+        count in 2..4 -> "$count nové zprávy"
+        else -> "$count nových zpráv"
+    }
+
     /** "1h 29 min" / "1h 29m" */
     fun durationShort(english: Boolean, hours: Int, minutes: Int): String = when {
         minutes == 0 -> "${hours}h"

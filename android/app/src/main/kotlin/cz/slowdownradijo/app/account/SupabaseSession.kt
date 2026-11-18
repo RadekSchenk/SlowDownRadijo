@@ -13,6 +13,7 @@ import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.exceptions.HttpRequestException
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.realtime.Realtime
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -43,6 +44,8 @@ fun createAppSupabase(context: Context): SupabaseClient {
             codeVerifierCache = SettingsCodeVerifierCache(settings)
         }
         install(Postgrest)
+        // The chat's live updates (new, deleted, pinned messages).
+        install(Realtime)
     }
 }
 
