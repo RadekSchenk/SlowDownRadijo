@@ -96,6 +96,8 @@ data class ProfileActions(
     val onRegister: (reason: String) -> Unit = {},
     val onAdminModerators: () -> Unit = {},
     val onAdminAdmins: () -> Unit = {},
+    /** Switches to the Statistiky tab (the row under the Slowrider card). */
+    val onOpenStats: () -> Unit = {},
     val checkNickname: suspend (String) -> NicknameCheck? = { null },
     /** Saves the nickname; returns the error to show, or null on success. */
     val saveNickname: suspend (String) -> AccountError? = { null },
@@ -215,19 +217,11 @@ private fun SignedIn(state: State.SignedIn, actions: ProfileActions, now: Instan
     Column(verticalArrangement = Arrangement.spacedBy(Theme.Spacing.xl)) {
         Column(verticalArrangement = Arrangement.spacedBy(Theme.Spacing.lg)) {
             Text(stringResource(R.string.profileTitle), style = Theme.Typography.Heading.page, color = Theme.textPrimary)
-            val since = me?.registeredAt?.atZone(java.time.ZoneId.systemDefault())?.let { "${it.dayOfMonth}. ${it.monthValue}. ${it.year}" }
-            Identity(
-                me?.chatName ?: state.email.orEmpty(),
-                when {
-                    isHost -> stringResource(R.string.profileHostRole)
-                    since != null -> stringResource(R.string.slowriderSinceLong, since)
-                    else -> stringResource(R.string.signedInWith, method)
-                },
-                isHost = isHost, isSuperadmin = me?.isSuperadmin == true,
-            )
+            // The Slowrider card carries the name; this only while the profile loads.
+            if (me == null) Identity(state.email.orEmpty(), stringResource(R.string.signedInWith, method))
             if (me != null && (me.blocked || (me.mutedUntil?.isAfter(now) == true))) MutedBanner(me.mutedUntil, me.blocked, now)
         }
-        if (me != null) SlowrideDashboard(me, stats, now)
+        if (me != null) SlowrideDashboard(me, stats, now, actions.onOpenStats)
         if (me?.isSuperadmin == true) {
             ProfileSection(stringResource(R.string.adminSection)) {
                 ProfileRow(stringResource(R.string.adminModerators), onClick = actions.onAdminModerators)

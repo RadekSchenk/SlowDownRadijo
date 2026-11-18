@@ -441,4 +441,23 @@
     <string name="adminUnlinkConfirm">Unlink %1$s?</string>
     <string name="adminAdminSince">Admin since %1$s</string>
     <string name="adminRemoveAdmin">Remove %1$s from admins?</string>
+    <string name="memberKicker">SLOWRIDER</string>
+    <string name="memberSince">On board since %1$s</string>
+    <string name="memberListened">Listened in total</string>
+    <string name="memberChat">chat messages</string>
+    <string name="memberVoice">voice messages</string>
+    <string name="memberOnBoard">on board</string>
+    <string name="profileStatsLinkTitle">Today %1$s · this week %2$s</string>
+    <string name="profileStatsLinkSubtitle">Full stats and leaderboard</string>
+    <string name="statsWeekTotal">This week %1$s</string>
+    <string name="statsLiveBadge">LISTENING</string>
+    <string name="statsStripTotal">in total</string>
+    <string name="statsStripRank">on the leaderboard</string>
+    <string name="statsStripDays">with the radio</string>
+    <string name="statsTierTop">TOP %1$s</string>
+    <string name="statsTierLoyal">You\'re among the app\'s most loyal listeners.</string>
+    <string name="statsFirstPlace">You\'re number one. Thanks for spending so much time with us.</string>
+    <string name="statsNeighbours">Your neighbours on the leaderboard</string>
+    <string name="statsYou">You</string>
+    <string name="statsLeaderboardAnonymous">The leaderboard is anonymous: nobody sees who you are, only numbers.</string>
 </resources>

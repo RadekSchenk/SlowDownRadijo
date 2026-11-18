@@ -51,7 +51,7 @@ private const val PRIVACY_POLICY = "https://slowdownradijo.cz/ochrana-osobnich-u
 
 /** The Profil tab (`ProfileView.swift`): its page and the pages it pushes. */
 @Composable
-fun ProfilePage(onOpenMenu: () -> Unit) {
+fun ProfilePage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit = {}) {
     val context = LocalContext.current
     val app = context.app
     val account = app.account
@@ -69,7 +69,7 @@ fun ProfilePage(onOpenMenu: () -> Unit) {
     val statsVersion by app.stats.version.collectAsStateWithLifecycle()
     val slowride = remember(statsVersion) {
         val summary = app.stats.summary()
-        SlowrideStats(summary.totalSeconds, summary.shows.take(3).map { (it.name ?: "—") to it.seconds })
+        SlowrideStats(summary.totalSeconds, summary.shows.take(3).map { (it.name ?: "—") to it.seconds }, summary.todaySeconds, summary.weekSeconds)
     }
 
     LaunchedEffect(Unit) { account.refresh() }
@@ -77,6 +77,7 @@ fun ProfilePage(onOpenMenu: () -> Unit) {
 
     val actions = signInActions(context, scope, account, setBusy = { busy = it }, onEmail = { route = ProfileRoute.EMAIL }).copy(
         onNickname = { route = ProfileRoute.NICKNAME },
+        onOpenStats = onOpenStats,
         onHiddenUsers = {
             hiddenUsers = null
             route = ProfileRoute.HIDDEN

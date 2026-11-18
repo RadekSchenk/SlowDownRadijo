@@ -236,12 +236,24 @@ final class ListeningStatsStore: ObservableObject {
             communitySeconds: communityBase + unsyncedSeconds,
             rank: snapshot?.rank,
             rankedListeners: snapshot?.rankedListeners ?? publicStats?.rankedListeners ?? 0,
+            aheadSeconds: snapshot?.aheadSeconds,
+            behindSeconds: snapshot?.behindSeconds,
+            listeningDays: listeningDays(perDay: perDay),
             bars: bars,
             weekSeconds: weekSeconds,
             weekRangeLabel: StatsFormat.dateRange(from: days.first ?? now, to: days.last ?? now),
             shows: shows,
             showsSeconds: showsSeconds
         )
+    }
+
+    /// The server's count, plus today when only this phone knows about it
+    /// yet; without the server's number, the days this phone has seen.
+    private func listeningDays(perDay: [String: [String: Int]]) -> Int {
+        let daysWithListening = Set(perDay.filter { $0.value.values.reduce(0, +) > 0 }.keys)
+        guard let server = snapshot?.listeningDays else { return daysWithListening.count }
+        let serverDays = Set((snapshot?.daily ?? []).filter { $0.seconds > 0 }.map(\.day))
+        return server + daysWithListening.subtracting(serverDays).count
     }
 
     // MARK: - Persistence

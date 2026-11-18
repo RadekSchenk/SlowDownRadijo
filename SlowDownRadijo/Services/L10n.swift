@@ -3269,3 +3269,140 @@ extension Show {
         return name.replacingCharacters(in: range, with: " with ")
     }
 }
+
+// Profil M15 and Statistiky S1 (Figma "Explorace 1.3 — Profil a Statistiky").
+extension L10n {
+    static var memberKicker: String {
+        switch lang {
+        case .cs: return "SLOWRIDER"
+        case .en: return "SLOWRIDER"
+        }
+    }
+
+    static func memberSince(_ date: String) -> String {
+        switch lang {
+        case .cs: return "Na palubě od \(date)"
+        case .en: return "On board since \(date)"
+        }
+    }
+
+    static var memberListened: String {
+        switch lang {
+        case .cs: return "Odposloucháno za celou dobu"
+        case .en: return "Listened in total"
+        }
+    }
+
+    static var memberChat: String {
+        switch lang {
+        case .cs: return "zprávy v chatu"
+        case .en: return "chat messages"
+        }
+    }
+
+    static var memberVoice: String {
+        switch lang {
+        case .cs: return "hlasové vzkazy"
+        case .en: return "voice messages"
+        }
+    }
+
+    static var memberOnBoard: String {
+        switch lang {
+        case .cs: return "na palubě"
+        case .en: return "on board"
+        }
+    }
+
+    static func profileStatsLinkTitle(_ today: String, _ week: String) -> String {
+        switch lang {
+        case .cs: return "Dnes \(today) · týden \(week)"
+        case .en: return "Today \(today) · this week \(week)"
+        }
+    }
+
+    static var profileStatsLinkSubtitle: String {
+        switch lang {
+        case .cs: return "Celé statistiky a žebříček"
+        case .en: return "Full stats and leaderboard"
+        }
+    }
+
+    static func statsWeekTotal(_ duration: String) -> String {
+        switch lang {
+        case .cs: return "Tento týden \(duration)"
+        case .en: return "This week \(duration)"
+        }
+    }
+
+    static var statsLiveBadge: String {
+        switch lang {
+        case .cs: return "POSLOUCHÁŠ"
+        case .en: return "LISTENING"
+        }
+    }
+
+    static var statsStripTotal: String {
+        switch lang {
+        case .cs: return "celkem"
+        case .en: return "in total"
+        }
+    }
+
+    static var statsStripRank: String {
+        switch lang {
+        case .cs: return "v žebříčku"
+        case .en: return "on the leaderboard"
+        }
+    }
+
+    static var statsStripDays: String {
+        switch lang {
+        case .cs: return "s rádiem"
+        case .en: return "with the radio"
+        }
+    }
+
+    static func statsTierTop(_ share: String) -> String {
+        switch lang {
+        case .cs: return "TOP \(share)"
+        case .en: return "TOP \(share)"
+        }
+    }
+
+    static var statsTierLoyal: String {
+        switch lang {
+        case .cs: return "Patříš mezi nejvěrnější posluchače appky."
+        case .en: return "You're among the app's most loyal listeners."
+        }
+    }
+
+    static var statsFirstPlace: String {
+        switch lang {
+        case .cs: return "Jsi na prvním místě. Díky, že jsi s námi tolik."
+        case .en: return "You're number one. Thanks for spending so much time with us."
+        }
+    }
+
+    static var statsNeighbours: String {
+        switch lang {
+        case .cs: return "Tvoji sousedé v žebříčku"
+        case .en: return "Your neighbours on the leaderboard"
+        }
+    }
+
+    static var statsYou: String {
+        switch lang {
+        case .cs: return "Ty"
+        case .en: return "You"
+        }
+    }
+
+    static var statsLeaderboardAnonymous: String {
+        switch lang {
+        case .cs: return "Žebříček je anonymní: nikdo nevidí, kdo jsi, jen čísla."
+        case .en: return "The leaderboard is anonymous: nobody sees who you are, only numbers."
+        }
+    }
+
+}

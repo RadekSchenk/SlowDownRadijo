@@ -29,6 +29,10 @@ data class StatsSnapshot(
     val rank: Int? = null,
     val daily: List<Row> = emptyList(),
     val shows: List<ShowTotal>? = null,
+    /** The places right above and below, and days with listening (026). */
+    @SerialName("ahead_seconds") val aheadSeconds: Int? = null,
+    @SerialName("behind_seconds") val behindSeconds: Int? = null,
+    @SerialName("listening_days") val listeningDays: Int? = null,
 ) {
     @Serializable
     data class Row(val day: String, @SerialName("show_id") val showId: String, val seconds: Int)

@@ -15,6 +15,8 @@ import SwiftUI
 /// confirmed.
 struct ProfileView: View {
     @ObservedObject var scheduleStore: ScheduleStore
+    /// Switches to the Statistiky tab (the row under the Slowrider card).
+    var onOpenStats: () -> Void = {}
     @ObservedObject private var loc = LocalizationManager.shared
     @ObservedObject private var account = AccountService.shared
     @State private var path: [Route] = []
@@ -204,20 +206,20 @@ struct ProfileView: View {
                 Text(L10n.profileTitle)
                     .font(Theme.Typography.Heading.page)
                     .foregroundStyle(Theme.textPrimary)
-                identity(
-                    name: me?.chatName ?? email ?? "",
-                    subtitle: me?.isHost == true ? L10n.profileHostRole
-                        : (me?.registeredAt.map { L10n.slowriderSinceLong(ProfileFormat.date($0)) } ?? L10n.signedInWith(ProfileFormat.methodName(method))),
-                    isHost: me?.isHost == true,
-                    isSuperadmin: me?.isSuperadmin == true
-                )
+                if me == nil {
+                    identity(
+                        name: email ?? "",
+                        subtitle: L10n.signedInWith(ProfileFormat.methodName(method)),
+                        isHost: false
+                    )
+                }
                 if let me, me.blocked || me.mutedUntil.map({ $0 > Date() }) == true {
                     MutedBanner(mutedUntil: me.mutedUntil, blocked: me.blocked)
                 }
             }
 
             if let me {
-                SlowrideDashboard(me: me)
+                SlowrideDashboard(me: me, onOpenStats: onOpenStats)
             }
 
             if me?.isSuperadmin == true {

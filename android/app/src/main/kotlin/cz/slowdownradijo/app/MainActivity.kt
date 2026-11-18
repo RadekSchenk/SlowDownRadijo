@@ -120,7 +120,7 @@ class MainActivity : ComponentActivity() {
                                 Tab.RADIO -> RadioPage(onOpenMenu = { menuOpen = true; app.analytics.screen(AnalyticsScreen.MENU) }, onOpenStats = { tab = Tab.STATS })
                                 Tab.STATS -> StatsPage(onOpenMenu = { menuOpen = true; app.analytics.screen(AnalyticsScreen.MENU) })
                                 Tab.MESSAGE -> MessagePage(onOpenMenu = { menuOpen = true; app.analytics.screen(AnalyticsScreen.MENU) }, onBackToRadio = { tab = Tab.RADIO })
-                                Tab.PROFILE -> cz.slowdownradijo.app.profile.ProfilePage(onOpenMenu = { menuOpen = true; app.analytics.screen(AnalyticsScreen.MENU) })
+                                Tab.PROFILE -> cz.slowdownradijo.app.profile.ProfilePage(onOpenMenu = { menuOpen = true; app.analytics.screen(AnalyticsScreen.MENU) }, onOpenStats = { tab = Tab.STATS })
                             }
                         }
                         cz.slowdownradijo.app.chat.HostInviteSheet(onOpenChat = {

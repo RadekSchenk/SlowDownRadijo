@@ -1,5 +1,21 @@
 package cz.slowdownradijo.app.profile
 
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.height
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material3.Icon
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.sp
+import cz.slowdownradijo.app.stats.GlowCard
+import cz.slowdownradijo.app.stats.GlowLabel
+import cz.slowdownradijo.app.stats.GlowStyle
+import cz.slowdownradijo.app.stats.ShowBarRow
+import cz.slowdownradijo.app.stats.StatsPanel
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -53,7 +69,12 @@ import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 
 /** What the "Tvůj Slowride" dashboard shows from the listening stats. */
-data class SlowrideStats(val totalSeconds: Int = 0, val topShows: List<Pair<String, Int>> = emptyList())
+data class SlowrideStats(
+    val totalSeconds: Int = 0,
+    val topShows: List<Pair<String, Int>> = emptyList(),
+    val todaySeconds: Int = 0,
+    val weekSeconds: Int = 0,
+)
 
 /**
  * The account's benefits on the empty Profil (Figma Profil M2), revealed one after
@@ -107,45 +128,84 @@ fun SlowriderCard(nickname: String, onRegister: () -> Unit) {
     }
 }
 
-/** "Tvůj Slowride" (Figma Profil M11). Numbers count in when they change. */
+/**
+ * Profil of a Slowrider (Figma M15), as `SlowrideDashboard` in SlowriderViews.swift: the
+ * member card, a row into Statistiky with today and this week, and the three most
+ * listened shows. The card's darker wine look keeps Profil apart from Statistiky.
+ */
 @Composable
-fun SlowrideDashboard(me: AccountService.Me, stats: SlowrideStats, now: Instant) {
+fun SlowrideDashboard(me: AccountService.Me, stats: SlowrideStats, now: Instant, onOpenStats: () -> Unit = {}) {
     val english = LocalAppLanguage.current.isEnglish
+    val zone = ZoneId.of("Europe/Prague")
     val days = me.registeredAt?.let {
-        val zone = ZoneId.of("Europe/Prague")
         (ChronoUnit.DAYS.between(it.atZone(zone).toLocalDate(), now.atZone(zone).toLocalDate()) + 1).toInt().coerceAtLeast(1)
     } ?: 0
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(stringResource(R.string.slowrideTitle), style = Theme.Typography.Heading.section, color = Theme.textPrimary)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Tile(stringResource(R.string.slowrideMember), "$days", L10nLogic.slowrideDays(english, days), Modifier.weight(1f))
-            Box(Modifier.weight(1f)) {
-                Column(
-                    Modifier.fillMaxWidth().background(Theme.statsCardRaised, RoundedCornerShape(10.dp)).padding(horizontal = 12.dp, vertical = 10.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    Text(stringResource(R.string.slowrideListened), style = Theme.Typography.Copy.label, color = Theme.mutedText, maxLines = 1)
-                    cz.slowdownradijo.app.stats.DurationText(stats.totalSeconds, 22f, 13f)
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        GlowCard(GlowStyle.MEMBER) {
+            Column(Modifier.semantics(mergeDescendants = true) {}, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        if (me.isHost) stringResource(R.string.chatHostBadge).uppercase() else stringResource(R.string.memberKicker),
+                        style = Theme.Typography.manrope(11f, FontWeight.Bold).copy(letterSpacing = 2.4.sp), color = GlowLabel,
+                    )
+                    if (me.isSuperadmin) {
+                        Text(
+                            stringResource(R.string.adminSuperadmin).uppercase(), style = Theme.Typography.manrope(10f, FontWeight.Bold).copy(letterSpacing = 1.sp), color = GlowLabel,
+                            modifier = Modifier.background(Color.White.copy(alpha = 0.12f), RoundedCornerShape(50)).padding(horizontal = 6.dp, vertical = 2.dp),
+                        )
+                    }
+                }
+                Text(me.chatName.orEmpty(), style = Theme.Typography.manrope(26f, FontWeight.ExtraBold), color = Theme.textPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                me.registeredAt?.atZone(zone)?.let {
+                    Text(stringResource(R.string.memberSince, "${it.dayOfMonth}. ${it.monthValue}. ${it.year}"), style = Theme.Typography.manrope(13f, FontWeight.SemiBold), color = Theme.mutedText)
                 }
             }
+            Canvas(Modifier.fillMaxWidth().height(2.dp).padding(vertical = 0.dp)) {
+                drawLine(
+                    Color.White.copy(alpha = 0.22f), Offset(0f, size.height / 2), Offset(size.width, size.height / 2),
+                    strokeWidth = 1.5.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(5.dp.toPx(), 5.dp.toPx())),
+                )
+            }
+            Column(Modifier.semantics(mergeDescendants = true) {}) {
+                Text(stringResource(R.string.memberListened), style = Theme.Typography.manrope(13f, FontWeight.SemiBold), color = GlowLabel)
+                cz.slowdownradijo.app.stats.DurationText(stats.totalSeconds, 44f, 20f)
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                MemberNumber("${me.chatMessagesCount}", stringResource(R.string.memberChat), Modifier.weight(1f))
+                MemberNumber("${me.voiceMessagesCount}", stringResource(R.string.memberVoice), Modifier.weight(1f))
+                MemberNumber("$days ${L10nLogic.slowrideDays(english, days)}", stringResource(R.string.memberOnBoard), Modifier.weight(1f))
+            }
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Tile(stringResource(R.string.slowrideChatMessages), "${me.chatMessagesCount}", null, Modifier.weight(1f))
-            Tile(stringResource(R.string.slowrideVoiceMessages), "${me.voiceMessagesCount}", null, Modifier.weight(1f))
+        Row(
+            Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Theme.statsCardRaised).clickable(onClick = onOpenStats).padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                Text(
+                    stringResource(R.string.profileStatsLinkTitle, StatsFormat.duration(english, stats.todaySeconds), StatsFormat.duration(english, stats.weekSeconds)),
+                    style = Theme.Typography.manrope(14f, FontWeight.ExtraBold), color = Theme.textPrimary,
+                )
+                Text(stringResource(R.string.profileStatsLinkSubtitle), style = Theme.Typography.manrope(12f, FontWeight.SemiBold), color = Theme.mutedText)
+            }
+            Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null, tint = Theme.mutedText)
         }
         if (stats.topShows.isNotEmpty()) {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(stringResource(R.string.slowrideTopShows), style = Theme.Typography.manrope(13f, FontWeight.ExtraBold), color = Theme.mutedText)
+            StatsPanel(spacing = 16) {
+                Text(stringResource(R.string.slowrideTopShows), style = Theme.Typography.manrope(16f, FontWeight.ExtraBold), color = Theme.textPrimary)
+                val top = stats.topShows.first().second
                 stats.topShows.take(3).forEachIndexed { index, (name, seconds) ->
-                    Row(Modifier.fillMaxWidth().padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text("${index + 1}", style = Theme.Typography.manrope(15f, FontWeight.ExtraBold), color = if (index == 0) Theme.liveRed else Theme.mutedText, modifier = Modifier.width(14.dp))
-                        Text(name, style = Theme.Typography.Heading.item, color = Theme.textPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
-                        Text(StatsFormat.compactDuration(english, seconds), style = Theme.Typography.Copy.body, color = Theme.mutedText)
-                    }
-                    HorizontalDivider(color = Theme.hairline(0.08f))
+                    ShowBarRow(name, null, seconds, seconds.toDouble() / maxOf(top, 1), rank = index + 1, leader = index == 0)
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun MemberNumber(value: String, label: String, modifier: Modifier) {
+    Column(modifier.semantics(mergeDescendants = true) {}, verticalArrangement = Arrangement.spacedBy(1.dp)) {
+        Text(value, style = Theme.Typography.manrope(22f, FontWeight.ExtraBold), color = Theme.textPrimary, maxLines = 1)
+        Text(label, style = Theme.Typography.manrope(12f, FontWeight.SemiBold), color = Theme.mutedText, maxLines = 1)
     }
 }
 
