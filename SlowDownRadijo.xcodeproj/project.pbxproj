@@ -1192,8 +1192,8 @@
 				CODE_SIGN_ENTITLEMENTS = SlowDownRadijo/SlowDownRadijo.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				GOOGLE_IOS_CLIENT_ID = "";
-				GOOGLE_IOS_URL_SCHEME = "com.googleusercontent.apps.not-configured";
+				GOOGLE_IOS_CLIENT_ID = "234753697587-svd5687t2ruucnc4oh5a80i654bni44h.apps.googleusercontent.com";
+				GOOGLE_IOS_URL_SCHEME = "com.googleusercontent.apps.234753697587-svd5687t2ruucnc4oh5a80i654bni44h";
 				INFOPLIST_FILE = SlowDownRadijo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1214,8 +1214,8 @@
 				CODE_SIGN_ENTITLEMENTS = SlowDownRadijo/SlowDownRadijo.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				GOOGLE_IOS_CLIENT_ID = "";
-				GOOGLE_IOS_URL_SCHEME = "com.googleusercontent.apps.not-configured";
+				GOOGLE_IOS_CLIENT_ID = "234753697587-svd5687t2ruucnc4oh5a80i654bni44h.apps.googleusercontent.com";
+				GOOGLE_IOS_URL_SCHEME = "com.googleusercontent.apps.234753697587-svd5687t2ruucnc4oh5a80i654bni44h";
 				INFOPLIST_FILE = SlowDownRadijo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

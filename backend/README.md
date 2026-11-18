@@ -330,6 +330,8 @@ listener's anonymous stats user, so their stats stay. Design and rules:
 9. **Invite links on slowdownradijo.cz.** Until these two files are on the
    web, the `https://slowdownradijo.cz/dj/<code>` link opens the website, not
    the app; `slowdownradijo://dj/<code>` works right away in both apps.
+   Both files, filled in, are in `backend/web/.well-known/`: upload them as
+   they are.
    - `/.well-known/apple-app-site-association` (no extension, served as
      `application/json`, no redirect), plus *Associated Domains* switched on
      for the App ID `cz.slowdownradijo.app`:

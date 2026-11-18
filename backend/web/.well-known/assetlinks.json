@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "cz.slowdownradijo.app",
+      "sha256_cert_fingerprints": [
+        "9C:43:06:D2:D0:CF:7B:4A:44:21:FA:30:70:43:98:38:6C:B3:E0:49:06:1A:13:70:67:29:8A:EC:0F:41:A4:05",
+        "9D:0A:BD:DB:3D:92:7E:E1:DA:64:A1:AC:48:9B:DA:64:9D:35:2A:3F:AD:99:6A:86:CB:B8:F6:BB:67:BA:63:EF"
+      ]
+    }
+  }
+]

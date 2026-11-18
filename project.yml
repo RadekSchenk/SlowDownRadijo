@@ -122,8 +122,8 @@ targets:
         # Google Cloud → APIs & Services → Credentials → the iOS OAuth client:
         # its client id, and the "iOS URL scheme" (the id reversed). Until
         # they are filled in, "Pokračovat s Google" says it's unavailable.
-        GOOGLE_IOS_CLIENT_ID: ""
-        GOOGLE_IOS_URL_SCHEME: "com.googleusercontent.apps.not-configured"
+        GOOGLE_IOS_CLIENT_ID: "234753697587-svd5687t2ruucnc4oh5a80i654bni44h.apps.googleusercontent.com"
+        GOOGLE_IOS_URL_SCHEME: "com.googleusercontent.apps.234753697587-svd5687t2ruucnc4oh5a80i654bni44h"
     dependencies:
       - target: SlowDownRadijoWidgetExtension
         embed: true
