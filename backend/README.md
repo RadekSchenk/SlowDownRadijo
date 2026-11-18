@@ -282,7 +282,10 @@ listener's anonymous stats user, so their stats stay. Design and rules:
 2. **Authentication → Sign In / Providers:**
    - *Email*: on, with "Confirm email"; in *Email Templates → Magic Link* put
      the code in the e-mail (`{{ .Token }}`) next to the link. OTP length 6,
-     expiry 600 s.
+     expiry 600 s. Do the same in *Confirm signup* and *Change Email
+     Address*: a listener who already writes in the chat registers by adding
+     an e-mail to their anonymous user, and that sends the *Change Email
+     Address* e-mail.
    - *Apple*: on. Client IDs: the iOS bundle id (native sign-in) and the
      Services ID (Android, web flow), with the `.p8` key, Key ID and Team ID.
    - *Google*: on. Client IDs: the Web client (with its secret), plus the iOS
