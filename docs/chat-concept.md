@@ -207,6 +207,7 @@ Registrace je **předpoklad pro budoucí prémiové funkce**, ne podmínka chatu
 - V okně přezdívky je odkaz **„Už máš účet? Přihlas se“** → H (přihlášení existujícím účtem; vrátí se přezdívka i statistiky).
 - **Změnu přezdívky** má jen registrovaný Slowrider. Klepnutí na zamčenou přezdívku v Profilu → M8 „Přezdívku změníš s účtem“.
 - Registrace povýší anonymní účet: přezdívka, zprávy i statistiky zůstanou. **První změna hned po registraci je bez 24h čekání**, další už jednou za 24 h.
+- Proti spamu (server): nejvýš 5 zpráv za 30 s a 60 za hodinu, 1–500 znaků; stejný text od stejného člověka do minuty se odmítne (samotné emoji ne, to se slučuje); odkazy posílají jen registrovaní (023). Hlášky: „Zpomal trochu 🙂 …“, „Tuhle zprávu jsi právě poslal(a).“, „Odkazy můžou posílat jen registrovaní Slowriders…“ (text se vrátí do pole).
 - Riziko: ztlumení/blokace anonyma se dá na Androidu obejít přeinstalací (nový anonymní účet). Krotí to rate limit a moderace; kdyby se to zneužívalo, psaní se dá znovu podmínit registrací jedním přepínačem na serveru.
 
 **Profil (Figma Profil: M2, M7–M11)**

@@ -22,6 +22,10 @@ enum AccountError: Error, Equatable {
     case muted(until: Date?)
     case blocked
     case rateLimited
+    /// The same text again within a minute (023_chat_spam.sql).
+    case duplicateMessage
+    /// A web address from someone writing without an account.
+    case linksNeedAccount
     case notModerator
     case notAdmin
     case notSuperadmin
@@ -82,6 +86,8 @@ enum AccountError: Error, Equatable {
         case "muted": return .muted(until: date)
         case "blocked": return .blocked
         case "rate_limited": return .rateLimited
+        case "duplicate_message": return .duplicateMessage
+        case "links_need_account": return .linksNeedAccount
         case "not_moderator": return .notModerator
         case "not_admin": return .notAdmin
         case "not_superadmin": return .notSuperadmin
@@ -111,7 +117,10 @@ extension AccountError {
     var userMessage: String {
         switch self {
         case .offline: return L10n.errorOffline
-        case .tooManyRequests, .rateLimited: return L10n.errorTooManyRequests
+        case .tooManyRequests: return L10n.errorTooManyRequests
+        case .rateLimited: return L10n.chatRateLimited
+        case .duplicateMessage: return L10n.chatDuplicate
+        case .linksNeedAccount: return L10n.chatLinksNeedAccount
         case .codeInvalid: return L10n.emailCodeInvalid
         case .nicknameTaken: return L10n.nicknameTaken
         case .nicknameReserved: return L10n.nicknameReserved

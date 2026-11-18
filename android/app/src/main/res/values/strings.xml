@@ -289,6 +289,9 @@
     <string name="chatRetry">Zkusit znovu</string>
     <string name="chatJoinTitle">Připoj se do chatu</string>
     <string name="chatJoinBody">Číst může každý. Psát můžeš po přihlášení — zabere to pár vteřin a rozepsaná zpráva se pak odešle sama.</string>
+    <string name="chatRateLimited">Zpomal trochu 🙂 Další zprávu pošleš za pár vteřin.</string>
+    <string name="chatDuplicate">Tuhle zprávu jsi právě poslal(a).</string>
+    <string name="chatLinksNeedAccount">Odkazy můžou posílat jen registrovaní Slowriders. Zaregistrovat se můžeš v Profilu.</string>
     <string name="chatNotNow">Teď ne</string>
     <string name="chatJoinLegal">Pokračováním souhlasíš s Pravidly chatu a Zásadami ochrany soukromí.</string>
     <string name="chatCopy">Kopírovat</string>

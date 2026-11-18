@@ -2156,6 +2156,27 @@ extension L10n {
         }
     }
 
+    static var chatRateLimited: String {
+        switch lang {
+        case .cs: return "Zpomal trochu 🙂 Další zprávu pošleš za pár vteřin."
+        case .en: return "Slow down a little 🙂 You can send another message in a few seconds."
+        }
+    }
+
+    static var chatDuplicate: String {
+        switch lang {
+        case .cs: return "Tuhle zprávu jsi právě poslal(a)."
+        case .en: return "You've just sent this message."
+        }
+    }
+
+    static var chatLinksNeedAccount: String {
+        switch lang {
+        case .cs: return "Odkazy můžou posílat jen registrovaní Slowriders. Zaregistrovat se můžeš v Profilu."
+        case .en: return "Only registered Slowriders can post links. You can register in Profil."
+        }
+    }
+
     static var chatNotNow: String {
         switch lang {
         case .cs: return "Teď ne"

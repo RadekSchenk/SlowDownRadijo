@@ -239,7 +239,8 @@ final class ChatService: ObservableObject {
         } catch {
             let accountError = AccountError.from(error)
             switch accountError {
-            case .muted, .blocked, .nicknameRequired, .notSignedIn, .accountRequired, .messageInvalid:
+            case .muted, .blocked, .nicknameRequired, .notSignedIn, .accountRequired, .messageInvalid,
+                 .duplicateMessage, .linksNeedAccount:
                 outgoing.removeAll { $0.id == id }
                 if case .muted = accountError { await AccountService.shared.refresh() }
                 if case .blocked = accountError { await AccountService.shared.refresh() }

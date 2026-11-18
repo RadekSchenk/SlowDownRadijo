@@ -623,6 +623,10 @@ struct ChatSheetView: View {
             } catch let error as AccountError {
                 Analytics.shared.track(.chatMessageSent(kind: kind, success: false, first: first, account: account.analyticsAccount))
                 if case .offline = error { return } // shown on the message itself
+                if case .linksNeedAccount = error, draft.isEmpty {
+                    // Back in the field, to take the link out.
+                    draft = text
+                }
                 ToastCenter.shared.show(.init(systemImage: "exclamationmark.circle", message: error.userMessage))
             } catch {}
         }

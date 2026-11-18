@@ -20,7 +20,10 @@ sealed class AccountError(message: String) : Exception(message) {
     /** The text for a toast or an error line under a field (`userMessage` on iOS). */
     val messageRes: Int get() = when (this) {
         Offline -> R.string.errorOffline
-        TooManyRequests, RateLimited -> R.string.errorTooManyRequests
+        TooManyRequests -> R.string.errorTooManyRequests
+        RateLimited -> R.string.chatRateLimited
+        DuplicateMessage -> R.string.chatDuplicate
+        LinksNeedAccount -> R.string.chatLinksNeedAccount
         CodeInvalid -> R.string.emailCodeInvalid
         NicknameTaken -> R.string.nicknameTaken
         NicknameReserved -> R.string.nicknameReserved
@@ -55,6 +58,10 @@ sealed class AccountError(message: String) : Exception(message) {
     data class Muted(val until: Instant?) : AccountError("muted")
     data object Blocked : AccountError("blocked")
     data object RateLimited : AccountError("rate_limited")
+    /** The same text again within a minute (023_chat_spam.sql). */
+    data object DuplicateMessage : AccountError("duplicate_message")
+    /** A web address from someone writing without an account. */
+    data object LinksNeedAccount : AccountError("links_need_account")
     data object NotModerator : AccountError("not_moderator")
     data object NotAdmin : AccountError("not_admin")
     data object NotSuperadmin : AccountError("not_superadmin")
@@ -104,6 +111,8 @@ sealed class AccountError(message: String) : Exception(message) {
                 "muted" -> Muted(date)
                 "blocked" -> Blocked
                 "rate_limited" -> RateLimited
+                "duplicate_message" -> DuplicateMessage
+                "links_need_account" -> LinksNeedAccount
                 "not_moderator" -> NotModerator
                 "not_admin" -> NotAdmin
                 "not_superadmin" -> NotSuperadmin

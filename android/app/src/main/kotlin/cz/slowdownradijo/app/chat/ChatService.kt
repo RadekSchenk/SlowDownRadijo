@@ -236,7 +236,8 @@ class ChatService(
             val error = AccountError.from(e)
             when (error) {
                 is AccountError.Muted, AccountError.Blocked, AccountError.NicknameRequired, AccountError.NotSignedIn,
-                AccountError.AccountRequired, AccountError.MessageInvalid -> {
+                AccountError.AccountRequired, AccountError.MessageInvalid,
+                AccountError.DuplicateMessage, AccountError.LinksNeedAccount -> {
                     removeOutgoing(id)
                     if (error is AccountError.Muted || error == AccountError.Blocked) account.refresh()
                 }

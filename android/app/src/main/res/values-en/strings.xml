@@ -289,6 +289,9 @@
     <string name="chatRetry">Try again</string>
     <string name="chatJoinTitle">Join the chat</string>
     <string name="chatJoinBody">Anyone can read. To write, sign in — it takes a few seconds and your message is sent right after.</string>
+    <string name="chatRateLimited">Slow down a little 🙂 You can send another message in a few seconds.</string>
+    <string name="chatDuplicate">You\'ve just sent this message.</string>
+    <string name="chatLinksNeedAccount">Only registered Slowriders can post links. You can register in Profil.</string>
     <string name="chatNotNow">Not now</string>
     <string name="chatJoinLegal">By continuing you agree to the Chat rules and the Privacy policy.</string>
     <string name="chatCopy">Copy</string>

@@ -493,6 +493,11 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
                         joining = true
                     }
                     AccountError.Offline -> Unit // shown on the message itself
+                    AccountError.LinksNeedAccount -> {
+                        // Back in the field, to take the link out.
+                        if (draft.isEmpty()) draft = text
+                        ToastCenter.show(ToastCenter.Toast(Icons.Rounded.ErrorOutline, context.getString(e.messageRes)))
+                    }
                     else -> ToastCenter.show(ToastCenter.Toast(Icons.Rounded.ErrorOutline, context.getString(e.messageRes)))
                 }
             }
