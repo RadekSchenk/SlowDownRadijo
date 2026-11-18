@@ -324,7 +324,9 @@ listener's anonymous stats user, so their stats stay. Design and rules:
     `chat_stats_*`, cron `chat-daily-stats` at 03:10). The statistics are
     readable only with the service role (SQL Editor).
 11. **Superadmin:** once Radek has registered in the app,
-    `update profiles set is_superadmin = true, is_admin = true where id = (select id from auth.users where email = '<his e-mail>');`
+    `update profiles set is_superadmin = true, is_admin = true, admin_since = now() where nickname = '<his nickname>';`
+    (by nickname: with Sign in with Apple the account's e-mail may be a
+    hidden `…@privaterelay.appleid.com` address). Done on 18. 11. 2026.
     From then on moderators and admins are managed in the app
     (Profil ▸ Správa chatu); the SQL in step 5 is the fallback.
 9. **Invite links on slowdownradijo.cz.** Until these two files are on the
