@@ -80,7 +80,9 @@ final class PlaybackAnalytics {
                     trigger: player.lastPlayTrigger.rawValue,
                     showID: currentShowID(),
                     connectMilliseconds: connectMilliseconds,
-                    output: AudioOutput.kind()
+                    output: AudioOutput.kind(),
+                    stream: player.currentStream?.rawValue ?? "_",
+                    quality: StreamQuality.current.rawValue
                 ))
             } else if droppedInSession {
                 droppedInSession = false

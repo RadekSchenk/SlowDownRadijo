@@ -187,6 +187,7 @@ release yet.
 | Feature | iOS | Android |
 |---|---|---|
 | Live stream, background, lock screen | 1.0 | 1 (Media3; reconnect, audio focus, headphones) |
+| Sound quality (Automaticky / Vždy vysoká / Úsporná: MP3 160 kbps or AAC 32 kbps, both HTTPS; auto = MP3 unless mobile data or a hotspot; a playing radio switches when the network or the setting changes; after two failed reconnects it alternates with the other stream; `stream` and `quality` on `playback_started`) | 1.3 | 1.3 (metered network = `NET_CAPABILITY_NOT_METERED` missing; iOS uses `NWPath.isExpensive`. Song-on-air metadata stays on the AAC stream) |
 | Song on air (ICY + server log, TrackTrust) | 1.0 | 1 |
 | Programme from the web (specials) | 1.1 | 1 (cached week) |
 | Home header: compact player, clouds, equalizer | 1.1 | 1; swipe back through earlier songs 3 (`RecentSongs`, a pager, back to now after 10 s) |

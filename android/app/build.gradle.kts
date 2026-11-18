@@ -19,7 +19,7 @@ android {
         targetSdk = 37
         // CI sets the build number (the run number); 1 locally.
         versionCode = providers.environmentVariable("VERSION_CODE").orNull?.toInt() ?: 1
-        versionName = "1.2"
+        versionName = "1.3"
     }
 
     // The Google Play upload key, from CI secrets (a base64 keystore). Without
