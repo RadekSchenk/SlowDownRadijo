@@ -224,6 +224,16 @@ Registrace je **předpoklad pro budoucí prémiové funkce**, ne podmínka chatu
 - A5 Správci → A6 přidat správce podle přezdívky (jen registrovaný Slowrider).
 - Hosté a pozvánky tak už nejsou potřeba v Table Editoru; SQL v README zůstane jako nouzová cesta.
 
+**Statistiky chatu (pro rádio, jen superadmin)**
+- Zdroj: živé zprávy a archiv v Supabase; noční úloha plní tabulku **denních souhrnů**, takže čísla přežijí 90denní mazání a dashboard je rychlý. Ukládají se jen součty a průměry, žádné přezdívky (výjimka: seznam nejaktivnějších, vidí jen superadmin).
+- **Objem:** zprávy za den / týden / měsíc (text vs. emoji); aktivní pisatelé (DAU / WAU / MAU); průměr a **medián** zpráv na aktivní profil; podíl zpráv od 10 % nejaktivnějších; tepelná mapa hodin a dnů v týdnu.
+- **Pořady:** zprávy celkem; zprávy na hodinu vysílání; **zprávy na 100 posluchačů pořadu** (spojení se statistikami poslechu); počet „tichých“ pořadů za týden; vliv aktivního moderátora (pořady, kde moderátor psal, vs. nepsal).
+- **Lidé a retence:** noví pisatelé za týden; návrat do 7 a 30 dnů; konverze anonym → Slowrider a čas od první zprávy; segmenty příležitostní / pravidelní / věrní; podíl pisatelů mezi aktivními posluchači.
+- **Konverzace:** medián času do další zprávy; podíl emoji a nejčastější emoji (i podle pořadu).
+- **Moderace:** nahlášení, smazání, ztlumení a blokace týdně a jejich podíl; pořady a hodiny s nejvíc zásahy; podíl anonymů mezi ztlumenými.
+- **PostHog** doplní, co databáze nevidí: kdo chat jen čte, jestli okno přezdívky odrazuje, klepnutí na pole na homepage.
+- Zobrazení: SQL pohledy v Supabase (jen superadmin / service role) a souhrny jako dashboard v PostHogu vedle používání appky.
+
 **Archiv chatu pro analýzy (návrh)**
 - Před 90denním smazáním přesunout zprávy do archivní tabulky **bez vazby na účet** (bez `user_id` a přezdívky; zůstane text, čas, pořad, role autora). Text může sám obsahovat osobní údaje, proto archiv jen pro interní analýzy, ne veřejný, a zmínit ho v zásadách.
 - Smazání účtu maže vazbu, ne archivovaný text (ten už na účet vázaný není).
