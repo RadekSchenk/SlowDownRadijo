@@ -11,6 +11,7 @@ struct SettingsView: View {
     @ObservedObject private var analytics = Analytics.shared
     @AppStorage("autoplayEnabled") private var autoplayEnabled = true
     @AppStorage(StatsConfig.enabledKey) private var statsEnabled = true
+    @AppStorage(StreamQuality.storageKey) private var streamQuality: StreamQuality = .auto
     @Environment(\.dismiss) private var dismiss
     @State private var isShowingPrivacyPolicy = false
     @State private var isConfirmingStatsDeletion = false
@@ -35,6 +36,28 @@ struct SettingsView: View {
                             .labelsHidden()
                             .tint(Theme.liveRed)
                     }
+
+                    ListDivider()
+                    Menu {
+                        Picker(L10n.streamQualityTitle, selection: $streamQuality) {
+                            ForEach(StreamQuality.allCases) { quality in
+                                Text(quality.title).tag(quality)
+                            }
+                        }
+                    } label: {
+                        ListRow(title: L10n.streamQualityTitle, subtitle: L10n.streamQualityDescription) {
+                            HStack(spacing: 4) {
+                                Text(streamQuality.title)
+                                    .font(Theme.Typography.Manrope.semibold(size: 15, relativeTo: .subheadline))
+                                Image(systemName: "chevron.up.chevron.down")
+                                    .font(.footnote.weight(.semibold))
+                            }
+                            .foregroundStyle(Theme.textPrimary)
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityValue(streamQuality.title)
 
                     ListDivider()
                     NavigationLink {
@@ -108,6 +131,9 @@ struct SettingsView: View {
         }
         .onChange(of: statsEnabled) { _, _ in
             ListeningTracker.shared.enabledPreferenceChanged()
+        }
+        .onChange(of: streamQuality) { _, _ in
+            AppServices.shared.player.streamQualityChanged()
         }
         .confirmationDialog(
             L10n.statsDeleteConfirmTitle,

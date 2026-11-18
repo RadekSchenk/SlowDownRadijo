@@ -35,10 +35,12 @@ sealed class AnalyticsEvent(val name: String, val properties: Map<String, Any>) 
     class AppOpened(kind: String) : AnalyticsEvent("app_opened", mapOf("kind" to kind))
     class ScreenViewed(screen: AnalyticsScreen) : AnalyticsEvent("screen_viewed", mapOf("screen" to screen.id))
     class LanguageChanged(to: String) : AnalyticsEvent("language_changed", mapOf("to" to to))
-    class PlaybackStarted(trigger: String, showId: String?, connectMs: Int?, output: String) : AnalyticsEvent(
+    /** `stream`: `mp3` / `aac`; `quality`: the setting, `auto` / `high` / `low`. */
+    class PlaybackStarted(trigger: String, showId: String?, connectMs: Int?, output: String, stream: String, quality: String) : AnalyticsEvent(
         "playback_started",
         buildMap<String, Any> {
             this["trigger"] = trigger; this["show_id"] = showId ?: "_"; this["output"] = output
+            this["stream"] = stream; this["quality"] = quality
             if (connectMs != null) this["connect_ms"] = connectMs
         },
     )

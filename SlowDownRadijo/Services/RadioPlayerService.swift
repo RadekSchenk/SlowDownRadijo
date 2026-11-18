@@ -12,18 +12,69 @@ enum PlaybackState: Equatable {
     case error(String)
 }
 
+/// The two live mounts on play.cz, both over HTTPS. The `-fallback` mounts
+/// next to them are Icecast's own backup sources, not for listeners.
+enum LiveStream: String {
+    /// MP3, 160 kbps, 44.1 kHz stereo (~72 MB an hour).
+    case mp3
+    /// HE-AAC, 32 kbps (~14 MB an hour).
+    case aac
+
+    var url: URL {
+        switch self {
+        case .mp3: return URL(string: "https://icecast9.play.cz/slowdown.mp3")!
+        case .aac: return URL(string: "https://icecast5.play.cz/slowdown.aac")!
+        }
+    }
+
+    var other: LiveStream { self == .mp3 ? .aac : .mp3 }
+}
+
+/// Settings ▸ Kvalita zvuku. `auto` plays the MP3 on a network that isn't
+/// expensive (Wi-Fi, Ethernet) and the AAC on mobile data or a hotspot.
+enum StreamQuality: String, CaseIterable, Identifiable {
+    case auto, high, low
+
+    static let storageKey = "streamQuality"
+
+    static var current: StreamQuality {
+        UserDefaults.standard.string(forKey: storageKey).flatMap(StreamQuality.init(rawValue:)) ?? .auto
+    }
+
+    var id: Self { self }
+
+    var title: String {
+        switch self {
+        case .auto: return L10n.streamQualityAuto
+        case .high: return L10n.streamQualityHigh
+        case .low: return L10n.streamQualityLow
+        }
+    }
+
+    func stream(onExpensiveNetwork expensive: Bool) -> LiveStream {
+        switch self {
+        case .auto: return expensive ? .aac : .mp3
+        case .high: return .mp3
+        case .low: return .aac
+        }
+    }
+}
+
 /// Owns the live audio stream: AVPlayer setup, background playback,
 /// lock-screen / Control Center integration, and reconnect-on-drop logic.
 ///
-/// Stream: https://icecast5.play.cz/slowdown.aac (confirmed on
-/// slowdownradijo.cz/jak-si-nas-pustit/). We use the AAC stream rather than
-/// the MP3 one (`http://icecast9.play.cz/slowdown.mp3`) because it is served
-/// over HTTPS and needs no App Transport Security exception; the MP3 mount
-/// only answers over plain HTTP.
+/// Which stream plays follows `StreamQuality`; when one keeps failing,
+/// reconnects alternate with the other one.
 final class RadioPlayerService: NSObject, ObservableObject {
-    static let streamURL = URL(string: "https://icecast5.play.cz/slowdown.aac")!
+    /// The stream the song-on-air metadata is read from: the light AAC one,
+    /// whatever plays.
+    static let streamURL = LiveStream.aac.url
 
     @Published private(set) var state: PlaybackState = .idle
+    /// The stream playing (or connecting) now; `nil` before the first play.
+    private(set) var currentStream: LiveStream?
+    /// Whether the current network is mobile data or a hotspot.
+    private var networkIsExpensive = false
 
     /// What last started playback, and what last stopped it — read by
     /// `PlaybackAnalytics` when the state changes.
@@ -93,12 +144,17 @@ final class RadioPlayerService: NSObject, ObservableObject {
         )
         pathMonitor.pathUpdateHandler = { [weak self] path in
             let isSatisfied = path.status == .satisfied
+            let isExpensive = path.isExpensive
             DispatchQueue.main.async {
                 guard let self else { return }
                 let cameBack = isSatisfied && !self.networkWasSatisfied
                 self.networkWasSatisfied = isSatisfied
+                let expensiveChanged = isSatisfied && isExpensive != self.networkIsExpensive
+                if isSatisfied { self.networkIsExpensive = isExpensive }
                 if cameBack {
                     self.networkBecameAvailable()
+                } else if expensiveChanged {
+                    self.restartIfStreamChanged()
                 }
             }
         }
@@ -193,6 +249,36 @@ final class RadioPlayerService: NSObject, ObservableObject {
         configureAudioSession(activate: true)
     }
 
+    /// Called when Settings changes the quality: a playing radio moves to
+    /// the newly chosen stream.
+    func streamQualityChanged() {
+        restartIfStreamChanged()
+    }
+
+    // MARK: - Stream choice
+
+    /// The stream the setting and the network ask for.
+    private var preferredStream: LiveStream {
+        StreamQuality.current.stream(onExpensiveNetwork: networkIsExpensive)
+    }
+
+    /// The first reconnect retries the same stream (most drops are the
+    /// network); from then on every even attempt tries the other one, in
+    /// case only one of the two mounts is down.
+    private var streamForThisAttempt: LiveStream {
+        reconnectAttempt >= 2 && reconnectAttempt % 2 == 0 ? preferredStream.other : preferredStream
+    }
+
+    /// Wi-Fi ↔ mobile data or a new setting while the radio plays: switch to
+    /// the stream that fits now (a short gap, like a reconnect).
+    private func restartIfStreamChanged() {
+        guard state == .playing || state == .connecting,
+              let currentStream, currentStream != preferredStream else { return }
+        cancelReconnect()
+        reconnectAttempt = 0
+        startPlayback()
+    }
+
     // MARK: - Playback lifecycle
 
     private func startPlayback() {
@@ -200,7 +286,9 @@ final class RadioPlayerService: NSObject, ObservableObject {
         enterConnecting()
         teardownPlayer()
 
-        let item = AVPlayerItem(url: Self.streamURL)
+        let stream = streamForThisAttempt
+        currentStream = stream
+        let item = AVPlayerItem(url: stream.url)
         let newPlayer = AVPlayer(playerItem: item)
         newPlayer.automaticallyWaitsToMinimizeStalling = true
         player = newPlayer

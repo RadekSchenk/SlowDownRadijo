@@ -159,7 +159,8 @@ enum AnalyticsEvent {
 
     /// `trigger`: see `RadioPlayerService.PlayTrigger`. `output`: the kind
     /// of output it plays on (`AudioOutput.kind`), never its name.
-    case playbackStarted(trigger: String, showID: String?, connectMilliseconds: Int?, output: String)
+    /// `stream`: `mp3` / `aac`; `quality`: the setting, `auto` / `high` / `low`.
+    case playbackStarted(trigger: String, showID: String?, connectMilliseconds: Int?, output: String, stream: String, quality: String)
     /// `reason`: see `RadioPlayerService.StopReason`.
     case playbackStopped(seconds: Int, reason: String, showID: String?, reconnects: Int, output: String)
     /// `stage`: "connecting" (never started) or "interrupted" (dropped while playing).
@@ -262,8 +263,10 @@ enum AnalyticsEvent {
             return ["screen": screen.rawValue]
         case .languageChanged(let to):
             return ["to": to]
-        case .playbackStarted(let trigger, let showID, let connectMilliseconds, let output):
-            var properties: [String: Any] = ["trigger": trigger, "show_id": showID ?? "_", "output": output]
+        case .playbackStarted(let trigger, let showID, let connectMilliseconds, let output, let stream, let quality):
+            var properties: [String: Any] = [
+                "trigger": trigger, "show_id": showID ?? "_", "output": output, "stream": stream, "quality": quality,
+            ]
             if let connectMilliseconds { properties["connect_ms"] = connectMilliseconds }
             return properties
         case .playbackStopped(let seconds, let reason, let showID, let reconnects, let output):

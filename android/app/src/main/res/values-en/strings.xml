@@ -125,6 +125,11 @@
     <string name="settingsTitle">Settings</string>
     <string name="settingsAutoplayTitle">Autoplay</string>
     <string name="settingsAutoplayDescription">The app starts playing as soon as it opens, without tapping Play.</string>
+    <string name="streamQualityTitle">Sound quality</string>
+    <string name="streamQualityDescription">Automatic plays in high quality on Wi-Fi (MP3 160 kbps) and saves data on mobile (AAC 32 kbps).</string>
+    <string name="streamQualityAuto">Automatic</string>
+    <string name="streamQualityHigh">Always high</string>
+    <string name="streamQualityLow">Data saver</string>
     <string name="settingsLanguageTitle">Language</string>
     <string name="settingsFeedbackTitle">Feedback</string>
     <string name="settingsFeedbackIntro">Tell us how the app\'s working for you — how satisfied you are, what\'s missing or unnecessary, or if something\'s not working right.</string>

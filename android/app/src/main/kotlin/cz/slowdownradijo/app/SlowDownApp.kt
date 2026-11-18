@@ -66,7 +66,7 @@ class SlowDownApp : Application() {
     private val webSchedule by lazy { WebScheduleService(http) }
     private val remoteHistory by lazy { RemoteHistoryService(http) }
 
-    val radio by lazy { RadioEngine(this, scope) }
+    val radio by lazy { RadioEngine(this, scope, quality = { settings.streamQuality.value }) }
     val icy by lazy { IcyMetadataPoller(http.newBuilder().callTimeout(Duration.ofSeconds(10)).build()) }
 
     val nowPlaying by lazy {

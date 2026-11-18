@@ -125,6 +125,11 @@
     <string name="settingsTitle">Nastavení</string>
     <string name="settingsAutoplayTitle">Automatické přehrávání</string>
     <string name="settingsAutoplayDescription">Appka spustí rádio hned po otevření, bez nutnosti klepnout na Přehrát.</string>
+    <string name="streamQualityTitle">Kvalita zvuku</string>
+    <string name="streamQualityDescription">Automaticky hraje na Wi-Fi ve vysoké kvalitě (MP3 160 kbps), na mobilních datech úsporně (AAC 32 kbps).</string>
+    <string name="streamQualityAuto">Automaticky</string>
+    <string name="streamQualityHigh">Vždy vysoká</string>
+    <string name="streamQualityLow">Úsporná</string>
     <string name="settingsLanguageTitle">Jazyk</string>
     <string name="settingsFeedbackTitle">Zpětná vazba</string>
     <string name="settingsFeedbackIntro">Napiš nám, jak se ti appka používá — jak jsi spokojen, co ti v ní chybí nebo přebývá, nebo jestli ti něco nefunguje, jak by mělo.</string>

@@ -434,9 +434,10 @@ private fun Menu(onClose: () -> Unit) {
                 val analyticsConsent by app.analytics.consent.collectAsStateWithLifecycle()
                 val autoplay by app.settings.autoplay.collectAsStateWithLifecycle()
                 val stats by app.settings.statsEnabled.collectAsStateWithLifecycle()
+                val streamQuality by app.settings.streamQuality.collectAsStateWithLifecycle()
                 val followed by app.reminders.followed.collectAsStateWithLifecycle()
                 SettingsScreen(
-                    SettingsUi(autoplay, followed.size, stats, analyticsEnabled = analyticsConsent == cz.slowdownradijo.app.analytics.Analytics.Consent.GRANTED),
+                    SettingsUi(autoplay, followed.size, stats, analyticsEnabled = analyticsConsent == cz.slowdownradijo.app.analytics.Analytics.Consent.GRANTED, streamQuality = streamQuality),
                     SettingsActions(
                         setAutoplay = app.settings::setAutoplay,
                         setStats = {
@@ -444,6 +445,10 @@ private fun Menu(onClose: () -> Unit) {
                             app.tracker.enabledPreferenceChanged()
                         },
                         setAnalytics = app.analytics::setConsent,
+                        setStreamQuality = {
+                            app.settings.setStreamQuality(it)
+                            app.radio.streamQualityChanged()
+                        },
                         deleteStats = { runCatching { app.tracker.deleteAllData() }.isSuccess },
                     ),
                     open, back,

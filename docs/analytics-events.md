@@ -66,7 +66,7 @@ nástroj za ním se dá vyměnit nebo doplnit (Google Analytics) beze změny vol
 | `app_opened` | spuštění, návrat po 30+ min na pozadí, udělení souhlasu | `kind`: `cold` / `warm` / `consent` |
 | `screen_viewed` | zobrazení obrazovky | `screen`: `home`, `message`, `support`, `stats`, `profile`, `menu`, `settings`, `show_reminders`, `news` |
 | `language_changed` | přepnutí CZ/EN v hlavičce | `to`: `cs` / `en` |
-| `playback_started` | stream opravdu začal hrát | `trigger`: `user`, `autoplay`, `lock_screen`, `notification`, `resume`, `preview`; `show_id`; `connect_ms` |
+| `playback_started` | stream opravdu začal hrát | `trigger`: `user`, `autoplay`, `lock_screen`, `notification`, `resume`, `preview`; `show_id`; `connect_ms`; `stream`: `mp3` / `aac` (co opravdu hraje); `quality`: nastavení `auto` / `high` / `low` (od 1.3) |
 | `playback_stopped` | konec souvislého poslechu | `seconds_listened`, `end_reason`: `user`, `sleep_timer`, `interruption`, `headphones`, `voice_message`, `preview`; `show_id`; `reconnects` |
 | `playback_failed` | stream se nespustil / spadl (jednou za sérii pokusů) | `stage`: `connecting` / `interrupted`; `show_id` |
 | `sleep_timer_set` | nastavení časovače | `option`: `5m`, `10m`, `15m`, `30m`, `45m`, `60m`, `end_of_show` |
