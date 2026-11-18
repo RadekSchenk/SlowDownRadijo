@@ -26,6 +26,14 @@ sealed class AccountError(message: String) : Exception(message) {
         NicknameReserved -> R.string.nicknameReserved
         NicknameInvalid -> R.string.nicknameInvalid
         ProviderUnavailable -> R.string.signInUnavailable
+        InviteOtherHost -> R.string.errorInviteOtherHost
+        InviteInvalid -> R.string.inviteInvalidBody
+        RestoreExpired -> R.string.errorRestoreExpired
+        NotModerator, NotAdmin -> R.string.errorNotModerator
+        UserInvalid -> R.string.errorUserInvalid
+        MessageNotFound -> R.string.errorMessageNotFound
+        is Muted -> R.string.errorMuted
+        Blocked -> R.string.blockedBanner
         else -> R.string.errorGeneric
     }
 

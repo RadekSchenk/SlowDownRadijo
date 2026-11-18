@@ -48,6 +48,11 @@ targets:
         # the App ID cz.slowdownradijo.app in the Apple Developer account.
         com.apple.developer.applesignin:
           - Default
+        # DJ invite links https://slowdownradijo.cz/dj/<code> (chat). Needs the
+        # Associated Domains capability on the App ID and
+        # /.well-known/apple-app-site-association on the web (backend/README.md).
+        com.apple.developer.associated-domains:
+          - applinks:slowdownradijo.cz
     info:
       path: SlowDownRadijo/Info.plist
       properties:

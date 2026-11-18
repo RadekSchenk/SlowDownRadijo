@@ -309,6 +309,29 @@ listener's anonymous stats user, so their stats stay. Design and rules:
 6. **Admins** (moderate under their own nickname, can lift a block):
    `update profiles set is_admin = true where id = '<auth user id>';`
 7. **Reports** land in `chat_reports`; check them in the Table Editor.
+8. **Run `supabase/sql/021_chat_invite_info.sql`** (after 020). It adds
+   `host_invite_info(code)`, which the invite screen calls before the DJ signs
+   in ("Propoj účet jako DJ Pufaz", "platí do 24. 11."). Without it the apps
+   show a generic title and the claim still works.
+9. **Invite links on slowdownradijo.cz.** Until these two files are on the
+   web, the `https://slowdownradijo.cz/dj/<code>` link opens the website, not
+   the app; `slowdownradijo://dj/<code>` works right away in both apps.
+   - `/.well-known/apple-app-site-association` (no extension, served as
+     `application/json`, no redirect), plus *Associated Domains* switched on
+     for the App ID `cz.slowdownradijo.app`:
+     ```json
+     {"applinks": {"details": [{"appIDs": ["9W8BX34TJH.cz.slowdownradijo.app"], "components": [{"/": "/dj/*"}]}]}}
+     ```
+   - `/.well-known/assetlinks.json`, with the SHA-256 fingerprints of the
+     upload key and of Google Play's app signing key (Play Console → Test and
+     release → App integrity):
+     ```json
+     [{"relation": ["delegate_permission/common.handle_all_urls"],
+       "target": {"namespace": "android_app", "package_name": "cz.slowdownradijo.app",
+                  "sha256_cert_fingerprints": ["<upload key SHA-256>", "<app signing key SHA-256>"]}}]
+     ```
+   - The web page at `/dj/<code>` itself can just say "Otevři odkaz v
+     telefonu s aplikací Slow Down Rádijo" for anyone without the app.
 
 Tested locally on Postgres 16 with stubs for `auth.uid()` / `auth.jwt()`:
 nickname rules, 24 h limit, anonymous users rejected, mute / block / unmute

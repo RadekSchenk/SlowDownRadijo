@@ -2239,6 +2239,389 @@ extension L10n {
     }
 }
 
+// MARK: - Chat moderation and DJ invites (app 1.3)
+
+extension L10n {
+    static var errorInviteOtherHost: String {
+        switch lang {
+        case .cs: return "Tvůj účet už je propojený s jiným moderátorem."
+        case .en: return "Your account is already linked to another host."
+        }
+    }
+
+    static var errorRestoreExpired: String {
+        switch lang {
+        case .cs: return "Zprávu už nejde vrátit."
+        case .en: return "The message can't be restored any more."
+        }
+    }
+
+    static var errorNotModerator: String {
+        switch lang {
+        case .cs: return "Na tohle nemáš oprávnění."
+        case .en: return "You aren't allowed to do that."
+        }
+    }
+
+    static var errorUserInvalid: String {
+        switch lang {
+        case .cs: return "Tohohle posluchače nejde ztlumit ani zablokovat."
+        case .en: return "This listener can't be muted or blocked."
+        }
+    }
+
+    static var errorMessageNotFound: String {
+        switch lang {
+        case .cs: return "Zpráva už v chatu není."
+        case .en: return "The message is no longer in the chat."
+        }
+    }
+
+    static var errorMuted: String {
+        switch lang {
+        case .cs: return "Psaní do chatu máš teď pozastavené."
+        case .en: return "Your chat writing is paused right now."
+        }
+    }
+
+    static var chatMenuPin: String {
+        switch lang {
+        case .cs: return "Připnout zprávu"
+        case .en: return "Pin message"
+        }
+    }
+
+    static var chatMenuUnpin: String {
+        switch lang {
+        case .cs: return "Odepnout zprávu"
+        case .en: return "Unpin message"
+        }
+    }
+
+    static var chatMenuCopy: String {
+        switch lang {
+        case .cs: return "Kopírovat text"
+        case .en: return "Copy text"
+        }
+    }
+
+    static var chatMenuDelete: String {
+        switch lang {
+        case .cs: return "Smazat zprávu"
+        case .en: return "Delete message"
+        }
+    }
+
+    static var chatMenuMute: String {
+        switch lang {
+        case .cs: return "Ztlumit…"
+        case .en: return "Mute…"
+        }
+    }
+
+    static var chatMenuUnmute: String {
+        switch lang {
+        case .cs: return "Zrušit ztlumení"
+        case .en: return "Unmute"
+        }
+    }
+
+    static var chatMenuBlock: String {
+        switch lang {
+        case .cs: return "Zablokovat…"
+        case .en: return "Block…"
+        }
+    }
+
+    static var chatMenuReport: String {
+        switch lang {
+        case .cs: return "Nahlásit zprávu"
+        case .en: return "Report message"
+        }
+    }
+
+    static var chatMuteBody: String {
+        switch lang {
+        case .cs: return "Dál bude poslouchat a číst chat, jen do něj nic nenapíše. Ostatní posluchači ztlumení neuvidí."
+        case .en: return "They can still listen and read the chat, just not write. Other listeners won't see the mute."
+        }
+    }
+
+    static var chatMuteHour: String {
+        switch lang {
+        case .cs: return "1 hodina"
+        case .en: return "1 hour"
+        }
+    }
+
+    static var chatMuteDay: String {
+        switch lang {
+        case .cs: return "24 hodin"
+        case .en: return "24 hours"
+        }
+    }
+
+    static var chatMuteWeek: String {
+        switch lang {
+        case .cs: return "7 dní"
+        case .en: return "7 days"
+        }
+    }
+
+    static var chatMuteActionHour: String {
+        switch lang {
+        case .cs: return "Ztlumit na 1 hodinu"
+        case .en: return "Mute for 1 hour"
+        }
+    }
+
+    static var chatMuteActionDay: String {
+        switch lang {
+        case .cs: return "Ztlumit na 24 hodin"
+        case .en: return "Mute for 24 hours"
+        }
+    }
+
+    static var chatMuteActionWeek: String {
+        switch lang {
+        case .cs: return "Ztlumit na 7 dní"
+        case .en: return "Mute for 7 days"
+        }
+    }
+
+    static var chatUndo: String {
+        switch lang {
+        case .cs: return "Vrátit"
+        case .en: return "Undo"
+        }
+    }
+
+    static var chatBlockBody: String {
+        switch lang {
+        case .cs: return "Do chatu už nenapíše, dokud blokaci nezruší správce rádia. Jeho dosavadní zprávy zůstanou — smazat je můžeš zvlášť."
+        case .en: return "They won't be able to write until the radio's admin lifts the block. Their messages so far stay — you can delete them one by one."
+        }
+    }
+
+    static var chatBlockAction: String {
+        switch lang {
+        case .cs: return "Zablokovat"
+        case .en: return "Block"
+        }
+    }
+
+    static var chatDeletedToast: String {
+        switch lang {
+        case .cs: return "Zpráva smazána"
+        case .en: return "Message deleted"
+        }
+    }
+
+    static var chatReportedToast: String {
+        switch lang {
+        case .cs: return "Díky. Zprávu uvidí moderátoři."
+        case .en: return "Thanks. The moderators will see it."
+        }
+    }
+
+    static var chatPinnedToast: String {
+        switch lang {
+        case .cs: return "Zpráva připnuta"
+        case .en: return "Message pinned"
+        }
+    }
+
+    static var chatUnpinnedToast: String {
+        switch lang {
+        case .cs: return "Zpráva odepnuta"
+        case .en: return "Message unpinned"
+        }
+    }
+
+    static var inviteKicker: String {
+        switch lang {
+        case .cs: return "Pozvánka pro moderátora"
+        case .en: return "Host invite"
+        }
+    }
+
+    static var inviteTitleGeneric: String {
+        switch lang {
+        case .cs: return "Propoj účet jako moderátor"
+        case .en: return "Link your account as a host"
+        }
+    }
+
+    static var inviteBody: String {
+        switch lang {
+        case .cs: return "V chatu pak budeš psát pod jménem z programu se štítkem DJ a můžeš připínat, mazat a ztlumovat zprávy."
+        case .en: return "In the chat you'll then write under your name from the programme with a DJ tag, and you can pin, delete and mute."
+        }
+    }
+
+    static var inviteSample: String {
+        switch lang {
+        case .cs: return "Dobré ráno! Co dnes posloucháte u kafe? ☕"
+        case .en: return "Good morning! What are you listening to with your coffee? ☕"
+        }
+    }
+
+    static var inviteOneUse: String {
+        switch lang {
+        case .cs: return "Pozvánka jde použít jen jednou."
+        case .en: return "The invite works only once."
+        }
+    }
+
+    static var inviteDoneBody: String {
+        switch lang {
+        case .cs: return "Tvůj účet je propojený. Takhle tě uvidí posluchači:"
+        case .en: return "Your account is linked. This is how listeners will see you:"
+        }
+    }
+
+    static var inviteDoneHint: String {
+        switch lang {
+        case .cs: return "Podržením prstu na zprávě ji připneš, smažeš nebo ztlumíš autora."
+        case .en: return "Press and hold a message to pin it, delete it or mute its author."
+        }
+    }
+
+    static var inviteOpenChat: String {
+        switch lang {
+        case .cs: return "Otevřít chat"
+        case .en: return "Open the chat"
+        }
+    }
+
+    static var inviteInvalidTitle: String {
+        switch lang {
+        case .cs: return "Pozvánka už neplatí"
+        case .en: return "This invite has expired"
+        }
+    }
+
+    static var inviteInvalidBody: String {
+        switch lang {
+        case .cs: return "Odkaz vypršel nebo už byl použitý. Napiš rádiu a pošleme ti nový."
+        case .en: return "The link has expired or was already used. Write to the radio and we'll send a new one."
+        }
+    }
+
+    static var inviteLinking: String {
+        switch lang {
+        case .cs: return "Propojuju účet…"
+        case .en: return "Linking your account…"
+        }
+    }
+
+    static var inviteClose: String {
+        switch lang {
+        case .cs: return "Zavřít"
+        case .en: return "Close"
+        }
+    }
+
+    static func chatMenuHide(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Skrýt zprávy od \(name)"
+        case .en: return "Hide messages from \(name)"
+        }
+    }
+
+    static func chatMutedStatus(_ day: String, _ time: String, _ by: String) -> String {
+        switch lang {
+        case .cs: return "Ztlumený do \(day) \(time) · ztlumil \(by)"
+        case .en: return "Muted until \(day) \(time) · by \(by)"
+        }
+    }
+
+    static func chatBlockedStatus(_ by: String) -> String {
+        switch lang {
+        case .cs: return "Zablokovaný · zablokoval \(by)"
+        case .en: return "Blocked · by \(by)"
+        }
+    }
+
+    static func chatRemainingHours(_ hours: Int) -> String {
+        switch lang {
+        case .cs: return "zbývá \(hours) h"
+        case .en: return "\(hours)h left"
+        }
+    }
+
+    static func chatRemainingMinutes(_ minutes: Int) -> String {
+        switch lang {
+        case .cs: return "zbývá \(minutes) min"
+        case .en: return "\(minutes)m left"
+        }
+    }
+
+    static func chatMuteTitle(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Ztlumit \(name)"
+        case .en: return "Mute \(name)"
+        }
+    }
+
+    static func chatMutedToast(_ name: String, _ day: String, _ time: String) -> String {
+        switch lang {
+        case .cs: return "\(name) je ztlumený do \(day) \(time)"
+        case .en: return "\(name) is muted until \(day) \(time)"
+        }
+    }
+
+    static func chatUnmutedToast(_ name: String) -> String {
+        switch lang {
+        case .cs: return "\(name) už není ztlumený"
+        case .en: return "\(name) is no longer muted"
+        }
+    }
+
+    static func chatBlockTitle(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Zablokovat \(name)?"
+        case .en: return "Block \(name)?"
+        }
+    }
+
+    static func chatBlockedToast(_ name: String) -> String {
+        switch lang {
+        case .cs: return "\(name) je zablokovaný"
+        case .en: return "\(name) is blocked"
+        }
+    }
+
+    static func chatHiddenToast(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Zprávy od \(name) už neuvidíš"
+        case .en: return "You won't see messages from \(name)"
+        }
+    }
+
+    static func inviteTitle(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Propoj účet jako \(name)"
+        case .en: return "Link your account as \(name)"
+        }
+    }
+
+    static func inviteValidUntil(_ date: String) -> String {
+        switch lang {
+        case .cs: return "Pozvánka platí do \(date) a jde použít jen jednou."
+        case .en: return "The invite is valid until \(date) and works only once."
+        }
+    }
+
+    static func inviteDoneTitle(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Hotovo, jsi \(name)"
+        case .en: return "Done, you're \(name)"
+        }
+    }
+
+}
+
 extension Show {
     /// The description in the app's language (English falls back to Czech).
     var localizedSummary: String? {

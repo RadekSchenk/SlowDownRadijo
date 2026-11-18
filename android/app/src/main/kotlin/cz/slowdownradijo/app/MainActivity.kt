@@ -123,6 +123,10 @@ class MainActivity : ComponentActivity() {
                                 Tab.PROFILE -> cz.slowdownradijo.app.profile.ProfilePage(onOpenMenu = { menuOpen = true; app.analytics.screen(AnalyticsScreen.MENU) })
                             }
                         }
+                        cz.slowdownradijo.app.chat.HostInviteSheet(onOpenChat = {
+                            selectTab(Tab.RADIO)
+                            app.chat.requestOpen()
+                        })
                     }
                 }
             }
@@ -137,6 +141,11 @@ class MainActivity : ComponentActivity() {
 
     /** Apple's web sign-in and the e-mail link come back to slowdownradijo://auth. */
     private fun handleAuthReturn(intent: Intent) {
+        // A DJ invite (https://slowdownradijo.cz/dj/<code>, slowdownradijo://dj/<code>).
+        if (app.chat.handleInvite(intent.dataString)) {
+            intent.data = null
+            return
+        }
         if (intent.data?.scheme != "slowdownradijo") return
         app.supabase.handleDeeplinks(intent, onError = app.account::handleDeeplinkError)
     }
@@ -336,6 +345,15 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
     ) {
         val chatState by app.chat.state.collectAsStateWithLifecycle()
         var chatOpening by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<Boolean?>(null) }
+        // "Otevřít chat" after linking a DJ account.
+        val openRequests by app.chat.openRequests.collectAsStateWithLifecycle()
+        var handledOpen by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableIntStateOf(openRequests) }
+        androidx.compose.runtime.LaunchedEffect(openRequests) {
+            if (openRequests != handledOpen) {
+                handledOpen = openRequests
+                chatOpening = false
+            }
+        }
         cz.slowdownradijo.app.chat.ChatHomeSection(
             chatState,
             onOpen = { chatOpening = it },

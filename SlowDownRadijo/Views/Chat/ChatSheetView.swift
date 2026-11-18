@@ -25,6 +25,12 @@ struct ChatSheetView: View {
     @State private var isShowingRules = false
     /// Waiting for sign-in: the text to send once the listener has a name.
     @State private var pendingText: String?
+    @State private var menuMessage: ChatMessage?
+    @State private var menuStatus: ChatService.UserStatus?
+    @State private var muteTarget: ChatMessage?
+    @State private var blockTarget: ChatMessage?
+    /// Runs once the message menu has closed (the next sheet can't open over it).
+    @State private var afterMenu: (() -> Void)?
     @State private var isAtBottom = true
     @State private var bottomSeenID: Int64 = 0
 
@@ -42,6 +48,8 @@ struct ChatSheetView: View {
             composer
         }
         .background(Theme.statsCard.ignoresSafeArea())
+        // Over the sheet, where the tab view's toasts can't be seen.
+        .toastOverlay()
         .onAppear {
             chat.markSeen()
             bottomSeenID = chat.messages.last?.id ?? 0
@@ -57,6 +65,157 @@ struct ChatSheetView: View {
         .sheet(isPresented: $isShowingRules) {
             NavigationStack { ChatRulesView() }
                 .appTextSizeLimit()
+        }
+        .sheet(item: $menuMessage, onDismiss: {
+            afterMenu?()
+            afterMenu = nil
+        }) { message in
+            ChatMessageMenu(message: message, actions: menuActions(for: message), status: menuStatus) { action in
+                afterMenu = { perform(action, on: message) }
+                menuMessage = nil
+            }
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
+            .presentationBackground(Theme.statsCard)
+            .appTextSizeLimit()
+        }
+        .sheet(item: $muteTarget) { message in
+            ChatMuteSheet(name: ChatStyle.name(message)) { minutes in
+                muteTarget = nil
+                mute(message, minutes: minutes)
+            } onCancel: {
+                muteTarget = nil
+            }
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
+            .presentationBackground(Theme.statsCard)
+            .appTextSizeLimit()
+        }
+        .sheet(item: $blockTarget) { message in
+            ChatBlockSheet(name: ChatStyle.name(message)) {
+                blockTarget = nil
+                block(message)
+            } onCancel: {
+                blockTarget = nil
+            }
+            .presentationDetents([.height(300)])
+            .presentationDragIndicator(.visible)
+            .presentationBackground(Theme.statsCard)
+            .appTextSizeLimit()
+        }
+    }
+
+    // MARK: - Message menu and moderation (Figma L1, L2, Z1–Z8)
+
+    private var isModerator: Bool { account.isSignedIn && account.me?.isModerator == true }
+
+    private func openMenu(_ message: ChatMessage) {
+        guard !message.isDeleted else { return }
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        isComposerFocused = false
+        menuStatus = nil
+        menuMessage = message
+        if isModerator, let author = message.userID, author != account.me?.userID {
+            Task { menuStatus = try? await chat.status(of: author) }
+        }
+    }
+
+    private func menuActions(for message: ChatMessage) -> [ChatMenuAction] {
+        ChatMenu.actions(
+            for: message,
+            viewer: account.isSignedIn ? account.me?.userID : nil,
+            isModerator: isModerator,
+            isPinned: chat.pinned?.id == message.id,
+            status: menuStatus
+        )
+    }
+
+    private func toast(_ message: String, icon: String = "checkmark.circle", undoTitle: String? = nil, undo: (() -> Void)? = nil) {
+        ToastCenter.shared.show(.init(systemImage: icon, message: message, actionTitle: undoTitle, action: undo))
+    }
+
+    private func run(_ work: @escaping () async throws -> Void) {
+        Task {
+            do {
+                try await work()
+            } catch let error as AccountError {
+                toast(error.userMessage, icon: "exclamationmark.circle")
+            } catch {}
+        }
+    }
+
+    private func perform(_ action: ChatMenuAction, on message: ChatMessage) {
+        let name = ChatStyle.name(message)
+        switch action {
+        case .copy:
+            UIPasteboard.general.string = message.body
+        case .pin:
+            run {
+                try await chat.pin(message)
+                toast(L10n.chatPinnedToast, icon: "pin")
+            }
+        case .unpin:
+            run {
+                try await chat.unpin()
+                toast(L10n.chatUnpinnedToast, icon: "pin.slash")
+            }
+        case .delete:
+            run {
+                try await chat.delete(message)
+                toast(L10n.chatDeletedToast, icon: "trash", undoTitle: L10n.chatUndo) {
+                    run { try await chat.restore(message) }
+                }
+            }
+        case .mute:
+            muteTarget = message
+        case .unmute:
+            guard let author = message.userID else { return }
+            run {
+                try await chat.unmute(author)
+                toast(L10n.chatUnmutedToast(name), icon: "speaker.wave.2")
+            }
+        case .block:
+            blockTarget = message
+        case .report:
+            if account.isSignedIn {
+                run {
+                    try await chat.report(message)
+                    toast(L10n.chatReportedToast, icon: "flag")
+                }
+            } else {
+                pendingText = nil
+                isShowingJoin = true
+            }
+        case .hide:
+            guard let author = message.userID else { return }
+            run {
+                try await chat.hide(author)
+                toast(L10n.chatHiddenToast(name), icon: "eye.slash", undoTitle: L10n.chatUndo) {
+                    run { try await chat.unhide(author) }
+                }
+            }
+        }
+    }
+
+    private func mute(_ message: ChatMessage, minutes: Int) {
+        guard let author = message.userID else { return }
+        let name = ChatStyle.name(message)
+        run {
+            let until = try await chat.mute(author, minutes: minutes, message: message)
+                ?? Date().addingTimeInterval(Double(minutes) * 60)
+            let (day, time) = ProfileFormat.dayAndTime(until)
+            toast(L10n.chatMutedToast(name, day, time), icon: "speaker.slash", undoTitle: L10n.chatUndo) {
+                run { try await chat.unmute(author) }
+            }
+        }
+    }
+
+    private func block(_ message: ChatMessage) {
+        guard let author = message.userID else { return }
+        let name = ChatStyle.name(message)
+        run {
+            try await chat.block(author, message: message)
+            toast(L10n.chatBlockedToast(name), icon: "nosign")
         }
     }
 
@@ -211,17 +370,9 @@ struct ChatSheetView: View {
             ChatDividerRow(text: text)
         case .message(let message):
             ChatMessageRow(message: message)
-                .contextMenu {
-                    Section(ChatTimeline.timeLine(for: message)) {
-                        if let body = message.body, !message.isDeleted {
-                            Button {
-                                UIPasteboard.general.string = body
-                            } label: {
-                                Label(L10n.chatCopy, systemImage: "doc.on.doc")
-                            }
-                        }
-                    }
-                }
+                .onLongPressGesture(minimumDuration: 0.35) { openMenu(message) }
+                .accessibilityAction(named: L10n.chatMenuCopy) { UIPasteboard.general.string = message.body }
+                .accessibilityAction { openMenu(message) }
         case .emoji(_, let emoji, let count, let names):
             ChatEmojiGroupRow(emoji: emoji, count: count, names: names)
         case .outgoing(let message):

@@ -15,17 +15,21 @@ final class ChatService: ObservableObject {
     static let shared = ChatService()
 
     /// Oldest first.
-    @Published private(set) var messages: [ChatMessage] = []
+    @Published fileprivate(set) var messages: [ChatMessage] = []
     @Published private(set) var outgoing: [OutgoingChatMessage] = []
     /// The show the listener's unsent messages go under.
     @Published private(set) var outgoingShow: (id: String?, title: String?) = (nil, nil)
-    @Published private(set) var pinned: ChatMessage?
-    @Published private(set) var hiddenUserIDs: Set<UUID> = []
+    @Published fileprivate(set) var pinned: ChatMessage?
+    @Published fileprivate(set) var hiddenUserIDs: Set<UUID> = []
     @Published private(set) var isLoaded = false
     @Published private(set) var loadFailed = false
     /// The newest message the listener has seen on the home page or in the
     /// chat — what the home page ticker plays from.
     @Published private(set) var lastSeenID: Int64
+    /// Set to open the chat sheet from outside the home page.
+    @Published fileprivate(set) var openRequestID: UUID?
+    /// A DJ invite link the app was opened with (`handleInvite`).
+    @Published var pendingInvite: PendingInvite?
 
     static let historyDays = 7
     static let historyLimit = 300
@@ -248,6 +252,206 @@ final class ChatService: ObservableObject {
             }
         }
     }
+}
+
+// MARK: - Moderation and reports (phase 5)
+
+extension ChatService {
+    /// What a moderator sees about an author in the message menu
+    /// ("Ztlumený do zítra 8:04 · ztlumil DJ Pufaz").
+    struct UserStatus: Decodable, Equatable {
+        let mutedUntil: Date?
+        let blocked: Bool
+        let mutedBy: String?
+
+        var isMuted: Bool { blocked || (mutedUntil.map { $0 > Date() } ?? false) }
+
+        enum CodingKeys: String, CodingKey {
+            case mutedUntil = "muted_until", blocked, mutedBy = "muted_by"
+        }
+
+        init(mutedUntil: Date?, blocked: Bool, mutedBy: String?) {
+            self.mutedUntil = mutedUntil
+            self.blocked = blocked
+            self.mutedBy = mutedBy
+        }
+
+        init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            mutedUntil = (try? c.decodeIfPresent(String.self, forKey: .mutedUntil)).flatMap { $0 }.flatMap(ChatMessage.parseDate)
+            blocked = (try? c.decode(Bool.self, forKey: .blocked)) ?? false
+            mutedBy = try? c.decodeIfPresent(String.self, forKey: .mutedBy)
+        }
+    }
+
+    /// A DJ invite before it is claimed (`host_invite_info`, 021).
+    struct InviteInfo: Decodable, Equatable {
+        let hostName: String
+        let expiresAt: Date?
+
+        enum CodingKeys: String, CodingKey { case hostName = "host_name", expiresAt = "expires_at" }
+
+        init(hostName: String, expiresAt: Date?) {
+            self.hostName = hostName
+            self.expiresAt = expiresAt
+        }
+
+        init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            hostName = try c.decode(String.self, forKey: .hostName)
+            expiresAt = (try? c.decodeIfPresent(String.self, forKey: .expiresAt)).flatMap { $0 }.flatMap(ChatMessage.parseDate)
+        }
+    }
+
+    private struct MessageParam: Encodable { let p_message_id: Int64 }
+    private struct UserParam: Encodable { let p_user: UUID }
+    private struct MuteParams: Encodable { let p_user: UUID; let p_minutes: Int; let p_message_id: Int64? }
+    private struct BlockParams: Encodable { let p_user: UUID; let p_message_id: Int64? }
+    private struct CodeParam: Encodable { let p_code: String }
+
+    private func call(_ function: String, _ params: some Encodable) async throws {
+        do {
+            try await AppSupabase.client.rpc(function, params: params).execute()
+        } catch {
+            throw AccountError.from(error)
+        }
+    }
+
+    func report(_ message: ChatMessage) async throws {
+        try await call("report_chat_message", MessageParam(p_message_id: message.id))
+    }
+
+    func hide(_ userID: UUID) async throws {
+        try await call("hide_chat_user", UserParam(p_user: userID))
+        hiddenUserIDs.insert(userID)
+    }
+
+    func unhide(_ userID: UUID) async throws {
+        try await call("unhide_chat_user", UserParam(p_user: userID))
+        hiddenUserIDs.remove(userID)
+    }
+
+    func delete(_ message: ChatMessage) async throws {
+        try await call("delete_chat_message", MessageParam(p_message_id: message.id))
+        replace(message.id) { old in
+            ChatMessage(id: old.id, userID: old.userID, authorName: old.authorName, role: old.role, body: nil,
+                        showID: old.showID, showTitle: old.showTitle, createdAt: old.createdAt, deletedAt: Date(), pinnedAt: nil)
+        }
+        if pinned?.id == message.id { pinned = nil }
+    }
+
+    /// "Vrátit" within 10 minutes of deleting.
+    func restore(_ message: ChatMessage) async throws {
+        try await call("restore_chat_message", MessageParam(p_message_id: message.id))
+        replace(message.id) { _ in message }
+        if message.pinnedAt != nil, pinned == nil { pinned = message }
+    }
+
+    func pin(_ message: ChatMessage) async throws {
+        try await call("pin_chat_message", MessageParam(p_message_id: message.id))
+        let now = Date()
+        if let old = pinned, old.id != message.id {
+            replace(old.id) { m in
+                ChatMessage(id: m.id, userID: m.userID, authorName: m.authorName, role: m.role, body: m.body,
+                            showID: m.showID, showTitle: m.showTitle, createdAt: m.createdAt, deletedAt: m.deletedAt, pinnedAt: nil)
+            }
+        }
+        let updated = ChatMessage(id: message.id, userID: message.userID, authorName: message.authorName, role: message.role, body: message.body,
+                                  showID: message.showID, showTitle: message.showTitle, createdAt: message.createdAt, deletedAt: nil, pinnedAt: now)
+        replace(message.id) { _ in updated }
+        pinned = updated
+    }
+
+    func unpin() async throws {
+        try await call("unpin_chat_message", [String: String]())
+        if let old = pinned {
+            replace(old.id) { m in
+                ChatMessage(id: m.id, userID: m.userID, authorName: m.authorName, role: m.role, body: m.body,
+                            showID: m.showID, showTitle: m.showTitle, createdAt: m.createdAt, deletedAt: m.deletedAt, pinnedAt: nil)
+            }
+        }
+        pinned = nil
+    }
+
+    /// Mutes for 60, 1440 or 10080 minutes; returns when it ends.
+    @discardableResult
+    func mute(_ userID: UUID, minutes: Int, message: ChatMessage?) async throws -> Date? {
+        do {
+            let text: String = try await AppSupabase.client
+                .rpc("mute_chat_user", params: MuteParams(p_user: userID, p_minutes: minutes, p_message_id: message?.id))
+                .execute().value
+            return ChatMessage.parseDate(text)
+        } catch {
+            throw AccountError.from(error)
+        }
+    }
+
+    func unmute(_ userID: UUID) async throws {
+        try await call("unmute_chat_user", UserParam(p_user: userID))
+    }
+
+    func block(_ userID: UUID, message: ChatMessage?) async throws {
+        try await call("block_chat_user", BlockParams(p_user: userID, p_message_id: message?.id))
+    }
+
+    func status(of userID: UUID) async throws -> UserStatus {
+        do {
+            return try await AppSupabase.client.rpc("chat_user_status", params: UserParam(p_user: userID)).execute().value
+        } catch {
+            throw AccountError.from(error)
+        }
+    }
+
+    /// `nil` for an unknown, used or expired code.
+    func inviteInfo(_ code: String) async throws -> InviteInfo? {
+        do {
+            let info: InviteInfo? = try await AppSupabase.client.rpc("host_invite_info", params: CodeParam(p_code: code)).execute().value
+            return info
+        } catch {
+            throw AccountError.from(error)
+        }
+    }
+
+    private func replace(_ id: Int64, with change: (ChatMessage) -> ChatMessage) {
+        guard let index = messages.firstIndex(where: { $0.id == id }) else { return }
+        messages[index] = change(messages[index])
+    }
+
+    // MARK: Opening from elsewhere
+
+    /// Opens the chat sheet on the home page (from the DJ invite).
+    func requestOpen() {
+        openRequestID = UUID()
+    }
+
+    /// `https://slowdownradijo.cz/dj/<code>` or `slowdownradijo://dj/<code>`.
+    static func inviteCode(from url: URL) -> String? {
+        let parts: [String]
+        if url.scheme == "slowdownradijo", url.host == "dj" {
+            parts = url.pathComponents.filter { $0 != "/" }
+        } else if ["https", "http"].contains(url.scheme ?? ""),
+                  let host = url.host, host == "slowdownradijo.cz" || host == "www.slowdownradijo.cz" {
+            let path = url.pathComponents.filter { $0 != "/" }
+            guard path.first == "dj" else { return nil }
+            parts = Array(path.dropFirst())
+        } else {
+            return nil
+        }
+        guard let code = parts.first?.lowercased(), code.wholeMatch(of: /[0-9a-f]{6,64}/) != nil else { return nil }
+        return code
+    }
+
+    /// Handles a DJ invite link; `false` for any other URL.
+    func handleInvite(_ url: URL) -> Bool {
+        guard let code = Self.inviteCode(from: url) else { return false }
+        pendingInvite = PendingInvite(code: code)
+        return true
+    }
+}
+
+struct PendingInvite: Identifiable, Equatable {
+    let code: String
+    var id: String { code }
 }
 
 #if DEBUG

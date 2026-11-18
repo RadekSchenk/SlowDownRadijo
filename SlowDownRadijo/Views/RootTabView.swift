@@ -53,6 +53,7 @@ struct RootTabView: View {
     @State private var hasCheckedNewsNotifications = false
     /// The last notification tap acted on (see `ShowReminderStore.OpenRequest`).
     @State private var handledOpenRequestID: UUID?
+    @ObservedObject private var chat = ChatService.shared
 
     init() {
         // The app's one player, schedule and now-playing state, shared with
@@ -124,6 +125,14 @@ struct RootTabView: View {
         // look (`ScheduleStore.refreshInterval`).
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
             Task { await scheduleStore.refresh() }
+        }
+        // A DJ invite link (`https://slowdownradijo.cz/dj/<code>`).
+        .sheet(item: $chat.pendingInvite) { invite in
+            HostInviteSheet(code: invite.code) {
+                selectedTab = 0
+                chat.requestOpen()
+            }
+            .appTextSizeLimit()
         }
         // A tap on a "Právě začíná" notification: home, and the radio for
         // "Poslouchat".

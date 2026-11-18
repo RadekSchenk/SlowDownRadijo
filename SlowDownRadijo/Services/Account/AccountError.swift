@@ -113,6 +113,14 @@ extension AccountError {
         case .nicknameReserved: return L10n.nicknameReserved
         case .nicknameInvalid: return L10n.nicknameInvalid
         case .providerUnavailable: return L10n.signInUnavailable
+        case .inviteOtherHost: return L10n.errorInviteOtherHost
+        case .inviteInvalid: return L10n.inviteInvalidBody
+        case .restoreExpired: return L10n.errorRestoreExpired
+        case .notModerator, .notAdmin: return L10n.errorNotModerator
+        case .userInvalid: return L10n.errorUserInvalid
+        case .messageNotFound: return L10n.errorMessageNotFound
+        case .muted: return L10n.errorMuted
+        case .blocked: return L10n.blockedBanner
         default: return L10n.errorGeneric
         }
     }

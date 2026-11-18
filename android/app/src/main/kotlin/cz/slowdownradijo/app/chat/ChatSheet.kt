@@ -1,6 +1,5 @@
 package cz.slowdownradijo.app.chat
 
-import android.content.ClipData
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -35,13 +34,18 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.automirrored.rounded.VolumeOff
+import androidx.compose.material.icons.automirrored.rounded.VolumeUp
+import androidx.compose.material.icons.outlined.Flag
+import androidx.compose.material.icons.outlined.VisibilityOff
+import androidx.compose.material.icons.rounded.Block
+import androidx.compose.material.icons.rounded.DeleteOutline
+import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material.icons.rounded.Keyboard
 import androidx.compose.material.icons.rounded.SentimentSatisfied
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -65,8 +69,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.ClipEntry
-import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -147,6 +149,7 @@ fun ChatContent(
     now: Instant = Instant.now(),
     focusRequester: FocusRequester = remember { FocusRequester() },
     initialEmojiOpen: Boolean = false,
+    onLongPress: (ChatMessage) -> Unit = {},
 ) {
     val words = chatWords()
     val rows = ChatTimeline.rows(state.messages, words, state.outgoing, state.outgoingShow, state.hidden, now, STATION_ZONE, showLabel)
@@ -209,7 +212,7 @@ fun ChatContent(
                 items(rows, key = { it.key }) { row ->
                     when (row) {
                         is ChatTimeline.Row.Divider -> ChatDividerRow(row.text)
-                        is ChatTimeline.Row.Message -> MessageWithMenu(row.message, words, now)
+                        is ChatTimeline.Row.Message -> ChatMessageRow(row.message, onLongPress = { onLongPress(row.message) })
                         is ChatTimeline.Row.Emoji -> ChatEmojiRow(row.emoji, row.count, row.names)
                         is ChatTimeline.Row.Outgoing -> ChatOutgoingRow(row.message, writer.name.orEmpty(), writer.role) { onRetry(row.message.id) }
                     }
@@ -316,33 +319,6 @@ fun ChatContent(
     }
 }
 
-/** A message with its long-press menu: the exact time and show, then Kopírovat. */
-@Composable
-private fun MessageWithMenu(message: ChatMessage, words: ChatTimeline.Words, now: Instant) {
-    var menu by remember { mutableStateOf(false) }
-    val clipboard = LocalClipboard.current
-    val scope = rememberCoroutineScope()
-    Box {
-        ChatMessageRow(message, onLongPress = { menu = true })
-        DropdownMenu(expanded = menu, onDismissRequest = { menu = false }, containerColor = Theme.statsCardRaised) {
-            Text(
-                ChatTimeline.timeLine(message, now, STATION_ZONE, words),
-                style = Theme.Typography.Copy.label, color = Theme.subtleText,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-            )
-            if (!message.isDeleted) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.chatCopy), style = Theme.Typography.Copy.body, color = Theme.textPrimary) },
-                    onClick = {
-                        menu = false
-                        scope.launch { clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("chat", message.body.orEmpty()))) }
-                    },
-                )
-            }
-        }
-    }
-}
-
 /** Nobody has written today yet (Figma F). */
 @Composable
 private fun QuietState(canWrite: Boolean, onSend: (String) -> Unit) {
@@ -391,6 +367,87 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
     var rules by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val focus = remember { FocusRequester() }
+    var menuMessage by remember { mutableStateOf<ChatMessage?>(null) }
+    var menuStatus by remember { mutableStateOf<ChatService.UserStatus?>(null) }
+    var muteTarget by remember { mutableStateOf<ChatMessage?>(null) }
+    var blockTarget by remember { mutableStateOf<ChatMessage?>(null) }
+    val me = (accountState as? AccountService.State.SignedIn)?.me
+    val isModerator = me?.isModerator == true
+    val clipboard = androidx.compose.ui.platform.LocalClipboardManager.current
+    val haptics = androidx.compose.ui.platform.LocalHapticFeedback.current
+
+    fun toast(text: String, icon: androidx.compose.ui.graphics.vector.ImageVector = Icons.Rounded.CheckCircleOutline, undo: (() -> Unit)? = null) =
+        ToastCenter.show(ToastCenter.Toast(icon, text, if (undo != null) context.getString(R.string.chatUndo) else null, undo))
+
+    fun run(work: suspend () -> Unit) {
+        scope.launch {
+            try {
+                work()
+            } catch (e: AccountError) {
+                toast(context.getString(e.messageRes), Icons.Rounded.ErrorOutline)
+            }
+        }
+    }
+
+    fun openMenu(message: ChatMessage) {
+        if (message.isDeleted) return
+        haptics.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+        menuStatus = null
+        menuMessage = message
+        val author = message.userId
+        if (isModerator && author != null && author != me?.userId) {
+            scope.launch { menuStatus = runCatching { chat.status(author) }.getOrNull() }
+        }
+    }
+
+    fun mute(message: ChatMessage, minutes: Int) {
+        val author = message.userId ?: return
+        val name = message.authorName ?: context.getString(R.string.deletedAccount)
+        run {
+            val until = chat.mute(author, minutes, message) ?: Instant.now().plusSeconds(minutes * 60L)
+            val (day, time) = cz.slowdownradijo.app.profile.dayAndTime(until, Instant.now(), context)
+            toast(context.getString(R.string.chatMutedToast, name, day, time), Icons.AutoMirrored.Rounded.VolumeOff) {
+                run { chat.unmute(author) }
+            }
+        }
+    }
+
+    fun perform(action: ChatMenuAction, message: ChatMessage) {
+        val name = message.authorName ?: context.getString(R.string.deletedAccount)
+        val author = message.userId
+        when (action) {
+            ChatMenuAction.COPY -> clipboard.setText(androidx.compose.ui.text.AnnotatedString(message.body.orEmpty()))
+            ChatMenuAction.PIN -> run {
+                chat.pin(message)
+                toast(context.getString(R.string.chatPinnedToast), Icons.Rounded.PushPin)
+            }
+            ChatMenuAction.UNPIN -> run {
+                chat.unpin()
+                toast(context.getString(R.string.chatUnpinnedToast), Icons.Rounded.PushPin)
+            }
+            ChatMenuAction.DELETE -> run {
+                chat.delete(message)
+                toast(context.getString(R.string.chatDeletedToast), Icons.Rounded.DeleteOutline) { run { chat.restore(message) } }
+            }
+            ChatMenuAction.MUTE -> muteTarget = message
+            ChatMenuAction.UNMUTE -> if (author != null) run {
+                chat.unmute(author)
+                toast(context.getString(R.string.chatUnmutedToast, name), Icons.AutoMirrored.Rounded.VolumeUp)
+            }
+            ChatMenuAction.BLOCK -> blockTarget = message
+            ChatMenuAction.REPORT -> if (writer.signedIn) run {
+                chat.report(message)
+                toast(context.getString(R.string.chatReportedToast), Icons.Outlined.Flag)
+            } else {
+                pending = null
+                joining = true
+            }
+            ChatMenuAction.HIDE -> if (author != null) run {
+                chat.hide(author)
+                toast(context.getString(R.string.chatHiddenToast, name), Icons.Outlined.VisibilityOff) { run { chat.unhide(author) } }
+            }
+        }
+    }
 
     fun send(text: String, announce: Boolean) {
         scope.launch {
@@ -433,7 +490,8 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
         containerColor = Theme.statsCard,
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
     ) {
-        ChatContent(
+        // Over the sheet, where the screen's own toasts can't be seen.
+        cz.slowdownradijo.app.ui.components.ToastHost { ChatContent(
             state = state, show = show, writer = writer, draft = draft, onDraft = { draft = it },
             onSend = ::submit,
             onRetry = { id -> scope.launch { runCatching { chat.retry(id) } } },
@@ -447,7 +505,56 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
             modifier = Modifier.fillMaxHeight(0.78f),
             now = now,
             focusRequester = focus,
-        )
+            onLongPress = ::openMenu,
+        ) }
+    }
+
+    menuMessage?.let { message ->
+        ModalBottomSheet(
+            onDismissRequest = { menuMessage = null },
+            containerColor = Theme.statsCard,
+            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        ) {
+            ChatMessageMenu(
+                message,
+                ChatMenu.actions(message, if (writer.signedIn) me?.userId else null, isModerator, state.pinned?.id == message.id, menuStatus),
+                menuStatus, Instant.now(),
+            ) { action ->
+                menuMessage = null
+                perform(action, message)
+            }
+        }
+    }
+    muteTarget?.let { message ->
+        ModalBottomSheet(
+            onDismissRequest = { muteTarget = null },
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            containerColor = Theme.statsCard,
+            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        ) {
+            ChatMuteContent(message.authorName ?: stringResource(R.string.deletedAccount), onMute = { minutes ->
+                muteTarget = null
+                mute(message, minutes)
+            }, onCancel = { muteTarget = null })
+        }
+    }
+    blockTarget?.let { message ->
+        val name = message.authorName ?: stringResource(R.string.deletedAccount)
+        ModalBottomSheet(
+            onDismissRequest = { blockTarget = null },
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            containerColor = Theme.statsCard,
+            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        ) {
+            ChatBlockContent(name, onBlock = {
+                blockTarget = null
+                val author = message.userId ?: return@ChatBlockContent
+                run {
+                    chat.block(author, message)
+                    toast(context.getString(R.string.chatBlockedToast, name), Icons.Rounded.Block)
+                }
+            }, onCancel = { blockTarget = null })
+        }
     }
     LaunchedEffect(Unit) {
         if (withKeyboard) {
@@ -560,3 +667,78 @@ fun JoinButtons(busy: Boolean, actions: ProfileActions, onDismiss: () -> Unit, o
     }
 }
 
+
+/** Opening a DJ invite link (Figma P1–P3), shown over any tab. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HostInviteSheet(onOpenChat: () -> Unit) {
+    val context = LocalContext.current
+    val app = context.app
+    val code by app.chat.pendingInvite.collectAsState()
+    val current = code ?: return
+    val account = app.account
+    val accountState by account.state.collectAsState()
+    var phase by remember(current) { mutableStateOf<InvitePhase>(InvitePhase.Loading) }
+    var info by remember(current) { mutableStateOf<ChatService.InviteInfo?>(null) }
+    var busy by remember { mutableStateOf(false) }
+    var email by remember { mutableStateOf(false) }
+    var claiming by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val actions = signInActions(context, scope, account, setBusy = { busy = it }, onEmail = { email = true })
+    val signedIn = accountState is AccountService.State.SignedIn
+
+    LaunchedEffect(current) {
+        phase = try {
+            info = app.chat.inviteInfo(current)
+            if (info == null) InvitePhase.Invalid(otherHost = false) else InvitePhase.Ready(info, linking = false)
+        } catch (e: AccountError) {
+            // Offline, or the server without host_invite_info (021): let the claim decide.
+            InvitePhase.Ready(null, linking = false)
+        }
+    }
+    LaunchedEffect(phase is InvitePhase.Ready, signedIn) {
+        if (phase !is InvitePhase.Ready || !signedIn || claiming) return@LaunchedEffect
+        claiming = true
+        email = false
+        phase = InvitePhase.Ready(info, linking = true)
+        phase = try {
+            account.claimHostInvite(current)
+            InvitePhase.Done(account.me?.hostName ?: info?.hostName ?: "DJ")
+        } catch (e: AccountError) {
+            when (e) {
+                AccountError.InviteOtherHost -> InvitePhase.Invalid(otherHost = true)
+                AccountError.InviteInvalid -> InvitePhase.Invalid(otherHost = false)
+                else -> {
+                    ToastCenter.show(ToastCenter.Toast(Icons.Rounded.ErrorOutline, context.getString(e.messageRes)))
+                    InvitePhase.Ready(info, linking = false)
+                }
+            }
+        } finally {
+            claiming = false
+        }
+    }
+    BackHandler(email) { email = false }
+
+    ModalBottomSheet(
+        onDismissRequest = app.chat::clearInvite,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = Theme.statsCard,
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+    ) {
+        if (email && !signedIn) {
+            Box(Modifier.fillMaxHeight(0.9f).imePadding()) {
+                EmailSignInScreen(
+                    sendCode = account::sendEmailCode,
+                    verify = account::verifyEmailCode,
+                    back = { email = false },
+                    onSignedIn = { email = false },
+                )
+            }
+        } else {
+            HostInviteContent(phase, busy, actions, onOpenChat = {
+                app.chat.clearInvite()
+                onOpenChat()
+            }, onClose = app.chat::clearInvite)
+        }
+    }
+}

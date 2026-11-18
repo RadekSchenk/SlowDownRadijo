@@ -124,6 +124,42 @@ class ChatScreenshotTest {
         sheet(ChatService.State(messages = yesterday + today, loaded = true), listener.copy(mutedUntil = now.plusSeconds(24 * 3600)))
     }
 
+    @Test fun menuListener() = capture("chat_menu_listener_cs") {
+        cz.slowdownradijo.app.chat.ChatMessageMenu(
+            yesterday[1], cz.slowdownradijo.app.chat.ChatMenu.actions(yesterday[1], "me", false, false, null), null, now,
+        ) {}
+    }
+
+    @Test fun menuModeratorMuted() = capture("chat_menu_moderator_cs") {
+        val status = ChatService.UserStatus(mutedUntilText = now.plusSeconds(17 * 3600 + 120).toString(), mutedBy = "DJ Pufaz")
+        cz.slowdownradijo.app.chat.ChatMessageMenu(
+            yesterday[1], cz.slowdownradijo.app.chat.ChatMenu.actions(yesterday[1], "dj", true, false, status), status, now,
+        ) {}
+    }
+
+    @Test fun muteDuration() = capture("chat_mute_cs") {
+        cz.slowdownradijo.app.chat.ChatMuteContent("brancikovac", onMute = {}, onCancel = {})
+    }
+
+    @Test fun blockConfirm() = capture("chat_block_cs") {
+        cz.slowdownradijo.app.chat.ChatBlockContent("brancikovac", onBlock = {}, onCancel = {})
+    }
+
+    @Test fun inviteSignedOut() = capture("chat_invite_cs") {
+        cz.slowdownradijo.app.chat.HostInviteContent(
+            cz.slowdownradijo.app.chat.InvitePhase.Ready(ChatService.InviteInfo("DJ Pufaz", "2026-11-24T22:59:00Z"), linking = false),
+            busy = false, actions = ProfileActions(), onOpenChat = {}, onClose = {},
+        )
+    }
+
+    @Test fun inviteDone() = capture("chat_invite_done_cs") {
+        cz.slowdownradijo.app.chat.HostInviteContent(cz.slowdownradijo.app.chat.InvitePhase.Done("DJ Pufaz"), false, ProfileActions(), {}, {})
+    }
+
+    @Test fun inviteInvalid() = capture("chat_invite_invalid_cs") {
+        cz.slowdownradijo.app.chat.HostInviteContent(cz.slowdownradijo.app.chat.InvitePhase.Invalid(false), false, ProfileActions(), {}, {})
+    }
+
     @Test fun join() = capture("chat_join_cs") {
         JoinButtons(busy = false, actions = ProfileActions(), onDismiss = {}, onRules = {})
     }

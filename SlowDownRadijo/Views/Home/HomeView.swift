@@ -102,6 +102,10 @@ struct HomeView: View {
             hasSeenFavoritesIntro = true
             isShowingFavoritesIntro = true
         }
+        // "Otevřít chat" after linking a DJ account.
+        .onReceive(ChatService.shared.$openRequestID.compactMap { $0 }) { _ in
+            chatOpening = ChatOpening(withKeyboard: false)
+        }
         .sheet(item: $chatOpening) { opening in
             ChatSheetView(nowPlaying: nowPlaying, scheduleStore: scheduleStore, focusComposer: opening.withKeyboard)
                 .presentationDetents([.fraction(0.72), .large])

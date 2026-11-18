@@ -6,6 +6,10 @@
 	<array>
 		<string>Default</string>
 	</array>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:slowdownradijo.cz</string>
+	</array>
 	<key>com.apple.developer.carplay-audio</key>
 	<true/>
 </dict>

@@ -16,7 +16,14 @@ struct SlowDownRadijoApp: App {
                     ChatService.shared.start()
                 }
                 // Google's sign-in sheet returns through its URL scheme.
-                .onOpenURL { url in AccountService.handle(url) }
+                .onOpenURL { url in
+                    if ChatService.shared.handleInvite(url) { return }
+                    AccountService.handle(url)
+                }
+                // A DJ invite opened as a universal link.
+                .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { activity in
+                    if let url = activity.webpageURL { _ = ChatService.shared.handleInvite(url) }
+                }
         }
     }
 }

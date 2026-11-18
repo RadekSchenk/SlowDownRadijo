@@ -11,7 +11,7 @@ Podle `CLAUDE.md` jde všechno do obou appek v jedné větvi (`claude/chat`) a j
 | 2 ✅ | **Přihlášení** | `supabase-swift` (Auth, Realtime) + `GoogleSignIn-iOS` + Sign in with Apple | `supabase-kt` (Auth, Realtime) + Credential Manager (Google) + Apple přes web OAuth | Poskytovatelé Apple, Google, e‑mail OTP. Anonymní účet ze statistik se při přihlášení **povýší** na trvalý (statistiky zůstanou). |
 | 3 ✅ | **Záložka Profil** | 16 stavů z Figmy | totéž | `delete_my_account` (navazuje na `011_delete_auth_user.sql`) |
 | 4 ✅ | **Chat** | sekce na homepage s tickerem, chat sheet, předěly, připnutá zpráva, sloučené reakce, psaní s přihlášením až při odeslání | totéž | — |
-| 5 | **Moderace a DJ** | menu zprávy, ztlumení/blokace/smazání, nahlášení, skrytí; pozvánka DJ přes odkaz | totéž (App Links) | — |
+| 5 ✅ | **Moderace a DJ** | menu zprávy, ztlumení/blokace/smazání, nahlášení, skrytí; pozvánka DJ přes odkaz | totéž (App Links) | `021_chat_invite_info.sql` (`host_invite_info`, pro obrazovku pozvánky před přihlášením) |
 | 6 | **Dokončení** | texty v `L10n.swift`, analytika, UI testy | `strings.xml` skriptem, Roborazzi | parita v `docs/android.md`, zásady ochrany soukromí |
 
 ## Co musí udělat Radek (účty a klíče)

@@ -264,14 +264,18 @@ private fun SignInButton(title: String, background: Color, content: Color, borde
 
 /** ("dnes" / "zítra" / "20. 11.", "8:04") — `ProfileFormat.dayAndTime`. */
 @Composable
-fun dayAndTime(at: Instant, now: Instant): Pair<String, String> {
+fun dayAndTime(at: Instant, now: Instant): Pair<String, String> =
+    dayAndTime(at, now, androidx.compose.ui.platform.LocalContext.current)
+
+/** "dnes" / "zítra" / "19. 11." and "8:04", outside composition (toasts). */
+fun dayAndTime(at: Instant, now: Instant, context: android.content.Context): Pair<String, String> {
     val zone = ZoneId.systemDefault()
     val local = at.atZone(zone)
     val days = ChronoUnit.DAYS.between(now.atZone(zone).toLocalDate(), local.toLocalDate())
     val time = "%d:%02d".format(local.hour, local.minute)
     val day = when (days) {
-        0L -> stringResource(R.string.dayToday)
-        1L -> stringResource(R.string.dayTomorrow)
+        0L -> context.getString(R.string.dayToday)
+        1L -> context.getString(R.string.dayTomorrow)
         else -> "${local.dayOfMonth}. ${local.monthValue}."
     }
     return day to time

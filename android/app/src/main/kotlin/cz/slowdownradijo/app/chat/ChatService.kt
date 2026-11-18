@@ -246,6 +246,131 @@ class ChatService(
         }
     }
 
+    // Moderation and reports (phase 5)
+
+    /** What a moderator sees about an author ("Ztlumený do zítra 8:04 · ztlumil DJ Pufaz"). */
+    @kotlinx.serialization.Serializable
+    data class UserStatus(
+        @kotlinx.serialization.SerialName("muted_until") val mutedUntilText: String? = null,
+        val blocked: Boolean = false,
+        @kotlinx.serialization.SerialName("muted_by") val mutedBy: String? = null,
+    ) {
+        val mutedUntil: Instant? get() = mutedUntilText?.let(ChatMessage::parse)
+        val isMuted: Boolean get() = blocked || (mutedUntil?.isAfter(Instant.now()) ?: false)
+    }
+
+    /** A DJ invite before it is claimed (`host_invite_info`, 021). */
+    @kotlinx.serialization.Serializable
+    data class InviteInfo(
+        @kotlinx.serialization.SerialName("host_name") val hostName: String,
+        @kotlinx.serialization.SerialName("expires_at") val expiresAtText: String? = null,
+    ) {
+        val expiresAt: Instant? get() = expiresAtText?.let(ChatMessage::parse)
+    }
+
+    private suspend fun call(function: String, params: kotlinx.serialization.json.JsonObject = buildJsonObject {}) = try {
+        supabase.postgrest.rpc(function, params)
+    } catch (e: Exception) {
+        throw AccountError.from(e)
+    }
+
+    private fun replace(id: Long, change: (ChatMessage) -> ChatMessage) {
+        _state.value = _state.value.copy(messages = _state.value.messages.map { if (it.id == id) change(it) else it })
+    }
+
+    suspend fun report(message: ChatMessage) {
+        call("report_chat_message", buildJsonObject { put("p_message_id", message.id) })
+    }
+
+    suspend fun hide(userId: String) {
+        call("hide_chat_user", buildJsonObject { put("p_user", userId) })
+        _state.value = _state.value.copy(hidden = _state.value.hidden + userId)
+    }
+
+    suspend fun unhide(userId: String) {
+        call("unhide_chat_user", buildJsonObject { put("p_user", userId) })
+        _state.value = _state.value.copy(hidden = _state.value.hidden - userId)
+    }
+
+    suspend fun delete(message: ChatMessage) {
+        call("delete_chat_message", buildJsonObject { put("p_message_id", message.id) })
+        replace(message.id) { it.copy(body = null, deletedAtText = Instant.now().toString(), pinnedAtText = null) }
+        if (_state.value.pinned?.id == message.id) _state.value = _state.value.copy(pinned = null)
+    }
+
+    /** "Vrátit" within 10 minutes of deleting. */
+    suspend fun restore(message: ChatMessage) {
+        call("restore_chat_message", buildJsonObject { put("p_message_id", message.id) })
+        replace(message.id) { message }
+        if (message.pinnedAtText != null && _state.value.pinned == null) _state.value = _state.value.copy(pinned = message)
+    }
+
+    suspend fun pin(message: ChatMessage) {
+        call("pin_chat_message", buildJsonObject { put("p_message_id", message.id) })
+        val pinnedAt = Instant.now().toString()
+        _state.value.pinned?.let { old -> if (old.id != message.id) replace(old.id) { it.copy(pinnedAtText = null) } }
+        val updated = message.copy(pinnedAtText = pinnedAt)
+        replace(message.id) { updated }
+        _state.value = _state.value.copy(pinned = updated)
+    }
+
+    suspend fun unpin() {
+        call("unpin_chat_message")
+        _state.value.pinned?.let { old -> replace(old.id) { it.copy(pinnedAtText = null) } }
+        _state.value = _state.value.copy(pinned = null)
+    }
+
+    /** Mutes for 60, 1440 or 10080 minutes; returns when it ends. */
+    suspend fun mute(userId: String, minutes: Int, message: ChatMessage?): Instant? {
+        val result = call("mute_chat_user", buildJsonObject {
+            put("p_user", userId)
+            put("p_minutes", minutes)
+            put("p_message_id", message?.id)
+        })
+        return runCatching { result.decodeAs<String>() }.getOrNull()?.let(ChatMessage::parse)
+    }
+
+    suspend fun unmute(userId: String) {
+        call("unmute_chat_user", buildJsonObject { put("p_user", userId) })
+    }
+
+    suspend fun block(userId: String, message: ChatMessage?) {
+        call("block_chat_user", buildJsonObject {
+            put("p_user", userId)
+            put("p_message_id", message?.id)
+        })
+    }
+
+    suspend fun status(userId: String): UserStatus =
+        call("chat_user_status", buildJsonObject { put("p_user", userId) }).decodeAs()
+
+    /** Null for an unknown, used or expired code. */
+    suspend fun inviteInfo(code: String): InviteInfo? =
+        call("host_invite_info", buildJsonObject { put("p_code", code) }).decodeAsOrNull()
+
+    // Opening from elsewhere
+
+    private val _openRequests = MutableStateFlow(0)
+    /** Grows when something (the DJ invite) asks to open the chat sheet. */
+    val openRequests: StateFlow<Int> = _openRequests.asStateFlow()
+    fun requestOpen() {
+        _openRequests.value += 1
+    }
+
+    private val _pendingInvite = MutableStateFlow<String?>(null)
+    /** The code of a DJ invite link the app was opened with. */
+    val pendingInvite: StateFlow<String?> = _pendingInvite.asStateFlow()
+    fun clearInvite() {
+        _pendingInvite.value = null
+    }
+
+    /** Takes a DJ invite link; false for any other link. */
+    fun handleInvite(url: String?): Boolean {
+        val code = inviteCode(url) ?: return false
+        _pendingInvite.value = code
+        return true
+    }
+
     /** Screenshot tests. */
     internal fun preview(state: State) {
         _state.value = state
@@ -255,5 +380,19 @@ class ChatService(
         const val HISTORY_DAYS = 7L
         const val HISTORY_LIMIT = 300L
         private const val LAST_SEEN_KEY = "lastSeenId"
+        private val codePattern = Regex("^[0-9a-f]{6,64}$")
+
+        /** `https://slowdownradijo.cz/dj/<code>` or `slowdownradijo://dj/<code>`. */
+        fun inviteCode(url: String?): String? {
+            val uri = runCatching { java.net.URI(url ?: return null) }.getOrNull() ?: return null
+            val segments = (uri.path ?: "").split('/').filter { it.isNotEmpty() }
+            val code = when {
+                uri.scheme == "slowdownradijo" && uri.host == "dj" -> segments.firstOrNull()
+                uri.scheme in setOf("https", "http") && uri.host in setOf("slowdownradijo.cz", "www.slowdownradijo.cz") &&
+                    segments.firstOrNull() == "dj" -> segments.getOrNull(1)
+                else -> null
+            }?.lowercase() ?: return null
+            return code.takeIf { codePattern.matches(it) }
+        }
     }
 }
