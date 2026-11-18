@@ -333,6 +333,12 @@ listener's anonymous stats user, so their stats stay. Design and rules:
     the same person within a minute is refused (a single emoji is exempt),
     and links need an account. On top of 5 messages per 30 s and 60 per hour. On production
     since 18. 11. 2026.
+13. **Run `supabase/sql/024_account_stats.sql`** (after 023): view
+    `account_stats_daily` (registrations per day × platform × sign-in method,
+    counts only) and the role `posthog_reader`, which can read that view and
+    nothing else. Give it a password in the SQL Editor
+    (`alter role posthog_reader with password '…';`) and add it in PostHog as
+    a Postgres source (Data warehouse), syncing only `account_stats_daily`.
 9. **Invite links on slowdownradijo.cz.** Until these two files are on the
    web, the `https://slowdownradijo.cz/dj/<code>` link opens the website, not
    the app; `slowdownradijo://dj/<code>` works right away in both apps.
