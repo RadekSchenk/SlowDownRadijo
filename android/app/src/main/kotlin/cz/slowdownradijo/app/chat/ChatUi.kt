@@ -123,6 +123,7 @@ fun ChatHomeSection(
     val animate = LocalAnimationsEnabled.current && !LocalReduceMotion.current
     val latest by rememberUpdatedState(candidates)
     val seen by rememberUpdatedState(onSeen)
+    val lastSeen by rememberUpdatedState(state.lastSeenId)
 
     if (shown == null && state.loaded) {
         shown = if (animate) candidates.filter { it.id <= state.lastSeenId }.takeLast(TICKER_LINES)
@@ -131,13 +132,20 @@ fun ChatHomeSection(
     // Renamed, deleted or hidden since: keep what's on screen up to date.
     val current = shown?.mapNotNull { old -> candidates.firstOrNull { it.id == old.id } }
 
-    LaunchedEffect(state.loaded, candidates.lastOrNull()?.id, candidates.lastOrNull()?.count) {
+    LaunchedEffect(state.loaded, candidates.lastOrNull()?.id, candidates.lastOrNull()?.count, state.lastSeenId) {
         if (!state.loaded) return@LaunchedEffect
         var first = true
         while (true) {
             val all = latest
-            val onScreen = shown.orEmpty().mapNotNull { old -> all.firstOrNull { it.id == old.id } }
-            val after = onScreen.lastOrNull()?.id ?: state.lastSeenId
+            var onScreen = shown.orEmpty().mapNotNull { old -> all.firstOrNull { it.id == old.id } }
+            // Read in the open chat meanwhile (the listener's own messages too):
+            // shown as they are, the ticker only plays what nobody has seen.
+            val seenLines = all.filter { it.id <= lastSeen }
+            if (seenLines.isNotEmpty() && seenLines.last().id > (onScreen.lastOrNull()?.id ?: 0L)) {
+                onScreen = seenLines.takeLast(TICKER_LINES)
+                shown = onScreen
+            }
+            val after = onScreen.lastOrNull()?.id ?: lastSeen
             val pending = all.filter { it.id > after }
             if (pending.isEmpty()) {
                 shown = onScreen

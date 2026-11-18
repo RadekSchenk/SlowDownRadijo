@@ -68,6 +68,7 @@ struct ChatHomeSection: View {
         .onAppear(perform: sync)
         .onChange(of: chat.messages) { _, _ in sync() }
         .onChange(of: chat.hiddenUserIDs) { _, _ in sync() }
+        .onChange(of: chat.lastSeenID) { _, _ in sync() }
     }
 
     // MARK: - Lines
@@ -155,6 +156,12 @@ struct ChatHomeSection: View {
         }
         // Renamed, deleted or hidden since: update what's on screen.
         shown = shown.compactMap { old in all.first { $0.id == old.id } }
+        // Read in the open chat meanwhile (the listener's own messages too):
+        // shown as they are, the ticker only plays what nobody has seen.
+        let seen = all.filter { $0.id <= chat.lastSeenID }
+        if let newestSeen = seen.last, newestSeen.id > (shown.last?.id ?? 0) {
+            shown = Array(seen.suffix(Self.lineCount))
+        }
         play()
     }
 
