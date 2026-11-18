@@ -218,9 +218,9 @@ Registrace je **předpoklad pro budoucí prémiové funkce**, ne podmínka chatu
   - Počet zpráv a vzkazů potřebuje čítače na serveru (`profiles.chat_messages_count`, `voice_messages_count`): zprávy se po 90 dnech mažou a hlasové vzkazy dnes jdou jen e-mailem bez vazby na účet. Počítat se tedy bude od nasazení.
 
 **Superadmin a správa (Figma Profil: M10, A1–A6)**
-- Role: posluchač → **správce** (moderuje pod svou přezdívkou, ruší blokace) → **superadmin** (navíc zve DJe a spravuje správce). Radek = superadmin (`profiles.is_superadmin`, nastaví se jednou po jeho registraci).
-- Profil superadmina má sekci **Správa chatu**: DJové a Správci.
-- A1 DJové: seznam s propojením (propojený / pozvánka čeká / bez účtu) → A2 výběr DJe z programu (nebo host mimo program) → A3 odkaz se Sdílet / Kopírovat (7 dní, jednou) → A4 detail DJe: nová pozvánka, odpojit účet.
+- Role: posluchač → **moderátor** (hlas pořadu, propojený se jménem z programu; jeden moderátor může mít **víc pořadů**) → **správce** (moderuje pod svou přezdívkou, ruší blokace) → **superadmin** (navíc zve moderátory a spravuje správce). Ve správě se píše „Moderátoři“, ne „DJové“. Radek = superadmin (`profiles.is_superadmin`, nastaví se jednou po jeho registraci).
+- Profil superadmina má sekci **Správa chatu**: Moderátoři a Správci.
+- A1 Moderátoři: seznam s propojením a všemi pořady (propojený / pozvánka čeká / bez účtu) → A2 výběr moderátora z programu (propojí se všechny jeho pořady; nebo host mimo program) → A3 odkaz se Sdílet / Kopírovat (7 dní, jednou) → A4 detail moderátora: pořady, nová pozvánka, odpojit účet.
 - A5 Správci → A6 přidat správce podle přezdívky (jen registrovaný Slowrider).
 - Hosté a pozvánky tak už nejsou potřeba v Table Editoru; SQL v README zůstane jako nouzová cesta.
 
