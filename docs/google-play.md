@@ -94,6 +94,18 @@ No music. No life.
 
 ## Poznámky k verzi
 
+**1.3 – čeština**
+
+```
+Chat posluchačů: na hlavní stránce vidíš, o čem se píše, a jedním klepnutím se přidáš. Číst může každý, psát po přihlášení přes Google, Apple nebo e-mail. Novou záložku Profil najdeš ve spodní liště.
+```
+
+**1.3 – English**
+
+```
+Listeners' chat: see what people are writing right on the home page and join in with one tap. Anyone can read; to write, sign in with Google, Apple or e-mail. The new Profile tab is in the bottom bar.
+```
+
 **1.2 – čeština**
 
 ```
@@ -111,7 +123,7 @@ The first Slow Down Rádijo for Android: the live stream, the schedule with remi
 | Položka | Odpověď |
 |---|---|
 | Zásady ochrany soukromí | https://slowdownradijo.cz/ochrana-osobnich-udaju/ |
-| Přihlašovací údaje (dříve Přístup k aplikaci) | Ne, žádná část aplikace není omezená |
+| Přihlašovací údaje (dříve Přístup k aplikaci) | Od 1.3: psaní do chatu vyžaduje přihlášení (Google, Apple nebo e-mail s kódem). Pro kontrolu přidat testovací účet; čtení chatu a vše ostatní je bez přihlášení |
 | Reklamy | Aplikace neobsahuje reklamy |
 | Cílová skupina | 13–15, 16–17, 18 a více (ne pod 13: to by zapnulo pravidla pro rodiny a děti) |
 | Zpravodajská aplikace | Ne |
@@ -129,7 +141,7 @@ USK 12, ClassInd 14.
 
 - Kategorie: **Všechny ostatní typy aplikací**.
 - Stažená aplikace (hodnocený obsah v balíčku): **Ne**.
-- Sdílení uživatelského obsahu: **Ne**. Vzkazy a zpětná vazba jdou soukromě rádiu.
+- Sdílení uživatelského obsahu: **Ne** do 1.2. **Od 1.3 Ano**: veřejný chat posluchačů (text), s moderací, nahlášením a blokací. Dotazník IARC vyplnit znovu před vydáním 1.3.
 - Online obsah: **Ano** (živé vysílání, novinky a program z webu).
 - Násilí: **Ne**. Sexualita: **Ne**.
 - Jazyk: **Ano**. Rádio může pustit necenzurované verze skladeb. Hlavní zaměření: Ne; mírné klení: Ano; mírné nadávky: Ano; diskriminační mluva: Ne; sexuální nadávky: podle odpovědi v Play Console.
@@ -143,8 +155,8 @@ Odpovídá štítku soukromí v App Store (`docs/app-store.md`) a zásadám ochr
 
 - Shromažďuje aplikace data? **Ano**.
 - Jsou všechna data při přenosu šifrovaná? **Ano** (vše jde přes HTTPS).
-- Metody vytvoření účtu: **Aplikace uživatelům vytvoření účtu neumožňuje**.
-- Mohou uživatelé požádat o smazání? **Ano**, URL: https://slowdownradijo.cz/ochrana-osobnich-udaju/ (Menu → Nastavení → Smazat moje statistiky; ostatní přes e-mail rádia).
+- Metody vytvoření účtu (od 1.3): **Uživatelské jméno a jiné ověřování** (e-mail s jednorázovým kódem) a **OAuth** (Google, Apple). Účet je volitelný, jen pro psaní do chatu.
+- Mohou uživatelé požádat o smazání? **Ano**: účet v aplikaci (Profil → Smazat účet), statistiky v Menu → Nastavení → Smazat moje statistiky; URL pro žádost o smazání: https://slowdownradijo.cz/ochrana-osobnich-udaju/.
 - U všech typů: jen shromažďováno (ne sdíleno), nezpracovává se dočasně, uživatelé si mohou zvolit.
 - Sdílení s třetími stranami: **Ne**. Supabase, PostHog a Resend jsou zpracovatelé (poskytovatelé služeb), to se podle Googlu za sdílení nepočítá.
 
@@ -152,11 +164,13 @@ Odpovídá štítku soukromí v App Store (`docs/app-store.md`) a zásadám ochr
 |---|---|---|---|
 | Aktivita v aplikaci → Interakce s aplikací | Sekundy poslechu po dnech a pořadech; se souhlasem i to, které funkce lidé používají | Funkce aplikace, Analytika | Volitelné (statistiky jdou vypnout, analytika jen se souhlasem) |
 | ID zařízení nebo jiná ID | Náhodné anonymní ID pro statistiky poslechu; náhodné ID analytiky (jen se souhlasem) | Funkce aplikace, Analytika | Volitelné |
+| Osobní údaje → E-mailová adresa | E-mail účtu (1.3, jen pro psaní do chatu) | Funkce aplikace, Správa účtu | Volitelné |
+| Osobní údaje → ID uživatele | Účet a přezdívka v chatu | Funkce aplikace, Správa účtu | Volitelné |
 | Zvuk → Hlasové nebo zvukové nahrávky | Hlasové vzkazy, které posluchač nahraje a odešle | Funkce aplikace | Volitelné |
-| Zprávy → Jiné zprávy v aplikaci | Text zpětné vazby | Funkce aplikace | Volitelné |
+| Zprávy → Jiné zprávy v aplikaci | Text zpětné vazby; zprávy v chatu posluchačů (1.3, veřejné v aplikaci) | Funkce aplikace | Volitelné |
 | Informace o aplikaci a výkonu → Jiné údaje o výkonu aplikace | Verze appky a Androidu a model telefonu, poslané se zpětnou vazbou; verze appky a Androidu u událostí analytiky (jen se souhlasem) | Funkce aplikace, Analytika | Volitelné |
 
-Neshromažďuje se: jméno, e-mail, telefon, poloha, kontakty, fotky,
+Neshromažďuje se: jméno, telefon, poloha, kontakty, fotky,
 platby, historie prohlížení, zdravotní ani finanční údaje, záznamy o
 pádech, diagnostika. PostHog má zapnuté anonymizování IP adres, takže
 se nezjišťuje ani přibližná poloha.

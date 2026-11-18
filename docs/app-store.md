@@ -162,20 +162,25 @@ Tracking → No for every type.
 
 | Data type | What it is | Purposes | Linked to the user |
 |---|---|---|---|
-| Identifiers → User ID | The random anonymous ID behind the listening stats (Supabase) | App Functionality | Yes |
+| Contact Info → Email Address | The account's e-mail (1.3: optional account, only to write in the chat) | App Functionality | Yes |
+| Identifiers → User ID | The random anonymous ID behind the listening stats, which becomes the account when the listener signs in; the chat nickname | App Functionality | Yes |
 | Identifiers → Device ID | PostHog's random analytics ID, only with consent | Analytics | No |
 | Usage Data → Product Interaction | Listening seconds per day and show; with consent, which features are used | App Functionality, Analytics | Yes |
 | User Content → Audio Data | Voice messages the listener records and sends | App Functionality | No |
-| User Content → Other User Content | The text of feedback messages | App Functionality | No |
+| User Content → Other User Content | Chat messages (public in the app, with the nickname); the text of feedback messages | App Functionality | Yes |
 | Diagnostics → Other Diagnostic Data | App and iOS version and device model sent with feedback | App Functionality | No |
 
-Not collected: contact info, location, health, financial info, contacts,
+Not collected: name, phone number, location, health, financial info, contacts,
 browsing or search history, purchases, photos, crash data, sensitive
 info.
 
 ## App Review information
 
-Sign-in required: No.
+Sign-in required: No — only writing in the chat needs an account (1.3).
+⬜ Before submitting 1.3: give App Review a way to write in the chat. Sign in
+with Apple works for them; to be safe, add a demo account in App Store
+Connect (an e-mail address the station can read, so the code can be passed on,
+or a password-less account made for review).
 
 Notes (as resubmitted for 1.0 after App Review asked for more
 information under guideline 2.1; a screen recording from an iPhone on the
@@ -212,6 +217,15 @@ None. The app works the same in all regions: it plays the station's single live 
 
 6. THIRD-PARTY MATERIAL
 The app plays only the station's own live broadcast, the same stream offered at slowdownradijo.cz. Slow Down Radio s.r.o. holds licences for the internet broadcasting of music from OSA (authors) and INTERGRAM (performers and producers). Show photos and logos belong to the station.
+```
+
+For 1.3, add to the notes (and update point 1 and 4 above, which say "no
+account" and "no authentication provider"):
+
+```
+7. ACCOUNTS AND LISTENER CHAT (NEW IN 1.3)
+Reading the chat needs no account. Writing needs an optional account: Sign in with Apple, Sign in with Google, or an e-mail one-time code (Supabase Auth). Accounts can be deleted in the app: Profil > Smazat účet.
+User-generated content safeguards (guideline 1.2): chat rules in Profil > Pravidla chatu; press and hold any message to report it or hide everything from its author; the station's DJs and an admin moderate (delete, mute for 1 h / 24 h / 7 days, block); reports are stored for the station to review; contact: info@slowdownradijo.cz.
 ```
 
 Keep it in step with the app: a new external service, account,

@@ -57,6 +57,21 @@ sealed class AnalyticsEvent(val name: String, val properties: Map<String, Any>) 
     class StatsOpened(communityUnlocked: Boolean) : AnalyticsEvent("stats_opened", mapOf("community_unlocked" to communityUnlocked))
     class MessageSent(success: Boolean, seconds: Int) : AnalyticsEvent("message_sent", mapOf("success" to success, "duration_s" to rounded(seconds, 5)))
     class FeedbackSent(success: Boolean) : AnalyticsEvent("feedback_sent", mapOf("success" to success))
+    // Chat (1.3). Never the text, the names or who wrote what.
+    /** [source]: home_section, home_field, invite. */
+    class ChatOpened(source: String, signedIn: Boolean) : AnalyticsEvent("chat_opened", mapOf("source" to source, "signed_in" to signedIn))
+    /** [kind]: text, emoji, starter. */
+    class ChatMessageSent(kind: String, success: Boolean) : AnalyticsEvent("chat_message_sent", mapOf("kind" to kind, "success" to success))
+    /** The "Připoj se do chatu" sheet; [reason]: send, report. */
+    class ChatJoinShown(reason: String) : AnalyticsEvent("chat_join_shown", mapOf("reason" to reason))
+    /** [action]: pin, unpin, delete, restore, mute, unmute, block. */
+    class ChatModerated(action: String, minutes: Int? = null) : AnalyticsEvent(
+        "chat_moderated", buildMap<String, Any> { this["action"] = action; if (minutes != null) this["minutes"] = minutes },
+    )
+    class ChatReported : AnalyticsEvent("chat_reported", emptyMap())
+    class ChatUserHidden : AnalyticsEvent("chat_user_hidden", emptyMap())
+    class DjInviteOpened(valid: Boolean?) : AnalyticsEvent("dj_invite_opened", mapOf("valid" to when (valid) { true -> "yes"; false -> "no"; null -> "unknown" }))
+    class DjInviteClaimed(success: Boolean) : AnalyticsEvent("dj_invite_claimed", mapOf("success" to success))
 
     companion object {
         fun rounded(seconds: Int, step: Int = 10) = maxOf(0, (seconds.toDouble() / step).roundToInt() * step)

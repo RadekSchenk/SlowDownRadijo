@@ -28,7 +28,8 @@
 - ✅ Notifikace se nežádají při spuštění, jen v kontextu (zvoneček u pořadu,
   Novinky).
 - ✅ Analytika jen se souhlasem, bez reklamního ID (ATT dialog není potřeba).
-- ✅ Bez účtu, takže povinnost „smazat účet“ se netýká; statistiky jde smazat v Nastavení.
+- ✅ Od 1.3 volitelný účet (jen pro psaní do chatu): smazání účtu je v appce (Profil → Smazat účet, pravidlo 5.1.1(v)); vedle Googlu je i Sign in with Apple (4.8).
+- ⬜ 1.3: chat je obsah od uživatelů (pravidlo 1.2): pravidla, nahlášení, skrytí, blokace a moderace jsou v appce; v poznámce pro recenzenta to popsat a dát mu možnost psát (viz `docs/app-store.md`). Nová verze zásad musí být na webu dřív, než 1.3 odejde ke kontrole.
 
 ## 3. App Store Connect – údaje
 

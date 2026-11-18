@@ -25,6 +25,7 @@ struct ChatSheetView: View {
     @State private var isShowingRules = false
     /// Waiting for sign-in: the text to send once the listener has a name.
     @State private var pendingText: String?
+    @State private var pendingKind = "text"
     @State private var menuMessage: ChatMessage?
     @State private var menuStatus: ChatService.UserStatus?
     @State private var muteTarget: ChatMessage?
@@ -152,18 +153,24 @@ struct ChatSheetView: View {
         case .pin:
             run {
                 try await chat.pin(message)
+                Analytics.shared.track(.chatModerated(action: "pin", minutes: nil))
                 toast(L10n.chatPinnedToast, icon: "pin")
             }
         case .unpin:
             run {
                 try await chat.unpin()
+                Analytics.shared.track(.chatModerated(action: "unpin", minutes: nil))
                 toast(L10n.chatUnpinnedToast, icon: "pin.slash")
             }
         case .delete:
             run {
                 try await chat.delete(message)
+                Analytics.shared.track(.chatModerated(action: "delete", minutes: nil))
                 toast(L10n.chatDeletedToast, icon: "trash", undoTitle: L10n.chatUndo) {
-                    run { try await chat.restore(message) }
+                    run {
+                        try await chat.restore(message)
+                        Analytics.shared.track(.chatModerated(action: "restore", minutes: nil))
+                    }
                 }
             }
         case .mute:
@@ -172,6 +179,7 @@ struct ChatSheetView: View {
             guard let author = message.userID else { return }
             run {
                 try await chat.unmute(author)
+                Analytics.shared.track(.chatModerated(action: "unmute", minutes: nil))
                 toast(L10n.chatUnmutedToast(name), icon: "speaker.wave.2")
             }
         case .block:
@@ -180,9 +188,11 @@ struct ChatSheetView: View {
             if account.isSignedIn {
                 run {
                     try await chat.report(message)
+                    Analytics.shared.track(.chatReported)
                     toast(L10n.chatReportedToast, icon: "flag")
                 }
             } else {
+                Analytics.shared.track(.chatJoinShown(reason: "report"))
                 pendingText = nil
                 isShowingJoin = true
             }
@@ -190,6 +200,7 @@ struct ChatSheetView: View {
             guard let author = message.userID else { return }
             run {
                 try await chat.hide(author)
+                Analytics.shared.track(.chatUserHidden)
                 toast(L10n.chatHiddenToast(name), icon: "eye.slash", undoTitle: L10n.chatUndo) {
                     run { try await chat.unhide(author) }
                 }
@@ -203,6 +214,7 @@ struct ChatSheetView: View {
         run {
             let until = try await chat.mute(author, minutes: minutes, message: message)
                 ?? Date().addingTimeInterval(Double(minutes) * 60)
+            Analytics.shared.track(.chatModerated(action: "mute", minutes: minutes))
             let (day, time) = ProfileFormat.dayAndTime(until)
             toast(L10n.chatMutedToast(name, day, time), icon: "speaker.slash", undoTitle: L10n.chatUndo) {
                 run { try await chat.unmute(author) }
@@ -215,6 +227,7 @@ struct ChatSheetView: View {
         let name = ChatStyle.name(message)
         run {
             try await chat.block(author, message: message)
+            Analytics.shared.track(.chatModerated(action: "block", minutes: nil))
             toast(L10n.chatBlockedToast(name), icon: "nosign")
         }
     }
@@ -398,7 +411,7 @@ struct ChatSheetView: View {
             if canWrite {
                 HStack(spacing: 8) {
                     ForEach([L10n.chatStarterHello, L10n.chatStarterWhatPlayed, "🔥"], id: \.self) { text in
-                        Button { submit(text, clearsDraft: false) } label: {
+                        Button { submit(text, clearsDraft: false, kind: ChatStyle.quickEmoji.contains(text) ? "emoji" : "starter") } label: {
                             Text(text)
                                 .font(Theme.Typography.Manrope.extraBold(size: 14, relativeTo: .subheadline))
                                 .foregroundStyle(Theme.textPrimary)
@@ -498,7 +511,7 @@ struct ChatSheetView: View {
     private var quickEmoji: some View {
         HStack(spacing: 8) {
             ForEach(ChatStyle.quickEmoji, id: \.self) { emoji in
-                Button { submit(emoji, clearsDraft: false) } label: {
+                Button { submit(emoji, clearsDraft: false, kind: "emoji") } label: {
                     Text(emoji)
                         .font(.system(size: 17))
                         .frame(maxWidth: .infinity)
@@ -577,31 +590,36 @@ struct ChatSheetView: View {
 
     private var hasName: Bool { account.isSignedIn && account.me?.chatName != nil }
 
-    private func submit(_ raw: String, clearsDraft: Bool) {
+    private func submit(_ raw: String, clearsDraft: Bool, kind: String = "text") {
         let text = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
         guard hasName else {
             // Draft-first: sign in, then this goes out by itself.
+            Analytics.shared.track(.chatJoinShown(reason: "send"))
             pendingText = text
+            pendingKind = kind
             isComposerFocused = false
             isShowingJoin = true
             return
         }
         if clearsDraft { draft = "" }
-        send(text, announce: false)
+        send(text, announce: false, kind: kind)
     }
 
-    private func send(_ text: String, announce: Bool) {
+    private func send(_ text: String, announce: Bool, kind: String) {
         Task {
             do {
                 try await chat.send(text, show: scheduleStore.currentShow() ?? nowPlaying.currentShow)
+                Analytics.shared.track(.chatMessageSent(kind: kind, success: true))
                 if announce, let name = account.me?.chatName {
                     ToastCenter.shared.show(.init(systemImage: "checkmark.circle", message: L10n.chatSentAs(name)))
                 }
             } catch AccountError.nicknameRequired {
                 pendingText = text
+                pendingKind = kind
                 isShowingJoin = true
             } catch let error as AccountError {
+                Analytics.shared.track(.chatMessageSent(kind: kind, success: false))
                 if case .offline = error { return } // shown on the message itself
                 ToastCenter.shared.show(.init(systemImage: "exclamationmark.circle", message: error.userMessage))
             } catch {}
@@ -613,7 +631,7 @@ struct ChatSheetView: View {
         guard let text = pendingText else { return }
         pendingText = nil
         if draft.trimmingCharacters(in: .whitespacesAndNewlines) == text { draft = "" }
-        send(text, announce: true)
+        send(text, announce: true, kind: pendingKind)
     }
 }
 

@@ -8,15 +8,14 @@
 	<array/>
 	<key>NSPrivacyCollectedDataTypes</key>
 	<array>
-		<!-- The feedback form (SlowDownRadijo/Views/Settings/FeedbackView.swift)
-		     sends the message text plus DeviceInfo.swift's app/OS/device-model
-		     summary, relayed by email — no accounts, nothing tied to identity
-		     unless the user types it into the message themselves. -->
+		<!-- Other user content: the feedback form's text (FeedbackView.swift,
+		     relayed by email, not linked) and, from 1.3, chat messages, which
+		     are stored with the author's account (linked). -->
 		<dict>
 			<key>NSPrivacyCollectedDataType</key>
 			<string>NSPrivacyCollectedDataTypeOtherUserContent</string>
 			<key>NSPrivacyCollectedDataTypeLinked</key>
-			<false/>
+			<true/>
 			<key>NSPrivacyCollectedDataTypeTracking</key>
 			<false/>
 			<key>NSPrivacyCollectedDataTypePurposes</key>
@@ -29,6 +28,20 @@
 			<string>NSPrivacyCollectedDataTypeOtherDiagnosticData</string>
 			<key>NSPrivacyCollectedDataTypeLinked</key>
 			<false/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+			</array>
+		</dict>
+		<!-- Accounts (1.3, optional, only to write in the chat): the e-mail
+		     address from Apple, Google or the e-mail code sign-in. -->
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeEmailAddress</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<true/>
 			<key>NSPrivacyCollectedDataTypeTracking</key>
 			<false/>
 			<key>NSPrivacyCollectedDataTypePurposes</key>

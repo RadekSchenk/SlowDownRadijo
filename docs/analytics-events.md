@@ -64,7 +64,7 @@ nástroj za ním se dá vyměnit nebo doplnit (Google Analytics) beze změny vol
 | událost | kdy | vlastnosti |
 |---|---|---|
 | `app_opened` | spuštění, návrat po 30+ min na pozadí, udělení souhlasu | `kind`: `cold` / `warm` / `consent` |
-| `screen_viewed` | zobrazení obrazovky | `screen`: `home`, `message`, `support`, `stats`, `menu`, `settings`, `show_reminders`, `news` |
+| `screen_viewed` | zobrazení obrazovky | `screen`: `home`, `message`, `support`, `stats`, `profile`, `menu`, `settings`, `show_reminders`, `news` |
 | `language_changed` | přepnutí CZ/EN v hlavičce | `to`: `cs` / `en` |
 | `playback_started` | stream opravdu začal hrát | `trigger`: `user`, `autoplay`, `lock_screen`, `notification`, `resume`, `preview`; `show_id`; `connect_ms` |
 | `playback_stopped` | konec souvislého poslechu | `seconds_listened`, `end_reason`: `user`, `sleep_timer`, `interruption`, `headphones`, `voice_message`, `preview`; `show_id`; `reconnects` |
@@ -78,6 +78,16 @@ nástroj za ním se dá vyměnit nebo doplnit (Google Analytics) beze změny vol
 | `support_link_opened` | klepnutí na platformu podpory | `platform` (id platformy) |
 | `message_sent` | odeslání hlasového vzkazu | `success`, `duration_s` |
 | `feedback_sent` | odeslání zpětné vazby | `success` |
+| `chat_opened` | otevření chatu (1.3) | `source`: `home_section` / `home_field` / `invite`; `signed_in` |
+| `chat_message_sent` | odeslání zprávy do chatu | `kind`: `text` / `emoji` / `starter`; `success` |
+| `chat_join_shown` | nepřihlášenému se vysunulo „Připoj se do chatu“ | `reason`: `send` / `report` |
+| `chat_moderated` | akce DJ nebo admina | `action`: `pin`, `unpin`, `delete`, `restore`, `mute`, `unmute`, `block`; `minutes` (jen `mute`) |
+| `chat_reported` | nahlášení zprávy | — |
+| `chat_user_hidden` | skrytí zpráv od posluchače | — |
+| `dj_invite_opened` | otevření pozvánky pro DJ | `valid`: `yes` / `no` / `unknown` |
+| `dj_invite_claimed` | propojení účtu s DJ | `success` |
+
+U chatu se nikdy neposílá text zpráv, přezdívky ani kdo komu psal.
 
 `show_id` je id pořadu ze `schedule.json`, `_` když žádný neběží.
 
@@ -88,6 +98,8 @@ nástroj za ním se dá vyměnit nebo doplnit (Google Analytics) beze změny vol
 | Nejpoužívanější funkce | Trends ▸ Total count, všechny události kromě `app_opened`/`playback_*`, breakdown podle události |
 | Obrazovky | Trends `screen_viewed`, breakdown `screen` |
 | Odkud se pouští rádio | Trends `playback_started`, breakdown `trigger` |
+| Píše se do chatu? | Funnel `chat_opened` → `chat_message_sent` (success = true), breakdown `signed_in` |
+| Odrazuje přihlášení? | Funnel `chat_join_shown` → `chat_message_sent` |
 | Proč poslech končí | Trends `playback_stopped`, breakdown `end_reason` |
 | Spolehlivost | `playback_failed` / `playback_started` (Formula), breakdown `$app_version` |
 | Fungují upozornění | Funnel `show_reminder_changed` (on=true) → `show_notification_opened` |

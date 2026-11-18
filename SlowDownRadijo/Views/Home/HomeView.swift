@@ -42,6 +42,7 @@ struct HomeView: View {
                 nowPlayingHeader
 
                 ChatHomeSection { withKeyboard in
+                    Analytics.shared.track(.chatOpened(source: withKeyboard ? "home_field" : "home_section", signedIn: AccountService.shared.isSignedIn))
                     chatOpening = ChatOpening(withKeyboard: withKeyboard)
                 }
                 .movesWithScroll()
@@ -104,6 +105,7 @@ struct HomeView: View {
         }
         // "Otevřít chat" after linking a DJ account.
         .onReceive(ChatService.shared.$openRequestID.compactMap { $0 }) { _ in
+            Analytics.shared.track(.chatOpened(source: "invite", signedIn: AccountService.shared.isSignedIn))
             chatOpening = ChatOpening(withKeyboard: false)
         }
         .sheet(item: $chatOpening) { opening in

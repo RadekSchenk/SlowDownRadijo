@@ -374,10 +374,12 @@ struct HostInviteSheet: View {
         do {
             info = try await ChatService.shared.inviteInfo(code)
             phase = info == nil ? .invalid : .ready
+            Analytics.shared.track(.djInviteOpened(valid: info != nil))
         } catch {
             // Offline, or the server without `host_invite_info` (021):
             // let the claim decide.
             phase = .ready
+            Analytics.shared.track(.djInviteOpened(valid: nil))
         }
         claimIfReady()
     }
@@ -389,10 +391,13 @@ struct HostInviteSheet: View {
             defer { isClaiming = false }
             do {
                 try await account.claimHostInvite(code)
+                Analytics.shared.track(.djInviteClaimed(success: true))
                 withAnimation(Motion.cardResize) { phase = .done }
             } catch AccountError.inviteOtherHost {
+                Analytics.shared.track(.djInviteClaimed(success: false))
                 phase = .otherHost
             } catch AccountError.inviteInvalid {
+                Analytics.shared.track(.djInviteClaimed(success: false))
                 phase = .invalid
             } catch let error as AccountError {
                 ToastCenter.shared.show(.init(systemImage: "exclamationmark.circle", message: error.userMessage))

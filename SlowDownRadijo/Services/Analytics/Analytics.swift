@@ -182,6 +182,19 @@ enum AnalyticsEvent {
     case supportLinkOpened(platform: String)
     case messageSent(success: Bool, seconds: Int)
     case feedbackSent(success: Bool)
+    // Chat (1.3). Never the text, the names or who wrote what.
+    /// `source`: home_section, home_field, invite.
+    case chatOpened(source: String, signedIn: Bool)
+    /// `kind`: text, emoji, starter.
+    case chatMessageSent(kind: String, success: Bool)
+    /// The "Připoj se do chatu" sheet; `reason`: send, report.
+    case chatJoinShown(reason: String)
+    /// `action`: pin, unpin, delete, restore, mute, unmute, block.
+    case chatModerated(action: String, minutes: Int?)
+    case chatReported
+    case chatUserHidden
+    case djInviteOpened(valid: Bool?)
+    case djInviteClaimed(success: Bool)
 
     var name: String {
         switch self {
@@ -202,6 +215,14 @@ enum AnalyticsEvent {
         case .supportLinkOpened: return "support_link_opened"
         case .messageSent: return "message_sent"
         case .feedbackSent: return "feedback_sent"
+        case .chatOpened: return "chat_opened"
+        case .chatMessageSent: return "chat_message_sent"
+        case .chatJoinShown: return "chat_join_shown"
+        case .chatModerated: return "chat_moderated"
+        case .chatReported: return "chat_reported"
+        case .chatUserHidden: return "chat_user_hidden"
+        case .djInviteOpened: return "dj_invite_opened"
+        case .djInviteClaimed: return "dj_invite_claimed"
         }
     }
 
@@ -248,6 +269,22 @@ enum AnalyticsEvent {
         case .messageSent(let success, let seconds):
             return ["success": success, "duration_s": Self.rounded(seconds, to: 5)]
         case .feedbackSent(let success):
+            return ["success": success]
+        case .chatOpened(let source, let signedIn):
+            return ["source": source, "signed_in": signedIn]
+        case .chatMessageSent(let kind, let success):
+            return ["kind": kind, "success": success]
+        case .chatJoinShown(let reason):
+            return ["reason": reason]
+        case .chatModerated(let action, let minutes):
+            var properties: [String: Any] = ["action": action]
+            if let minutes { properties["minutes"] = minutes }
+            return properties
+        case .chatReported, .chatUserHidden:
+            return [:]
+        case .djInviteOpened(let valid):
+            return ["valid": valid.map { $0 ? "yes" : "no" } ?? "unknown"]
+        case .djInviteClaimed(let success):
             return ["success": success]
         }
     }

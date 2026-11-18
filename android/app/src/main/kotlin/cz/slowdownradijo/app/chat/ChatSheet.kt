@@ -83,6 +83,7 @@ import cz.slowdownradijo.app.R
 import cz.slowdownradijo.app.account.AccountError
 import cz.slowdownradijo.app.account.AccountService
 import cz.slowdownradijo.app.app
+import cz.slowdownradijo.app.analytics.AnalyticsEvent
 import cz.slowdownradijo.app.data.ScheduleStore
 import cz.slowdownradijo.app.data.ScheduleStore.Companion.STATION_ZONE
 import cz.slowdownradijo.app.data.Show
@@ -363,6 +364,8 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
     val writer = ChatWriter.of(accountState, now)
     var draft by rememberSaveable { mutableStateOf("") }
     var pending by remember { mutableStateOf<String?>(null) }
+    var pendingKind by remember { mutableStateOf("text") }
+    fun track(event: AnalyticsEvent) = app.analytics.track(event)
     var joining by remember { mutableStateOf(false) }
     var rules by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -405,6 +408,7 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
         val name = message.authorName ?: context.getString(R.string.deletedAccount)
         run {
             val until = chat.mute(author, minutes, message) ?: Instant.now().plusSeconds(minutes * 60L)
+            track(AnalyticsEvent.ChatModerated("mute", minutes))
             val (day, time) = cz.slowdownradijo.app.profile.dayAndTime(until, Instant.now(), context)
             toast(context.getString(R.string.chatMutedToast, name, day, time), Icons.AutoMirrored.Rounded.VolumeOff) {
                 run { chat.unmute(author) }
@@ -419,47 +423,62 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
             ChatMenuAction.COPY -> clipboard.setText(androidx.compose.ui.text.AnnotatedString(message.body.orEmpty()))
             ChatMenuAction.PIN -> run {
                 chat.pin(message)
+                track(AnalyticsEvent.ChatModerated("pin"))
                 toast(context.getString(R.string.chatPinnedToast), Icons.Rounded.PushPin)
             }
             ChatMenuAction.UNPIN -> run {
                 chat.unpin()
+                track(AnalyticsEvent.ChatModerated("unpin"))
                 toast(context.getString(R.string.chatUnpinnedToast), Icons.Rounded.PushPin)
             }
             ChatMenuAction.DELETE -> run {
                 chat.delete(message)
-                toast(context.getString(R.string.chatDeletedToast), Icons.Rounded.DeleteOutline) { run { chat.restore(message) } }
+                track(AnalyticsEvent.ChatModerated("delete"))
+                toast(context.getString(R.string.chatDeletedToast), Icons.Rounded.DeleteOutline) {
+                    run {
+                        chat.restore(message)
+                        track(AnalyticsEvent.ChatModerated("restore"))
+                    }
+                }
             }
             ChatMenuAction.MUTE -> muteTarget = message
             ChatMenuAction.UNMUTE -> if (author != null) run {
                 chat.unmute(author)
+                track(AnalyticsEvent.ChatModerated("unmute"))
                 toast(context.getString(R.string.chatUnmutedToast, name), Icons.AutoMirrored.Rounded.VolumeUp)
             }
             ChatMenuAction.BLOCK -> blockTarget = message
             ChatMenuAction.REPORT -> if (writer.signedIn) run {
                 chat.report(message)
+                track(AnalyticsEvent.ChatReported())
                 toast(context.getString(R.string.chatReportedToast), Icons.Outlined.Flag)
             } else {
+                track(AnalyticsEvent.ChatJoinShown("report"))
                 pending = null
                 joining = true
             }
             ChatMenuAction.HIDE -> if (author != null) run {
                 chat.hide(author)
+                track(AnalyticsEvent.ChatUserHidden())
                 toast(context.getString(R.string.chatHiddenToast, name), Icons.Outlined.VisibilityOff) { run { chat.unhide(author) } }
             }
         }
     }
 
-    fun send(text: String, announce: Boolean) {
+    fun send(text: String, announce: Boolean, kind: String) {
         scope.launch {
             try {
                 chat.send(text, app.schedule.currentShow() ?: show)
+                track(AnalyticsEvent.ChatMessageSent(kind, success = true))
                 if (announce) writer.name?.let { name ->
                     ToastCenter.show(ToastCenter.Toast(Icons.Rounded.CheckCircleOutline, context.getString(R.string.chatSentAs, name)))
                 }
             } catch (e: AccountError) {
+                track(AnalyticsEvent.ChatMessageSent(kind, success = false))
                 when (e) {
                     AccountError.NicknameRequired -> {
                         pending = text
+                        pendingKind = kind
                         joining = true
                     }
                     AccountError.Offline -> Unit // shown on the message itself
@@ -472,13 +491,20 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
     fun submit(raw: String, clearsDraft: Boolean) {
         val text = raw.trim()
         if (text.isEmpty()) return
+        val kind = when {
+            !clearsDraft && text in CHAT_QUICK_EMOJI -> "emoji"
+            !clearsDraft -> "starter"
+            else -> "text"
+        }
         if (!writer.hasName) {
+            track(AnalyticsEvent.ChatJoinShown("send"))
             pending = text
+            pendingKind = kind
             joining = true
             return
         }
         if (clearsDraft) draft = ""
-        send(text, announce = false)
+        send(text, announce = false, kind = kind)
     }
 
     ModalBottomSheet(
@@ -551,6 +577,7 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
                 val author = message.userId ?: return@ChatBlockContent
                 run {
                     chat.block(author, message)
+                    track(AnalyticsEvent.ChatModerated("block"))
                     toast(context.getString(R.string.chatBlockedToast, name), Icons.Rounded.Block)
                 }
             }, onCancel = { blockTarget = null })
@@ -570,7 +597,7 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
                 val text = pending ?: return@ChatJoinSheet
                 pending = null
                 if (draft.trim() == text) draft = ""
-                send(text, announce = true)
+                send(text, announce = true, kind = pendingKind)
             },
             onDismiss = {
                 joining = false
@@ -690,9 +717,11 @@ fun HostInviteSheet(onOpenChat: () -> Unit) {
     LaunchedEffect(current) {
         phase = try {
             info = app.chat.inviteInfo(current)
+            app.analytics.track(AnalyticsEvent.DjInviteOpened(info != null))
             if (info == null) InvitePhase.Invalid(otherHost = false) else InvitePhase.Ready(info, linking = false)
         } catch (e: AccountError) {
             // Offline, or the server without host_invite_info (021): let the claim decide.
+            app.analytics.track(AnalyticsEvent.DjInviteOpened(null))
             InvitePhase.Ready(null, linking = false)
         }
     }
@@ -703,8 +732,10 @@ fun HostInviteSheet(onOpenChat: () -> Unit) {
         phase = InvitePhase.Ready(info, linking = true)
         phase = try {
             account.claimHostInvite(current)
+            app.analytics.track(AnalyticsEvent.DjInviteClaimed(true))
             InvitePhase.Done(account.me?.hostName ?: info?.hostName ?: "DJ")
         } catch (e: AccountError) {
+            if (e == AccountError.InviteOtherHost || e == AccountError.InviteInvalid) app.analytics.track(AnalyticsEvent.DjInviteClaimed(false))
             when (e) {
                 AccountError.InviteOtherHost -> InvitePhase.Invalid(otherHost = true)
                 AccountError.InviteInvalid -> InvitePhase.Invalid(otherHost = false)
