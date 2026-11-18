@@ -302,9 +302,11 @@ fun ChatOutgoingRow(message: OutgoingChatMessage, name: String, role: String, on
 }
 
 @Composable
-fun ChatPinnedBar(message: ChatMessage) {
+fun ChatPinnedBar(message: ChatMessage, onLongPress: () -> Unit = {}) {
     Row(
-        Modifier.fillMaxWidth().background(Theme.statsCard).padding(horizontal = 20.dp, vertical = 10.dp),
+        Modifier.fillMaxWidth().background(Theme.statsCard)
+            .combinedClickable(onClick = {}, onLongClick = onLongPress)
+            .padding(horizontal = 20.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Icon(Icons.Rounded.PushPin, contentDescription = null, tint = Theme.liveRed, modifier = Modifier.padding(top = 2.dp).size(16.dp))

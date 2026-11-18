@@ -181,7 +181,8 @@ fun ChatContent(
         }
         HorizontalDivider(color = Theme.statsCardRaised)
         state.pinned?.let {
-            ChatPinnedBar(it)
+            // Holding the bar opens the same menu as the message (unpin for moderators).
+            ChatPinnedBar(it, onLongPress = { onLongPress(it) })
             HorizontalDivider(color = Theme.statsCardRaised)
         }
 

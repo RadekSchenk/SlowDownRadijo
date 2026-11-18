@@ -278,7 +278,11 @@ struct ChatSheetView: View {
         .padding(.vertical, 10)
         .background(Theme.statsCard)
         .overlay(alignment: .bottom) { Divider().overlay(Theme.statsCardRaised) }
+        // Holding the bar opens the same menu as the message (unpin for moderators).
+        .contentShape(Rectangle())
+        .onLongPressGesture(minimumDuration: 0.35) { openMenu(message) }
         .accessibilityElement(children: .combine)
+        .accessibilityAction { openMenu(message) }
     }
 
     // MARK: - Stream
