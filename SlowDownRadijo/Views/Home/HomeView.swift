@@ -255,7 +255,7 @@ struct HomeView: View {
                         // width steady.
                         TimelineView(.periodic(from: .now, by: 1)) { context in
                             PopNumberText(
-                                text: remainingLabel(now: context.date),
+                                text: remainingLabel(now: AppClock.now), // ticks with the timeline (moved in store screenshots)
                                 font: Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline).monospacedDigit(),
                                 color: Theme.mutedText
                             )

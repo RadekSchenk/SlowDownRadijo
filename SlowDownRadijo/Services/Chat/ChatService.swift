@@ -56,6 +56,10 @@ final class ChatService: ObservableObject {
     func start() {
         guard !started else { return }
         started = true
+        #if DEBUG
+        // Store screenshots: the sample chat stays, nothing from the server.
+        if StoreDemo.isOn { return }
+        #endif
         let center = NotificationCenter.default
         observers.append(center.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
             Task { @MainActor in self?.resume() }

@@ -208,7 +208,7 @@ struct ChatSheetView: View {
         let name = ChatStyle.name(message)
         run {
             let until = try await chat.mute(author, minutes: minutes, message: message)
-                ?? Date().addingTimeInterval(Double(minutes) * 60)
+                ?? AppClock.now.addingTimeInterval(Double(minutes) * 60)
             Analytics.shared.track(.chatModerated(action: "mute", minutes: minutes))
             let (day, time) = ProfileFormat.dayAndTime(until)
             toast(L10n.chatMutedToast(name, day, time), icon: "speaker.slash", undoTitle: L10n.chatUndo) {
@@ -371,7 +371,7 @@ struct ChatSheetView: View {
 
     /// Nobody has written today yet (Figma F).
     private var isQuietToday: Bool {
-        let today = ScheduleStore.stationCalendar.startOfDay(for: Date())
+        let today = ScheduleStore.stationCalendar.startOfDay(for: AppClock.now)
         return !chat.visibleMessages.contains { $0.createdAt >= today } && chat.outgoing.isEmpty
     }
 
@@ -431,7 +431,7 @@ struct ChatSheetView: View {
     // MARK: - Composer
 
     private var mutedUntil: Date? {
-        guard let until = account.me?.mutedUntil, until > Date() else { return nil }
+        guard let until = account.me?.mutedUntil, until > AppClock.now else { return nil }
         return until
     }
 

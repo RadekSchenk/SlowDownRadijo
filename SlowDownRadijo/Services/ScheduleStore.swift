@@ -1,5 +1,25 @@
 import Foundation
 
+/// The app's clock. In release builds simply `Date()`; in debug builds the
+/// store screenshots (`-storeDemo YES`, `StoreDemo`) move it to Monday
+/// 16 Nov 2026, 7:40 in Prague, with Morning Coffee on air, so the screens
+/// can be taken at any time of day. Shared with the widget.
+enum AppClock {
+    static var now: Date { Date().addingTimeInterval(offset) }
+
+    #if DEBUG
+    static let offset: TimeInterval = {
+        guard UserDefaults.standard.bool(forKey: "storeDemo") else { return 0 }
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Europe/Prague")!
+        let target = calendar.date(from: DateComponents(year: 2026, month: 11, day: 16, hour: 7, minute: 40))!
+        return target.timeIntervalSinceNow
+    }()
+    #else
+    static let offset: TimeInterval = 0
+    #endif
+}
+
 /// The weekly programme, and "what's on right now" for a given date/time.
 ///
 /// The week comes from slowdownradijo.cz (`WebScheduleService`), so a
@@ -111,7 +131,7 @@ final class ScheduleStore: ObservableObject {
         let cache = Self.state.withLock { state -> CachedWeek? in
             state.isFetching = false
             guard let fetched else { return nil }
-            state.fetchedAt = Date()
+            state.fetchedAt = AppClock.now
             let regulars = Set(Self.catalog.map(\.id))
             var formerChanged = false
             for show in fetched.flatMap(\.shows) where !regulars.contains(show.id) && state.formerShows[show.id] == nil {
@@ -160,7 +180,7 @@ final class ScheduleStore: ObservableObject {
     }
 
     /// Returns the show scheduled at `date`, if the schedule fully covers that slot.
-    func currentShow(at date: Date = Date(), calendar: Calendar = ScheduleStore.stationCalendar) -> Show? {
+    func currentShow(at date: Date = AppClock.now, calendar: Calendar = ScheduleStore.stationCalendar) -> Show? {
         let weekday = calendar.component(.weekday, from: date)
         guard let day = day(for: weekday) else { return nil }
         let minutes = minuteOfDay(for: date, calendar: calendar)
@@ -181,7 +201,7 @@ final class ScheduleStore: ObservableObject {
 
     /// Fraction (0...1) of `show`'s scheduled block that has elapsed at `date`.
     /// Returns 0 if `show`'s times can't be parsed or the block has zero length.
-    func progress(for show: Show, at date: Date = Date(), calendar: Calendar = ScheduleStore.stationCalendar) -> Double {
+    func progress(for show: Show, at date: Date = AppClock.now, calendar: Calendar = ScheduleStore.stationCalendar) -> Double {
         guard let start = Self.minutes(from: show.start),
               let rawEnd = Self.minutes(from: show.end) else { return 0 }
         let end = rawEnd == 0 ? 1440 : rawEnd
@@ -196,7 +216,7 @@ final class ScheduleStore: ObservableObject {
     }
 
     /// Whole minutes remaining in `show`'s scheduled block at `date`.
-    func remainingMinutes(for show: Show, at date: Date = Date(), calendar: Calendar = ScheduleStore.stationCalendar) -> Int {
+    func remainingMinutes(for show: Show, at date: Date = AppClock.now, calendar: Calendar = ScheduleStore.stationCalendar) -> Int {
         guard let rawEnd = Self.minutes(from: show.end) else { return 0 }
         let end = rawEnd == 0 ? 1440 : rawEnd
         let endSeconds = end * 60
@@ -227,12 +247,12 @@ final class ScheduleStore: ObservableObject {
     /// if `show.end` can't be parsed.
     /// The absolute moment `show` started, anchored to today's date
     /// (relative to `date`). `nil` if `show.start` can't be parsed.
-    func startDate(for show: Show, relativeTo date: Date = Date(), calendar: Calendar = ScheduleStore.stationCalendar) -> Date? {
+    func startDate(for show: Show, relativeTo date: Date = AppClock.now, calendar: Calendar = ScheduleStore.stationCalendar) -> Date? {
         guard let start = Self.minutes(from: show.start) else { return nil }
         return calendar.date(byAdding: .minute, value: start, to: calendar.startOfDay(for: date))
     }
 
-    func endDate(for show: Show, relativeTo date: Date = Date(), calendar: Calendar = ScheduleStore.stationCalendar) -> Date? {
+    func endDate(for show: Show, relativeTo date: Date = AppClock.now, calendar: Calendar = ScheduleStore.stationCalendar) -> Date? {
         guard let rawEnd = Self.minutes(from: show.end) else { return nil }
         let totalMinutes = rawEnd == 0 ? 1440 : rawEnd
         let startOfDay = calendar.startOfDay(for: date)

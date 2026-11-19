@@ -6,8 +6,10 @@ import XCTest
 /// message containing [appstore]) on a 6.9" iPhone with a tidy status bar;
 /// skipped by the regular UI tests.
 ///
-/// Best taken while a show with a host is on air, so the home screen shows
-/// a show, its host and a confirmed song.
+/// With `-storeDemo YES` the app's clock stands at Monday 16 Nov 2026, 7:40
+/// (Morning Coffee with DJ Pufaz on air) and the chat, the signed-in
+/// Slowrider and the stats are samples (`StoreDemo`), so the screens can be
+/// taken at any time.
 final class AppStoreScreenshotTests: XCTestCase {
     private var app: XCUIApplication!
     private var language = "cs"
@@ -22,15 +24,15 @@ final class AppStoreScreenshotTests: XCTestCase {
             "-statsDryRun", "YES",
             // No consent card on the home screen, and nothing sent from CI.
             "-analytics.consent", "denied",
-            // A few weeks of listening, so the stats have something to show.
-            "-debugStatsTotalSeconds", "371520",
+            // Morning Coffee on air, the sample chat, Slowrider and stats.
+            "-storeDemo", "YES",
             // Times as a listener here sees them: the CI Mac runs on UTC
             // and a US region (2:00 PM for the 15:00 end of a show).
             "-AppleLocale", language == "cs" ? "cs_CZ" : "en_GB",
             // A song the station really played (Beat Brunch, 4 Nov 2026):
             // mixtape and talk shows send no song titles, so the live
             // stream may have none to confirm while the screens are taken.
-            "-debugVerifiedTrack", "Kokoroko - Never Lost",
+            "-debugVerifiedTrack", "Khruangbin - Maria También",
             // Vzkaz with a recorded message ready to send, rather than the
             // empty screen (the CI simulator has no microphone).
             "-debugRecordedVoiceMessage", "YES",
@@ -45,45 +47,53 @@ final class AppStoreScreenshotTests: XCTestCase {
         sleep(4)
         capture("1 home")
 
-        // The sleep timer sheet with its night sky.
-        let timer = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@ OR label BEGINSWITH %@",
-                                                     "Nastavit časovač", "Set a sleep timer")).firstMatch
-        if timer.exists {
-            timer.tap()
+        // The chat, opened from its section on the home page.
+        let chat = app.buttons["chat.open"]
+        for _ in 0..<4 where !(chat.exists && chat.isHittable) {
+            scroll(by: 300)
+            sleep(1)
+        }
+        if chat.exists {
+            chat.tap()
             sleep(3)
-            capture("2 sleep timer")
+            capture("2 chat")
             app.swipeDown(velocity: .fast)
             sleep(2)
         }
 
-        // Another day's programme, when today's has nothing left to show —
-        // picked before scrolling, as a short day can't scroll that far
-        // (`SCREENSHOT_PROGRAMME_DAY`, a Calendar weekday, 1 = Sunday).
-        if let day = ProcessInfo.processInfo.environment["SCREENSHOT_PROGRAMME_DAY"], !day.isEmpty {
-            let chip = app.buttons["day.\(day)"]
-            if chip.waitForExistence(timeout: 5) { chip.tap() }
-        }
+        app.buttons["tab.6"].tap()
+        sleep(3)
+        capture("3 profile")
 
-        // Down the home page until the programme's heading sits just under
-        // the status bar, the day picker below it. A drag doesn't move the
-        // page by exactly its length, so measure and correct once.
+        app.buttons["tab.5"].tap()
+        sleep(4)
+        capture("4 stats")
+
+        // The programme: down the home page until its heading sits just
+        // under the status bar. A drag doesn't move the page by exactly its
+        // length, so measure and correct once.
+        app.buttons["tab.0"].tap()
+        sleep(2)
+        // Saturday: the weekdays have Show podle Majkla, which stays out of
+        // the store (`SCREENSHOT_PROGRAMME_DAY` picks another day; Calendar
+        // weekday, 1 = Sunday).
+        let day = ProcessInfo.processInfo.environment["SCREENSHOT_PROGRAMME_DAY"].flatMap { $0.isEmpty ? nil : $0 } ?? "7"
+        let chip = app.buttons["day.\(day)"]
+        if chip.waitForExistence(timeout: 5) { chip.tap() }
+        sleep(1)
         let heading = app.staticTexts.matching(NSPredicate(format: "label == %@ OR label == %@", "Pořady", "Shows")).firstMatch
-        for _ in 0..<3 where heading.exists {
+        for _ in 0..<4 where heading.exists {
             let offset = heading.frame.minY - 80
             if abs(offset) < 12 { break }
             scroll(by: offset)
             sleep(1)
         }
         sleep(2)
-        capture("3 programme")
-
-        app.buttons["tab.5"].tap()
-        sleep(4)
-        capture("4 stats")
+        capture("5 programme")
 
         app.buttons["tab.3"].tap()
         sleep(3)
-        capture("5 message")
+        capture("6 message")
     }
 
     /// Shows that must not appear in the App Store screenshots (the

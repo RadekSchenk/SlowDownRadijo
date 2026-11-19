@@ -94,6 +94,9 @@ struct RootTabView: View {
         .environmentObject(statsStore)
         .environment(\.isHostedShowOnAir, nowPlayingViewModel.currentShow?.hostName != nil)
         .onAppear {
+            #if DEBUG
+            StoreDemo.apply(stats: statsStore)
+            #endif
             bottomSafeInset = Self.windowBottomInset()
             configureNavigationBarAppearance()
             // Autoplay: a radio app should start making sound as soon as it

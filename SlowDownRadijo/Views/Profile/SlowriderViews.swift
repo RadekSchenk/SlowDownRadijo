@@ -247,7 +247,7 @@ struct SlowrideDashboard: View {
     private var daysMember: Int {
         guard let since = me.registeredAt else { return 0 }
         let calendar = ScheduleStore.stationCalendar
-        let days = calendar.dateComponents([.day], from: calendar.startOfDay(for: since), to: calendar.startOfDay(for: Date())).day ?? 0
+        let days = calendar.dateComponents([.day], from: calendar.startOfDay(for: since), to: calendar.startOfDay(for: AppClock.now)).day ?? 0
         return max(1, days + 1)
     }
 }

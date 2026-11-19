@@ -147,6 +147,10 @@ final class AccountService: ObservableObject {
     /// Starts following the session; call once at launch.
     func start() {
         guard observeTask == nil else { return }
+        #if DEBUG
+        // Store screenshots: the sample Slowrider stays signed in.
+        if StoreDemo.isOn { return }
+        #endif
         observeTask = Task { [weak self] in
             try? await LegacySessionMigration.shared.runIfNeeded()
             guard let self else { return }
@@ -194,8 +198,18 @@ final class AccountService: ObservableObject {
         }
     }
 
+    #if DEBUG
+    /// Store screenshots: a signed-in Slowrider without a session.
+    func applyDemo(me: Me) {
+        state = .signedIn(method: .apple, email: nil, me: me)
+    }
+    #endif
+
     /// Re-reads the account (after sign-in, a nickname change, a mute, …).
     func refresh() async {
+        #if DEBUG
+        if StoreDemo.isOn { return }
+        #endif
         guard let user = client.auth.currentUser else {
             state = .signedOut
             return

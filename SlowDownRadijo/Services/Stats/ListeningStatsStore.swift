@@ -75,7 +75,18 @@ final class ListeningStatsStore: ObservableObject {
 
     /// Community unlock state + numbers (cheap, anonymous), then — if measuring
     /// is on — this listener's own snapshot.
+    #if DEBUG
+    /// Store screenshots: sample numbers instead of the server's.
+    func applyDemo(snapshot: StatsSnapshot, publicStats: PublicStats) {
+        self.snapshot = snapshot
+        self.publicStats = publicStats
+    }
+    #endif
+
     func refreshAll(force: Bool = false) async {
+        #if DEBUG
+        if StoreDemo.isOn { return }
+        #endif
         await refreshPublic()
         await refresh(force: force)
     }
@@ -150,7 +161,7 @@ final class ListeningStatsStore: ObservableObject {
     }
 
     var summary: ListeningStatsSummary {
-        makeSummary(now: Date())
+        makeSummary(now: AppClock.now)
     }
 
     private func makeSummary(now: Date) -> ListeningStatsSummary {

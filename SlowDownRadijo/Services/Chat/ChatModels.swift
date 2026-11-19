@@ -65,7 +65,7 @@ struct ChatMessage: Identifiable, Equatable, Decodable {
         func date(_ key: CodingKeys) -> Date? {
             (try? c.decodeIfPresent(String.self, forKey: key)).flatMap { $0 }.flatMap(ChatMessage.parseDate)
         }
-        createdAt = date(.createdAt) ?? Date()
+        createdAt = date(.createdAt) ?? AppClock.now
         deletedAt = date(.deletedAt)
         pinnedAt = date(.pinnedAt)
     }
@@ -148,7 +148,7 @@ enum ChatTimeline {
         outgoing: [OutgoingChatMessage] = [],
         outgoingShow: (id: String?, title: String?) = (nil, nil),
         hidden: Set<UUID> = [],
-        now: Date = Date(),
+        now: Date = AppClock.now,
         calendar: Calendar = ScheduleStore.stationCalendar,
         showLabel: (_ showID: String?, _ title: String?, _ at: Date) -> ShowLabel?
     ) -> [Row] {
@@ -259,7 +259,7 @@ enum ChatTimeline {
     }
 
     /// "Včera 23:41 · Noční linka" — the time line in a message's menu.
-    static func timeLine(for message: ChatMessage, now: Date = Date(), calendar: Calendar = ScheduleStore.stationCalendar) -> String {
+    static func timeLine(for message: ChatMessage, now: Date = AppClock.now, calendar: Calendar = ScheduleStore.stationCalendar) -> String {
         let formatter = DateFormatter()
         formatter.calendar = calendar
         formatter.timeZone = calendar.timeZone

@@ -14,6 +14,7 @@
 		06ED8CD51BBBBCECA28C8075 /* Manrope-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C5DA8568A6F1BB914290114A /* Manrope-SemiBold.ttf */; };
 		082C715D2F52E5C9F9565A7C /* HistoryTrack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90B431CDF4A4EFCF8E422D28 /* HistoryTrack.swift */; };
 		083E1777286799A0388FD6E3 /* SlowDownRadijoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02708E92931556A0F4220DDB /* SlowDownRadijoApp.swift */; };
+		0B0AC283CFCF91ED7A7AC3BC /* StoreDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BAB01181B250CA9785C09B2 /* StoreDemo.swift */; };
 		0BAF94D154F2A480FEA5EBB2 /* ChatAdmin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507E75F7BD2E731117031FD5 /* ChatAdmin.swift */; };
 		12138EC3F2E3DAA9F7A69D2D /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D29DCFF928882F59284F0CCA /* HistoryViewModel.swift */; };
 		13307FB156917CB9D01E0DD5 /* SlowriderViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = D29E9E50E3A34E0715D82927 /* SlowriderViews.swift */; };
@@ -297,6 +298,7 @@
 		96083930CB218E38F2090672 /* SleepTimerButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimerButton.swift; sourceTree = "<group>"; };
 		98FA67736EE87C3B8E76FE46 /* FavoritesIntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesIntroView.swift; sourceTree = "<group>"; };
 		9A15488474E47653BF13E3BF /* ICYMetadataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICYMetadataService.swift; sourceTree = "<group>"; };
+		9BAB01181B250CA9785C09B2 /* StoreDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreDemo.swift; sourceTree = "<group>"; };
 		9CBD0E0AF540E7AFE6527FC4 /* NewsContentParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsContentParser.swift; sourceTree = "<group>"; };
 		9D2470C49CD8B3B20DA9895F /* StatsHomeBlock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsHomeBlock.swift; sourceTree = "<group>"; };
 		9DA262A7D2FD16E6B7A774A5 /* ChatModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatModels.swift; sourceTree = "<group>"; };
@@ -642,6 +644,7 @@
 				F62129DCB7967DB617A04918 /* ReviewPrompt.swift */,
 				8944F984D451CAEBE8E36B6C /* ShowReminderStore.swift */,
 				F7A43A86699B9373436B5D67 /* ScheduleStore.swift */,
+				9BAB01181B250CA9785C09B2 /* StoreDemo.swift */,
 				7BADD47AE92FCB3825D65C65 /* VoiceMessageRecorder.swift */,
 				FB944480FA340A7F8CF3B6EE /* VoiceMessageUploadService.swift */,
 				07A0FB6298D88B63B4B6DF6C /* WebScheduleService.swift */,
@@ -1002,6 +1005,7 @@
 				CD87D3E58B780CD8FCFC255E /* StatsHomeBlock.swift in Sources */,
 				29AB995D3F407673B28BAEA9 /* StatsResponse.swift in Sources */,
 				294E9FE693E7CD1497B8D18D /* StatsView.swift in Sources */,
+				0B0AC283CFCF91ED7A7AC3BC /* StoreDemo.swift in Sources */,
 				EB8439B199E1F3444643C03A /* SupportCardView.swift in Sources */,
 				EB3D04923F4FDF62421F2E81 /* SupportOption.swift in Sources */,
 				565735E5F358DF315E570201 /* SupportView.swift in Sources */,

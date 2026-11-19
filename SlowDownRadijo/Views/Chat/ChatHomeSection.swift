@@ -48,6 +48,7 @@ struct ChatHomeSection: View {
             }
             .buttonStyle(.plain)
             .accessibilityHint(L10n.chatOpen)
+            .accessibilityIdentifier("chat.open")
 
             Button { onOpen(true) } label: {
                 HStack {
@@ -138,7 +139,7 @@ struct ChatHomeSection: View {
     private var isQuiet: Bool {
         guard chat.isLoaded else { return false }
         guard let newest = candidates.last else { return true }
-        return newest.message.createdAt < Date().addingTimeInterval(-24 * 3600)
+        return newest.message.createdAt < AppClock.now.addingTimeInterval(-24 * 3600)
     }
 
     private var candidates: [ChatTimeline.HomeLine] {

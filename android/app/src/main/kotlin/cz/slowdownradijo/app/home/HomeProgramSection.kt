@@ -70,11 +70,13 @@ fun HomeProgramSection(
     followed: Set<String>,
     onBell: (Show) -> Unit,
     modifier: Modifier = Modifier,
+    /** The day picked at first (Sunday-first weekday); today when `null`. Store screenshots. */
+    initialWeekday: Int? = null,
 ) {
     val english = LocalAppLanguage.current.isEnglish
     val today = now.atZone(STATION_ZONE).toLocalDate()
     val todayWeekday = now.atZone(STATION_ZONE).weekdaySundayFirst()
-    var selected by rememberSaveable { mutableIntStateOf(todayWeekday) }
+    var selected by rememberSaveable { mutableIntStateOf(initialWeekday ?: todayWeekday) }
     var showingPast by rememberSaveable(selected) { mutableStateOf(false) }
 
     val shows = days.firstOrNull { it.weekday == selected }?.shows.orEmpty()
