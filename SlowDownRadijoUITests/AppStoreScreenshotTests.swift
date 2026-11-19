@@ -44,6 +44,10 @@ final class AppStoreScreenshotTests: XCTestCase {
         // The radio playing, with a confirmed song under the show.
         let song = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", " – ")).firstMatch
         _ = song.waitForExistence(timeout: 30)
+        // Wait until the stream really plays (the pause button), not
+        // "Připojování…".
+        let pause = app.buttons.matching(NSPredicate(format: "label == %@ OR label == %@", "Pozastavit rádio", "Pause radio")).firstMatch
+        _ = pause.waitForExistence(timeout: 60)
         sleep(4)
         capture("1 home")
 
@@ -55,6 +59,11 @@ final class AppStoreScreenshotTests: XCTestCase {
         }
         if chat.exists {
             chat.tap()
+            sleep(3)
+            // Up to the large size, so the whole conversation shows.
+            let grabber = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.30))
+            grabber.press(forDuration: 0.1, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.02)),
+                          withVelocity: XCUIGestureVelocity(800), thenHoldForDuration: 0.3)
             sleep(3)
             capture("2 chat")
             app.swipeDown(velocity: .fast)
