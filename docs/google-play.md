@@ -11,7 +11,8 @@ Grafika je v `android/store/`:
 |---|---|---|
 | `icon-512.png` | Ikona aplikace (512 × 512) | `python3 tools/android/store_graphics.py` |
 | `feature-graphic.png` | Úvodní grafika (1024 × 500) | totéž |
-| `screenshots/cs/*.png`, `screenshots/en/*.png` | Snímky obrazovky telefonu (1080 × 1920, Play chce přesně 9 : 16), v pořadí podle čísla | `StoreScreenshotTest` (`-Proborazzi.test.record=true`), pak `store_graphics.py` |
+| `play/cs/*.png`, `play/en/*.png` | **Snímky do obchodu (od 1.3):** text nahoře, obrazovka bez telefonu, mraky; 1080 × 1920 (Play chce přesně 9 : 16), v pořadí podle čísla | `StoreScreenshotTest` (`-Proborazzi.test.record=true`) → `screenshots/`, pak `python3 tools/appstore/frame.py <obrazovky> <výstup> clouds --play --bare` |
+| `screenshots/cs/*.png`, `screenshots/en/*.png` | Holé obrazovky z testu (podklad pro `play/`) | `StoreScreenshotTest` |
 
 ## Nastavení obchodu (Zvýšení počtu uživatelů → Nastavení obchodu)
 

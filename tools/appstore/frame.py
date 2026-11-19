@@ -10,6 +10,7 @@ Store.
 
     python3 tools/appstore/frame.py <screens dir> <output dir> [style] [--play]
 
+With --bare the screen stands on its own, without a phone outline.
 With --play the cards are 1080 x 1920 (Google Play's 9:16) instead of
 1320 x 2868, for the Android screens from StoreScreenshotTest.
 
@@ -111,6 +112,7 @@ PHONE_W = 960                 # the screen's width on the card
 BEZEL = 26
 SCREEN_RADIUS = 118
 PHONE_TOP = 640
+BARE = False  # --bare: the screen without a phone outline
 
 
 ORDER = list(SCREENS)
@@ -264,8 +266,21 @@ def frame(screen_path, lang, key, out_path, style="clouds"):
     else:
         draw.multiline_text(origin, text, font=font, fill=(255, 255, 255), spacing=26, align="center")
 
-    # The screen in a phone outline, with a soft shadow.
     screen = Image.open(screen_path).convert("RGB")
+    if BARE:
+        # No phone: the screen itself with rounded corners and a soft shadow.
+        sh = round(screen.height * PHONE_W / screen.width)
+        screen = screen.resize((PHONE_W, sh), Image.LANCZOS)
+        px = (W - PHONE_W) // 2
+        shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        ImageDraw.Draw(shadow).rounded_rectangle((px, PHONE_TOP + 24, px + PHONE_W, PHONE_TOP + 24 + sh), 48, fill=(0, 0, 0, 140))
+        shadow = shadow.filter(ImageFilter.GaussianBlur(44))
+        card = Image.alpha_composite(card.convert("RGBA"), shadow)
+        card.paste(screen, (px, PHONE_TOP), rounded(screen.size, 48))
+        card.convert("RGB").save(out_path)
+        return
+
+    # The screen in a phone outline, with a soft shadow.
     sh = round(screen.height * PHONE_W / screen.width)
     screen = screen.resize((PHONE_W, sh), Image.LANCZOS)
     pw, ph = PHONE_W + 2 * BEZEL, sh + 2 * BEZEL
@@ -301,6 +316,8 @@ def use_play_size():
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     play = "--play" in sys.argv
+    global BARE
+    BARE = "--bare" in sys.argv
     src, out = args[0], args[1]
     style = args[2] if len(args) > 2 else "clouds"
     if play:
