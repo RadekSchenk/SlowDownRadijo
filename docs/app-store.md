@@ -32,29 +32,31 @@ Hip hop, soul, jazz a funk
 
 **Promotional text**
 
-Poslouchej Slow Down Rádijo – ruční kurátorský výběr hudby namísto automatických algoritmů. Program, časovač vypnutí, vzkaz do rádia a tvoje vlastní statistiky poslechu.
+Poslouchej rádio, kde hudbu vybírají lidi, ne algoritmy. Nově s chatem posluchačů, profilem Slowridera a novými statistikami.
 
 **Keywords**
 
-radio,rádio,hiphop,rap,soul,funk,jazz,afrobeat,beats,groove,stream,živě,praha,černá hudba
+radio,rádio,hiphop,rap,soul,funk,jazz,afrobeat,beats,groove,stream,živě,praha,chat
 
 **Description**
 
 Slow Down Rádijo v kapse. Živé vysílání rádia, které hraje hip hop, soul, funk, jazz, afrobeat i elektroniku – a hlavně věci, které jinde neuslyšíš. Ruční kurátorský výběr hudby namísto automatických algoritmů.
 
 CO APPKA UMÍ
-• Živé vysílání na jedno klepnutí – i na pozadí, ze zamčené obrazovky, přes AirPlay a Bluetooth
+• Živé vysílání na jedno klepnutí – i na pozadí, ze zamčené obrazovky, přes AirPlay a Bluetooth a v autě s CarPlay
+• Chat posluchačů: piš si s ostatními i s moderátory během vysílání – stačí přezdívka, bez registrace
 • Co se právě vysílá: pořad, moderátor a skladba, kterou jedním klepnutím najdeš na Spotify
 • Skladby, které hrály před chvílí – stačí přejet prstem do strany
 • Program na celý týden s popisy pořadů a připomínkou, když začíná tvůj oblíbený
-• Časovač vypnutí, když s rádiem usínáš
-• Tvoje statistiky poslechu: kolik času jsi s rádiem strávil, tvoje nejposlouchanější pořady a tvoje místo mezi posluchači
+• Tvoje statistiky poslechu: dnešek, týden, celkový čas, oblíbené pořady a místo mezi posluchači
+• Profil Slowridera: s volitelným účtem si změníš přezdívku a statistiky ti zůstanou i na novém telefonu
 • Hlasový vzkaz do rádia – nahraj pozdrav nebo přání a pošli ho moderátorům
-• Novinky z rádia a widget na plochu s tím, co se právě vysílá
+• Kvalita zvuku podle připojení: na Wi-Fi naplno, na datech úsporně
+• Časovač vypnutí, novinky z rádia a widget na plochu
 • Česky i anglicky
 
-BEZ ÚČTU A BEZ REKLAM
-Appku používáš bez registrace a bez reklam. Statistiky poslechu jsou anonymní a můžeš je kdykoli vypnout i smazat. Měření používání appky se zapne jen s tvým souhlasem.
+BEZ REKLAM, ÚČET JEN KDYŽ CHCEŠ
+Appku používáš bez reklam a bez registrace – i do chatu můžeš psát jen s přezdívkou. Účet Slowridera je dobrovolný. Statistiky poslechu jsou anonymní a můžeš je kdykoli vypnout i smazat. Měření používání appky se zapne jen s tvým souhlasem.
 
 Zpomal se Slow Down Rádijem.
 Tohle algoritmus neumí.
@@ -68,29 +70,31 @@ Hip hop, soul, jazz and funk
 
 **Promotional text**
 
-Listen to Slow Down Rádijo – music hand-picked by people, not algorithms. A weekly schedule, a sleep timer, voice messages to the station and your own listening stats.
+Listen to radio where people pick the music, not algorithms. Now with a listeners' chat, Slowrider profiles and new stats.
 
 **Keywords**
 
-radio,hiphop,rap,soul,funk,jazz,afrobeat,beats,groove,stream,live,online,prague,czech,black music
+radio,hiphop,rap,soul,funk,jazz,afrobeat,beats,groove,stream,live,online,prague,czech,chat
 
 **Description**
 
 Slow Down Rádijo in your pocket. The live stream of a radio station playing hip hop, soul, funk, jazz, Afrobeat and electronica – and above all, music you won't hear anywhere else. Hand-picked by people, not by algorithms.
 
 WHAT IT DOES
-• The live stream in one tap – in the background, from the lock screen, over AirPlay and Bluetooth
+• The live stream in one tap – in the background, from the lock screen, over AirPlay and Bluetooth, and in the car with CarPlay
+• Listeners' chat: talk with other listeners and the hosts during the show – just pick a nickname, no sign-up
 • What's on air: the show, the host and the song, which you can find on Spotify in one tap
 • The songs that played a moment ago – just swipe sideways
 • The whole week's schedule with show descriptions and a reminder when your favourite starts
-• A sleep timer for falling asleep to the radio
-• Your listening stats: how much time you've spent with the station, your most-listened shows and where you rank among listeners
+• Your listening stats: today, this week, all time, your favourite shows and where you are among listeners
+• Slowrider profile: with an optional account you can change your nickname and keep your stats on a new phone
 • Voice messages to the station – record a shout-out or a request and send it to the hosts
-• News from the station and a Home Screen widget showing what's on air
+• Sound quality to match your connection: full quality on Wi-Fi, data-saving on mobile
+• A sleep timer, news from the station and a Home Screen widget
 • In Czech and English
 
-NO ACCOUNT, NO ADS
-No sign-up and no ads. Listening stats are anonymous, and you can turn them off and delete them at any time. Usage measurement only starts with your consent.
+NO ADS, AN ACCOUNT ONLY IF YOU WANT ONE
+No ads and no sign-up – you can even write in the chat with just a nickname. A Slowrider account is optional. Listening stats are anonymous, and you can turn them off and delete them at any time. Usage measurement only starts with your consent.
 
 Slow down with Slow Down Rádijo.
 No algorithm can do this.
@@ -144,15 +148,21 @@ Version" (cs and en). Version 1.0 had none.
 **1.3 — Czech**
 
 ```
-• Lepší zvuk: na Wi-Fi hraje rádio ve vysoké kvalitě (MP3 160 kbps), na mobilních datech dál úsporně. Změníš to v Nastavení → Kvalita zvuku.
-• Drobné opravy a vylepšení.
+• Chat posluchačů: piš si s ostatními i s moderátory během vysílání. Stačí přezdívka.
+• Profil Slowridera: přezdívka, tvoje čísla a oblíbené pořady. S účtem (Apple, Google, e-mail) si změníš přezdívku a statistiky ti zůstanou.
+• Nové statistiky: dnešek a týden na první pohled, místo mezi posluchači.
+• Lepší zvuk: na Wi-Fi ve vysoké kvalitě, na datech úsporně.
+• V autě začne rádio hrát hned po otevření.
 ```
 
 **1.3 — English**
 
 ```
-• Better sound: on Wi-Fi the radio plays in high quality (MP3 160 kbps), on mobile data it still saves data. Change it in Settings → Sound quality.
-• Small fixes and improvements.
+• Listeners' chat: talk with other listeners and the hosts during the show. Just pick a nickname.
+• Slowrider profile: your nickname, your numbers and favourite shows. With an account (Apple, Google, e-mail) you can change your nickname and keep your stats.
+• New stats: today and this week at a glance, and where you are among listeners.
+• Better sound: high quality on Wi-Fi, data-saving on mobile.
+• In the car, the radio starts playing as soon as you open the app.
 ```
 
 ## Releasing a new version
@@ -190,11 +200,11 @@ info.
 
 ## App Review information
 
-Sign-in required: No — only writing in the chat needs an account (1.3).
-⬜ Before submitting 1.3: give App Review a way to write in the chat. Sign in
-with Apple works for them; to be safe, add a demo account in App Store
-Connect (an e-mail address the station can read, so the code can be passed on,
-or a password-less account made for review).
+Sign-in required: No — the chat works without an account too (a nickname with
+the first message); only changing the nickname and the Slowrider profile need
+one (1.3). Sign in with Apple works for App Review; to be safe, add a demo
+account in App Store Connect (an e-mail address the station can read, so the
+code can be passed on).
 
 Notes (as resubmitted for 1.0 after App Review asked for more
 information under guideline 2.1; a screen recording from an iPhone on the
@@ -238,8 +248,8 @@ account" and "no authentication provider"):
 
 ```
 7. ACCOUNTS AND LISTENER CHAT (NEW IN 1.3)
-Reading the chat needs no account. Writing needs an optional account: Sign in with Apple, Sign in with Google, or an e-mail one-time code (Supabase Auth). Accounts can be deleted in the app: Profil > Smazat účet.
-User-generated content safeguards (guideline 1.2): chat rules in Profil > Pravidla chatu; press and hold any message to report it or hide everything from its author; the station's DJs and an admin moderate (delete, mute for 1 h / 24 h / 7 days, block); reports are stored for the station to review; contact: info@slowdownradijo.cz.
+Anyone can read and write in the chat: the first message asks for a nickname, no account needed. An optional account (Sign in with Apple, Sign in with Google, or an e-mail one-time code, through Supabase Auth) lets the listener change the nickname and keeps the profile and stats on a new phone. Accounts can be deleted in the app: Profil > Smazat účet. Anti-spam: at most 5 messages in 30 seconds, no repeated message within a minute, links only from registered accounts.
+User-generated content safeguards (guideline 1.2): chat rules in Profil > Pravidla chatu; press and hold any message to report it or hide everything from its author; the station's hosts (moderators) and admins moderate (delete, mute for 1 h / 24 h / 7 days, block); reports are stored for the station to review; contact: info@slowdownradijo.cz.
 ```
 
 Keep it in step with the app: a new external service, account,
