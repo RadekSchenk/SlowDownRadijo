@@ -1097,7 +1097,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				INFOPLIST_FILE = SlowDownRadijoWidget/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1195,7 +1195,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = SlowDownRadijo/SlowDownRadijo.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				GOOGLE_IOS_CLIENT_ID = "234753697587-svd5687t2ruucnc4oh5a80i654bni44h.apps.googleusercontent.com";
 				GOOGLE_IOS_URL_SCHEME = "com.googleusercontent.apps.234753697587-svd5687t2ruucnc4oh5a80i654bni44h";
 				INFOPLIST_FILE = SlowDownRadijo/Info.plist;
@@ -1217,7 +1217,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = SlowDownRadijo/SlowDownRadijo.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				GOOGLE_IOS_CLIENT_ID = "234753697587-svd5687t2ruucnc4oh5a80i654bni44h.apps.googleusercontent.com";
 				GOOGLE_IOS_URL_SCHEME = "com.googleusercontent.apps.234753697587-svd5687t2ruucnc4oh5a80i654bni44h";
 				INFOPLIST_FILE = SlowDownRadijo/Info.plist;
@@ -1302,7 +1302,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				INFOPLIST_FILE = SlowDownRadijoWidget/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
