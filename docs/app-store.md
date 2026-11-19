@@ -243,13 +243,43 @@ None. The app works the same in all regions: it plays the station's single live 
 The app plays only the station's own live broadcast, the same stream offered at slowdownradijo.cz. Slow Down Radio s.r.o. holds licences for the internet broadcasting of music from OSA (authors) and INTERGRAM (performers and producers). Show photos and logos belong to the station.
 ```
 
-For 1.3, add to the notes (and update point 1 and 4 above, which say "no
-account" and "no authentication provider"):
+**Notes for 1.3** (the whole field, about 3,100 of the 4,000 characters; replaces the 1.0 notes above):
 
 ```
-7. ACCOUNTS AND LISTENER CHAT (NEW IN 1.3)
-Anyone can read and write in the chat: the first message asks for a nickname, no account needed. An optional account (Sign in with Apple, Sign in with Google, or an e-mail one-time code, through Supabase Auth) lets the listener change the nickname and keeps the profile and stats on a new phone. Accounts can be deleted in the app: Profil > Smazat účet. Anti-spam: at most 5 messages in 30 seconds, no repeated message within a minute, links only from registered accounts.
-User-generated content safeguards (guideline 1.2): chat rules in Profil > Pravidla chatu; press and hold any message to report it or hide everything from its author; the station's hosts (moderators) and admins moderate (delete, mute for 1 h / 24 h / 7 days, block); reports are stored for the station to review; contact: info@slowdownradijo.cz.
+1. SCREEN RECORDING
+A screen recording from an iPhone on the latest iOS is attached. It shows the live stream starting, the show, host and song on air, earlier songs, the sleep timer, the output picker, the weekly schedule with a reminder, the listeners' chat, the Profil tab, listening stats, a voice message and the menu.
+
+2. PURPOSE AND AUDIENCE
+Slow Down Rádijo is the official app of Slow Down Radio s.r.o., an internet radio station in Prague playing hip hop, soul, funk, jazz, Afrobeat and electronica hand-picked by its DJs. For listeners: one tap to play live, in the background and from the lock screen and CarPlay, with what is on air, the weekly schedule, a sleep timer, personal listening stats, voice messages to the studio and a listeners' chat.
+
+3. HOW TO USE IT
+Open the app; the live stream starts (or tap Play).
+- Rádio: show, host and song on air (tap the song for Spotify, swipe for earlier songs); moon icon: sleep timer; the Chat section opens the chat; the schedule with reminders below.
+- Statistiky: the listener's own listening time and anonymous leaderboard.
+- Vzkaz: record a voice message (microphone permission) and send it to the station.
+- Profil: optional account (see 7).
+- Menu (top left): news, settings (language, sound quality, stats on/off and delete, analytics consent), feedback.
+Czech and English. The song line appears only when the stream confirms the song.
+
+4. EXTERNAL SERVICES
+- Live audio: Icecast servers of play.cz, the station's streaming provider.
+- Supabase (UK region): listening stats, songs played, the optional account and sign-in (Supabase Auth with Sign in with Apple, Google and e-mail codes), the chat, and delivery of voice messages and feedback.
+- Resend: e-mail for voice messages, feedback and sign-in codes.
+- slowdownradijo.cz (WordPress REST API): news and the weekly programme.
+- Apple iTunes Search API: artwork for the song on air.
+- PostHog (EU): anonymous usage analytics, only after the user opts in.
+- Spotify: a search link when the user taps a song; no SDK or login.
+No payment processor or AI service.
+
+5. REGIONAL DIFFERENCES
+None: one live stream, interface in Czech and English.
+
+6. THIRD-PARTY MATERIAL
+The app plays only the station's own live broadcast, the same stream as at slowdownradijo.cz. Slow Down Radio s.r.o. holds licences for internet broadcasting from OSA and INTERGRAM. Show photos and logos belong to the station.
+
+7. ACCOUNT AND LISTENERS' CHAT (NEW IN 1.3)
+Anyone can read and write in the chat: the first message asks for a nickname, no account needed. An optional account (Sign in with Apple, Google or an e-mail code) lets the listener change the nickname and keeps the profile and stats on a new phone. Delete it in the app: Profil > Smazat účet.
+Safeguards (guideline 1.2): chat rules in Profil > Pravidla chatu; press and hold a message to report it or hide its author; the station's hosts and admins moderate (delete, mute for 1 h / 24 h / 7 days, block); anti-spam limits (5 messages per 30 s, no repeats within a minute, links only from accounts); reports are reviewed by the station; contact info@slowdownradijo.cz.
 ```
 
 Keep it in step with the app: a new external service, account,
