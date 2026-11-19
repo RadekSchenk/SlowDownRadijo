@@ -69,7 +69,7 @@ fun ProfilePage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit = {}) {
     val statsVersion by app.stats.version.collectAsStateWithLifecycle()
     val slowride = remember(statsVersion) {
         val summary = app.stats.summary()
-        SlowrideStats(summary.totalSeconds, summary.shows.take(3).map { (it.name ?: "—") to it.seconds }, summary.todaySeconds, summary.weekSeconds)
+        SlowrideStats(summary.totalSeconds, summary.shows.take(3))
     }
 
     LaunchedEffect(Unit) { account.refresh() }

@@ -65,7 +65,14 @@ class ProfileScreenshotTest {
     @Test fun signedOutEnglish() = capture("profile_signed_out_en", AppLanguage.EN) { ProfileContent(State.SignedOut, busy = false, ProfileActions(), now) }
 
     private val slowrider = listener.copy(registeredAtText = "2026-11-07T09:00:00+00:00", chatMessagesCount = 48, voiceMessagesCount = 3)
-    private val stats = cz.slowdownradijo.app.profile.SlowrideStats(310_440, listOf("Morning Coffee" to 115_200, "Noční linka" to 75_600, "Weekend Aftertaste" to 32_400), todaySeconds = 2 * 3600 + 14 * 60, weekSeconds = 10 * 3600 + 30 * 60)
+    private val stats = cz.slowdownradijo.app.profile.SlowrideStats(
+        310_440,
+        listOf(
+            cz.slowdownradijo.app.stats.StatsSummary.ShowShare("diggin-time", "Diggin' Time", "DJ Magič", null, "ShowArtDigginTime", 115_200, 0.52),
+            cz.slowdownradijo.app.stats.StatsSummary.ShowShare("beat-brunch", "Beat Brunch", "Jaro Cossiga", null, "ShowArtBeatBrunch", 75_600, 0.34),
+            cz.slowdownradijo.app.stats.StatsSummary.ShowShare("weekend-aftertaste", "Weekend Aftertaste", null, null, "ShowArtWeekendAftertaste", 32_400, 0.14),
+        ),
+    )
 
     @Test fun signedIn() = capture("profile_signed_in_cs", tall = true) {
         ProfileContent(State.SignedIn(SignInMethod.APPLE, "tom@example.cz", slowrider), busy = false, ProfileActions(), now, stats)

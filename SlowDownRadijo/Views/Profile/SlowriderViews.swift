@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// The account's benefits on the empty Profil (Figma Profil M2): managing the
 /// profile and the nickname, stats that move with the account, more to come.
@@ -78,11 +79,11 @@ struct SlowriderCard: View {
     }
 }
 
-/// Profil of a Slowrider (Figma "Explorace 1.3", M15): the member card
-/// (nickname, since when, everything listened, chat and voice messages, days
-/// on board), a row into Statistiky with today and this week, and the three
-/// most listened shows. The card's darker wine look keeps Profil from
-/// looking like Statistiky, whose coloured card shows today.
+/// Profil of a Slowrider (Figma "Explorace — Profil v2", P1): laid out like a
+/// profile, not like Statistiky — the nickname large, a row of numbers
+/// (listened, chat messages, voice messages, days on board), "Upravit
+/// přezdívku" and "Moje statistiky", and the three favourite shows as a
+/// grid of photos.
 struct SlowrideDashboard: View {
     let me: AccountService.Me
     var onOpenStats: () -> Void = {}
@@ -91,11 +92,12 @@ struct SlowrideDashboard: View {
 
     var body: some View {
         let summary = stats.summary
-        VStack(alignment: .leading, spacing: 16) {
-            memberCard(summary)
-            statsLink(summary)
+        VStack(alignment: .leading, spacing: 20) {
+            header
+            counters(summary)
+            buttons
             if !summary.shows.isEmpty {
-                topShows(summary)
+                favourites(summary)
             }
         }
         .onAppear {
@@ -103,116 +105,143 @@ struct SlowrideDashboard: View {
         }
     }
 
-    private func memberCard(_ summary: ListeningStatsSummary) -> some View {
-        GlowCard(style: .member) {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 8) {
-                    Text(me.isHost ? L10n.chatHostBadge.uppercased() : L10n.memberKicker)
-                        .font(Theme.Typography.Manrope.bold(size: 11, relativeTo: .caption2))
-                        .tracking(2.4)
-                        .foregroundStyle(Color.glowLabel)
-                    if me.isSuperadmin {
-                        Text(L10n.adminSuperadmin.uppercased())
-                            .font(Theme.Typography.Manrope.bold(size: 10, relativeTo: .caption2))
-                            .tracking(1)
-                            .foregroundStyle(Color.glowLabel)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.white.opacity(0.12), in: Capsule())
-                    }
-                }
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 10) {
                 Text(me.chatName ?? "")
-                    .font(Theme.Typography.Manrope.extraBold(size: 26, relativeTo: .title))
+                    .font(Theme.Typography.Manrope.extraBold(size: 30, relativeTo: .largeTitle))
                     .foregroundStyle(Theme.textPrimary)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-                if let since = me.registeredAt {
-                    Text(L10n.memberSince(ProfileFormat.date(since)))
-                        .font(Theme.Typography.Manrope.semibold(size: 13, relativeTo: .footnote))
-                        .foregroundStyle(Theme.mutedText)
+                    .minimumScaleFactor(0.6)
+                pill(me.isHost ? L10n.chatHostBadge.uppercased() : L10n.memberKicker)
+                if me.isSuperadmin {
+                    pill(L10n.adminSuperadmin.uppercased())
                 }
             }
-            .accessibilityElement(children: .combine)
-
-            Line()
-                .stroke(Color.white.opacity(0.22), style: StrokeStyle(lineWidth: 1.5, dash: [5, 5]))
-                .frame(height: 1.5)
-                .padding(.vertical, 2)
-                .accessibilityHidden(true)
-
-            VStack(alignment: .leading, spacing: 0) {
-                Text(L10n.memberListened)
-                    .font(Theme.Typography.Manrope.semibold(size: 13, relativeTo: .footnote))
-                    .foregroundStyle(Color.glowLabel)
-                DurationText(seconds: summary.totalSeconds, numberSize: 44, unitSize: 20, lineHeight: 52)
-            }
-            .accessibilityElement(children: .combine)
-
-            HStack(alignment: .top, spacing: 12) {
-                number("\(me.chatMessagesCount)", L10n.memberChat)
-                number("\(me.voiceMessagesCount)", L10n.memberVoice)
-                number("\(daysMember) \(L10n.slowrideDays(daysMember))", L10n.memberOnBoard)
+            if let since = me.registeredAt {
+                Text(L10n.slowriderSinceLong(ProfileFormat.date(since)))
+                    .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
+                    .foregroundStyle(Theme.mutedText)
             }
         }
+        .accessibilityElement(children: .combine)
     }
 
-    private func number(_ value: String, _ label: String) -> some View {
-        VStack(alignment: .leading, spacing: 1) {
+    private func pill(_ text: String) -> some View {
+        Text(text)
+            .font(Theme.Typography.Manrope.bold(size: 10, relativeTo: .caption2))
+            .tracking(1.2)
+            .foregroundStyle(Color.glowLabel)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(Theme.liveRed.opacity(0.16), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .fixedSize()
+    }
+
+    /// Like a profile's posts / followers row: numbers in a line, no boxes.
+    private func counters(_ summary: ListeningStatsSummary) -> some View {
+        let hours = summary.totalSeconds / 3600
+        let listened = hours > 0 ? "\(StatsFormat.number(hours)) h" : StatsFormat.duration(seconds: summary.totalSeconds)
+        return HStack(spacing: 0) {
+            counter(listened, L10n.memberListenedShort)
+            counter("\(me.chatMessagesCount)", L10n.memberMessages(me.chatMessagesCount))
+            counter("\(me.voiceMessagesCount)", L10n.memberVoiceMessages(me.voiceMessagesCount))
+            counter("\(daysMember)", L10n.slowrideDays(daysMember))
+        }
+        .padding(.top, 2)
+    }
+
+    private func counter(_ value: String, _ label: String) -> some View {
+        VStack(spacing: 0) {
             PopNumberText(text: value, font: Theme.Typography.Manrope.extraBold(size: 22, relativeTo: .title3), color: Theme.textPrimary)
                 .lineLimit(1)
-                .minimumScaleFactor(0.7)
+                .minimumScaleFactor(0.6)
             Text(label)
                 .font(Theme.Typography.Manrope.semibold(size: 12, relativeTo: .caption))
                 .foregroundStyle(Theme.mutedText)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity)
         .accessibilityElement(children: .combine)
     }
 
-    private func statsLink(_ summary: ListeningStatsSummary) -> some View {
-        Button(action: onOpenStats) {
-            HStack(spacing: 8) {
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(L10n.profileStatsLinkTitle(
-                        StatsFormat.duration(seconds: summary.todaySeconds),
-                        StatsFormat.duration(seconds: summary.weekSeconds)
-                    ))
-                    .font(Theme.Typography.Manrope.extraBold(size: 14, relativeTo: .subheadline))
-                    .foregroundStyle(Theme.textPrimary)
-                    Text(L10n.profileStatsLinkSubtitle)
-                        .font(Theme.Typography.Manrope.semibold(size: 12, relativeTo: .caption))
-                        .foregroundStyle(Theme.mutedText)
+    private var buttons: some View {
+        HStack(spacing: 8) {
+            if !me.isHost {
+                NavigationLink(value: ProfileView.Route.nickname) {
+                    buttonLabel(L10n.profileEditNickname)
                 }
-                Spacer(minLength: 8)
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(Theme.mutedText)
+                .buttonStyle(.plain)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-            .background(Theme.statsCardRaised, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-            .contentShape(Rectangle())
+            Button(action: onOpenStats) {
+                buttonLabel(L10n.profileMyStats)
+            }
+            .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
     }
 
-    private func topShows(_ summary: ListeningStatsSummary) -> some View {
-        StatsPanel(spacing: 16) {
-            Text(L10n.slowrideTopShows)
+    private func buttonLabel(_ title: String) -> some View {
+        Text(title)
+            .font(Theme.Typography.Manrope.bold(size: 14, relativeTo: .subheadline))
+            .foregroundStyle(Theme.textPrimary)
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 9)
+            .background(Theme.statsCardRaised, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .contentShape(Rectangle())
+    }
+
+    /// The three favourite shows as photos, like a profile's grid.
+    private func favourites(_ summary: ListeningStatsSummary) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(L10n.profileFavouriteShows)
                 .font(Theme.Typography.Manrope.extraBold(size: 16, relativeTo: .headline))
                 .foregroundStyle(Theme.textPrimary)
-            let top = summary.shows.first?.seconds ?? 1
-            ForEach(Array(summary.shows.prefix(3).enumerated()), id: \.element.id) { index, show in
-                ShowBarRow(
-                    share: show,
-                    fraction: Double(show.seconds) / Double(max(top, 1)),
-                    rank: index + 1,
-                    isLeader: index == 0
-                )
+            HStack(alignment: .top, spacing: 8) {
+                ForEach(0..<3, id: \.self) { index in
+                    if index < summary.shows.count {
+                        tile(summary.shows[index], rank: index + 1)
+                    } else {
+                        Color.clear.frame(maxWidth: .infinity)
+                    }
+                }
             }
         }
+    }
+
+    private func tile(_ share: ListeningStatsSummary.ShowShare, rank: Int) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Color.clear
+                .aspectRatio(1, contentMode: .fit)
+                .overlay { ShowShareArtwork(share: share) }
+                .overlay(alignment: .bottom) {
+                    LinearGradient(colors: [.clear, Color(hex: 0x120E25).opacity(0.85)], startPoint: .center, endPoint: .bottom)
+                }
+                .overlay(alignment: .topLeading) {
+                    Text("\(rank)")
+                        .font(Theme.Typography.Manrope.extraBold(size: 12, relativeTo: .caption))
+                        .foregroundStyle(Theme.textPrimary)
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 2)
+                        .background(rank == 1 ? Theme.liveRed : Color(hex: 0x120E25).opacity(0.75), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        .padding(8)
+                }
+                .overlay(alignment: .bottomLeading) {
+                    Text(StatsFormat.compactDuration(seconds: share.seconds))
+                        .font(Theme.Typography.Manrope.extraBold(size: 14, relativeTo: .subheadline))
+                        .foregroundStyle(Theme.textPrimary)
+                        .padding(10)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            Text(share.name)
+                .font(Theme.Typography.Manrope.bold(size: 13, relativeTo: .footnote))
+                .foregroundStyle(Theme.textPrimary)
+                .lineLimit(1)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .combine)
     }
 
     private var daysMember: Int {
@@ -223,15 +252,31 @@ struct SlowrideDashboard: View {
     }
 }
 
-/// A horizontal line for dashed strokes (the member card's perforation).
-private struct Line: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.move(to: CGPoint(x: rect.minX, y: rect.midY))
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
-        return path
+/// A show's photo from its listening share: bundled, else from the web,
+/// else the brand placeholder (as `ShowArtworkView`), filling its frame.
+struct ShowShareArtwork: View {
+    let share: ListeningStatsSummary.ShowShare
+
+    var body: some View {
+        Group {
+            if let name = share.artworkName, UIImage(named: name) != nil {
+                Image(name).resizable().scaledToFill()
+            } else if let url = share.imageURL {
+                AsyncImage(url: url) { phase in
+                    if case .success(let image) = phase {
+                        image.resizable().scaledToFill()
+                    } else {
+                        ShowArtworkPlaceholder(cornerRadius: 0)
+                    }
+                }
+            } else {
+                ShowArtworkPlaceholder(cornerRadius: 0)
+            }
+        }
+        .accessibilityHidden(true)
     }
 }
+
 
 /// "Přezdívku změníš s účtem" and the Slowrider card's sign-up (Figma
 /// Profil M8): Apple / Google / e-mail, keeping the nickname and stats.

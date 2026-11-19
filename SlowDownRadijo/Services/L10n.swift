@@ -3279,55 +3279,6 @@ extension L10n {
         }
     }
 
-    static func memberSince(_ date: String) -> String {
-        switch lang {
-        case .cs: return "Na palubě od \(date)"
-        case .en: return "On board since \(date)"
-        }
-    }
-
-    static var memberListened: String {
-        switch lang {
-        case .cs: return "Odposloucháno za celou dobu"
-        case .en: return "Listened in total"
-        }
-    }
-
-    static var memberChat: String {
-        switch lang {
-        case .cs: return "zprávy v chatu"
-        case .en: return "chat messages"
-        }
-    }
-
-    static var memberVoice: String {
-        switch lang {
-        case .cs: return "hlasové vzkazy"
-        case .en: return "voice messages"
-        }
-    }
-
-    static var memberOnBoard: String {
-        switch lang {
-        case .cs: return "na palubě"
-        case .en: return "on board"
-        }
-    }
-
-    static func profileStatsLinkTitle(_ today: String, _ week: String) -> String {
-        switch lang {
-        case .cs: return "Dnes \(today) · týden \(week)"
-        case .en: return "Today \(today) · this week \(week)"
-        }
-    }
-
-    static var profileStatsLinkSubtitle: String {
-        switch lang {
-        case .cs: return "Celé statistiky a žebříček"
-        case .en: return "Full stats and leaderboard"
-        }
-    }
-
     static func statsWeekTotal(_ duration: String) -> String {
         switch lang {
         case .cs: return "Tento týden \(duration)"
@@ -3405,4 +3356,55 @@ extension L10n {
         }
     }
 
+}
+
+// Profil P1 (Figma "Explorace — Profil v2").
+extension L10n {
+    static var memberListenedShort: String {
+        switch lang {
+        case .cs: return "poslechu"
+        case .en: return "listened"
+        }
+    }
+
+    static func memberMessages(_ count: Int) -> String {
+        switch lang {
+        case .cs:
+            if count == 1 { return "zpráva" }
+            if (2...4).contains(count) { return "zprávy" }
+            return "zpráv"
+        case .en: return count == 1 ? "message" : "messages"
+        }
+    }
+
+    static func memberVoiceMessages(_ count: Int) -> String {
+        switch lang {
+        case .cs:
+            if count == 1 { return "vzkaz" }
+            if (2...4).contains(count) { return "vzkazy" }
+            return "vzkazů"
+        case .en: return count == 1 ? "voice message" : "voice messages"
+        }
+    }
+
+    static var profileEditNickname: String {
+        switch lang {
+        case .cs: return "Upravit přezdívku"
+        case .en: return "Edit nickname"
+        }
+    }
+
+    static var profileMyStats: String {
+        switch lang {
+        case .cs: return "Moje statistiky"
+        case .en: return "My stats"
+        }
+    }
+
+    static var profileFavouriteShows: String {
+        switch lang {
+        case .cs: return "Tvoje oblíbené pořady"
+        case .en: return "Your favourite shows"
+        }
+    }
 }

@@ -442,13 +442,6 @@
     <string name="adminAdminSince">Správce od %1$s</string>
     <string name="adminRemoveAdmin">Odebrat %1$s ze správců?</string>
     <string name="memberKicker">SLOWRIDER</string>
-    <string name="memberSince">Na palubě od %1$s</string>
-    <string name="memberListened">Odposloucháno za celou dobu</string>
-    <string name="memberChat">zprávy v chatu</string>
-    <string name="memberVoice">hlasové vzkazy</string>
-    <string name="memberOnBoard">na palubě</string>
-    <string name="profileStatsLinkTitle">Dnes %1$s · týden %2$s</string>
-    <string name="profileStatsLinkSubtitle">Celé statistiky a žebříček</string>
     <string name="statsWeekTotal">Tento týden %1$s</string>
     <string name="statsLiveBadge">POSLOUCHÁŠ</string>
     <string name="statsStripTotal">celkem</string>
@@ -460,4 +453,8 @@
     <string name="statsNeighbours">Tvoji sousedé v žebříčku</string>
     <string name="statsYou">Ty</string>
     <string name="statsLeaderboardAnonymous">Žebříček je anonymní: nikdo nevidí, kdo jsi, jen čísla.</string>
+    <string name="memberListenedShort">poslechu</string>
+    <string name="profileEditNickname">Upravit přezdívku</string>
+    <string name="profileMyStats">Moje statistiky</string>
+    <string name="profileFavouriteShows">Tvoje oblíbené pořady</string>
 </resources>

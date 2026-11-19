@@ -221,7 +221,7 @@ private fun SignedIn(state: State.SignedIn, actions: ProfileActions, now: Instan
             if (me == null) Identity(state.email.orEmpty(), stringResource(R.string.signedInWith, method))
             if (me != null && (me.blocked || (me.mutedUntil?.isAfter(now) == true))) MutedBanner(me.mutedUntil, me.blocked, now)
         }
-        if (me != null) SlowrideDashboard(me, stats, now, actions.onOpenStats)
+        if (me != null) SlowrideDashboard(me, stats, now, actions.onOpenStats, actions.onNickname)
         if (me?.isSuperadmin == true) {
             ProfileSection(stringResource(R.string.adminSection)) {
                 ProfileRow(stringResource(R.string.adminModerators), onClick = actions.onAdminModerators)

@@ -20,6 +20,24 @@ object L10nLogic {
         else -> "dní"
     }
 
+    /** Profil P1: "48 zpráv" — "zpráva", "zprávy", "zpráv" (EN "message", "messages"). */
+    fun memberMessages(english: Boolean, count: Int): String = if (english) {
+        if (count == 1) "message" else "messages"
+    } else when {
+        count == 1 -> "zpráva"
+        count in 2..4 -> "zprávy"
+        else -> "zpráv"
+    }
+
+    /** Profil P1: "3 vzkazy" — "vzkaz", "vzkazy", "vzkazů" (EN "voice message(s)"). */
+    fun memberVoiceMessages(english: Boolean, count: Int): String = if (english) {
+        if (count == 1) "voice message" else "voice messages"
+    } else when {
+        count == 1 -> "vzkaz"
+        count in 2..4 -> "vzkazy"
+        else -> "vzkazů"
+    }
+
     /** "↓ 3 nové zprávy": "1 nová zpráva", "2–4 nové zprávy", "5 nových zpráv". */
     fun chatNewMessages(english: Boolean, count: Int): String = if (english) {
         if (count == 1) "1 new message" else "$count new messages"

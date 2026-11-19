@@ -16,6 +16,15 @@ import cz.slowdownradijo.app.stats.GlowLabel
 import cz.slowdownradijo.app.stats.GlowStyle
 import cz.slowdownradijo.app.stats.ShowBarRow
 import cz.slowdownradijo.app.stats.StatsPanel
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import coil3.compose.AsyncImage
+import cz.slowdownradijo.app.home.ShowArtworkPlaceholder
+import cz.slowdownradijo.app.stats.StatsSummary
+import cz.slowdownradijo.app.data.SharedImages
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -71,9 +80,8 @@ import java.time.temporal.ChronoUnit
 /** What the "Tvůj Slowride" dashboard shows from the listening stats. */
 data class SlowrideStats(
     val totalSeconds: Int = 0,
-    val topShows: List<Pair<String, Int>> = emptyList(),
-    val todaySeconds: Int = 0,
-    val weekSeconds: Int = 0,
+    /** The favourite shows, most listened first (`StatsSummary.shows`). */
+    val topShows: List<StatsSummary.ShowShare> = emptyList(),
 )
 
 /**
@@ -129,72 +137,52 @@ fun SlowriderCard(nickname: String, onRegister: () -> Unit) {
 }
 
 /**
- * Profil of a Slowrider (Figma M15), as `SlowrideDashboard` in SlowriderViews.swift: the
- * member card, a row into Statistiky with today and this week, and the three most
- * listened shows. The card's darker wine look keeps Profil apart from Statistiky.
+ * Profil of a Slowrider (Figma "Explorace — Profil v2", P1), as `SlowrideDashboard` in
+ * SlowriderViews.swift: laid out like a profile, not like Statistiky — the nickname
+ * large, a row of numbers, "Upravit přezdívku" and "Moje statistiky", and the three
+ * favourite shows as a grid of photos.
  */
 @Composable
-fun SlowrideDashboard(me: AccountService.Me, stats: SlowrideStats, now: Instant, onOpenStats: () -> Unit = {}) {
+fun SlowrideDashboard(me: AccountService.Me, stats: SlowrideStats, now: Instant, onOpenStats: () -> Unit = {}, onEditNickname: () -> Unit = {}) {
     val english = LocalAppLanguage.current.isEnglish
     val zone = ZoneId.of("Europe/Prague")
     val days = me.registeredAt?.let {
         (ChronoUnit.DAYS.between(it.atZone(zone).toLocalDate(), now.atZone(zone).toLocalDate()) + 1).toInt().coerceAtLeast(1)
     } ?: 0
-    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        GlowCard(GlowStyle.MEMBER) {
-            Column(Modifier.semantics(mergeDescendants = true) {}, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        if (me.isHost) stringResource(R.string.chatHostBadge).uppercase() else stringResource(R.string.memberKicker),
-                        style = Theme.Typography.manrope(11f, FontWeight.Bold).copy(letterSpacing = 2.4.sp), color = GlowLabel,
-                    )
-                    if (me.isSuperadmin) {
-                        Text(
-                            stringResource(R.string.adminSuperadmin).uppercase(), style = Theme.Typography.manrope(10f, FontWeight.Bold).copy(letterSpacing = 1.sp), color = GlowLabel,
-                            modifier = Modifier.background(Color.White.copy(alpha = 0.12f), RoundedCornerShape(50)).padding(horizontal = 6.dp, vertical = 2.dp),
-                        )
-                    }
-                }
-                Text(me.chatName.orEmpty(), style = Theme.Typography.manrope(26f, FontWeight.ExtraBold), color = Theme.textPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                me.registeredAt?.atZone(zone)?.let {
-                    Text(stringResource(R.string.memberSince, "${it.dayOfMonth}. ${it.monthValue}. ${it.year}"), style = Theme.Typography.manrope(13f, FontWeight.SemiBold), color = Theme.mutedText)
-                }
-            }
-            Canvas(Modifier.fillMaxWidth().height(2.dp).padding(vertical = 0.dp)) {
-                drawLine(
-                    Color.White.copy(alpha = 0.22f), Offset(0f, size.height / 2), Offset(size.width, size.height / 2),
-                    strokeWidth = 1.5.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(5.dp.toPx(), 5.dp.toPx())),
+    Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+        Column(Modifier.semantics(mergeDescendants = true) {}, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(
+                    me.chatName.orEmpty(), style = Theme.Typography.manrope(30f, FontWeight.ExtraBold), color = Theme.textPrimary,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false),
                 )
+                MemberPill(if (me.isHost) stringResource(R.string.chatHostBadge).uppercase() else stringResource(R.string.memberKicker))
+                if (me.isSuperadmin) MemberPill(stringResource(R.string.adminSuperadmin).uppercase())
             }
-            Column(Modifier.semantics(mergeDescendants = true) {}) {
-                Text(stringResource(R.string.memberListened), style = Theme.Typography.manrope(13f, FontWeight.SemiBold), color = GlowLabel)
-                cz.slowdownradijo.app.stats.DurationText(stats.totalSeconds, 44f, 20f)
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                MemberNumber("${me.chatMessagesCount}", stringResource(R.string.memberChat), Modifier.weight(1f))
-                MemberNumber("${me.voiceMessagesCount}", stringResource(R.string.memberVoice), Modifier.weight(1f))
-                MemberNumber("$days ${L10nLogic.slowrideDays(english, days)}", stringResource(R.string.memberOnBoard), Modifier.weight(1f))
+            me.registeredAt?.atZone(zone)?.let {
+                Text(stringResource(R.string.slowriderSinceLong, "${it.dayOfMonth}. ${it.monthValue}. ${it.year}"), style = Theme.Typography.manrope(14f, FontWeight.SemiBold), color = Theme.mutedText)
             }
         }
-        Row(
-            Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Theme.statsCardRaised).clickable(onClick = onOpenStats).padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
-                Text(
-                    stringResource(R.string.profileStatsLinkTitle, StatsFormat.duration(english, stats.todaySeconds), StatsFormat.duration(english, stats.weekSeconds)),
-                    style = Theme.Typography.manrope(14f, FontWeight.ExtraBold), color = Theme.textPrimary,
-                )
-                Text(stringResource(R.string.profileStatsLinkSubtitle), style = Theme.Typography.manrope(12f, FontWeight.SemiBold), color = Theme.mutedText)
-            }
-            Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null, tint = Theme.mutedText)
+        // Like a profile's posts / followers row: numbers in a line, no boxes.
+        val hours = stats.totalSeconds / 3600
+        Row(Modifier.fillMaxWidth().padding(top = 2.dp)) {
+            Counter(if (hours > 0) "${StatsFormat.number(english, hours)} h" else StatsFormat.duration(english, stats.totalSeconds), stringResource(R.string.memberListenedShort), Modifier.weight(1f))
+            Counter("${me.chatMessagesCount}", L10nLogic.memberMessages(english, me.chatMessagesCount), Modifier.weight(1f))
+            Counter("${me.voiceMessagesCount}", L10nLogic.memberVoiceMessages(english, me.voiceMessagesCount), Modifier.weight(1f))
+            Counter("$days", L10nLogic.slowrideDays(english, days), Modifier.weight(1f))
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (!me.isHost) ProfileButton(stringResource(R.string.profileEditNickname), onEditNickname, Modifier.weight(1f))
+            ProfileButton(stringResource(R.string.profileMyStats), onOpenStats, Modifier.weight(1f))
         }
         if (stats.topShows.isNotEmpty()) {
-            StatsPanel(spacing = 16) {
-                Text(stringResource(R.string.slowrideTopShows), style = Theme.Typography.manrope(16f, FontWeight.ExtraBold), color = Theme.textPrimary)
-                val top = stats.topShows.first().second
-                stats.topShows.take(3).forEachIndexed { index, (name, seconds) ->
-                    ShowBarRow(name, null, seconds, seconds.toDouble() / maxOf(top, 1), rank = index + 1, leader = index == 0)
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(stringResource(R.string.profileFavouriteShows), style = Theme.Typography.manrope(16f, FontWeight.ExtraBold), color = Theme.textPrimary)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    for (index in 0 until 3) {
+                        val share = stats.topShows.getOrNull(index)
+                        if (share == null) Box(Modifier.weight(1f)) else ShowTile(share, index + 1, Modifier.weight(1f))
+                    }
                 }
             }
         }
@@ -202,10 +190,55 @@ fun SlowrideDashboard(me: AccountService.Me, stats: SlowrideStats, now: Instant,
 }
 
 @Composable
-private fun MemberNumber(value: String, label: String, modifier: Modifier) {
-    Column(modifier.semantics(mergeDescendants = true) {}, verticalArrangement = Arrangement.spacedBy(1.dp)) {
+private fun MemberPill(text: String) {
+    Text(
+        text, style = Theme.Typography.manrope(10f, FontWeight.Bold).copy(letterSpacing = 1.2.sp), color = GlowLabel, maxLines = 1,
+        modifier = Modifier.background(Theme.liveRed.copy(alpha = 0.16f), RoundedCornerShape(8.dp)).padding(horizontal = 8.dp, vertical = 3.dp),
+    )
+}
+
+@Composable
+private fun Counter(value: String, label: String, modifier: Modifier) {
+    Column(modifier.semantics(mergeDescendants = true) {}, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(value, style = Theme.Typography.manrope(22f, FontWeight.ExtraBold), color = Theme.textPrimary, maxLines = 1)
         Text(label, style = Theme.Typography.manrope(12f, FontWeight.SemiBold), color = Theme.mutedText, maxLines = 1)
+    }
+}
+
+@Composable
+private fun ProfileButton(title: String, onClick: () -> Unit, modifier: Modifier) {
+    Box(
+        modifier.clip(RoundedCornerShape(10.dp)).background(Theme.statsCardRaised).clickable(onClick = onClick).padding(vertical = 9.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(title, style = Theme.Typography.manrope(14f, FontWeight.Bold), color = Theme.textPrimary, maxLines = 1)
+    }
+}
+
+/** One favourite show as a square photo with its place and time, the name under it. */
+@Composable
+private fun ShowTile(share: StatsSummary.ShowShare, rank: Int, modifier: Modifier) {
+    val english = LocalAppLanguage.current.isEnglish
+    Column(modifier.semantics(mergeDescendants = true) {}, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Box(Modifier.fillMaxWidth().aspectRatio(1f).clip(RoundedCornerShape(12.dp))) {
+            val bundled = SharedImages.drawable(share.artworkName)
+            val photo = Modifier.matchParentSize()
+            when {
+                bundled != null -> Image(painterResource(bundled), null, photo, contentScale = ContentScale.Crop)
+                share.imageURL != null -> AsyncImage(share.imageURL, null, photo.background(Theme.brandPurple), contentScale = ContentScale.Crop)
+                else -> ShowArtworkPlaceholder(photo)
+            }
+            Box(Modifier.matchParentSize().background(Brush.verticalGradient(0.5f to Color.Transparent, 1f to Color(0xD9120E25))))
+            Text(
+                "$rank", style = Theme.Typography.manrope(12f, FontWeight.ExtraBold), color = Theme.textPrimary,
+                modifier = Modifier.padding(8.dp).background(if (rank == 1) Theme.liveRed else Color(0xBF120E25), RoundedCornerShape(8.dp)).padding(horizontal = 7.dp, vertical = 2.dp),
+            )
+            Text(
+                StatsFormat.compactDuration(english, share.seconds), style = Theme.Typography.manrope(14f, FontWeight.ExtraBold), color = Theme.textPrimary,
+                modifier = Modifier.align(Alignment.BottomStart).padding(10.dp),
+            )
+        }
+        Text(share.name ?: stringResource(R.string.statsUnknownShow), style = Theme.Typography.manrope(13f, FontWeight.Bold), color = Theme.textPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 
