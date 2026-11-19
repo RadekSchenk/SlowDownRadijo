@@ -343,7 +343,7 @@ listener's anonymous stats user, so their stats stay. Design and rules:
 15. **Run `supabase/sql/026_my_stats_neighbours.sql`** (after 025):
     `get_my_stats` also returns the listening time of the places right above
     and below the caller (shown as neighbours, not a race) and the days with
-    listening, for the new Statistiky (1.3).
+    listening, for the new Statistiky (1.3). On production since 19. 11. 2026.
 9. **Invite links on slowdownradijo.cz.** Until these two files are on the
    web, the `https://slowdownradijo.cz/dj/<code>` link opens the website, not
    the app; `slowdownradijo://dj/<code>` works right away in both apps.
