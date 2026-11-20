@@ -110,7 +110,7 @@ struct HomeView: View {
         }
         .sheet(item: $chatOpening) { opening in
             ChatSheetView(nowPlaying: nowPlaying, scheduleStore: scheduleStore, focusComposer: opening.withKeyboard)
-                .presentationDetents([.fraction(0.72), .large])
+                .presentationDetents(Self.chatDetents)
                 .presentationDragIndicator(.visible)
                 .presentationCornerRadius(24)
                 .presentationBackground(Theme.statsCard)
@@ -470,5 +470,16 @@ struct HomeView: View {
 private extension Array {
     subscript(safe index: Int) -> Element? {
         indices.contains(index) ? self[index] : nil
+    }
+}
+
+extension HomeView {
+    /// The chat sheet's sizes; store screenshots open it at full height so
+    /// the whole conversation shows.
+    static var chatDetents: Set<PresentationDetent> {
+        #if DEBUG
+        if StoreDemo.isOn { return [.large] }
+        #endif
+        return [.fraction(0.72), .large]
     }
 }

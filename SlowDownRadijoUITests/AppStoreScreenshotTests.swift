@@ -60,11 +60,6 @@ final class AppStoreScreenshotTests: XCTestCase {
         if chat.exists {
             chat.tap()
             sleep(3)
-            // Up to the large size, so the whole conversation shows.
-            let grabber = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.30))
-            grabber.press(forDuration: 0.1, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.02)),
-                          withVelocity: XCUIGestureVelocity(800), thenHoldForDuration: 0.3)
-            sleep(3)
             capture("2 chat")
             app.swipeDown(velocity: .fast)
             sleep(2)
