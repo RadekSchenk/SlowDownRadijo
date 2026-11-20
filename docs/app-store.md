@@ -12,6 +12,10 @@ Czech and English; best while a show with a host is on air. Upload the
 files in the artifact's `framed-6.3` folder (1206 x 2622): App Store
 Connect's iPhone slot is the 6.1"/6.3" Dynamic Island size.
 
+The 1.3 set (Morning Coffee, chat, profile, stats, programme, message; taken with
+`-storeDemo YES`, so any time of day) is in `appstore/screenshots/6.3/{cs,en}`
+(upload these) and `appstore/screenshots/6.9/{cs,en}`.
+
 ## App information
 
 | Field | Value |
