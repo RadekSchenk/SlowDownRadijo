@@ -118,7 +118,7 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         MARKETING_VERSION: "1.3"
-        CURRENT_PROJECT_VERSION: "3"
+        CURRENT_PROJECT_VERSION: "4"
         # Google Cloud → APIs & Services → Credentials → the iOS OAuth client:
         # its client id, and the "iOS URL scheme" (the id reversed). Until
         # they are filled in, "Pokračovat s Google" says it's unavailable.
@@ -189,7 +189,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: cz.slowdownradijo.app.Widget
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         MARKETING_VERSION: "1.3"
-        CURRENT_PROJECT_VERSION: "3"
+        CURRENT_PROJECT_VERSION: "4"
         SKIP_INSTALL: "YES"
         TARGETED_DEVICE_FAMILY: "1"
 
