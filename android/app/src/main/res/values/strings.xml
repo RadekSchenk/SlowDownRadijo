@@ -476,7 +476,7 @@
     <string name="contestAnswerPlaceholder">Napiš odpověď</string>
     <string name="contestPhoneLabel">Telefon</string>
     <string name="contestPhoneHint">Zavoláme jen výherci. Po losování číslo smažeme.</string>
-    <string name="contestConsent">Odesláním souhlasíš s pravidly soutěže. Telefon použijeme jen pro kontaktování výherce.</string>
+    <string name="contestConsent">Odesláním souhlasíš s pravidly soutěže. Telefon použijeme jen pro kontaktování výherce. Soutěž pořádá Slow Down Radio s.r.o., Apple ani Google ji nesponzorují.</string>
     <string name="contestSubmit">Odeslat odpověď</string>
     <string name="contestSending">Odesílám…</string>
     <string name="contestErrorPickOption">Vyber jednu z odpovědí.</string>

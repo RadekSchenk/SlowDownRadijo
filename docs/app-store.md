@@ -157,6 +157,7 @@ Version" (cs and en). Version 1.0 had none.
 • Nové statistiky: dnešek a týden na první pohled, místo mezi posluchači.
 • Lepší zvuk: na Wi-Fi ve vysoké kvalitě, na datech úsporně.
 • V autě začne rádio hrát hned po otevření.
+• Soutěže: když rádio vyhlásí soutěž, uvidíš ji na úvodní obrazovce. Odpověz, nech nám telefon a hraj o ceny. Soutěžit můžou Slowriders s účtem.
 ```
 
 **1.3 — English**
@@ -167,6 +168,7 @@ Version" (cs and en). Version 1.0 had none.
 • New stats: today and this week at a glance, and where you are among listeners.
 • Better sound: high quality on Wi-Fi, data-saving on mobile.
 • In the car, the radio starts playing as soon as you open the app.
+• Contests: when the station runs a contest, you'll see it on the home screen. Answer, leave your phone number and play for prizes. Open to Slowriders with an account.
 ```
 
 ## Releasing a new version
@@ -191,6 +193,7 @@ Tracking → No for every type.
 | Data type | What it is | Purposes | Linked to the user |
 |---|---|---|---|
 | Contact Info → Email Address | The account's e-mail (1.3: optional account, only to write in the chat) | App Functionality | Yes |
+| Contact Info → Phone Number | 1.3: the phone number a Slowrider leaves when entering a contest, to contact the winner; deleted 30 days after the draw | App Functionality | Yes |
 | Identifiers → User ID | The random anonymous ID behind the listening stats, which becomes the account when the listener signs in; the chat nickname | App Functionality | Yes |
 | Identifiers → Device ID | PostHog's random analytics ID, only with consent | Analytics | No |
 | Usage Data → Product Interaction | Listening seconds per day and show; with consent, which features are used | App Functionality, Analytics | Yes |
@@ -198,7 +201,7 @@ Tracking → No for every type.
 | User Content → Other User Content | Chat messages (public in the app, with the nickname); the text of feedback messages | App Functionality | Yes |
 | Diagnostics → Other Diagnostic Data | App and iOS version and device model sent with feedback | App Functionality | No |
 
-Not collected: name, phone number, location, health, financial info, contacts,
+Not collected: name, location, health, financial info, contacts,
 browsing or search history, purchases, photos, crash data, sensitive
 info.
 
@@ -284,6 +287,9 @@ The app plays only the station's own live broadcast, the same stream as at slowd
 7. ACCOUNT AND LISTENERS' CHAT (NEW IN 1.3)
 Anyone can read and write in the chat: the first message asks for a nickname, no account needed. An optional account (Sign in with Apple, Google or an e-mail code) lets the listener change the nickname and keeps the profile and stats on a new phone. Delete it in the app: Profil > Smazat účet.
 Safeguards (guideline 1.2): chat rules in Profil > Pravidla chatu; press and hold a message to report it or hide its author; the station's hosts and admins moderate (delete, mute for 1 h / 24 h / 7 days, block); anti-spam limits (5 messages per 30 s, no repeats within a minute, links only from accounts); reports are reviewed by the station; contact info@slowdownradijo.cz.
+
+8. CONTESTS (NEW IN 1.3, GUIDELINE 5.3)
+When the station runs a contest, a yellow card appears on the Rádio tab (it can be closed for good). The contest page shows the text, the prize, the end date, a link to the official rules (slowdownradijo.cz/pravidla-soutezi/) and the question. Entering needs a free account; the listener answers and leaves a phone number, used only to contact the winner. Entry is free, no purchase. The sponsor is Slow Down Radio s.r.o.; the page says that Apple and Google are not sponsors. Winners are drawn at random in the app by the station's admins. If no contest is running during review, the card is not shown.
 ```
 
 Keep it in step with the app: a new external service, account,

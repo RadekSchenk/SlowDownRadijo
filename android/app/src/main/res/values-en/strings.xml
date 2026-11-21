@@ -476,7 +476,7 @@
     <string name="contestAnswerPlaceholder">Type your answer</string>
     <string name="contestPhoneLabel">Phone</string>
     <string name="contestPhoneHint">We only call the winner and delete the number after the draw.</string>
-    <string name="contestConsent">By sending you agree to the contest rules. We only use your phone number to contact the winner.</string>
+    <string name="contestConsent">By sending you agree to the contest rules. We only use your phone number to contact the winner. The contest is run by Slow Down Radio s.r.o. and is not sponsored by Apple or Google.</string>
     <string name="contestSubmit">Send answer</string>
     <string name="contestSending">Sending…</string>
     <string name="contestErrorPickOption">Pick one of the answers.</string>

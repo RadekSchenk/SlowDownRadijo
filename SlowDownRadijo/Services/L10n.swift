@@ -3547,8 +3547,8 @@ extension L10n {
 
     static var contestConsent: String {
         switch lang {
-        case .cs: return "Odesláním souhlasíš s pravidly soutěže. Telefon použijeme jen pro kontaktování výherce."
-        case .en: return "By sending you agree to the contest rules. We only use your phone number to contact the winner."
+        case .cs: return "Odesláním souhlasíš s pravidly soutěže. Telefon použijeme jen pro kontaktování výherce. Soutěž pořádá Slow Down Radio s.r.o., Apple ani Google ji nesponzorují."
+        case .en: return "By sending you agree to the contest rules. We only use your phone number to contact the winner. The contest is run by Slow Down Radio s.r.o. and is not sponsored by Apple or Google."
         }
     }
 
