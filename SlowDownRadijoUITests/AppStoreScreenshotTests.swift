@@ -26,6 +26,8 @@ final class AppStoreScreenshotTests: XCTestCase {
             "-analytics.consent", "denied",
             // Morning Coffee on air, the sample chat, Slowrider and stats.
             "-storeDemo", "YES",
+            // The sample contest: its card on the home page and its page.
+            "-contestDemo", "YES",
             // Times as a listener here sees them: the CI Mac runs on UTC
             // and a US region (2:00 PM for the 15:00 end of a show).
             "-AppleLocale", language == "cs" ? "cs_CZ" : "en_GB",
@@ -50,6 +52,22 @@ final class AppStoreScreenshotTests: XCTestCase {
         _ = pause.waitForExistence(timeout: 60)
         sleep(4)
         capture("1 home")
+
+        // The contest page (1.3), from its card under the player, with an answer picked.
+        let contest = app.buttons["contest.infobox"]
+        if contest.waitForExistence(timeout: 5) {
+            contest.tap()
+            sleep(2)
+            let option = app.buttons["contest.option.B"]
+            if option.waitForExistence(timeout: 5), option.isHittable {
+                option.tap()
+                sleep(1)
+            }
+            capture("7 contest")
+            let close = app.buttons["contest.sheet.close"]
+            if close.exists { close.tap() } else { app.swipeDown(velocity: .fast) }
+            sleep(2)
+        }
 
         // The chat, opened from its section on the home page.
         let chat = app.buttons["chat.open"]

@@ -21,15 +21,15 @@ enum ContestDemo {
         end = calendar.date(bySettingHour: 23, minute: 59, second: 0, of: end) ?? end
         var contest = ContestService.Contest(
             id: 1,
-            title: english ? "Win 2 tickets to Slow Down Fest 2027" : "Vyhraj 2 lístky na Slow Down Fest 2027",
+            title: english ? "Win Thundercat – Distracted on vinyl" : "Vyhraj vinyl Thundercat – Distracted",
             body: english
-                ? "Slow Down Fest returns to Ještěd in summer 2027 and we have two pairs of tickets for listeners. Answer the question about our programme and leave your phone number. After the contest we draw two winners from the right answers, call them and announce them on Monday's Morning Coffee."
-                : "Slow Down Fest se v létě 2027 vrací na Ještěd a my máme pro posluchače dva páry lístků. Odpověz na otázku o našem programu a nech nám telefon. Po skončení soutěže vylosujeme dva výherce ze správných odpovědí, zavoláme jim a oznámíme je v pondělní Morning Coffee.",
-            question: english ? "Which show is on Sunday at 14:00?" : "Který pořad hraje v neděli od 14:00?",
+                ? "Another contest for our Slowriders: Distracted on vinyl, Thundercat's fifth and latest album, with guests including Tame Impala, Mac Miller, Lil Yachty and Flying Lotus. Answer the question and leave your phone number. We draw the winner on the Monday after the contest, live on Morning Coffee between 7 and 9."
+                : "Pro naše Slowriders tu máme další soutěž: vinyl Distracted, páté a nejnovější album Thundercata. Na desce hostují Tame Impala, Mac Miller, Lil Yachty, Flying Lotus a další. Odpověz na otázku a nech nám telefon. Výherce vylosujeme v pondělí po skončení soutěže v Morning Coffee mezi 7. a 9. hodinou.",
+            question: english ? "Which producer and long-time Thundercat collaborator guests on Distracted?" : "Který producent a dlouholetý spolupracovník Thundercata hostuje na albu Distracted?",
             answerType: .choice,
-            options: ["Weekend Aftertaste", "Diggin’ Time", "Noční linka"],
-            prize: english ? "2× two tickets" : "2× dvě vstupenky",
-            winnersCount: 2,
+            options: ["Moby", "Flying Lotus", "Fatboy Slim"],
+            prize: english ? "Distracted on vinyl" : "Vinyl Distracted",
+            winnersCount: 1,
             rulesURL: URL(string: "https://slowdownradijo.cz/pravidla-soutezi/"),
             endsAt: end
         )
@@ -48,15 +48,15 @@ enum ContestDemo {
         let now = Date()
         let c = contest
         let json = """
-        {"current": {"id": 1, "title": "\(c.title)", "answer_type": "choice", "prize": "\(c.prize)", "winners_count": 2,
+        {"current": {"id": 1, "title": "\(c.title)", "answer_type": "choice", "prize": "\(c.prize)", "winners_count": 1,
           "starts_at": "\(iso(now.addingTimeInterval(-3 * 86400)))", "ends_at": "\(iso(c.endsAt))", "ended_at": null,
           "ended_early": false, "drawn_at": null, "is_running": true, "entries": 128, "correct": 97, "dismissed": 41, "winners": 0},
          "previous": [
-          {"id": 2, "title": "Vinyl Khruangbin – Mordechai", "answer_type": "text", "prize": "Vinyl", "winners_count": 1,
+          {"id": 2, "title": "Vinyl Khruangbin – A LA SALA", "answer_type": "text", "prize": "Vinyl", "winners_count": 1,
            "starts_at": "\(iso(now.addingTimeInterval(-30 * 86400)))", "ends_at": "\(iso(now.addingTimeInterval(-19 * 86400)))",
            "ended_at": null, "ended_early": false, "drawn_at": "\(iso(now.addingTimeInterval(-18 * 86400)))", "is_running": false,
            "entries": 214, "correct": 0, "dismissed": 12, "winners": 1},
-          {"id": 3, "title": "Lístky na Prague Sound Days", "answer_type": "choice", "prize": "2× lístky", "winners_count": 2,
+          {"id": 3, "title": "Lístky na Prague Sound Days", "answer_type": "choice", "prize": "2× lístky", "winners_count": 1,
            "starts_at": "\(iso(now.addingTimeInterval(-50 * 86400)))", "ends_at": "\(iso(now.addingTimeInterval(-40 * 86400)))",
            "ended_at": null, "ended_early": false, "drawn_at": null, "is_running": false,
            "entries": 156, "correct": 120, "dismissed": 30, "winners": 0}]}
@@ -68,15 +68,14 @@ enum ContestDemo {
         let now = Date()
         let c = contest
         let winners = drawn ? """
-        [{"nickname": "vinylovy_tom", "phone": "+420777123456", "answer": "B", "drawn_at": "\(iso(now))"},
-         {"nickname": "jana_z_letne", "phone": "+420731908117", "answer": "B", "drawn_at": "\(iso(now))"}]
+        [{"nickname": "vinylovy_tom", "phone": "+420777123456", "answer": "B", "drawn_at": "\(iso(now))"}]
         """ : "[]"
         let json = """
-        {"id": 3, "title": "\(c.title)", "answer_type": "choice", "prize": "\(c.prize)", "winners_count": 2,
+        {"id": 3, "title": "\(c.title)", "answer_type": "choice", "prize": "\(c.prize)", "winners_count": 1,
          "starts_at": "\(iso(now.addingTimeInterval(-9 * 86400)))", "ends_at": "\(iso(now.addingTimeInterval(-2 * 86400)))",
          "ended_at": null, "ended_early": false, "drawn_at": \(drawn ? "\"\(iso(now))\"" : "null"), "is_running": false,
-         "entries": 342, "correct": 261, "dismissed": 41, "winners": \(drawn ? 2 : 0),
-         "question": "\(c.question)", "options": ["Weekend Aftertaste", "Diggin’ Time", "Noční linka"], "correct_option": 1,
+         "entries": 342, "correct": 261, "dismissed": 41, "winners": \(drawn ? 1 : 0),
+         "question": "\(c.question)", "options": ["Moby", "Flying Lotus", "Fatboy Slim"], "correct_option": 1,
          "distribution": [{"answer": "A", "count": 51}, {"answer": "B", "count": 261}, {"answer": "C", "count": 30}],
          "entry_list": [
           {"nickname": "vinylovy_tom", "answer": "B", "is_correct": true, "phone": "+420777123456", "created_at": "\(iso(now.addingTimeInterval(-50 * 3600)))"},

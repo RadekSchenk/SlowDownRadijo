@@ -15,17 +15,17 @@ object ContestDemo {
         val end = now.atZone(zone).toLocalDate().plusDays(6).atTime(LocalTime.of(23, 59)).atZone(zone).toInstant()
         return ContestService.Contest(
             id = 1,
-            title = if (english) "Win 2 tickets to Slow Down Fest 2027" else "Vyhraj 2 lístky na Slow Down Fest 2027",
+            title = if (english) "Win Thundercat – Distracted on vinyl" else "Vyhraj vinyl Thundercat – Distracted",
             body = if (english) {
-                "Slow Down Fest returns to Ještěd in summer 2027 and we have two pairs of tickets for listeners. Answer the question about our programme and leave your phone number. After the contest we draw two winners from the right answers, call them and announce them on Monday's Morning Coffee."
+                "Another contest for our Slowriders: Distracted on vinyl, Thundercat's fifth and latest album, with guests including Tame Impala, Mac Miller, Lil Yachty and Flying Lotus. Answer the question and leave your phone number. We draw the winner on the Monday after the contest, live on Morning Coffee between 7 and 9."
             } else {
-                "Slow Down Fest se v létě 2027 vrací na Ještěd a my máme pro posluchače dva páry lístků. Odpověz na otázku o našem programu a nech nám telefon. Po skončení soutěže vylosujeme dva výherce ze správných odpovědí, zavoláme jim a oznámíme je v pondělní Morning Coffee."
+                "Pro naše Slowriders tu máme další soutěž: vinyl Distracted, páté a nejnovější album Thundercata. Na desce hostují Tame Impala, Mac Miller, Lil Yachty, Flying Lotus a další. Odpověz na otázku a nech nám telefon. Výherce vylosujeme v pondělí po skončení soutěže v Morning Coffee mezi 7. a 9. hodinou."
             },
-            question = if (english) "Which show is on Sunday at 14:00?" else "Který pořad hraje v neděli od 14:00?",
+            question = if (english) "Which producer and long-time Thundercat collaborator guests on Distracted?" else "Který producent a dlouholetý spolupracovník Thundercata hostuje na albu Distracted?",
             answerType = "choice",
-            options = listOf("Weekend Aftertaste", "Diggin’ Time", "Noční linka"),
-            prize = if (english) "2× two tickets" else "2× dvě vstupenky",
-            winnersCount = 2,
+            options = listOf("Moby", "Flying Lotus", "Fatboy Slim"),
+            prize = if (english) "Distracted on vinyl" else "Vinyl Distracted",
+            winnersCount = 1,
             rulesUrl = "https://slowdownradijo.cz/pravidla-soutezi/",
             endsAtText = end.toString(),
             myStatus = if (entered) "entered" else null,
@@ -38,12 +38,12 @@ object ContestDemo {
         fun ago(days: Long) = now.minus(Duration.ofDays(days)).toString()
         return ContestAdmin.Overview(
             current = ContestAdmin.Summary(
-                id = 1, title = c.title, prize = c.prize, winnersCount = 2, startsAtText = ago(3), endsAtText = c.endsAtText,
+                id = 1, title = c.title, prize = c.prize, winnersCount = 1, startsAtText = ago(3), endsAtText = c.endsAtText,
                 isRunning = true, entries = 128, correct = 97, dismissed = 41,
             ),
             previous = listOf(
                 ContestAdmin.Summary(
-                    id = 2, title = "Vinyl Khruangbin – Mordechai", answerType = "text", prize = "Vinyl", startsAtText = ago(30),
+                    id = 2, title = "Vinyl Khruangbin – A LA SALA", answerType = "text", prize = "Vinyl", startsAtText = ago(30),
                     endsAtText = ago(19), drawnAtText = ago(18), entries = 214, dismissed = 12, winners = 1,
                 ),
                 ContestAdmin.Summary(
@@ -59,11 +59,10 @@ object ContestDemo {
         fun hoursAgo(h: Long) = now.minus(Duration.ofHours(h)).toString()
         val winners = if (drawn) listOf(
             ContestAdmin.Person("vinylovy_tom", "B", phone = "+420777123456", drawnAtText = now.toString()),
-            ContestAdmin.Person("jana_z_letne", "B", phone = "+420731908117", drawnAtText = now.toString()),
         ) else emptyList()
         return ContestAdmin.Detail(
             ContestAdmin.Summary(
-                id = 3, title = c.title, prize = c.prize, winnersCount = 2, startsAtText = hoursAgo(9 * 24), endsAtText = hoursAgo(48),
+                id = 3, title = c.title, prize = c.prize, winnersCount = 1, startsAtText = hoursAgo(9 * 24), endsAtText = hoursAgo(48),
                 drawnAtText = if (drawn) now.toString() else null, entries = 342, correct = 261, dismissed = 41, winners = winners.size,
             ),
             ContestAdmin.DetailData(

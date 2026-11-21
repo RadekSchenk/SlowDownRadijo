@@ -12,8 +12,8 @@ Czech and English; best while a show with a host is on air. Upload the
 files in the artifact's `framed-6.3` folder (1206 x 2622): App Store
 Connect's iPhone slot is the 6.1"/6.3" Dynamic Island size.
 
-The 1.3 set (Morning Coffee, chat, profile, stats, programme, message; taken with
-`-storeDemo YES`, so any time of day) is in `appstore/screenshots/6.3/{cs,en}`
+The 1.3 set (Morning Coffee with the contest card, chat, profile of `cevapcicidisko`, stats, programme, message, the contest page; taken with
+`-storeDemo YES -contestDemo YES`, so any time of day) is in `appstore/screenshots/6.3/{cs,en}`
 (upload these) and `appstore/screenshots/6.9/{cs,en}`.
 
 ## App information
@@ -36,7 +36,7 @@ Hip hop, soul, jazz a funk
 
 **Promotional text**
 
-Poslouchej rádio, kde hudbu vybírají lidi, ne algoritmy. Nově s chatem posluchačů, profilem Slowridera a novými statistikami.
+Poslouchej rádio, kde hudbu vybírají lidi, ne algoritmy. Nově s chatem posluchačů, profilem Slowridera a soutěžemi o ceny.
 
 **Keywords**
 
@@ -54,6 +54,7 @@ CO APPKA UMÍ
 • Program na celý týden s popisy pořadů a připomínkou, když začíná tvůj oblíbený
 • Tvoje statistiky poslechu: dnešek, týden, celkový čas, oblíbené pořady a místo mezi posluchači
 • Profil Slowridera: s volitelným účtem si změníš přezdívku a statistiky ti zůstanou i na novém telefonu
+• Soutěže o ceny od rádia – odpověz na otázku přímo v appce (pro Slowridery s účtem)
 • Hlasový vzkaz do rádia – nahraj pozdrav nebo přání a pošli ho moderátorům
 • Kvalita zvuku podle připojení: na Wi-Fi naplno, na datech úsporně
 • Časovač vypnutí, novinky z rádia a widget na plochu
@@ -74,7 +75,7 @@ Hip hop, soul, jazz and funk
 
 **Promotional text**
 
-Listen to radio where people pick the music, not algorithms. Now with a listeners' chat, Slowrider profiles and new stats.
+Listen to radio where people pick the music, not algorithms. Now with a listeners' chat, Slowrider profiles and contests with prizes.
 
 **Keywords**
 
@@ -92,6 +93,7 @@ WHAT IT DOES
 • The whole week's schedule with show descriptions and a reminder when your favourite starts
 • Your listening stats: today, this week, all time, your favourite shows and where you are among listeners
 • Slowrider profile: with an optional account you can change your nickname and keep your stats on a new phone
+• Contests with prizes from the station – answer the question right in the app (for Slowriders with an account)
 • Voice messages to the station – record a shout-out or a request and send it to the hosts
 • Sound quality to match your connection: full quality on Wi-Fi, data-saving on mobile
 • A sleep timer, news from the station and a Home Screen widget

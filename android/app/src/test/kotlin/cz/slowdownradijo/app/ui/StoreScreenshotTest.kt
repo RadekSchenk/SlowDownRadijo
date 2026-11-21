@@ -115,6 +115,10 @@ class StoreScreenshotTest {
     private fun home(language: AppLanguage) = capture("1_home", language) {
         RootScreen(Tab.RADIO, {}, menuOpen = false, menu = {}) {
             HomeScreen(HomeUi(onAir, PlaybackState.Playing, null, now), HomeActions()) {
+                // The contest card between the player and the chat (1.3).
+                cz.slowdownradijo.app.contests.ContestInfobox(
+                    contest(language), {}, {}, Modifier.padding(top = Theme.Spacing.xl),
+                )
                 // The chat section under the player, as on the home page.
                 ChatHomeSection(
                     ChatService.State(messages = chatMessages(language == AppLanguage.EN), loaded = true, lastSeenId = 10),
@@ -131,7 +135,7 @@ class StoreScreenshotTest {
     private fun chatMessages(en: Boolean) = listOf(
         msg(1, 38.0, "DJ Pufaz", if (en) "Good morning! What are you listening to over coffee? ☕" else "Dobré ráno! Co dnes posloucháte u kafe? ☕", "dj"),
         msg(2, 12.0, "kafe_s_mlekem", if (en) "Good morning from tram number 9 🚋" else "Dobré ráno z tramvaje číslo 9 🚋"),
-        msg(3, 10.0, "vinylovy_tom", if (en) "That intro woke me up better than an espresso" else "Ten úvod mě probudil líp než espresso"),
+        msg(3, 10.0, "cevapcicidisko", if (en) "That intro woke me up better than an espresso" else "Ten úvod mě probudil líp než espresso"),
         msg(4, 9.0, "DJ Pufaz", if (en) "Thanks! Something by Khruangbin is coming up, stay tuned 🙌" else "Díky! Za chvíli přijde něco od Khruangbin, vydržte 🙌", "dj"),
         msg(5, 7.0, "jana_z_letne", if (en) "Hello to the whole office in Smíchov ☀️" else "Pozdrav celé kanceláři na Smíchově ☀️"),
         msg(6, 5.0, "nela", "🔥"), msg(7, 4.8, "marty", "🔥"), msg(8, 4.7, "ondra_b", "🔥"), msg(9, 4.6, "kafe_s_mlekem", "🔥"),
@@ -151,7 +155,7 @@ class StoreScreenshotTest {
                 ChatContent(
                     state = ChatService.State(messages = messages, pinned = pinned, loaded = true, lastSeenId = 10),
                     show = show,
-                    writer = ChatWriter(signedIn = true, name = "vinylovy_tom", role = "listener", mutedUntil = null, blocked = false),
+                    writer = ChatWriter(signedIn = true, name = "cevapcicidisko", role = "listener", mutedUntil = null, blocked = false),
                     draft = "", onDraft = {}, onSend = { _, _ -> }, onRetry = {}, onClose = {}, onRules = {}, onSeen = {},
                     showLabel = { id, title, _ -> id?.let { ChatTimeline.ShowLabel("07:00", title ?: it) } },
                     modifier = Modifier.fillMaxHeight(0.96f).clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)),
@@ -162,7 +166,7 @@ class StoreScreenshotTest {
     }
 
     private val me = AccountService.Me(
-        userId = "u-vinylovy_tom", nickname = "vinylovy_tom", registeredAtText = "2026-09-14T10:00:00Z",
+        userId = "u-cevapcicidisko", nickname = "cevapcicidisko", registeredAtText = "2026-09-14T10:00:00Z",
         chatMessagesCount = 48, voiceMessagesCount = 3,
     )
 
@@ -222,6 +226,22 @@ class StoreScreenshotTest {
             }
         }
     }
+
+    private fun contest(language: AppLanguage) = cz.slowdownradijo.app.contests.ContestDemo.contest(english = language == AppLanguage.EN, now = now)
+
+    private fun contestPage(language: AppLanguage) = capture("7_contest", language) {
+        Box(Modifier.fillMaxSize().background(Theme.background)) {
+            cz.slowdownradijo.app.contests.ContestContent(
+                contest(language), cz.slowdownradijo.app.contests.ContestPageState.Form,
+                cz.slowdownradijo.app.contests.ContestForm(selected = "B"),
+                cz.slowdownradijo.app.contests.ContestPageActions(),
+                Modifier.padding(top = 24.dp),
+            )
+        }
+    }
+
+    @Test fun contestCs() = contestPage(AppLanguage.CS)
+    @Test fun contestEn() = contestPage(AppLanguage.EN)
 
     @Test fun homeCs() = home(AppLanguage.CS)
     @Test fun chatCs() = chat(AppLanguage.CS)

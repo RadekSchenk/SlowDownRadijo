@@ -81,6 +81,7 @@ struct ContestInfobox: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(L10n.contestBadge), \(contest.title), \(L10n.contestUntil(ContestFormat.dayAndTime(contest.endsAt)))")
         .accessibilityHint(L10n.contestJoin)
+        .accessibilityIdentifier("contest.infobox")
         .overlay(alignment: .topTrailing) {
             Button(action: onClose) {
                 Image(systemName: "xmark")
@@ -96,7 +97,6 @@ struct ContestInfobox: View {
             .accessibilityLabel(L10n.contestCloseLabel)
             .accessibilityIdentifier("contest.close")
         }
-        .accessibilityIdentifier("contest.infobox")
     }
 }
 
@@ -138,6 +138,7 @@ struct ContestSheetView: View {
                     Spacer()
                     HeaderIconButton(systemName: "xmark") { dismiss() }
                         .accessibilityLabel(L10n.close)
+                        .accessibilityIdentifier("contest.sheet.close")
                 }
                 content
             }
