@@ -1,0 +1,248 @@
+<title>Soutěže v aplikaci a podmínky</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column; changed passages carry the contest yellow, the rules read as numbered articles */
+:root {
+  --bg: #f7f5fb;
+  --paper: #ffffff;
+  --ink: #1c1730;
+  --muted: #5e5778;
+  --line: #e3dfee;
+  --brand: #433785;
+  --mark: #fde7a6;
+  --mark-ink: #4a3500;
+  --chip: #efecf8;
+  --font-display: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #120e25; --paper: #1a1535; --ink: #f2effa; --muted: #b8afdc; --line: #332b4d;
+    --brand: #b9acff; --mark: #4d3a07; --mark-ink: #ffe39a; --chip: #241c3a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #120e25; --paper: #1a1535; --ink: #f2effa; --muted: #b8afdc; --line: #332b4d;
+  --brand: #b9acff; --mark: #4d3a07; --mark-ink: #ffe39a; --chip: #241c3a; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 64px;
+}
+.wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.2; }
+h1 { font-size: clamp(2rem, 5vw, 2.6rem); font-weight: 800; letter-spacing: -0.01em; }
+h2 { font-size: 1.45rem; font-weight: 800; }
+h3 { font-size: 1.05rem; font-weight: 700; }
+p { margin: 0; }
+.eyebrow { font-family: var(--font-display); font-weight: 800; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); }
+header { display: flex; flex-direction: column; gap: 14px; }
+.lead { color: var(--muted); font-size: 1.05rem; max-width: 62ch; }
+section { display: flex; flex-direction: column; gap: 16px; }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.note { color: var(--muted); font-size: 0.95rem; max-width: 65ch; }
+ul.plain { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 8px; }
+.panel { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.decision { display: grid; grid-template-columns: 1fr; gap: 4px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.decision:last-child { border-bottom: 0; padding-bottom: 0; }
+.decision .rec { color: var(--muted); font-size: 0.95rem; }
+.decision .rec b { color: var(--ink); font-weight: 600; }
+.change { display: flex; flex-direction: column; gap: 8px; }
+.where { display: inline-block; align-self: flex-start; font-family: var(--font-display); font-weight: 700; font-size: 0.8rem; background: var(--chip); color: var(--muted); border-radius: 999px; padding: 3px 10px; }
+.change p, .change li { max-width: 68ch; }
+mark { background: var(--mark); color: var(--mark-ink); padding: 0 2px; border-radius: 3px; }
+.legend { font-size: 0.9rem; color: var(--muted); }
+ol.articles { margin: 0; padding: 0; list-style: none; counter-reset: art; display: flex; flex-direction: column; gap: 18px; }
+ol.articles > li { counter-increment: art; display: grid; grid-template-columns: 2.2em 1fr; gap: 0 10px; }
+ol.articles > li::before { content: counter(art) "."; font-family: var(--font-display); font-weight: 800; color: var(--brand); font-size: 1.05rem; line-height: 1.5; }
+ol.articles > li > div { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+ol.articles ul { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: 4px; }
+.todo { font-weight: 600; color: var(--mark-ink); background: var(--mark); border-radius: 3px; padding: 0 3px; }
+button.copy {
+  font: 600 0.85rem var(--font-display); color: var(--brand); background: transparent; border: 1px solid var(--line);
+  border-radius: 999px; padding: 6px 14px; cursor: pointer;
+}
+button.copy:hover { border-color: var(--brand); }
+button.copy:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+footer { color: var(--muted); font-size: 0.9rem; border-top: 1px solid var(--line); padding-top: 16px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Slow Down Rádijo · aplikace 1.3</span>
+    <h1>Soutěže v aplikaci a podmínky</h1>
+    <p class="lead">Rudo, do verze 1.3 přidáváme soutěže. Posluchač se zaregistruje, odpoví na otázku a nechá telefon, my pak vylosujeme výherce. Kvůli tomu se mění zásady ochrany osobních údajů a potřebujeme obecná pravidla soutěží. Obojí je níž, k tomu pár bodů, které musíš rozhodnout ty.</p>
+  </header>
+
+  <section>
+    <h2>Co se mění</h2>
+    <ul class="plain">
+      <li>Nově ukládáme <b>telefonní číslo</b> účastníka soutěže, jeho odpověď a čas odeslání. Telefon slouží jen ke kontaktu s výhercem.</li>
+      <li>Soutěžit může jen <b>registrovaný Slowrider</b>, přihlášený v aplikaci.</li>
+      <li>Odpovědi a telefony vidí jen <b>správci soutěží</b> v rádiu (role správce a superadmin v aplikaci).</li>
+      <li><b>Přezdívku výherce</b> můžeme oznámit ve vysílání a v chatu.</li>
+      <li>Telefony mažeme <b>30 dní po losování</b>, odpovědi po 12 měsících, záznam o výherci po 3 letech.</li>
+      <li>V App Store a Google Play bude potřeba doplnit, že aplikace sbírá telefonní číslo (App Privacy, Data safety).</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>K rozhodnutí</h2>
+    <div class="panel">
+      <div class="decision">
+        <h3>Věková hranice</h3>
+        <p class="rec">Chat je od 13 let. <b>Doporučuju soutěže od 18 let</b>, odpadne souhlas rodičů a u lístků na festival nebo alkoholu to bývá podmínka.</p>
+      </div>
+      <div class="decision">
+        <h3>Kdo je vyloučený</h3>
+        <p class="rec"><b>Návrh:</b> zaměstnanci a spolupracovníci rádia, moderátoři, správci aplikace a jejich blízké osoby.</p>
+      </div>
+      <div class="decision">
+        <h3>Výhry nad 10 000 Kč</h3>
+        <p class="rec">Výhry do 10 000 Kč jsou pro výherce osvobozené od daně z příjmů. U dražší výhry se daní, <b>doporučuju to probrat s účetní</b>, než takovou soutěž vypíšeme.</p>
+      </div>
+      <div class="decision">
+        <h3>Jak dlouho čekáme na výherce</h3>
+        <p class="rec"><b>Návrh:</b> když se výherce do 7 dní neozve, vylosujeme náhradníka. Aplikace to umí jedním tlačítkem.</p>
+      </div>
+      <div class="decision">
+        <h3>Kde budou pravidla</h3>
+        <p class="rec"><b>Návrh:</b> obecná pravidla na webu, třeba <b>slowdownradijo.cz/pravidla-soutezi/</b>. Konkrétní výhru, termín a otázku každé soutěže ukáže aplikace v detailu soutěže, odkud vede odkaz na pravidla.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Zásady ochrany osobních údajů: změny</h2>
+      <button class="copy" type="button" data-copy="policy" id="copy-policy">Kopírovat novou část</button>
+    </div>
+    <p class="legend"><mark>Žlutě</mark> je nový text. Zbytek zásad zůstává, jak je na webu teď.</p>
+
+    <div class="panel" id="policy">
+      <div class="change">
+        <span class="where">Datum aktualizace</span>
+        <p><em>Poslední aktualizace: <mark>21. listopadu 2026 (verze aplikace 1.3: účet, chat posluchačů a soutěže)</mark></em></p>
+      </div>
+      <div class="change">
+        <span class="where">Účet je dobrovolný</span>
+        <p>… statistiky uložené k účtu, které ti zůstanou i na novém telefonu, <mark>a umožní soutěžit o ceny</mark>.</p>
+      </div>
+      <div class="change">
+        <span class="where">Chat posluchačů a účet · Smazání účtu (doplněná věta)</span>
+        <p><mark>Smazání účtu smaže i tvoje odpovědi v soutěžích a telefonní číslo (viz níže).</mark></p>
+      </div>
+      <div class="change" id="policy-new">
+        <span class="where">Nová část za „Chat posluchačů a účet“</span>
+        <p><mark><b>Soutěže (jen pokud se zapojíš):</b></mark></p>
+        <ul class="plain">
+          <li><mark>Soutěžit může jen registrovaný Slowrider. Pravidla každé soutěže najdeš v jejím detailu v aplikaci. Soutěže jsou bezplatné.</mark></li>
+          <li><mark><b>Co ukládáme:</b> tvoji odpověď, telefonní číslo, čas odeslání a vazbu na tvůj účet (přezdívku). U vylosovaných výherců navíc přezdívku, co vyhráli a kdy jsme je vylosovali.</mark></li>
+          <li><mark><b>K čemu:</b> odpovědi vyhodnotíme a mezi správnými odpověďmi vylosujeme výherce. Telefon slouží jen k tomu, abychom výherci zavolali nebo napsali kvůli předání výhry. Nepoužíváme ho k reklamě ani obchodním sdělením a nikomu ho nepředáváme.</mark></li>
+          <li><mark><b>Kdo to vidí:</b> jen správci soutěží v rádiu (v aplikaci role správce a superadmin). Ostatní posluchači tvoji odpověď ani telefon neuvidí.</mark></li>
+          <li><mark><b>Zveřejnění výherců:</b> přezdívku výherce můžeme oznámit ve vysílání a v chatu aplikace. Telefon ani e-mail nezveřejňujeme nikdy.</mark></li>
+          <li><mark><b>Zavření nabídky soutěže:</b> když nabídku soutěže na úvodní obrazovce zavřeš křížkem, uložíme k tvému účtu (nebo k anonymnímu ID pro statistiky, pokud účet nemáš), že jsi tuto soutěž zavřel(a), aby se ti už neukazovala. Rádio z toho vidí jen celkový počet zavření.</mark></li>
+          <li><mark><b>Právní základ:</b> plnění smlouvy, tedy účast v soutěži podle jejích pravidel (čl. 6 odst. 1 písm. b) GDPR); uchování údajů o výhercích z oprávněného zájmu doložit, komu jsme výhru předali (čl. 6 odst. 1 písm. f) GDPR).</mark></li>
+          <li><mark><b>Doba uchování:</b> telefonní čísla všech účastníků smažeme 30 dní po losování výherců, nejpozději 90 dní po skončení soutěže. Odpovědi smažeme 12 měsíců po skončení soutěže; zůstanou jen souhrnné počty bez vazby na kohokoli. Přezdívku výherce, výhru a datum losování uchováváme 3 roky.</mark></li>
+          <li><mark><b>Smazání účtu</b> smaže i tvoje odpovědi a telefon. Když účet smažeš před losováním, do losování už zařazen(a) nebudeš.</mark></li>
+        </ul>
+      </div>
+      <div class="change">
+        <span class="where">Anonymní měření používání · Co se měří (konec výčtu)</span>
+        <p>… a akce moderátorů (bez toho, koho se týkaly)<mark>, a u soutěží zobrazení, otevření a zavření nabídky soutěže a odeslání odpovědi (bez odpovědi a telefonu)</mark>.</p>
+      </div>
+      <div class="change">
+        <span class="where">Použité služby třetích stran · Supabase</span>
+        <p>… (historie přehraných skladeb, statistiky poslechu, účty, chat <mark>a soutěže</mark>). Bez účtu zpracovává jen anonymní ID a sečtené sekundy poslechu; s účtem navíc e-mail, přezdívku, zprávy <mark>a odpovědi v soutěžích s telefonem</mark>, jak je popsáno výše.</p>
+      </div>
+      <div class="change">
+        <span class="where">Tvoje práva</span>
+        <p>S účtem nám můžeš napsat o kopii svých údajů (přezdívka, e-mail, zprávy<mark>, odpovědi v soutěžích</mark>) …</p>
+      </div>
+      <div class="change">
+        <span class="where">Děti</span>
+        <p>Chat posluchačů je určený lidem od 13 let. <mark>Soutěžit mohou jen lidé od 18 let.</mark></p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Obecná pravidla soutěží (návrh)</h2>
+      <button class="copy" type="button" data-copy="rules" id="copy-rules">Kopírovat pravidla</button>
+    </div>
+    <p class="note">Platí pro všechny soutěže v aplikaci. <span class="todo">Žlutě</span> jsou místa, která závisí na tvém rozhodnutí výš.</p>
+
+    <div class="panel" id="rules">
+      <h3>Pravidla soutěží v aplikaci Slow Down Rádijo</h3>
+      <ol class="articles">
+        <li><div><b>Pořadatel</b><p>Pořadatelem soutěží je Slow Down Radio s.r.o., IČO 23309440, se sídlem Jeseniova 1575/69, Žižkov, 130 00 Praha 3 (dále „pořadatel“). Kontakt: info@slowdownradijo.cz.</p></div></li>
+        <li><div><b>Co tato pravidla upravují</b><p>Pravidla platí pro všechny soutěže v mobilní aplikaci Slow Down Rádijo pro iOS a Android. Výhru, počet výherců, otázku a termín konkrétní soutěže uvádí její detail v aplikaci. Tyto údaje jsou součástí pravidel dané soutěže.</p></div></li>
+        <li><div><b>Kdo se může zúčastnit</b>
+          <ul>
+            <li>Fyzická osoba starší <span class="todo">18 let</span> s doručovací adresou v České republice.</li>
+            <li>Registrovaný uživatel aplikace (Slowrider), přihlášený ke svému účtu.</li>
+            <li>Ze soutěže jsou vyloučeni <span class="todo">zaměstnanci a spolupracovníci pořadatele, moderátoři, správci aplikace a osoby jim blízké</span>.</li>
+          </ul></div></li>
+        <li><div><b>Doba trvání</b><p>Každá soutěž začíná zveřejněním v aplikaci a končí v den a hodinu uvedené v jejím detailu. Odpovědi odeslané později se nezapočítávají.</p></div></li>
+        <li><div><b>Jak soutěžit</b>
+          <ul>
+            <li>Účastník v aplikaci odpoví na soutěžní otázku a zadá své telefonní číslo.</li>
+            <li>Z jednoho účtu lze do každé soutěže odeslat jen jednu odpověď a po odeslání ji nelze změnit.</li>
+            <li>Kdo soutěží z více účtů nebo se snaží výsledek ovlivnit jinak než odpovědí, může být pořadatelem vyloučen.</li>
+            <li>Účast je bezplatná a nepodmíněná nákupem. Nejde o hazardní hru.</li>
+          </ul></div></li>
+        <li><div><b>Určení výherců</b><p>Po skončení soutěže pořadatel vylosuje výherce náhodně ze správných odpovědí. U soutěží s volnou odpovědí losuje z odpovědí, které uzná za správné. Losování proběhne nejpozději do 7 dnů od konce soutěže a provádí ho aplikace bez ručního výběru.</p></div></li>
+        <li><div><b>Oznámení a předání výhry</b>
+          <ul>
+            <li>Pořadatel kontaktuje výherce na telefonní číslo zadané v soutěži, telefonátem nebo zprávou.</li>
+            <li>Když se výherce neozve do <span class="todo">7 dnů</span>, nárok na výhru zaniká a pořadatel může vylosovat náhradníka.</li>
+            <li>Přezdívku výherce může pořadatel oznámit ve vysílání a v aplikaci.</li>
+            <li>Výhru předá pořadatel osobně nebo poštou podle dohody s výhercem. Výhru nelze vyměnit za peníze ani jiné plnění.</li>
+            <li><span class="todo">U výhry v hodnotě nad 10 000 Kč postupuje pořadatel podle zákona o daních z příjmů.</span></li>
+          </ul></div></li>
+        <li><div><b>Osobní údaje</b><p>Údaje účastníků (odpověď, telefon, přezdívka) zpracovává pořadatel jen pro průběh soutěže a předání výhry, podle Zásad ochrany osobních údajů aplikace: slowdownradijo.cz/ochrana-osobnich-udaju/.</p></div></li>
+        <li><div><b>Změny a ukončení</b><p>Pořadatel může soutěž ukončit předčasně, změnit tato pravidla nebo soutěž zrušit, pokud k tomu má vážný důvod. Změnu oznámí v aplikaci. Odpovědi odeslané před předčasným ukončením zůstávají v losování.</p></div></li>
+        <li><div><b>Apple a Google</b><p>Soutěže nejsou sponzorovány, podporovány ani spravovány společnostmi Apple Inc. ani Google LLC, které s nimi nijak nesouvisejí.</p></div></li>
+        <li><div><b>Účinnost</b><p>Tato pravidla platí od <span class="todo">data spuštění první soutěže</span>.</p></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section>
+    <h2>Co bude dál</h2>
+    <ul class="plain">
+      <li>Až to schválíš, dám nové zásady na web a obecná pravidla na samostatnou stránku.</li>
+      <li>V App Store (App Privacy) a Google Play (Data safety) doplním telefonní číslo: propojené s účtem, jen pro funkci aplikace, nepoužité ke sledování.</li>
+      <li>Věta o Apple a Google v pravidlech je povinná podle pravidel App Store pro soutěže, tu prosím nechej.</li>
+    </ul>
+  </section>
+
+  <footer>Připraveno 21. 11. 2026 k verzi aplikace 1.3. Návrh, ne právní posudek.</footer>
+</div>
+
+<script>
+document.querySelectorAll('button.copy').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var src = document.getElementById(btn.dataset.copy === 'policy' ? 'policy-new' : 'rules');
+    var text = src.innerText.replace(/\n{3,}/g, '\n\n').trim();
+    var label = btn.textContent;
+    var done = function () { btn.textContent = 'Zkopírováno'; setTimeout(function () { btn.textContent = label; }, 1800); };
+    var fallback = function () {
+      var range = document.createRange(); range.selectNodeContents(src);
+      var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+      btn.textContent = 'Označeno, zkopíruj ručně';
+      setTimeout(function () { btn.textContent = label; }, 2500);
+    };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, fallback);
+      } else { fallback(); }
+    } catch (e) { fallback(); }
+  });
+});
+</script>

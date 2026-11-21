@@ -213,6 +213,17 @@ enum AnalyticsEvent {
     case chatReported
     case chatUserHidden
     case djInviteOpened(valid: Bool?)
+    /// Contests (1.3): the home card and the answer.
+    case contestInfoboxShown(contestID: Int64)
+    case contestInfoboxTapped(contestID: Int64)
+    case contestInfoboxDismissed(contestID: Int64)
+    /// `error`: closed, alreadyEntered, answerInvalid, phoneInvalid,
+    /// accountRequired, offline, other.
+    case contestEntrySubmitted(contestID: Int64, answerType: String, success: Bool, error: String?)
+    /// Admins (Profil → Správa → Soutěže).
+    case adminContestCreated(answerType: String, winners: Int)
+    case adminContestEnded
+    case adminContestDrawn(replacement: Bool)
     case djInviteClaimed(success: Bool)
 
     var name: String {
@@ -252,6 +263,13 @@ enum AnalyticsEvent {
         case .chatUserHidden: return "chat_user_hidden"
         case .djInviteOpened: return "dj_invite_opened"
         case .djInviteClaimed: return "dj_invite_claimed"
+        case .contestInfoboxShown: return "contest_infobox_shown"
+        case .contestInfoboxTapped: return "contest_infobox_tapped"
+        case .contestInfoboxDismissed: return "contest_infobox_dismissed"
+        case .contestEntrySubmitted: return "contest_entry_submitted"
+        case .adminContestCreated: return "admin_contest_created"
+        case .adminContestEnded: return "admin_contest_ended"
+        case .adminContestDrawn: return "admin_contest_drawn"
         }
     }
 
@@ -335,6 +353,18 @@ enum AnalyticsEvent {
             return ["valid": valid.map { $0 ? "yes" : "no" } ?? "unknown"]
         case .djInviteClaimed(let success):
             return ["success": success]
+        case .contestInfoboxShown(let id), .contestInfoboxTapped(let id), .contestInfoboxDismissed(let id):
+            return ["contest_id": id]
+        case .contestEntrySubmitted(let id, let answerType, let success, let error):
+            var properties: [String: Any] = ["contest_id": id, "answer_type": answerType, "success": success]
+            if let error { properties["error"] = error }
+            return properties
+        case .adminContestCreated(let answerType, let winners):
+            return ["answer_type": answerType, "winners": winners]
+        case .adminContestEnded:
+            return [:]
+        case .adminContestDrawn(let replacement):
+            return ["replacement": replacement]
         }
     }
 

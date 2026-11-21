@@ -28,6 +28,8 @@ enum StoreDemo {
         me.registeredAt = calendar.date(from: DateComponents(year: 2026, month: 9, day: 14, hour: 12))
         me.chatMessagesCount = 48
         me.voiceMessagesCount = 3
+        // `-contestDemo admin`: the contest admin pages in Profil.
+        if UserDefaults.standard.string(forKey: "contestDemo") == "admin" { me.isAdmin = true }
         return me
     }
 

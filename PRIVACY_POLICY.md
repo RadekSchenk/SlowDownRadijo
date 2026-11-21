@@ -1,12 +1,12 @@
 # Zásady ochrany osobních údajů — Slow Down Rádijo (aplikace)
 
-*Poslední aktualizace: 18. listopadu 2026 (verze aplikace 1.3: účet a chat posluchačů)*
+*Poslední aktualizace: 21. listopadu 2026 (verze aplikace 1.3: účet, chat posluchačů a soutěže)*
 
 Tento dokument popisuje, jaké údaje aplikace Slow Down Rádijo pro iOS a Android zpracovává. Aplikaci provozuje **Slow Down Radio s.r.o.**, IČO 23309440, se sídlem Jeseniova 1575/69, Žižkov, 130 00 Praha 3 (kontakt: info@slowdownradijo.cz). Technickou stránku aplikace a zpětnou vazbu má na starosti jsem@radekschenk.cz.
 
 ## Účet je dobrovolný
 
-Rádio, program, statistiky poslechu i chat posluchačů fungují bez registrace. Psát do chatu můžeš pod přezdívkou i bez účtu. **Registrace (Slowrider)** je dobrovolná: přidá správu profilu včetně změny přezdívky a statistiky uložené k účtu, které ti zůstanou i na novém telefonu. Co se ukládá, popisujeme níže v části „Chat posluchačů a účet“. Neshromažďujeme reklamní ID ani identifikátory zařízení od Applu nebo Googlu a aplikace nikoho nesleduje napříč jinými appkami nebo weby.
+Rádio, program, statistiky poslechu i chat posluchačů fungují bez registrace. Psát do chatu můžeš pod přezdívkou i bez účtu. **Registrace (Slowrider)** je dobrovolná: přidá správu profilu včetně změny přezdívky a statistiky uložené k účtu, které ti zůstanou i na novém telefonu, a umožní **soutěžit o ceny**. Co se ukládá, popisujeme níže v části „Chat posluchačů a účet“. Neshromažďujeme reklamní ID ani identifikátory zařízení od Applu nebo Googlu a aplikace nikoho nesleduje napříč jinými appkami nebo weby.
 
 Bez účtu aplikace používá nanejvýš dvě **náhodná anonymní ID**, která spolu nejsou nijak propojená: jedno pro statistiky poslechu a druhé pro anonymní měření používání, jen pokud s ním souhlasíš (viz níže). Žádné z nich nevzniká z tvého jména, e-mailu, telefonu ani z identifikátoru zařízení a nelze z nich tebe jako osobu odvodit. Když se přihlásíš, stane se z ID pro statistiky poslechu tvůj účet (viz níže), aby ti statistiky zůstaly.
 
@@ -44,11 +44,22 @@ Bez účtu aplikace používá nanejvýš dvě **náhodná anonymní ID**, kter�
 - **Doba uchování:** zprávy 90 dní (v appce se zobrazuje posledních 7 dní); záznamy o ztlumení 30 dní po jeho konci; nahlášení se smažou spolu se zprávou. Účet a profil do doby, než účet nebo údaje smažeš.
 - **Archiv a statistiky chatu:** po 90 dnech zprávu z chatu smažeme a její text si ponecháme v interním archivu **bez vazby na účet, ID i přezdívku** (zůstane jen text, čas, pořad a to, jestli psal posluchač, nebo moderátor). Archiv a denní souhrnná čísla (počty zpráv, pisatelů, pořady, kde se nejvíc píše) slouží jen rádiu k analýzám, nejsou veřejné a nepředáváme je dál. Text zprávy může sám obsahovat osobní údaje, které do něj autor napsal, proto do zpráv nepiš nic, co nechceš sdílet. **Právní základ:** oprávněný zájem rádia porozumět, jak se chat používá (čl. 6 odst. 1 písm. f) GDPR).
 - **Souhrnné počty registrací:** z údajů o účtech sestavujeme pro rádio jen počty registrací podle dne, platformy (iOS/Android) a způsobu přihlášení, bez jakékoli vazby na konkrétní účet. **Právní základ:** oprávněný zájem rádia vědět, kolik lidí se registruje (čl. 6 odst. 1 písm. f) GDPR).
-- **Smazání účtu:** kdykoli v appce (Profil ▸ Smazat účet, bez registrace Profil ▸ Smazat moje údaje). Smaže se účet, e-mail, přezdívka, statistiky poslechu, seznam skrytých uživatelů i tvoje nahlášení. Tvoje už odeslané zprávy zůstanou v chatu do konce 90denní lhůty bez přezdívky, jako „Smazaný účet“, aby konverzace dávala smysl.
+- **Smazání účtu:** kdykoli v appce (Profil ▸ Smazat účet, bez registrace Profil ▸ Smazat moje údaje). Smaže se účet, e-mail, přezdívka, statistiky poslechu, seznam skrytých uživatelů i tvoje nahlášení. Tvoje už odeslané zprávy zůstanou v chatu do konce 90denní lhůty bez přezdívky, jako „Smazaný účet“, aby konverzace dávala smysl. Smazání účtu smaže i tvoje odpovědi v soutěžích a telefonní číslo (viz níže).
+
+**Soutěže (jen pokud se zapojíš):**
+- Soutěžit může jen registrovaný Slowrider. Pravidla každé soutěže najdeš v jejím detailu v aplikaci. Soutěže jsou bezplatné.
+- **Co ukládáme:** tvoji odpověď, telefonní číslo, čas odeslání a vazbu na tvůj účet (přezdívku). U vylosovaných výherců navíc přezdívku, co vyhráli a kdy jsme je vylosovali.
+- **K čemu:** odpovědi vyhodnotíme a mezi správnými odpověďmi vylosujeme výherce. Telefon slouží jen k tomu, abychom výherci zavolali nebo napsali kvůli předání výhry. Nepoužíváme ho k reklamě ani obchodním sdělením a nikomu ho nepředáváme.
+- **Kdo to vidí:** jen správci soutěží v rádiu (v aplikaci role správce a superadmin). Ostatní posluchači tvoji odpověď ani telefon neuvidí.
+- **Zveřejnění výherců:** přezdívku výherce můžeme oznámit ve vysílání a v chatu aplikace. Telefon ani e-mail nezveřejňujeme nikdy.
+- **Zavření nabídky soutěže:** když nabídku soutěže na úvodní obrazovce zavřeš křížkem, uložíme k tvému účtu (nebo k anonymnímu ID pro statistiky, pokud účet nemáš), že jsi tuto soutěž zavřel(a), aby se ti už neukazovala. Rádio z toho vidí jen celkový počet zavření.
+- **Právní základ:** plnění smlouvy, tedy účast v soutěži podle jejích pravidel (čl. 6 odst. 1 písm. b) GDPR); uchování údajů o výhercích z oprávněného zájmu doložit, komu jsme výhru předali (čl. 6 odst. 1 písm. f) GDPR).
+- **Doba uchování:** telefonní čísla všech účastníků smažeme 30 dní po losování výherců, nejpozději 90 dní po skončení soutěže. Odpovědi smažeme 12 měsíců po skončení soutěže; zůstanou jen souhrnné počty bez vazby na kohokoli. Přezdívku výherce, výhru a datum losování uchováváme 3 roky.
+- **Smazání účtu** smaže i tvoje odpovědi a telefon. Když účet smažeš před losováním, do losování už zařazen(a) nebudeš.
 
 **Anonymní měření používání (jen se souhlasem, ve výchozím stavu vypnuté):**
 - Po několika spuštěních se appka jednou zeptá, jestli smí anonymně měřit, **které funkce používáš**. Dokud neklepneš na „Povolit“, nic se neměří ani neodesílá. Volbu můžeš kdykoli změnit v Menu ▸ Nastavení ▸ Anonymní měření používání.
-- Co se měří: spuštění appky, které obrazovky otevřeš, spuštění a zastavení přehrávání (jak dlouho hrálo, zaokrouhleno, proč skončilo, kam zvuk hraje, tedy reproduktor, sluchátka nebo auto, a v jaké kvalitě), chyby přehrávání, nastavení časovače, zapnutí upozornění na pořad a otevření takového upozornění, přepnutí jazyka, klepnutí na odkazy (Spotify, sociální sítě, platformy podpory), to, jestli se podařilo odeslat vzkaz nebo zpětnou vazbu, a u chatu otevření chatu, odeslání zprávy (jen jestli šlo o text nebo emoji, ne obsah), zobrazení nabídky přihlášení, nahlášení či skrytí a akce moderátorů (bez toho, koho se týkaly). Ke každé události se přidá jazyk appky, verze appky a systému, typ zařízení (telefon/tablet, ne přesný model), časové pásmo a typ připojení (Wi-Fi/mobilní data).
+- Co se měří: spuštění appky, které obrazovky otevřeš, spuštění a zastavení přehrávání (jak dlouho hrálo, zaokrouhleno, proč skončilo, kam zvuk hraje, tedy reproduktor, sluchátka nebo auto, a v jaké kvalitě), chyby přehrávání, nastavení časovače, zapnutí upozornění na pořad a otevření takového upozornění, přepnutí jazyka, klepnutí na odkazy (Spotify, sociální sítě, platformy podpory), to, jestli se podařilo odeslat vzkaz nebo zpětnou vazbu, a u chatu otevření chatu, odeslání zprávy (jen jestli šlo o text nebo emoji, ne obsah), zobrazení nabídky přihlášení, nahlášení či skrytí a akce moderátorů (bez toho, koho se týkaly), a u soutěží zobrazení, otevření a zavření nabídky soutěže a odeslání odpovědi (bez odpovědi a telefonu). Ke každé události se přidá jazyk appky, verze appky a systému, typ zařízení (telefon/tablet, ne přesný model), časové pásmo a typ připojení (Wi-Fi/mobilní data).
 - Co se neměří: žádný text, který napíšeš, žádné přezdívky ani kdo komu v chatu psal, žádná nahrávka, názvy skladeb, poloha, reklamní ID, kontakty ani nic, co by vedlo k tvé osobě. Nesledujeme klepání po obrazovce ani nenahráváme obrazovku.
 - Události se ukládají pod **samostatným náhodným ID** (jiným než u statistik poslechu). Zpracovatelem je **PostHog** (PostHog Inc.) s daty uloženými v **EU (Frankfurt)**. IP adresu PostHog podle našeho nastavení neukládá.
 - **Právní základ:** tvůj souhlas (čl. 6 odst. 1 písm. a) GDPR a § 89 odst. 3 zákona o elektronických komunikacích). Souhlas můžeš kdykoli odvolat v Nastavení; dosavadní zpracování tím nepřestává být zákonné.
@@ -64,7 +75,7 @@ Obojí se odesílá přes zabezpečené API a doručuje e-mailem přes službu [
 
 ## Použité služby třetích stran
 
-- **Supabase** — databáze, přihlašování a serverová logika appky (historie přehraných skladeb, statistiky poslechu, účty a chat). Bez účtu zpracovává jen anonymní ID a sečtené sekundy poslechu; s účtem navíc e-mail, přezdívku a zprávy popsané výše. Data jsou uložena ve **Spojeném království (Londýn, region AWS eu-west-2)**. Spojené království má od Evropské komise rozhodnutí o odpovídající ochraně osobních údajů, takže přenos dat z EU je v souladu s GDPR bez dalších záruk.
+- **Supabase** — databáze, přihlašování a serverová logika appky (historie přehraných skladeb, statistiky poslechu, účty, chat a soutěže). Bez účtu zpracovává jen anonymní ID a sečtené sekundy poslechu; s účtem navíc e-mail, přezdívku, zprávy a odpovědi v soutěžích s telefonem, jak je popsáno výše. Data jsou uložena ve **Spojeném království (Londýn, region AWS eu-west-2)**. Spojené království má od Evropské komise rozhodnutí o odpovídající ochraně osobních údajů, takže přenos dat z EU je v souladu s GDPR bez dalších záruk.
 - **PostHog** (PostHog Inc., data v EU, Frankfurt) — anonymní měření používání, jen pokud s ním souhlasíš (viz výše). Zpracovává pouze události popsané výše pod náhodným ID, bez IP adresy, jména a e-mailu. Kromě toho do PostHogu předáváme souhrnné přehledy poslechovosti, kvality zvuku a chatu a počty registrací, abychom je měli v jednom přehledu: jen součty, bez ID, e-mailů a přezdívek, takže podle nich nejde nikoho určit.
 - **Resend** — doručení e-mailů: zpětná vazba a hlasové vzkazy na adresu rádia a přihlašovací kódy na tvůj e-mail.
 - **Přihlášení přes Apple a Google** — když zvolíš „Pokračovat s Apple“ nebo „Pokračovat s Google“, přihlášení proběhne u nich a appka od nich dostane jen identifikátor účtu a e-mail (u Applu případně skrytý). Další zpracování se řídí zásadami Applu a Googlu.
@@ -83,11 +94,11 @@ Aplikace neobsahuje žádné reklamní SDK, nezobrazuje reklamy a nesleduje chov
 
 ## Tvoje práva
 
-Můžeš kdykoli **vypnout měření**, **smazat své statistiky** a **odvolat souhlas s anonymním měřením používání** přímo v appce (Menu ▸ Nastavení), a pokud máš účet, **změnit přezdívku** a **smazat účet** (Profil). Bez účtu jsou statistiky vázané jen na anonymní ID v tvém telefonu, takže je nedokážeme spárovat s konkrétní osobou; využít další práva (přístup, výmaz) jde právě přes appku. S účtem nám můžeš napsat o kopii svých údajů (přezdívka, e-mail, zprávy) a ověříme to přes e-mail účtu. S dotazy nebo stížností se na nás můžeš obrátit na info@slowdownradijo.cz; máš také právo podat stížnost u Úřadu pro ochranu osobních údajů (uoou.cz).
+Můžeš kdykoli **vypnout měření**, **smazat své statistiky** a **odvolat souhlas s anonymním měřením používání** přímo v appce (Menu ▸ Nastavení), a pokud máš účet, **změnit přezdívku** a **smazat účet** (Profil). Bez účtu jsou statistiky vázané jen na anonymní ID v tvém telefonu, takže je nedokážeme spárovat s konkrétní osobou; využít další práva (přístup, výmaz) jde právě přes appku. S účtem nám můžeš napsat o kopii svých údajů (přezdívka, e-mail, zprávy, odpovědi v soutěžích) a ověříme to přes e-mail účtu. S dotazy nebo stížností se na nás můžeš obrátit na info@slowdownradijo.cz; máš také právo podat stížnost u Úřadu pro ochranu osobních údajů (uoou.cz).
 
 ## Děti
 
-Aplikace není cílená na děti a vědomě neshromažďuje údaje od dětí mladších 13 let. Chat posluchačů je určený lidem od 13 let.
+Aplikace není cílená na děti a vědomě neshromažďuje údaje od dětí mladších 13 let. Chat posluchačů je určený lidem od 13 let. Soutěžit mohou jen lidé od 18 let.
 
 ## Změny těchto zásad
 

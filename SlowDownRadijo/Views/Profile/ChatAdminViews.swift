@@ -12,7 +12,7 @@ enum AdminRoute: Hashable {
 }
 
 /// One screen of the "Správa chatu" pages: back, title, content.
-private struct AdminPage<Content: View>: View {
+struct AdminPage<Content: View>: View {
     let title: String
     @ViewBuilder let content: () -> Content
     @Environment(\.dismiss) private var dismiss

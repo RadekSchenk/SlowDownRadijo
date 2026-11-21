@@ -19,6 +19,7 @@ struct ProfileView: View {
     var onOpenStats: () -> Void = {}
     @ObservedObject private var loc = LocalizationManager.shared
     @ObservedObject private var account = AccountService.shared
+    @ObservedObject private var contests = ContestService.shared
     @State private var path: [Route] = []
     @State private var isConfirmingSignOut = false
     @State private var isConfirmingDelete = false
@@ -28,6 +29,7 @@ struct ProfileView: View {
     enum Route: Hashable {
         case email, nickname, hiddenUsers, rules
         case admin(AdminRoute)
+        case contests(ContestAdminRoute)
     }
 
     struct RegisterReason: Identifiable {
@@ -61,6 +63,7 @@ struct ProfileView: View {
                 case .hiddenUsers: HiddenUsersView()
                 case .rules: ChatRulesView()
                 case .admin(let admin): adminDestination(admin)
+                case .contests(let route): contestDestination(route)
                 }
             }
         }
@@ -222,17 +225,31 @@ struct ProfileView: View {
                 SlowrideDashboard(me: me, onOpenStats: onOpenStats)
             }
 
-            if me?.isSuperadmin == true {
+            // Figma "Soutěže" P1/P2: contests for admins and the superadmin,
+            // moderators and admins for the superadmin only.
+            if me?.isSuperadmin == true || me?.isAdmin == true {
                 ProfileSection(title: L10n.adminSection) {
-                    NavigationLink(value: Route.admin(.moderators)) {
-                        ProfileRow(title: L10n.adminModerators)
+                    NavigationLink(value: Route.contests(.list)) {
+                        ProfileRow(
+                            title: L10n.adminContests,
+                            value: contests.current?.isRunning == true ? L10n.adminContestsRunning : nil,
+                            valueColor: Theme.sunYellow
+                        )
                     }
                     .buttonStyle(.plain)
-                    ListDivider()
-                    NavigationLink(value: Route.admin(.admins)) {
-                        ProfileRow(title: L10n.adminAdmins)
+                    .accessibilityIdentifier("profile.contests")
+                    if me?.isSuperadmin == true {
+                        ListDivider()
+                        NavigationLink(value: Route.admin(.moderators)) {
+                            ProfileRow(title: L10n.adminModerators)
+                        }
+                        .buttonStyle(.plain)
+                        ListDivider()
+                        NavigationLink(value: Route.admin(.admins)) {
+                            ProfileRow(title: L10n.adminAdmins)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
             }
 
@@ -316,6 +333,15 @@ struct ProfileView: View {
         case .moderator(let id): AdminModeratorDetailView(scheduleStore: scheduleStore, hostID: id, path: $path)
         case .admins: AdminAdminsView()
         case .addAdmin: AdminAddAdminView()
+        }
+    }
+
+    @ViewBuilder
+    private func contestDestination(_ route: ContestAdminRoute) -> some View {
+        switch route {
+        case .list: ContestAdminListView()
+        case .new: ContestAdminNewView()
+        case .detail(let id): ContestAdminDetailView(contestID: id)
         }
     }
 

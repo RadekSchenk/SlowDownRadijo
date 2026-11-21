@@ -6,6 +6,7 @@ import SwiftUI
 struct ProfileRow: View {
     let title: String
     var value: String? = nil
+    var valueColor: Color = Theme.mutedText
     var showsChevron = true
     var isDestructive = false
 
@@ -18,7 +19,7 @@ struct ProfileRow: View {
             if let value {
                 Text(value)
                     .font(Theme.Typography.Copy.body)
-                    .foregroundStyle(Theme.mutedText)
+                    .foregroundStyle(valueColor)
                     .lineLimit(1)
             }
             if showsChevron {
