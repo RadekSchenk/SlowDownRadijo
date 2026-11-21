@@ -8,6 +8,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -41,6 +43,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cz.slowdownradijo.app.R
+import cz.slowdownradijo.app.l10n.L10nLogic
 import cz.slowdownradijo.app.l10n.LocalAppLanguage
 import cz.slowdownradijo.app.ui.components.ListDivider
 import cz.slowdownradijo.app.ui.components.LocalAnimationsEnabled
@@ -59,69 +62,96 @@ data class StatsUi(
 )
 
 /**
- * Statistiky (`StatsView.swift`): today, all time and everyone together,
- * the listener's place among listeners, the week's chart and the shows
- * listened to most, then how it is measured.
+ * Statistiky (`StatsView.swift`, Figma S1): today with the week in the coloured card,
+ * total / place / days, the leaderboard around the listener (anonymous, no race), time
+ * per show, everyone together, then how it is measured.
  */
 @Composable
 fun StatsContent(ui: StatsUi, onEnable: () -> Unit, onRetry: () -> Unit) {
     val english = LocalAppLanguage.current.isEnglish
     val summary = ui.summary
-    Column(verticalArrangement = Arrangement.spacedBy(Theme.Spacing.xl)) {
-        Column(verticalArrangement = Arrangement.spacedBy(Theme.Spacing.lg)) {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text(stringResource(R.string.statsTitle), style = Theme.Typography.Heading.page.copy(lineHeight = 30.sp), color = Theme.textPrimary)
-                BodyText(stringResource(R.string.statsSubtitle))
-            }
-            if (ui.enabled) {
-                MetricCard(stringResource(R.string.today), summary.todaySeconds, stringResource(R.string.statsTodayDescription), ui.measuring)
-                MetricCard(stringResource(R.string.statsTotal), summary.totalSeconds, stringResource(R.string.statsTotalDescription))
-                if (ui.communityUnlocked) {
-                    MetricCard(stringResource(R.string.statsCommunityTitle), summary.communitySeconds, stringResource(R.string.statsCommunityDescription))
-                }
-            } else {
-                Column(
-                    Modifier.fillMaxWidth().background(Theme.statsCard, RoundedCornerShape(16.dp)).padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(Theme.Spacing.md),
-                ) {
-                    BodyText(stringResource(R.string.statsDisabledMessage))
-                    PrimaryActionButton(stringResource(R.string.statsEnableAction), onClick = onEnable)
-                }
-            }
-            ListDivider()
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(bottom = 8.dp)) {
+            Text(stringResource(R.string.statsTitle), style = Theme.Typography.Heading.page.copy(lineHeight = 30.sp), color = Theme.textPrimary)
+            BodyText(stringResource(R.string.statsSubtitle))
         }
+        if (!ui.enabled) {
+            Column(
+                Modifier.fillMaxWidth().background(Theme.statsCard, RoundedCornerShape(16.dp)).padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(Theme.Spacing.md),
+            ) {
+                BodyText(stringResource(R.string.statsDisabledMessage))
+                PrimaryActionButton(stringResource(R.string.statsEnableAction), onClick = onEnable)
+            }
+        } else {
+            // Figma S1: today with the week in the coloured card.
+            GlowCard {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(stringResource(R.string.today), style = Theme.Typography.manrope(14f, FontWeight.SemiBold), color = GlowLabel, modifier = Modifier.weight(1f))
+                    AnimatedVisibility(ui.measuring) {
+                        Row(
+                            Modifier.background(Color.White.copy(alpha = 0.12f), CircleShape).padding(horizontal = 10.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            ListeningDot()
+                            Text(stringResource(R.string.statsLiveBadge), style = Theme.Typography.manrope(11f, FontWeight.Bold).copy(letterSpacing = 1.1.sp), color = GlowLabel)
+                        }
+                    }
+                }
+                DurationText(summary.todaySeconds, numberSize = 56f, unitSize = 22f)
+                Text(stringResource(R.string.statsWeekTotal, StatsFormat.duration(english, summary.weekSeconds)), style = Theme.Typography.manrope(14f, FontWeight.SemiBold), color = Theme.mutedText)
+                Box(Modifier.padding(top = 4.dp)) { WeekBars(summary.bars) }
+            }
+            val hours = summary.totalSeconds / 3600
+            val rankText = if (ui.communityUnlocked) summary.rank?.let { "#$it" } else null
+            StatStrip(
+                listOf(
+                    StripItem(if (hours > 0) "${StatsFormat.number(english, hours)} h" else StatsFormat.duration(english, summary.totalSeconds), stringResource(R.string.statsStripTotal)),
+                    StripItem(rankText ?: "–", stringResource(R.string.statsStripRank), accent = rankText != null),
+                    StripItem("${summary.listeningDays} ${L10nLogic.slowrideDays(english, summary.listeningDays)}", stringResource(R.string.statsStripDays)),
+                )
+            )
 
-        if (ui.enabled) {
-            Column(verticalArrangement = Arrangement.spacedBy(Theme.Spacing.md)) {
-                Heading(stringResource(R.string.statsLeaderboardTitle))
+            // The leaderboard: where you are among listeners, calmly — no race.
+            StatsPanel(spacing = 18) {
+                Row(verticalAlignment = Alignment.Bottom) {
+                    Text(stringResource(R.string.statsLeaderboardTitle), style = Theme.Typography.manrope(16f, FontWeight.ExtraBold), color = Theme.textPrimary, modifier = Modifier.weight(1f))
+                    if (ui.communityUnlocked && summary.rankedListeners > 0) {
+                        Text("${stringResource(R.string.statsRankOf)} ${StatsFormat.number(english, summary.rankedListeners)}", style = Theme.Typography.manrope(13f, FontWeight.SemiBold), color = Theme.mutedText)
+                    }
+                }
                 val rank = summary.rank
                 when {
-                    !ui.communityUnlocked -> Row(
-                        Modifier.fillMaxWidth().background(Theme.statsCard, RoundedCornerShape(16.dp)).padding(20.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(Theme.Spacing.md),
-                    ) {
-                        Trophy()
-                        BodyText(stringResource(R.string.statsLeaderboardLocked), Modifier.weight(1f))
-                    }
+                    !ui.communityUnlocked -> BodyText(stringResource(R.string.statsLeaderboardLocked))
                     rank != null -> {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text(
-                                    buildAnnotatedString {
-                                        withStyle(SpanStyle(color = Theme.liveRed, fontSize = 48.sp, fontWeight = FontWeight.ExtraBold)) { append("#$rank") }
-                                        withStyle(SpanStyle(color = Theme.mutedText, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)) {
-                                            append(" ${stringResource(R.string.statsRankOf)} ${StatsFormat.number(english, summary.rankedListeners)}")
-                                        }
-                                    },
-                                    style = Theme.Typography.manrope(14f, FontWeight.SemiBold).copy(lineHeight = 58.sp), maxLines = 1,
-                                )
-                                Text(stringResource(R.string.statsLeaderboardScope), style = Theme.Typography.manrope(12f, FontWeight.SemiBold), color = Theme.lavender)
+                        Row(Modifier.semantics(mergeDescendants = true) {}, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                            Text("#$rank", style = Theme.Typography.manrope(48f, FontWeight.ExtraBold), color = Theme.liveRed, maxLines = 1)
+                            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                StatsTier.label(rank, summary.rankedListeners)?.let { tier ->
+                                    Text(
+                                        stringResource(R.string.statsTierTop, tier), style = Theme.Typography.manrope(11f, FontWeight.Bold).copy(letterSpacing = 1.sp), color = GlowLabel,
+                                        modifier = Modifier.background(Theme.liveRed.copy(alpha = 0.18f), CircleShape).border(1.dp, Theme.liveRed.copy(alpha = 0.5f), CircleShape).padding(horizontal = 10.dp, vertical = 4.dp),
+                                    )
+                                }
+                                if (rank == 1 || StatsTier.isLoyal(rank, summary.rankedListeners)) {
+                                    Text(
+                                        stringResource(if (rank == 1) R.string.statsFirstPlace else R.string.statsTierLoyal),
+                                        style = Theme.Typography.manrope(14f, FontWeight.SemiBold), color = Theme.mutedText,
+                                    )
+                                }
                             }
-                            Trophy()
                         }
-                        BodyText(stringResource(R.string.statsLeaderboardDescription, StatsFormat.number(english, summary.rankedListeners)))
-                        Text(stringResource(R.string.statsEncouragement), style = Theme.Typography.Copy.link.copy(lineHeight = 20.sp), color = Theme.textPrimary)
+                        if (summary.aheadSeconds != null || summary.behindSeconds != null) {
+                            Column(
+                                Modifier.fillMaxWidth().background(Color.White.copy(alpha = 0.04f), RoundedCornerShape(14.dp)).padding(14.dp),
+                                verticalArrangement = Arrangement.spacedBy(10.dp),
+                            ) {
+                                Text(stringResource(R.string.statsNeighbours), style = Theme.Typography.manrope(12f, FontWeight.Bold), color = Theme.mutedText)
+                                NeighboursTrack(summary.totalSeconds, rank, summary.aheadSeconds, summary.behindSeconds)
+                            }
+                        }
+                        Text(stringResource(R.string.statsEncouragement), style = Theme.Typography.manrope(14f, FontWeight.Bold).copy(lineHeight = 20.sp), color = Theme.textPrimary)
+                        Text(stringResource(R.string.statsLeaderboardAnonymous), style = Theme.Typography.manrope(12f, FontWeight.SemiBold), color = Theme.mutedText.copy(alpha = 0.75f))
                         if (ui.loadFailed) BodyText(stringResource(R.string.statsOfflineNote), color = Theme.subtleText)
                     }
                     ui.loadFailed -> {
@@ -132,39 +162,32 @@ fun StatsContent(ui: StatsUi, onEnable: () -> Unit, onRetry: () -> Unit) {
                     summary.totalSeconds < 60 -> BodyText(stringResource(R.string.statsRankNeedsMinute))
                     else -> BodyText(stringResource(R.string.statsRankCalculating))
                 }
-                ListDivider()
             }
 
-            Column(verticalArrangement = Arrangement.spacedBy(28.dp)) {
-                Column(verticalArrangement = Arrangement.spacedBy(Theme.Spacing.md)) {
-                    Heading(stringResource(R.string.statsTimelineTitle))
-                    if (summary.weekStart != null && summary.weekEnd != null) {
-                        Text(StatsFormat.dateRange(english, summary.weekStart, summary.weekEnd), style = Theme.Typography.manrope(13f, FontWeight.Bold), color = Theme.mutedText)
-                    }
-                    WeeklyChart(summary)
-                }
-                Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                    Heading(stringResource(R.string.statsShowsTitle))
-                    val top = summary.shows.firstOrNull()
-                    if (top != null) {
-                        Text(
-                            stringResource(R.string.statsShowsContext, StatsFormat.duration(english, summary.showsSeconds)),
-                            style = Theme.Typography.manrope(13f, FontWeight.Normal), color = Theme.mutedText,
+            StatsPanel(spacing = 16) {
+                Text(stringResource(R.string.statsShowsTitle), style = Theme.Typography.manrope(16f, FontWeight.ExtraBold), color = Theme.textPrimary)
+                val top = summary.shows.firstOrNull()
+                if (top != null) {
+                    summary.shows.take(8).forEach { share ->
+                        ShowBarRow(
+                            share.name ?: stringResource(R.string.statsUnknownShow), share.hostName, share.seconds,
+                            share.seconds.toDouble() / maxOf(top.seconds, 1), leader = share.id == top.id,
                         )
-                        Column {
-                            ShowShareRow(top, isTop = true)
-                            summary.shows.drop(1).take(7).forEach {
-                                ListDivider()
-                                ShowShareRow(it)
-                            }
-                        }
-                    } else {
-                        BodyText(stringResource(R.string.statsEmptyShows))
                     }
+                } else {
+                    BodyText(stringResource(R.string.statsEmptyShows))
                 }
-                ListDivider()
+            }
+
+            if (ui.communityUnlocked) {
+                StatsPanel(spacing = 4) {
+                    Text(stringResource(R.string.statsCommunityTitle), style = Theme.Typography.manrope(14f, FontWeight.SemiBold), color = Theme.mutedText)
+                    DurationText(summary.communitySeconds, numberSize = 30f, unitSize = 16f)
+                    BodyText(stringResource(R.string.statsCommunityDescription))
+                }
             }
         }
+        ListDivider()
 
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Heading(stringResource(R.string.statsExplainTitle))

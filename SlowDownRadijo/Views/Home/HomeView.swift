@@ -24,6 +24,14 @@ struct HomeView: View {
     /// explainer sheet below only appears once, ever.
     @AppStorage("hasSeenFavoritesIntro") private var hasSeenFavoritesIntro = false
     @State private var isShowingFavoritesIntro = false
+    /// The chat sheet, opened from the home page section — with the
+    /// keyboard up when the listener tapped the field.
+    @State private var chatOpening: ChatOpening?
+
+    struct ChatOpening: Identifiable {
+        let id = UUID()
+        let withKeyboard: Bool
+    }
 
     var body: some View {
         ScrollView {
@@ -32,6 +40,13 @@ struct HomeView: View {
                     .padding(.top, AppHeaderView.topInset)
 
                 nowPlayingHeader
+
+                ChatHomeSection { withKeyboard in
+                    Analytics.shared.track(.chatOpened(source: withKeyboard ? "home_field" : "home_section", account: AccountService.shared.analyticsAccount))
+                    chatOpening = ChatOpening(withKeyboard: withKeyboard)
+                }
+                .movesWithScroll()
+                .padding(.top, Theme.Spacing.xl)
 
                 // Figma's "scroll-content" wrapper spaces its top-level
                 // sections (now-playing card, stats, Pořady) 32pt apart —
@@ -87,6 +102,20 @@ struct HomeView: View {
             guard FeatureFlags.nowPlayingHistoryAndFavorites, newCount > oldCount, !hasSeenFavoritesIntro else { return }
             hasSeenFavoritesIntro = true
             isShowingFavoritesIntro = true
+        }
+        // "Otevřít chat" after linking a DJ account.
+        .onReceive(ChatService.shared.$openRequestID.compactMap { $0 }) { _ in
+            Analytics.shared.track(.chatOpened(source: "invite", account: AccountService.shared.analyticsAccount))
+            chatOpening = ChatOpening(withKeyboard: false)
+        }
+        .sheet(item: $chatOpening) { opening in
+            ChatSheetView(nowPlaying: nowPlaying, scheduleStore: scheduleStore, focusComposer: opening.withKeyboard)
+                .presentationDetents(Self.chatDetents)
+                .presentationDragIndicator(.visible)
+                .presentationCornerRadius(24)
+                .presentationBackground(Theme.statsCard)
+                .presentationContentInteraction(.scrolls)
+                .appTextSizeLimit()
         }
         .sheet(isPresented: $isShowingFavoritesIntro) {
             FavoritesIntroView()
@@ -226,7 +255,7 @@ struct HomeView: View {
                         // width steady.
                         TimelineView(.periodic(from: .now, by: 1)) { context in
                             PopNumberText(
-                                text: remainingLabel(now: context.date),
+                                text: remainingLabel(now: AppClock.now), // ticks with the timeline (moved in store screenshots)
                                 font: Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline).monospacedDigit(),
                                 color: Theme.mutedText
                             )
@@ -441,5 +470,16 @@ struct HomeView: View {
 private extension Array {
     subscript(safe index: Int) -> Element? {
         indices.contains(index) ? self[index] : nil
+    }
+}
+
+extension HomeView {
+    /// The chat sheet's sizes; store screenshots open it at full height so
+    /// the whole conversation shows.
+    static var chatDetents: Set<PresentationDetent> {
+        #if DEBUG
+        if StoreDemo.isOn { return [.large] }
+        #endif
+        return [.fraction(0.72), .large]
     }
 }

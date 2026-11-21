@@ -75,7 +75,18 @@ final class ListeningStatsStore: ObservableObject {
 
     /// Community unlock state + numbers (cheap, anonymous), then — if measuring
     /// is on — this listener's own snapshot.
+    #if DEBUG
+    /// Store screenshots: sample numbers instead of the server's.
+    func applyDemo(snapshot: StatsSnapshot, publicStats: PublicStats) {
+        self.snapshot = snapshot
+        self.publicStats = publicStats
+    }
+    #endif
+
     func refreshAll(force: Bool = false) async {
+        #if DEBUG
+        if StoreDemo.isOn { return }
+        #endif
         await refreshPublic()
         await refresh(force: force)
     }
@@ -150,7 +161,7 @@ final class ListeningStatsStore: ObservableObject {
     }
 
     var summary: ListeningStatsSummary {
-        makeSummary(now: Date())
+        makeSummary(now: AppClock.now)
     }
 
     private func makeSummary(now: Date) -> ListeningStatsSummary {
@@ -236,12 +247,24 @@ final class ListeningStatsStore: ObservableObject {
             communitySeconds: communityBase + unsyncedSeconds,
             rank: snapshot?.rank,
             rankedListeners: snapshot?.rankedListeners ?? publicStats?.rankedListeners ?? 0,
+            aheadSeconds: snapshot?.aheadSeconds,
+            behindSeconds: snapshot?.behindSeconds,
+            listeningDays: listeningDays(perDay: perDay),
             bars: bars,
             weekSeconds: weekSeconds,
             weekRangeLabel: StatsFormat.dateRange(from: days.first ?? now, to: days.last ?? now),
             shows: shows,
             showsSeconds: showsSeconds
         )
+    }
+
+    /// The server's count, plus today when only this phone knows about it
+    /// yet; without the server's number, the days this phone has seen.
+    private func listeningDays(perDay: [String: [String: Int]]) -> Int {
+        let daysWithListening = Set(perDay.filter { $0.value.values.reduce(0, +) > 0 }.keys)
+        guard let server = snapshot?.listeningDays else { return daysWithListening.count }
+        let serverDays = Set((snapshot?.daily ?? []).filter { $0.seconds > 0 }.map(\.day))
+        return server + daysWithListening.subtracting(serverDays).count
     }
 
     // MARK: - Persistence

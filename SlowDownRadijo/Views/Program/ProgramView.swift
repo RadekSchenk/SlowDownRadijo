@@ -9,7 +9,7 @@ struct ProgramView: View {
     @ObservedObject private var loc = LocalizationManager.shared
     @State private var selectedWeekday: Int
     @State private var hasScrolledToLive = false
-    @State private var now = Date()
+    @State private var now = AppClock.now
 
     /// Monday-first order (Po–Ne) for display, independent of `Calendar`'s
     /// Sunday-first `weekday` numbering used internally in `Show` data.
@@ -23,7 +23,7 @@ struct ProgramView: View {
 
     init(scheduleStore: ScheduleStore) {
         self.scheduleStore = scheduleStore
-        _selectedWeekday = State(initialValue: ScheduleStore.stationCalendar.component(.weekday, from: Date()))
+        _selectedWeekday = State(initialValue: ScheduleStore.stationCalendar.component(.weekday, from: AppClock.now))
     }
 
     var body: some View {
@@ -77,7 +77,7 @@ struct ProgramView: View {
     }
 
     private var todayWeekday: Int {
-        ScheduleStore.stationCalendar.component(.weekday, from: Date())
+        ScheduleStore.stationCalendar.component(.weekday, from: AppClock.now)
     }
 
     private var dayPicker: some View {
@@ -131,7 +131,7 @@ struct ProgramView: View {
     }
 
     private func isCurrentlyLive(_ show: Show) -> Bool {
-        guard selectedWeekday == ScheduleStore.stationCalendar.component(.weekday, from: Date()) else { return false }
+        guard selectedWeekday == ScheduleStore.stationCalendar.component(.weekday, from: AppClock.now) else { return false }
         return scheduleStore.currentShow()?.id == show.id
             && scheduleStore.currentShow()?.start == show.start
     }

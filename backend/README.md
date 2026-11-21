@@ -264,6 +264,113 @@ same user to a permanent account, so history carries over.
       (guideline 5.1.1(v)), and offering Google/social sign-in requires also
       offering **Sign in with Apple** (guideline 4.8).
 
+## Chat and accounts (app 1.3): one-time setup
+
+Listeners read the chat without an account; writing needs a permanent
+account (Apple, Google or e-mail with a 6-digit code). Signing in upgrades the
+listener's anonymous stats user, so their stats stay. Design and rules:
+`docs/chat-concept.md`, plan: `docs/chat-implementation.md`.
+
+1. **Run `supabase/sql/020_chat.sql`** in the SQL Editor (after 019; safe to
+   re-run). It creates `profiles`, `chat_hosts`, `chat_host_invites`,
+   `chat_messages` (added to the `supabase_realtime` publication),
+   `chat_deleted_bodies`, `chat_mutes`, `chat_reports`, `chat_hidden_users`,
+   the functions the apps call and a nightly `prune-chat` cron job (messages
+   are kept 90 days). Messages are readable by everyone; every write goes
+   through a function. The app sends the show a message was written in
+   (`show_id`, `show_title`), as it does for the listening stats.
+2. **Authentication → Sign In / Providers:**
+   - *Email*: on, with "Confirm email"; in *Email Templates → Magic Link* put
+     the code in the e-mail (`{{ .Token }}`) next to the link. OTP length 6,
+     expiry 600 s. Do the same in *Confirm signup* and *Change Email
+     Address*: a listener who already writes in the chat registers by adding
+     an e-mail to their anonymous user, and that sends the *Change Email
+     Address* e-mail.
+   - *Apple*: on. Client IDs: the iOS bundle id (native sign-in) and the
+     Services ID (Android, web flow), with the `.p8` key, Key ID and Team ID.
+   - *Google*: on. Client IDs: the Web client (with its secret), plus the iOS
+     and Android client ids in "Authorized Client IDs". Turn on **Skip nonce
+     check**: GoogleSignIn-iOS 8 can't pass our own nonce (Android does).
+     The apps take the client ids from `GOOGLE_IOS_CLIENT_ID` /
+     `GOOGLE_IOS_URL_SCHEME` in `project.yml` (iOS) and the Gradle property
+     `googleWebClientId` (Android, the *Web* client id).
+   - *Allow manual linking*: on (an anonymous stats user becomes permanent).
+3. **Authentication → SMTP:** custom SMTP via Resend (`smtp.resend.com`, port
+   465, user `resend`, password = `RESEND_API_KEY`), sender
+   `prihlaseni@slowdownradijo.cz` — the built-in sender is rate-limited to a
+   few e-mails per hour.
+4. **Authentication → URL Configuration:** add `slowdownradijo://auth` to the
+   redirect URLs (the e-mail link and Apple's web flow return there).
+5. **DJs:** add each DJ who should write in the chat once in the Table Editor:
+   ```sql
+   insert into chat_hosts (host_id, display_name) values ('dj-pufaz', 'DJ Pufaz');
+   insert into chat_host_invites (host_id) values ('dj-pufaz') returning code;
+   ```
+   Send the DJ `https://slowdownradijo.cz/dj/<code>` (valid 7 days, once).
+   Their name is then reserved and they get the DJ badge and moderation.
+   Unlink: `update chat_hosts set user_id = null where host_id = 'dj-pufaz';`
+6. **Admins** (moderate under their own nickname, can lift a block):
+   `update profiles set is_admin = true where id = '<auth user id>';`
+7. **Reports** land in `chat_reports`; check them in the Table Editor.
+8. **Run `supabase/sql/021_chat_invite_info.sql`** (after 020). It adds
+   `host_invite_info(code)`, which the invite screen calls before the DJ signs
+   in ("Propoj účet jako DJ Pufaz", "platí do 24. 11."). Without it the apps
+   show a generic title and the claim still works.
+10. **Run `supabase/sql/022_chat_v3.sql`** (after 021): writing without an
+    account (the anonymous user sets a nickname with its first message;
+    changing it needs registration), `registered_at`, dashboard counters,
+    superadmin functions (`admin_*`), the anonymised archive `chat_archive`
+    and daily statistics (`chat_daily_stats`, `chat_show_daily`, views
+    `chat_stats_*`, cron `chat-daily-stats` at 03:10). The statistics are
+    readable only with the service role (SQL Editor).
+11. **Superadmin:** once Radek has registered in the app,
+    `update profiles set is_superadmin = true, is_admin = true, admin_since = now() where nickname = '<his nickname>';`
+    (by nickname: with Sign in with Apple the account's e-mail may be a
+    hidden `…@privaterelay.appleid.com` address). Done on 18. 11. 2026.
+    From then on moderators and admins are managed in the app
+    (Profil ▸ Správa chatu); the SQL in step 5 is the fallback.
+12. **Run `supabase/sql/023_chat_spam.sql`** (after 022): the same text from
+    the same person within a minute is refused (a single emoji is exempt),
+    and links need an account. On top of 5 messages per 30 s and 60 per hour. On production
+    since 18. 11. 2026.
+13. **Run `supabase/sql/024_account_stats.sql`** (after 023), on production
+    since 18. 11. 2026: view `account_stats_daily`, registrations per day ×
+    platform × sign-in method, counts only (SQL Editor).
+14. **Run `supabase/sql/025_posthog_registrations.sql`** (after 024): the
+    same numbers as `posthog_export.account_registrations` for PostHog's
+    existing data warehouse source "radio" (step 7 / 015). Then turn on that
+    table in PostHog (Data warehouse ▸ radio ▸ Schemas).
+15. **Run `supabase/sql/026_my_stats_neighbours.sql`** (after 025):
+    `get_my_stats` also returns the listening time of the places right above
+    and below the caller (shown as neighbours, not a race) and the days with
+    listening, for the new Statistiky (1.3). On production since 19. 11. 2026.
+9. **Invite links on slowdownradijo.cz.** Until these two files are on the
+   web, the `https://slowdownradijo.cz/dj/<code>` link opens the website, not
+   the app; `slowdownradijo://dj/<code>` works right away in both apps.
+   Both files, filled in, are in `backend/web/.well-known/`: upload them as
+   they are.
+   - `/.well-known/apple-app-site-association` (no extension, served as
+     `application/json`, no redirect), plus *Associated Domains* switched on
+     for the App ID `cz.slowdownradijo.app`:
+     ```json
+     {"applinks": {"details": [{"appIDs": ["9W8BX34TJH.cz.slowdownradijo.app"], "components": [{"/": "/dj/*"}]}]}}
+     ```
+   - `/.well-known/assetlinks.json`, with the SHA-256 fingerprints of the
+     upload key and of Google Play's app signing key (Play Console → Test and
+     release → App integrity):
+     ```json
+     [{"relation": ["delegate_permission/common.handle_all_urls"],
+       "target": {"namespace": "android_app", "package_name": "cz.slowdownradijo.app",
+                  "sha256_cert_fingerprints": ["<upload key SHA-256>", "<app signing key SHA-256>"]}}]
+     ```
+   - The web page at `/dj/<code>` itself can just say "Otevři odkaz v
+     telefonu s aplikací Slow Down Rádijo" for anyone without the app.
+
+Tested locally on Postgres 16 with stubs for `auth.uid()` / `auth.jwt()`:
+nickname rules, 24 h limit, anonymous users rejected, mute / block / unmute
+rights, delete and undo, one pin, rate limit (5 per 30 s, 60 per hour),
+hide / report, account deletion leaving messages as "Smazaný účet".
+
 ## Local development
 
 ```

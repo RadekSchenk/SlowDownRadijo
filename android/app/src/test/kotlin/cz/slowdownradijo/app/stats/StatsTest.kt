@@ -1,5 +1,7 @@
 package cz.slowdownradijo.app.stats
 
+import cz.slowdownradijo.app.account.SessionProvider
+
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -122,27 +124,62 @@ class StatsTest {
         assertEquals("12 %", StatsFormat.percent(0.123))
     }
 
-    @Test fun `supabase signs up once and records with the session`() = runTest {
+    /** A session provider that hands out a fixed token, or none until [createAnonymous]. */
+    private class FakeSessions(var token: String? = null) : SessionProvider {
+        var anonymousCreated = 0
+        var forgotten = 0
+        override suspend fun accessToken(createAnonymous: Boolean): String? {
+            if (token == null && createAnonymous) { token = "anon"; anonymousCreated++ }
+            return token
+        }
+        override suspend fun refreshedAccessToken(): String = "refreshed"
+        override suspend fun forgetIfAnonymous() { forgotten++; token = null }
+    }
+
+    @Test fun `supabase creates the anonymous session once and records with it`() = runTest {
         MockWebServer().use { server ->
-            server.enqueue(MockResponse().setBody("""{"access_token":"a1","refresh_token":"r1","expires_in":3600}"""))
             server.enqueue(MockResponse().setBody(""))
             server.enqueue(MockResponse().setBody("""{"available":false,"total_seconds":60}"""))
-            val prefs = context.getSharedPreferences("api${System.nanoTime()}", Context.MODE_PRIVATE)
-            val api = SupabaseStatsApi(OkHttpClient(), prefs, server.url("/").toString().trimEnd('/'))
+            val sessions = FakeSessions()
+            val api = SupabaseStatsApi(OkHttpClient(), sessions, server.url("/").toString().trimEnd('/'))
             api.recordListening("b1", listOf(ListeningRow("2026-11-10", "x", 60)), "test")
-            assertEquals("/auth/v1/signup", server.takeRequest().path)
             val record = server.takeRequest()
             assertEquals("/rest/v1/rpc/record_listening", record.path)
-            assertEquals("Bearer a1", record.getHeader("Authorization"))
+            assertEquals("Bearer anon", record.getHeader("Authorization"))
             assertTrue(record.body.readUtf8().contains("\"p_batch_id\":\"b1\""))
             assertEquals(60, api.fetchMyStats()!!.totalSeconds)
             assertEquals("/rest/v1/rpc/get_my_stats", server.takeRequest().path)
+            assertEquals(1, sessions.anonymousCreated)
+        }
+    }
+
+    @Test fun `a 401 refreshes the session once and retries`() = runTest {
+        MockWebServer().use { server ->
+            server.enqueue(MockResponse().setResponseCode(401))
+            server.enqueue(MockResponse().setBody("""{"available":false,"total_seconds":5}"""))
+            val api = SupabaseStatsApi(OkHttpClient(), FakeSessions("old"), server.url("/").toString().trimEnd('/'))
+            assertEquals(5, api.fetchMyStats()!!.totalSeconds)
+            assertEquals("Bearer old", server.takeRequest().getHeader("Authorization"))
+            assertEquals("Bearer refreshed", server.takeRequest().getHeader("Authorization"))
+        }
+    }
+
+    @Test fun `deleting stats forgets an anonymous session`() = runTest {
+        MockWebServer().use { server ->
+            server.enqueue(MockResponse().setBody(""))
+            val sessions = FakeSessions("anon")
+            val api = SupabaseStatsApi(OkHttpClient(), sessions, server.url("/").toString().trimEnd('/'))
+            api.deleteMyData()
+            assertEquals("/rest/v1/rpc/delete_my_listening_data", server.takeRequest().path)
+            assertEquals(1, sessions.forgotten)
         }
     }
 
     @Test fun `no session means no stats to fetch and nothing to delete`() = runTest {
-        val api = SupabaseStatsApi(OkHttpClient(), context.getSharedPreferences("e${System.nanoTime()}", Context.MODE_PRIVATE), "http://127.0.0.1:9")
+        val sessions = FakeSessions()
+        val api = SupabaseStatsApi(OkHttpClient(), sessions, "http://127.0.0.1:9")
         assertNull(api.fetchMyStats())
         api.deleteMyData()
+        assertEquals(0, sessions.anonymousCreated)
     }
 }

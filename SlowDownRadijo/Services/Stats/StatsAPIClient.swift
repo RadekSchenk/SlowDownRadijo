@@ -14,13 +14,14 @@ struct ListeningRow: Codable, Hashable {
     }
 }
 
-/// Talks to Supabase for the listening stats — plain REST, no SDK, like the
-/// app's other services.
+/// Talks to Supabase for the listening stats — plain REST for the stats
+/// functions; the session itself comes from the app's Supabase client
+/// (`SupabaseSession`), shared with the account and the chat.
 ///
 /// Identity is a Supabase *anonymous* auth user, created lazily on the first
-/// upload (so installs that never really listen never create one). Its
-/// session lives in the Keychain; when registration arrives, the very same
-/// user is upgraded to a permanent account and keeps all its stats.
+/// upload (so installs that never really listen never create one). Signing
+/// in (Profil) upgrades that very same user to a permanent account, so it
+/// keeps all its stats.
 actor StatsAPIClient {
     static let shared = StatsAPIClient()
 
@@ -38,18 +39,6 @@ actor StatsAPIClient {
         case authFailed
     }
 
-    private struct Session: Codable {
-        var accessToken: String
-        var refreshToken: String
-        var expiresAt: Date
-    }
-
-    private struct AuthResponse: Decodable {
-        let accessToken: String
-        let refreshToken: String
-        let expiresIn: Int
-    }
-
     private struct RecordBody: Encodable {
         let batchID: UUID
         let rows: [ListeningRow]
@@ -62,11 +51,6 @@ actor StatsAPIClient {
         }
     }
 
-    private static let sessionAccount = "supabase.session"
-
-    private var session: Session?
-    private var didLoadStoredSession = false
-
     // MARK: - Public API
 
     func recordListening(batchID: UUID, rows: [ListeningRow], appVersion: String) async throws {
@@ -78,16 +62,14 @@ actor StatsAPIClient {
         if UserDefaults.standard.bool(forKey: "statsDryRun") { return }
         #endif
         let body = try JSONEncoder().encode(RecordBody(batchID: batchID, rows: rows, appVersion: appVersion))
-        _ = try await authenticatedRPC("record_listening", body: body)
+        _ = try await authenticatedRPC("record_listening", body: body, creatingAnonymous: true)
     }
 
-    /// The raw `get_my_stats` JSON, or `nil` when this phone has no
-    /// anonymous session yet — i.e. it never listened long enough to upload
-    /// anything. Opening the stats screen must not create an account.
+    /// The raw `get_my_stats` JSON, or `nil` when this phone has no session
+    /// yet — i.e. it never listened long enough to upload anything and never
+    /// signed in. Opening the stats screen must not create an account.
     func fetchMyStats() async throws -> Data? {
-        loadStoredSessionIfNeeded()
-        guard session != nil else { return nil }
-        return try await authenticatedRPC("get_my_stats", body: Data("{}".utf8))
+        try await authenticatedRPC("get_my_stats", body: Data("{}".utf8), creatingAnonymous: false)
     }
 
     /// Public, session-less summary (`public_stats()`): whether the stats UI
@@ -96,95 +78,44 @@ actor StatsAPIClient {
         try await send(path: "rest/v1/rpc/public_stats", body: Data("{}".utf8), bearer: nil)
     }
 
-    /// "Smazat moje statistiky" — removes the listener's rows and anonymous
-    /// account server-side, then forgets the session here, so the next
-    /// listen starts under a new id rather than the deleted one.
+    /// "Smazat moje statistiky" — removes the listener's rows server-side.
+    /// For an anonymous listener the server deletes the user too, so the
+    /// session is forgotten here and the next listen starts under a new id.
+    /// A signed-in listener keeps their account (only the stats go).
     func deleteMyData() async throws {
         // No session means nothing was ever uploaded — nothing to delete,
         // and asking would create an anonymous account just to delete it.
-        loadStoredSessionIfNeeded()
-        guard session != nil else { return }
-        _ = try await authenticatedRPC("delete_my_listening_data", body: Data("{}".utf8))
-        session = nil
-        didLoadStoredSession = true
-        KeychainStore.delete(account: Self.sessionAccount)
-    }
-
-    // MARK: - Session
-
-    private func loadStoredSessionIfNeeded() {
-        guard !didLoadStoredSession else { return }
-        didLoadStoredSession = true
-        if let data = KeychainStore.read(account: Self.sessionAccount) {
-            session = try? JSONDecoder().decode(Session.self, from: data)
+        guard try await authenticatedRPC("delete_my_listening_data", body: Data("{}".utf8), creatingAnonymous: false) != nil else {
+            return
         }
-    }
-
-    private func currentSession() async throws -> Session {
-        loadStoredSessionIfNeeded()
-        if let session, session.expiresAt.timeIntervalSinceNow > 60 {
-            return session
+        if SupabaseSession.isAnonymous {
+            try? await AppSupabase.client.auth.signOut(scope: .local)
         }
-        return try await renewSession()
-    }
-
-    /// Refreshes the stored session; only if the server no longer accepts
-    /// its refresh token (not on a mere network error) does it fall back to a
-    /// brand-new anonymous user.
-    private func renewSession() async throws -> Session {
-        if let stored = session {
-            do {
-                let body = try JSONEncoder().encode(["refresh_token": stored.refreshToken])
-                let data = try await send(
-                    path: "auth/v1/token",
-                    query: [URLQueryItem(name: "grant_type", value: "refresh_token")],
-                    body: body,
-                    bearer: nil
-                )
-                return try store(authResponse: data)
-            } catch APIError.rejected(_) {
-                // Refresh token no longer valid — fall through to a new anonymous user.
-            }
-            // Network or 5xx trouble propagates: keep the identity, retry later.
-        }
-        do {
-            return try store(authResponse: try await send(path: "auth/v1/signup", body: Data("{}".utf8), bearer: nil))
-        } catch APIError.transport {
-            throw APIError.transport
-        } catch {
-            throw APIError.authFailed
-        }
-    }
-
-    private func store(authResponse data: Data) throws -> Session {
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        guard let response = try? decoder.decode(AuthResponse.self, from: data) else {
-            throw APIError.authFailed
-        }
-        let newSession = Session(
-            accessToken: response.accessToken,
-            refreshToken: response.refreshToken,
-            expiresAt: Date().addingTimeInterval(TimeInterval(response.expiresIn))
-        )
-        session = newSession
-        if let encoded = try? JSONEncoder().encode(newSession) {
-            KeychainStore.write(encoded, account: Self.sessionAccount)
-        }
-        return newSession
     }
 
     // MARK: - Requests
 
-    private func authenticatedRPC(_ name: String, body: Data) async throws -> Data {
+    /// `nil` when there is no session and `creatingAnonymous` is false.
+    private func authenticatedRPC(_ name: String, body: Data, creatingAnonymous: Bool) async throws -> Data? {
         let path = "rest/v1/rpc/\(name)"
-        let current = try await currentSession()
+        let token: String
         do {
-            return try await send(path: path, body: body, bearer: current.accessToken)
+            guard let current = try await SupabaseSession.accessToken(creatingAnonymous: creatingAnonymous) else { return nil }
+            token = current
+        } catch {
+            throw SupabaseSession.isTransport(error) ? APIError.transport : APIError.authFailed
+        }
+        do {
+            return try await send(path: path, body: body, bearer: token)
         } catch APIError.server(401) {
             // Access token expired or revoked server-side: renew once, retry.
-            let renewed = try await renewSession()
-            return try await send(path: path, body: body, bearer: renewed.accessToken)
+            let renewed: String
+            do {
+                renewed = try await SupabaseSession.refreshedAccessToken()
+            } catch {
+                throw SupabaseSession.isTransport(error) ? APIError.transport : APIError.authFailed
+            }
+            return try await send(path: path, body: body, bearer: renewed)
         }
     }
 

@@ -11,7 +11,8 @@ Grafika je v `android/store/`:
 |---|---|---|
 | `icon-512.png` | Ikona aplikace (512 × 512) | `python3 tools/android/store_graphics.py` |
 | `feature-graphic.png` | Úvodní grafika (1024 × 500) | totéž |
-| `screenshots/cs/*.png`, `screenshots/en/*.png` | Snímky obrazovky telefonu (1080 × 1920, Play chce přesně 9 : 16), v pořadí podle čísla | `StoreScreenshotTest` (`-Proborazzi.test.record=true`), pak `store_graphics.py` |
+| `play/cs/*.png`, `play/en/*.png` | **Snímky do obchodu (od 1.3):** text nahoře, obrazovka bez telefonu, mraky; 1080 × 1920 (Play chce přesně 9 : 16), v pořadí podle čísla | `StoreScreenshotTest` (`-Proborazzi.test.record=true`) → `screenshots/`, pak `python3 tools/appstore/frame.py <obrazovky> <výstup> clouds --play --bare` |
+| `screenshots/cs/*.png`, `screenshots/en/*.png` | Holé obrazovky z testu (podklad pro `play/`) | `StoreScreenshotTest` |
 
 ## Nastavení obchodu (Zvýšení počtu uživatelů → Nastavení obchodu)
 
@@ -41,17 +42,19 @@ Slow Down Rádijo v kapse. Živé vysílání rádia, které hraje hip hop, soul
 
 CO APPKA UMÍ
 • Živé vysílání na jedno klepnutí – i na pozadí, ze zamčené obrazovky, přes Bluetooth a v autě s Android Auto
+• Chat posluchačů: piš si s ostatními i s moderátory během vysílání – stačí přezdívka, bez registrace
 • Co se právě vysílá: pořad, moderátor a skladba, kterou jedním klepnutím najdeš na Spotify
 • Skladby, které hrály před chvílí – stačí přejet prstem do strany
 • Program na celý týden s popisy pořadů a připomínkou, když začíná tvůj oblíbený
-• Časovač vypnutí, když s rádiem usínáš
-• Tvoje statistiky poslechu: kolik času jsi s rádiem strávil, tvoje nejposlouchanější pořady a tvoje místo mezi posluchači
+• Tvoje statistiky poslechu: dnešek, týden, celkový čas, oblíbené pořady a místo mezi posluchači
+• Profil Slowridera: s volitelným účtem si změníš přezdívku a statistiky ti zůstanou i na novém telefonu
 • Hlasový vzkaz do rádia – nahraj pozdrav nebo přání a pošli ho moderátorům
-• Novinky z rádia a widget na plochu s tím, co se právě vysílá
+• Kvalita zvuku podle připojení: na Wi-Fi naplno, na datech úsporně
+• Časovač vypnutí, novinky z rádia a widget na plochu
 • Česky i anglicky
 
-BEZ ÚČTU A BEZ REKLAM
-Appku používáš bez registrace a bez reklam. Statistiky poslechu jsou anonymní a můžeš je kdykoli vypnout i smazat. Měření používání appky se zapne jen s tvým souhlasem.
+BEZ REKLAM, ÚČET JEN KDYŽ CHCEŠ
+Appku používáš bez reklam a bez registrace – i do chatu můžeš psát jen s přezdívkou. Účet Slowridera je dobrovolný. Statistiky poslechu jsou anonymní a můžeš je kdykoli vypnout i smazat. Měření používání appky se zapne jen s tvým souhlasem.
 
 Zpomal se Slow Down Rádijem.
 Tohle algoritmus neumí.
@@ -74,18 +77,20 @@ Slow Down Rádijo live: hip hop, soul, jazz and funk, hand-picked by people.
 Slow Down Rádijo in your pocket. The live stream of a radio station playing hip hop, soul, funk, jazz, Afrobeat and electronica – and above all, music you won't hear anywhere else. Hand-picked by people, not by algorithms.
 
 WHAT IT DOES
-• The live stream in one tap – in the background, from the lock screen, over Bluetooth and in the car with Android Auto
+• The live stream in one tap – in the background, from the lock screen, over Bluetooth, and in the car with Android Auto
+• Listeners' chat: talk with other listeners and the hosts during the show – just pick a nickname, no sign-up
 • What's on air: the show, the host and the song, which you can find on Spotify in one tap
 • The songs that played a moment ago – just swipe sideways
 • The whole week's schedule with show descriptions and a reminder when your favourite starts
-• A sleep timer for falling asleep to the radio
-• Your listening stats: how much time you've spent with the station, your most-listened shows and where you rank among listeners
+• Your listening stats: today, this week, all time, your favourite shows and where you are among listeners
+• Slowrider profile: with an optional account you can change your nickname and keep your stats on a new phone
 • Voice messages to the station – record a shout-out or a request and send it to the hosts
-• News from the station and a home screen widget showing what's on air
+• Sound quality to match your connection: full quality on Wi-Fi, data-saving on mobile
+• A sleep timer, news from the station and a home screen widget
 • In Czech and English
 
-NO ACCOUNT, NO ADS
-No sign-up and no ads. Listening stats are anonymous, and you can turn them off and delete them at any time. Usage measurement only starts with your consent.
+NO ADS, AN ACCOUNT ONLY IF YOU WANT ONE
+No ads and no sign-up – you can even write in the chat with just a nickname. A Slowrider account is optional. Listening stats are anonymous, and you can turn them off and delete them at any time. Usage measurement only starts with your consent.
 
 Slow down with Slow Down Rádijo.
 No algorithm can do this.
@@ -93,6 +98,26 @@ No music. No life.
 ```
 
 ## Poznámky k verzi
+
+**1.3 – čeština**
+
+```
+• Chat posluchačů: piš si s ostatními i s moderátory během vysílání. Stačí přezdívka.
+• Profil Slowridera: přezdívka, tvoje čísla a oblíbené pořady. S účtem (Apple, Google, e-mail) si změníš přezdívku a statistiky ti zůstanou.
+• Nové statistiky: dnešek a týden na první pohled, místo mezi posluchači.
+• Lepší zvuk: na Wi-Fi ve vysoké kvalitě, na datech úsporně.
+• V autě začne rádio hrát hned po otevření.
+```
+
+**1.3 – English**
+
+```
+• Listeners' chat: talk with other listeners and the hosts during the show. Just pick a nickname.
+• Slowrider profile: your nickname, your numbers and favourite shows. With an account (Apple, Google, e-mail) you can change your nickname and keep your stats.
+• New stats: today and this week at a glance, and where you are among listeners.
+• Better sound: high quality on Wi-Fi, data-saving on mobile.
+• In the car, the radio starts playing as soon as you open the app.
+```
 
 **1.2 – čeština**
 
@@ -106,24 +131,13 @@ První verze Slow Down Rádija pro Android: živé vysílání, program s připo
 The first Slow Down Rádijo for Android: the live stream, the schedule with reminders, a sleep timer, listening stats, voice messages to the station, a widget and Android Auto.
 ```
 
-**1.3 – čeština**
-
-```
-Lepší zvuk: na Wi-Fi hraje rádio ve vysoké kvalitě (MP3 160 kbps), na mobilních datech dál úsporně. Změníš to v Nastavení → Kvalita zvuku.
-```
-
-**1.3 – English**
-
-```
-Better sound: on Wi-Fi the radio plays in high quality (MP3 160 kbps), on mobile data it still saves data. Change it in Settings → Sound quality.
-```
 
 ## Obsah aplikace (Zásady → Obsah aplikace)
 
 | Položka | Odpověď |
 |---|---|
 | Zásady ochrany soukromí | https://slowdownradijo.cz/ochrana-osobnich-udaju/ |
-| Přihlašovací údaje (dříve Přístup k aplikaci) | Ne, žádná část aplikace není omezená |
+| Přihlašovací údaje (dříve Přístup k aplikaci) | Od 1.3: chat funguje i bez účtu (přezdívka s první zprávou); přihlášení (Google, Apple nebo e-mail s kódem) je potřeba jen pro změnu přezdívky a profil Slowridera. Pro kontrolu přidat testovací účet |
 | Reklamy | Aplikace neobsahuje reklamy |
 | Cílová skupina | 13–15, 16–17, 18 a více (ne pod 13: to by zapnulo pravidla pro rodiny a děti) |
 | Zpravodajská aplikace | Ne |
@@ -141,7 +155,7 @@ USK 12, ClassInd 14.
 
 - Kategorie: **Všechny ostatní typy aplikací**.
 - Stažená aplikace (hodnocený obsah v balíčku): **Ne**.
-- Sdílení uživatelského obsahu: **Ne**. Vzkazy a zpětná vazba jdou soukromě rádiu.
+- Sdílení uživatelského obsahu: **Ne** do 1.2. **Od 1.3 Ano**: veřejný chat posluchačů (text), s moderací, nahlášením a blokací. Dotazník IARC vyplnit znovu před vydáním 1.3.
 - Online obsah: **Ano** (živé vysílání, novinky a program z webu).
 - Násilí: **Ne**. Sexualita: **Ne**.
 - Jazyk: **Ano**. Rádio může pustit necenzurované verze skladeb. Hlavní zaměření: Ne; mírné klení: Ano; mírné nadávky: Ano; diskriminační mluva: Ne; sexuální nadávky: podle odpovědi v Play Console.
@@ -155,8 +169,8 @@ Odpovídá štítku soukromí v App Store (`docs/app-store.md`) a zásadám ochr
 
 - Shromažďuje aplikace data? **Ano**.
 - Jsou všechna data při přenosu šifrovaná? **Ano** (vše jde přes HTTPS).
-- Metody vytvoření účtu: **Aplikace uživatelům vytvoření účtu neumožňuje**.
-- Mohou uživatelé požádat o smazání? **Ano**, URL: https://slowdownradijo.cz/ochrana-osobnich-udaju/ (Menu → Nastavení → Smazat moje statistiky; ostatní přes e-mail rádia).
+- Metody vytvoření účtu (od 1.3): **Uživatelské jméno a jiné ověřování** (e-mail s jednorázovým kódem) a **OAuth** (Google, Apple). Účet je volitelný, jen pro psaní do chatu.
+- Mohou uživatelé požádat o smazání? **Ano**: účet v aplikaci (Profil → Smazat účet), statistiky v Menu → Nastavení → Smazat moje statistiky; URL pro žádost o smazání: https://slowdownradijo.cz/ochrana-osobnich-udaju/.
 - U všech typů: jen shromažďováno (ne sdíleno), nezpracovává se dočasně, uživatelé si mohou zvolit.
 - Sdílení s třetími stranami: **Ne**. Supabase, PostHog a Resend jsou zpracovatelé (poskytovatelé služeb), to se podle Googlu za sdílení nepočítá.
 
@@ -164,11 +178,13 @@ Odpovídá štítku soukromí v App Store (`docs/app-store.md`) a zásadám ochr
 |---|---|---|---|
 | Aktivita v aplikaci → Interakce s aplikací | Sekundy poslechu po dnech a pořadech; se souhlasem i to, které funkce lidé používají | Funkce aplikace, Analytika | Volitelné (statistiky jdou vypnout, analytika jen se souhlasem) |
 | ID zařízení nebo jiná ID | Náhodné anonymní ID pro statistiky poslechu; náhodné ID analytiky (jen se souhlasem) | Funkce aplikace, Analytika | Volitelné |
+| Osobní údaje → E-mailová adresa | E-mail účtu (1.3, jen pro psaní do chatu) | Funkce aplikace, Správa účtu | Volitelné |
+| Osobní údaje → ID uživatele | Účet a přezdívka v chatu | Funkce aplikace, Správa účtu | Volitelné |
 | Zvuk → Hlasové nebo zvukové nahrávky | Hlasové vzkazy, které posluchač nahraje a odešle | Funkce aplikace | Volitelné |
-| Zprávy → Jiné zprávy v aplikaci | Text zpětné vazby | Funkce aplikace | Volitelné |
+| Zprávy → Jiné zprávy v aplikaci | Text zpětné vazby; zprávy v chatu posluchačů (1.3, veřejné v aplikaci) | Funkce aplikace | Volitelné |
 | Informace o aplikaci a výkonu → Jiné údaje o výkonu aplikace | Verze appky a Androidu a model telefonu, poslané se zpětnou vazbou; verze appky a Androidu u událostí analytiky (jen se souhlasem) | Funkce aplikace, Analytika | Volitelné |
 
-Neshromažďuje se: jméno, e-mail, telefon, poloha, kontakty, fotky,
+Neshromažďuje se: jméno, telefon, poloha, kontakty, fotky,
 platby, historie prohlížení, zdravotní ani finanční údaje, záznamy o
 pádech, diagnostika. PostHog má zapnuté anonymizování IP adres, takže
 se nezjišťuje ani přibližná poloha.

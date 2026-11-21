@@ -20,6 +20,9 @@ data class StatsSummary(
     val communitySeconds: Int = 0,
     val rank: Int? = null,
     val rankedListeners: Int = 0,
+    val aheadSeconds: Int? = null,
+    val behindSeconds: Int? = null,
+    val listeningDays: Int = 0,
     val bars: List<DayBar> = emptyList(),
     val weekSeconds: Int = 0,
     val weekStart: LocalDate? = null,
@@ -170,6 +173,14 @@ class ListeningStatsStore(
             communitySeconds = (snapshot?.communitySeconds ?: _public.value?.communitySeconds ?: 0) + unsyncedSeconds,
             rank = snapshot?.rank,
             rankedListeners = snapshot?.rankedListeners ?: _public.value?.rankedListeners ?: 0,
+            aheadSeconds = snapshot?.aheadSeconds,
+            behindSeconds = snapshot?.behindSeconds,
+            listeningDays = run {
+                // The server's count plus days only this phone knows yet, as iOS.
+                val local = perDay.filter { it.value.values.sum() > 0 }.keys
+                val server = snapshot?.listeningDays ?: return@run local.size
+                server + (local - snapshot.daily.filter { it.seconds > 0 }.map { it.day }.toSet()).size
+            },
             bars = bars,
             weekSeconds = daySeconds.sum(),
             weekStart = days.first(),

@@ -64,7 +64,7 @@ nástroj za ním se dá vyměnit nebo doplnit (Google Analytics) beze změny vol
 | událost | kdy | vlastnosti |
 |---|---|---|
 | `app_opened` | spuštění, návrat po 30+ min na pozadí, udělení souhlasu | `kind`: `cold` / `warm` / `consent` |
-| `screen_viewed` | zobrazení obrazovky | `screen`: `home`, `message`, `support`, `stats`, `menu`, `settings`, `show_reminders`, `news` |
+| `screen_viewed` | zobrazení obrazovky | `screen`: `home`, `message`, `support`, `stats`, `profile`, `menu`, `settings`, `show_reminders`, `news` |
 | `language_changed` | přepnutí CZ/EN v hlavičce | `to`: `cs` / `en` |
 | `playback_started` | stream opravdu začal hrát | `trigger`: `user`, `autoplay`, `lock_screen`, `notification`, `resume`, `preview`; `show_id`; `connect_ms`; `stream`: `mp3` / `aac` (co opravdu hraje); `quality`: nastavení `auto` / `high` / `low` (od 1.3) |
 | `playback_stopped` | konec souvislého poslechu | `seconds_listened`, `end_reason`: `user`, `sleep_timer`, `interruption`, `headphones`, `voice_message`, `preview`; `show_id`; `reconnects` |
@@ -78,6 +78,51 @@ nástroj za ním se dá vyměnit nebo doplnit (Google Analytics) beze změny vol
 | `support_link_opened` | klepnutí na platformu podpory | `platform` (id platformy) |
 | `message_sent` | odeslání hlasového vzkazu | `success`, `duration_s` |
 | `feedback_sent` | odeslání zpětné vazby | `success` |
+| `chat_opened` | otevření chatu (1.3) | `source`: `home_section` / `home_field` / `invite`; `signed_in` |
+| `chat_message_sent` | odeslání zprávy do chatu | `kind`: `text` / `emoji` / `starter`; `success` |
+| `chat_join_shown` | nepřihlášenému se vysunulo „Připoj se do chatu“ | `reason`: `send` / `report` |
+| `chat_moderated` | akce DJ nebo admina | `action`: `pin`, `unpin`, `delete`, `restore`, `mute`, `unmute`, `block`; `minutes` (jen `mute`) |
+| `chat_reported` | nahlášení zprávy | — |
+| `chat_user_hidden` | skrytí zpráv od posluchače | — |
+| `dj_invite_opened` | otevření pozvánky pro DJ | `valid`: `yes` / `no` / `unknown` |
+| `dj_invite_claimed` | propojení účtu s DJ | `success` |
+
+U chatu se nikdy neposílá text zpráv, přezdívky ani kdo komu psal.
+
+#### Chat v3 a účty (od 1.3, implementováno v obou appkách)
+
+`account` u událostí chatu: `none` (bez anonymního účtu), `anonymous` (píše bez registrace), `registered`.
+
+| událost | kdy | vlastnosti |
+|---|---|---|
+| `chat_opened` | otevření chatu | `source`: `home_section` / `home_field` / `invite`; `account` (nahrazuje `signed_in`) |
+| `chat_message_sent` | odeslání zprávy | `kind`: `text` / `emoji` / `starter`; `success`; `first` (první zpráva vůbec); `account` |
+| `chat_nickname_prompt_shown` | při první zprávě vyjelo „Tvoje přezdívka“ | — |
+| `chat_nickname_set` | přezdívka uložena | `when`: `first_message` / `change` |
+| `registration_prompt_shown` | výzva k registraci | `reason`: `nickname_change`, `profile_card`, `chat_existing_account` |
+| `account_registered` | anonym se zaregistroval (klíčová konverze) | `method`: `apple` / `google` / `email`; `source`: `nickname_change`, `profile_card`, `profile_empty`, `chat_existing_account`; `had_nickname` |
+| `account_signed_in` | přihlášení existujícím účtem („Už máš účet?“) | `method`; `source` |
+| `account_deleted` | smazání účtu nebo údajů | `registered` |
+| `profile_dashboard_viewed` | Profil s přehledem Tvůj Slowride | `weeks_member` |
+| `chat_moderated`, `chat_reported`, `chat_user_hidden` | beze změny | |
+| `dj_invite_opened`, `dj_invite_claimed` | beze změny | |
+| `admin_invite_created` | superadmin vytvořil pozvánku pro moderátora | `from_programme` (z programu / host mimo program) |
+| `admin_invite_shared` | Sdílet nebo Kopírovat | `via`: `share` / `copy` |
+| `admin_host_unlinked` | odpojení moderátora | — |
+| `admin_admins_changed` | přidání / odebrání správce | `action`: `add` / `remove` |
+
+`chat_join_shown` z 1.3 zmizí (psaní už přihlášení nevyžaduje).
+
+Přehledy v PostHogu pro v3:
+
+| otázka | jak |
+|---|---|
+| Kolik lidí v chatu píše | Trends `chat_message_sent` (success), unikátní uživatelé, breakdown `account` |
+| Kdo se po první zprávě vrátí | Retention: `chat_message_sent` (`first` = true) → `chat_message_sent` |
+| Funguje motivace k registraci | Funnel `registration_prompt_shown` → `account_registered`, breakdown `reason` |
+| Kolik je registrovaných (všichni, i bez souhlasu) | Dashboard „Slow Down Rádijo – appka“: „Registrovaní Slowriders“, „Registrace podle platformy“, „Nové registrace podle způsobu přihlášení“. Data warehouse `radiopostgres_account_registrations` ze Supabase (`posthog_export.account_registrations`, 024 a 025), jen počty |
+| Odkud přicházejí registrace | Trends `account_registered`, breakdown `source` a `method` |
+| Odrazuje okno přezdívky | Funnel `chat_nickname_prompt_shown` → `chat_nickname_set` → `chat_message_sent` |
 
 `show_id` je id pořadu ze `schedule.json`, `_` když žádný neběží.
 
@@ -88,6 +133,8 @@ nástroj za ním se dá vyměnit nebo doplnit (Google Analytics) beze změny vol
 | Nejpoužívanější funkce | Trends ▸ Total count, všechny události kromě `app_opened`/`playback_*`, breakdown podle události |
 | Obrazovky | Trends `screen_viewed`, breakdown `screen` |
 | Odkud se pouští rádio | Trends `playback_started`, breakdown `trigger` |
+| Píše se do chatu? | Funnel `chat_opened` → `chat_message_sent` (success = true), breakdown `signed_in` |
+| Odrazuje přihlášení? | Funnel `chat_join_shown` → `chat_message_sent` |
 | Proč poslech končí | Trends `playback_stopped`, breakdown `end_reason` |
 | Spolehlivost | `playback_failed` / `playback_started` (Formula), breakdown `$app_version` |
 | Fungují upozornění | Funnel `show_reminder_changed` (on=true) → `show_notification_opened` |
