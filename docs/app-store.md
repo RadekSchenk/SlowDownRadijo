@@ -40,7 +40,7 @@ Poslouchej rádio, kde hudbu vybírají lidi, ne algoritmy. Nově s chatem poslu
 
 **Keywords**
 
-radio,rádio,hiphop,rap,soul,funk,jazz,afrobeat,beats,groove,stream,živě,praha,chat
+radio,rádio,hiphop,rap,soul,funk,jazz,afrobeat,beats,groove,stream,živě,praha,chat,soutěž
 
 **Description**
 
@@ -79,7 +79,7 @@ Listen to radio where people pick the music, not algorithms. Now with a listener
 
 **Keywords**
 
-radio,hiphop,rap,soul,funk,jazz,afrobeat,beats,groove,stream,live,online,prague,czech,chat
+radio,hiphop,rap,soul,funk,jazz,afrobeat,beats,groove,stream,live,online,prague,czech,chat,contest
 
 **Description**
 
@@ -256,7 +256,7 @@ The app plays only the station's own live broadcast, the same stream offered at 
 
 ```
 1. SCREEN RECORDING
-A screen recording from an iPhone on the latest iOS is attached. It shows the live stream starting, the show, host and song on air, earlier songs, the sleep timer, the output picker, the weekly schedule with a reminder, the listeners' chat, the Profil tab, listening stats, a voice message and the menu.
+A screen recording from an iPhone on the latest iOS is attached. It shows the live stream starting, the show, host and song on air, earlier songs, the sleep timer, the output picker, the weekly schedule with a reminder, the listeners' chat, the contest card and page, the Profil tab, listening stats, a voice message and the menu.
 
 2. PURPOSE AND AUDIENCE
 Slow Down Rádijo is the official app of Slow Down Radio s.r.o., an internet radio station in Prague playing hip hop, soul, funk, jazz, Afrobeat and electronica hand-picked by its DJs. For listeners: one tap to play live, in the background and from the lock screen and CarPlay, with what is on air, the weekly schedule, a sleep timer, personal listening stats, voice messages to the studio and a listeners' chat.
