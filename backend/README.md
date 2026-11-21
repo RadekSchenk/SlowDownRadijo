@@ -344,6 +344,13 @@ listener's anonymous stats user, so their stats stay. Design and rules:
     `get_my_stats` also returns the listening time of the places right above
     and below the caller (shown as neighbours, not a race) and the days with
     listening, for the new Statistiky (1.3). On production since 19. 11. 2026.
+16. **Run `supabase/sql/027_stream_quality_and_chat_export.sql`** (after
+    026): listening rows carry the stream (mp3 / aac) and the quality setting,
+    summed in `listening_streams_daily` with no listener in it, and
+    `listeners.stream_quality` keeps the latest setting. PostHog gets
+    `posthog_export.listening_quality_daily`, `listening_quality_users`,
+    `chat_daily`, `chat_shows_30d` and `chat_retention` (turned on in the
+    "radio" source, every 6 hours). On production since 21. 11. 2026.
 9. **Invite links on slowdownradijo.cz.** Until these two files are on the
    web, the `https://slowdownradijo.cz/dj/<code>` link opens the website, not
    the app; `slowdownradijo://dj/<code>` works right away in both apps.
