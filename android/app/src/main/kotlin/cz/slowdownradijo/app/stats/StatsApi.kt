@@ -17,7 +17,14 @@ import java.io.IOException
 
 /** One day's listening to one show, as `ListeningRow` (the server's `p_rows`). */
 @Serializable
-data class ListeningRow(val day: String, @SerialName("show_id") val showId: String, var seconds: Int)
+data class ListeningRow(
+    val day: String,
+    @SerialName("show_id") val showId: String,
+    var seconds: Int,
+    /** What really played (`mp3` / `aac`) and the quality setting, server totals only (027). */
+    val stream: String? = null,
+    val quality: String? = null,
+)
 
 /** `get_my_stats` (backend/supabase/sql/005, 009, 017). */
 @Serializable

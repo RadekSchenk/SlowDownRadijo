@@ -68,9 +68,12 @@ final class NowPlayingViewModel: ObservableObject {
         // Listening stats: credit playback time to whichever show is airing
         // at each tick. Every way of playing goes through `player.state`, so
         // this one hook covers the lock screen, headphones and CarPlay too.
-        ListeningTracker.shared.configure { [weak scheduleStore] in
-            scheduleStore?.currentShow()?.id
-        }
+        ListeningTracker.shared.configure(
+            showProvider: { [weak scheduleStore] in scheduleStore?.currentShow()?.id },
+            // Which stream plays and the quality setting, summed on the
+            // server as totals only (027).
+            streamProvider: { [weak player] in (player?.currentStream?.rawValue, StreamQuality.current.rawValue) }
+        )
 
         playbackAnalytics = PlaybackAnalytics(player: player) { [weak scheduleStore] in
             scheduleStore?.currentShow()?.id

@@ -6,11 +6,18 @@ struct ListeningRow: Codable, Hashable {
     let day: String
     let showID: String
     var seconds: Int
+    /// What really played (`mp3` / `aac`) and the sound-quality setting
+    /// (`auto` / `high` / `low`), counted on the server only as totals
+    /// (027). Missing in rows saved by an older version.
+    var stream: String? = nil
+    var quality: String? = nil
 
     enum CodingKeys: String, CodingKey {
         case day
         case showID = "show_id"
         case seconds
+        case stream
+        case quality
     }
 }
 

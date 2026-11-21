@@ -100,6 +100,8 @@ class SlowDownApp : Application() {
             isEnabled = { settings.statsEnabled.value },
             // Credit the show on air at each tick.
             showProvider = { schedule.currentShow()?.id },
+            // Which stream plays and the quality setting, server totals only (027).
+            streamProvider = { radio.currentStream?.id to radio.streamQuality.id },
             appVersion = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) android",
         )
     }
