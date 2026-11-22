@@ -48,6 +48,7 @@ CO APPKA UMÍ
 • Program na celý týden s popisy pořadů a připomínkou, když začíná tvůj oblíbený
 • Tvoje statistiky poslechu: dnešek, týden, celkový čas, oblíbené pořady a místo mezi posluchači
 • Profil Slowridera: s volitelným účtem si změníš přezdívku a statistiky ti zůstanou i na novém telefonu
+• Soutěže o ceny od rádia – odpověz na otázku přímo v appce (pro Slowridery s účtem)
 • Hlasový vzkaz do rádia – nahraj pozdrav nebo přání a pošli ho moderátorům
 • Kvalita zvuku podle připojení: na Wi-Fi naplno, na datech úsporně
 • Časovač vypnutí, novinky z rádia a widget na plochu
@@ -84,6 +85,7 @@ WHAT IT DOES
 • The whole week's schedule with show descriptions and a reminder when your favourite starts
 • Your listening stats: today, this week, all time, your favourite shows and where you are among listeners
 • Slowrider profile: with an optional account you can change your nickname and keep your stats on a new phone
+• Contests with prizes from the station – answer the question right in the app (for Slowriders with an account)
 • Voice messages to the station – record a shout-out or a request and send it to the hosts
 • Sound quality to match your connection: full quality on Wi-Fi, data-saving on mobile
 • A sleep timer, news from the station and a home screen widget
@@ -99,24 +101,28 @@ No music. No life.
 
 ## Poznámky k verzi
 
+Limit 500 znaků na jazyk (kratší než v App Store).
+
 **1.3 – čeština**
 
 ```
-• Chat posluchačů: piš si s ostatními i s moderátory během vysílání. Stačí přezdívka.
-• Profil Slowridera: přezdívka, tvoje čísla a oblíbené pořady. S účtem (Apple, Google, e-mail) si změníš přezdívku a statistiky ti zůstanou.
-• Nové statistiky: dnešek a týden na první pohled, místo mezi posluchači.
-• Lepší zvuk: na Wi-Fi ve vysoké kvalitě, na datech úsporně.
+• Chat posluchačů: piš si s ostatními i s moderátory. Stačí přezdívka.
+• Soutěže o ceny přímo v appce (pro Slowridery s účtem).
+• Profil Slowridera: přezdívka, tvoje čísla a oblíbené pořady. S účtem ti statistiky zůstanou.
+• Nové statistiky: dnešek, týden a místo mezi posluchači.
+• Lepší zvuk: na Wi-Fi naplno, na datech úsporně.
 • V autě začne rádio hrát hned po otevření.
 ```
 
 **1.3 – English**
 
 ```
-• Listeners' chat: talk with other listeners and the hosts during the show. Just pick a nickname.
-• Slowrider profile: your nickname, your numbers and favourite shows. With an account (Apple, Google, e-mail) you can change your nickname and keep your stats.
-• New stats: today and this week at a glance, and where you are among listeners.
-• Better sound: high quality on Wi-Fi, data-saving on mobile.
-• In the car, the radio starts playing as soon as you open the app.
+• Listeners' chat: talk with other listeners and the hosts. Just pick a nickname.
+• Contests with prizes right in the app (for Slowriders with an account).
+• Slowrider profile: your nickname, numbers and favourite shows. With an account, your stats stay.
+• New stats: today, this week and where you are among listeners.
+• Better sound: full quality on Wi-Fi, data-saving on mobile.
+• In the car, the radio starts as soon as you open the app.
 ```
 
 **1.2 – čeština**
@@ -137,7 +143,7 @@ The first Slow Down Rádijo for Android: the live stream, the schedule with remi
 | Položka | Odpověď |
 |---|---|
 | Zásady ochrany soukromí | https://slowdownradijo.cz/ochrana-osobnich-udaju/ |
-| Přihlašovací údaje (dříve Přístup k aplikaci) | Od 1.3: chat funguje i bez účtu (přezdívka s první zprávou); přihlášení (Google, Apple nebo e-mail s kódem) je potřeba jen pro změnu přezdívky a profil Slowridera. Pro kontrolu přidat testovací účet |
+| Přihlašovací údaje (dříve Přístup k aplikaci) | Od 1.3: chat funguje i bez účtu (přezdívka s první zprávou); přihlášení (Google, Apple nebo e-mail s kódem) je potřeba jen pro změnu přezdívky, profil Slowridera a soutěže (1.3). Pro kontrolu přidat testovací účet; když během kontroly žádná soutěž neběží, karta soutěže se nezobrazí |
 | Reklamy | Aplikace neobsahuje reklamy |
 | Cílová skupina | 13–15, 16–17, 18 a více (ne pod 13: to by zapnulo pravidla pro rodiny a děti) |
 | Zpravodajská aplikace | Ne |
@@ -155,7 +161,7 @@ USK 12, ClassInd 14.
 
 - Kategorie: **Všechny ostatní typy aplikací**.
 - Stažená aplikace (hodnocený obsah v balíčku): **Ne**.
-- Sdílení uživatelského obsahu: **Ne** do 1.2. **Od 1.3 Ano**: veřejný chat posluchačů (text), s moderací, nahlášením a blokací. Dotazník IARC vyplnit znovu před vydáním 1.3.
+- Sdílení uživatelského obsahu: **Ne** do 1.2. **Od 1.3 Ano**: veřejný chat posluchačů (text), s moderací, nahlášením a blokací. Dotazník IARC vyplnit znovu před vydáním 1.3 (soutěže o věcné ceny nejsou hazard ani digitální nákup, „Odměny“ zůstává Ne).
 - Online obsah: **Ano** (živé vysílání, novinky a program z webu).
 - Násilí: **Ne**. Sexualita: **Ne**.
 - Jazyk: **Ano**. Rádio může pustit necenzurované verze skladeb. Hlavní zaměření: Ne; mírné klení: Ano; mírné nadávky: Ano; diskriminační mluva: Ne; sexuální nadávky: podle odpovědi v Play Console.
@@ -169,7 +175,7 @@ Odpovídá štítku soukromí v App Store (`docs/app-store.md`) a zásadám ochr
 
 - Shromažďuje aplikace data? **Ano**.
 - Jsou všechna data při přenosu šifrovaná? **Ano** (vše jde přes HTTPS).
-- Metody vytvoření účtu (od 1.3): **Uživatelské jméno a jiné ověřování** (e-mail s jednorázovým kódem) a **OAuth** (Google, Apple). Účet je volitelný, jen pro psaní do chatu.
+- Metody vytvoření účtu (od 1.3): **Uživatelské jméno a jiné ověřování** (e-mail s jednorázovým kódem) a **OAuth** (Google, Apple). Účet je volitelný: pro změnu přezdívky, profil Slowridera a soutěže.
 - Mohou uživatelé požádat o smazání? **Ano**: účet v aplikaci (Profil → Smazat účet), statistiky v Menu → Nastavení → Smazat moje statistiky; URL pro žádost o smazání: https://slowdownradijo.cz/ochrana-osobnich-udaju/.
 - U všech typů: jen shromažďováno (ne sdíleno), nezpracovává se dočasně, uživatelé si mohou zvolit.
 - Sdílení s třetími stranami: **Ne**. Supabase, PostHog a Resend jsou zpracovatelé (poskytovatelé služeb), to se podle Googlu za sdílení nepočítá.
@@ -178,13 +184,14 @@ Odpovídá štítku soukromí v App Store (`docs/app-store.md`) a zásadám ochr
 |---|---|---|---|
 | Aktivita v aplikaci → Interakce s aplikací | Sekundy poslechu po dnech a pořadech; se souhlasem i to, které funkce lidé používají | Funkce aplikace, Analytika | Volitelné (statistiky jdou vypnout, analytika jen se souhlasem) |
 | ID zařízení nebo jiná ID | Náhodné anonymní ID pro statistiky poslechu; náhodné ID analytiky (jen se souhlasem) | Funkce aplikace, Analytika | Volitelné |
-| Osobní údaje → E-mailová adresa | E-mail účtu (1.3, jen pro psaní do chatu) | Funkce aplikace, Správa účtu | Volitelné |
+| Osobní údaje → E-mailová adresa | E-mail účtu (1.3, volitelný účet) | Funkce aplikace, Správa účtu | Volitelné |
+| Osobní údaje → Telefonní číslo | Telefon, který Slowrider zadá při přihlášce do soutěže, jen kvůli kontaktu s výhercem; smaže se 30 dní po losování, nejpozději 90 dní po konci soutěže (1.3) | Funkce aplikace | Volitelné |
 | Osobní údaje → ID uživatele | Účet a přezdívka v chatu | Funkce aplikace, Správa účtu | Volitelné |
 | Zvuk → Hlasové nebo zvukové nahrávky | Hlasové vzkazy, které posluchač nahraje a odešle | Funkce aplikace | Volitelné |
 | Zprávy → Jiné zprávy v aplikaci | Text zpětné vazby; zprávy v chatu posluchačů (1.3, veřejné v aplikaci) | Funkce aplikace | Volitelné |
 | Informace o aplikaci a výkonu → Jiné údaje o výkonu aplikace | Verze appky a Androidu a model telefonu, poslané se zpětnou vazbou; verze appky a Androidu u událostí analytiky (jen se souhlasem) | Funkce aplikace, Analytika | Volitelné |
 
-Neshromažďuje se: jméno, telefon, poloha, kontakty, fotky,
+Neshromažďuje se: jméno, poloha, kontakty, fotky,
 platby, historie prohlížení, zdravotní ani finanční údaje, záznamy o
 pádech, diagnostika. PostHog má zapnuté anonymizování IP adres, takže
 se nezjišťuje ani přibližná poloha.
