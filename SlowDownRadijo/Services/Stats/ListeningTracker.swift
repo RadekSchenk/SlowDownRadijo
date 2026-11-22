@@ -67,6 +67,8 @@ final class ListeningTracker {
 
     private var queue: Queue
     private var showProvider: (() -> String?)?
+    /// The stream playing (`mp3` / `aac`) and the quality setting.
+    private var streamProvider: (() -> (stream: String?, quality: String?))?
 
     /// What the player last reported, regardless of the stats preference.
     private var playerIsPlaying = false
@@ -103,8 +105,9 @@ final class ListeningTracker {
     // MARK: - Wiring
 
     /// `showProvider` returns the id of the show airing right now.
-    func configure(showProvider: @escaping () -> String?) {
+    func configure(showProvider: @escaping () -> String?, streamProvider: (() -> (stream: String?, quality: String?))? = nil) {
         self.showProvider = showProvider
+        self.streamProvider = streamProvider
     }
 
     /// Called whenever the player's state changes.
@@ -217,10 +220,13 @@ final class ListeningTracker {
 
         let day = Self.dayString(for: now)
         let showID = showProvider?() ?? Self.unknownShowID
-        if let index = queue.pending.firstIndex(where: { $0.day == day && $0.showID == showID }) {
+        let playing = streamProvider?()
+        if let index = queue.pending.firstIndex(where: {
+            $0.day == day && $0.showID == showID && $0.stream == playing?.stream && $0.quality == playing?.quality
+        }) {
             queue.pending[index].seconds += whole
         } else {
-            queue.pending.append(ListeningRow(day: day, showID: showID, seconds: whole))
+            queue.pending.append(ListeningRow(day: day, showID: showID, seconds: whole, stream: playing?.stream, quality: playing?.quality))
         }
         save()
         events.send(.accrued)

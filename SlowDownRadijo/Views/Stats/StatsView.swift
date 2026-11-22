@@ -1,8 +1,9 @@
 import SwiftUI
 
-/// The Statistiky tab — Figma "Statistiky" (node 12299:834): page title,
-/// today / total / everyone cards, the leaderboard, the last seven days as a
-/// chart, time per show, and a short "what do the numbers mean".
+/// The Statistiky tab — Figma "Explorace 1.3 — Profil a Statistiky", S1:
+/// today with the week in the coloured card, total / place / days, the
+/// leaderboard around the listener (anonymous), time per show, everyone
+/// together, and a short "what do the numbers mean".
 ///
 /// Same page chrome as the other tabs: 20pt side margins, `AppHeaderView` on
 /// top, 32pt between sections, each section closed by a divider.
@@ -19,7 +20,7 @@ struct StatsView: View {
                 AppHeaderView()
                     .padding(.top, AppHeaderView.topInset)
 
-                VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
+                VStack(alignment: .leading, spacing: 16) {
                     overview(summary)
 
                     if statsEnabled {
@@ -57,18 +58,55 @@ struct StatsView: View {
             }
 
             if statsEnabled {
-                StatsMetricCard(label: L10n.today, seconds: summary.todaySeconds, description: L10n.statsTodayDescription, isLive: stats.isMeasuring)
-                StatsMetricCard(label: L10n.statsTotal, seconds: summary.totalSeconds, description: L10n.statsTotalDescription)
-                // "Everyone together" and the leaderboard wait for a community.
-                if stats.communityUnlocked {
-                    StatsMetricCard(label: L10n.statsCommunityTitle, seconds: summary.communitySeconds, description: L10n.statsCommunityDescription)
-                }
+                todayCard(summary)
+                StatStrip(items: stripItems(summary))
             } else {
                 disabledCard
             }
-
-            ListDivider()
         }
+    }
+
+    /// Figma S1: today in the coloured card, the week under it.
+    private func todayCard(_ summary: ListeningStatsSummary) -> some View {
+        GlowCard {
+            HStack {
+                Text(L10n.today)
+                    .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
+                    .foregroundStyle(Color.glowLabel)
+                Spacer()
+                if stats.isMeasuring {
+                    HStack(spacing: 6) {
+                        ListeningDot()
+                        Text(L10n.statsLiveBadge)
+                            .font(Theme.Typography.Manrope.bold(size: 11, relativeTo: .caption2))
+                            .tracking(1.1)
+                            .foregroundStyle(Color.glowLabel)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(Color.white.opacity(0.12), in: Capsule())
+                    .transition(.opacity)
+                }
+            }
+            DurationText(seconds: summary.todaySeconds, numberSize: 56, unitSize: 22, lineHeight: 64)
+            Text(L10n.statsWeekTotal(StatsFormat.duration(seconds: summary.weekSeconds)))
+                .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
+                .foregroundStyle(Theme.mutedText)
+            WeekBars(bars: summary.bars)
+                .padding(.top, 4)
+        }
+        .animation(Motion.smoothOut(Motion.medium), value: stats.isMeasuring)
+    }
+
+    private func stripItems(_ summary: ListeningStatsSummary) -> [StatStrip.Item] {
+        let hours = summary.totalSeconds / 3600
+        let total = hours > 0 ? "\(StatsFormat.number(hours)) h" : StatsFormat.duration(seconds: summary.totalSeconds)
+        let rank = stats.communityUnlocked ? summary.rank.map { "#\($0)" } : nil
+        return [
+            .init(value: total, label: L10n.statsStripTotal),
+            .init(value: rank ?? "–", label: L10n.statsStripRank, accent: rank != nil),
+            .init(value: "\(summary.listeningDays) \(L10n.slowrideDays(summary.listeningDays))", label: L10n.statsStripDays),
+        ]
     }
 
     /// Shown instead of the numbers while measuring is switched off.
@@ -89,85 +127,83 @@ struct StatsView: View {
     // MARK: - Leaderboard
 
     private func leaderboard(_ summary: ListeningStatsSummary) -> some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-            StatsHeading(L10n.statsLeaderboardTitle)
+        StatsPanel(spacing: 18) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(L10n.statsLeaderboardTitle)
+                    .font(Theme.Typography.Manrope.extraBold(size: 16, relativeTo: .headline))
+                    .foregroundStyle(Theme.textPrimary)
+                Spacer()
+                if stats.communityUnlocked, summary.rankedListeners > 0 {
+                    Text("\(L10n.statsRankOf) \(StatsFormat.number(summary.rankedListeners))")
+                        .font(Theme.Typography.Manrope.semibold(size: 13, relativeTo: .footnote))
+                        .foregroundStyle(Theme.mutedText)
+                }
+            }
 
             if !stats.communityUnlocked {
-                lockedLeaderboard
+                StatsBodyText(L10n.statsLeaderboardLocked)
             } else if let rank = summary.rank {
                 rankRow(rank: rank, of: summary.rankedListeners)
-                StatsBodyText(L10n.statsLeaderboardDescription(count: StatsFormat.number(summary.rankedListeners)))
+                if summary.aheadSeconds != nil || summary.behindSeconds != nil {
+                    neighbours(summary, rank: rank)
+                }
                 Text(L10n.statsEncouragement)
                     .font(Theme.Typography.Manrope.bold(size: 14, relativeTo: .subheadline))
                     .foregroundStyle(Theme.textPrimary)
-                    .lineSpacing(3)
                     .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                Text(L10n.statsLeaderboardAnonymous)
+                    .font(Theme.Typography.Manrope.semibold(size: 12, relativeTo: .caption))
+                    .foregroundStyle(Theme.mutedText.opacity(0.75))
+                    .fixedSize(horizontal: false, vertical: true)
                 if stats.loadFailed {
                     StatsBodyText(L10n.statsOfflineNote, color: Theme.subtleText)
                 }
             } else {
                 rankPlaceholder(summary)
             }
-
-            ListDivider()
         }
-    }
-
-    /// Before enough people have listened there is no leaderboard to show —
-    /// a teaser instead of a hole (and instead of "#1 of 1").
-    private var lockedLeaderboard: some View {
-        HStack(spacing: Theme.Spacing.md) {
-            Image("StatsTrophy")
-                .renderingMode(.template)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 23, height: 23)
-                .foregroundStyle(Theme.liveRed)
-                .frame(width: 48, height: 48)
-                .background(Theme.liveRed.opacity(0.1), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-            StatsBodyText(L10n.statsLeaderboardLocked)
-        }
-        .padding(20)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.statsCard, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     private func rankRow(rank: Int, of total: Int) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(alignment: .lastTextBaseline, spacing: 0) {
-                    PopNumberText(
-                        text: "#\(rank)",
-                        font: Theme.Typography.Manrope.extraBold(size: 48, relativeTo: .largeTitle),
-                        color: Theme.liveRed
-                    )
-                    .manropeLineHeight(58, fontSize: 48)
-                    PopNumberText(
-                        text: " \(L10n.statsRankOf) \(StatsFormat.number(total))",
-                        font: Theme.Typography.Copy.body,
-                        color: Theme.mutedText
-                    )
+        HStack(alignment: .center, spacing: 14) {
+            PopNumberText(
+                text: "#\(rank)",
+                font: Theme.Typography.Manrope.extraBold(size: 48, relativeTo: .largeTitle),
+                color: Theme.liveRed
+            )
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
+            VStack(alignment: .leading, spacing: 6) {
+                if let tier = StatsTier.label(rank: rank, of: total) {
+                    Text(L10n.statsTierTop(tier))
+                        .font(Theme.Typography.Manrope.bold(size: 11, relativeTo: .caption2))
+                        .tracking(1)
+                        .foregroundStyle(Color.glowLabel)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(Theme.liveRed.opacity(0.18), in: Capsule())
+                        .overlay(Capsule().strokeBorder(Theme.liveRed.opacity(0.5), lineWidth: 1))
                 }
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
-
-                Text(L10n.statsLeaderboardScope)
-                    .font(Theme.Typography.Manrope.semibold(size: 12, relativeTo: .caption))
-                    .foregroundStyle(Theme.lavender)
+                if rank == 1 || StatsTier.isLoyal(rank: rank, of: total) {
+                    Text(rank == 1 ? L10n.statsFirstPlace : L10n.statsTierLoyal)
+                        .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
+                        .foregroundStyle(Theme.mutedText)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
-
-            Spacer(minLength: Theme.Spacing.sm)
-
-            Image("StatsTrophy")
-                .renderingMode(.template)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 23, height: 23)
-                .foregroundStyle(Theme.liveRed)
-                .frame(width: 48, height: 48)
-                .background(Theme.liveRed.opacity(0.1), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
+        .accessibilityElement(children: .combine)
+    }
+
+    private func neighbours(_ summary: ListeningStatsSummary, rank: Int) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(L10n.statsNeighbours)
+                .font(Theme.Typography.Manrope.bold(size: 12, relativeTo: .caption))
+                .foregroundStyle(Theme.mutedText)
+            NeighboursTrack(mine: summary.totalSeconds, rank: rank, ahead: summary.aheadSeconds, behind: summary.behindSeconds)
+        }
+        .padding(14)
+        .background(Color.white.opacity(0.04), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
     /// No rank to show yet — says why instead of leaving a hole.
@@ -196,33 +232,31 @@ struct StatsView: View {
     // MARK: - Breakdown
 
     private func breakdown(_ summary: ListeningStatsSummary) -> some View {
-        VStack(alignment: .leading, spacing: 28) {
-            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-                StatsHeading(L10n.statsTimelineTitle)
-                Text(summary.weekRangeLabel)
-                    .font(Theme.Typography.Manrope.bold(size: 13, relativeTo: .footnote))
-                    .foregroundStyle(Theme.mutedText)
-                WeeklyChartCard(summary: summary)
-            }
-
-            VStack(alignment: .leading, spacing: 14) {
-                StatsHeading(L10n.statsShowsTitle)
-
+        VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+            StatsPanel(spacing: 16) {
+                Text(L10n.statsShowsTitle)
+                    .font(Theme.Typography.Manrope.extraBold(size: 16, relativeTo: .headline))
+                    .foregroundStyle(Theme.textPrimary)
                 if let top = summary.shows.first {
-                    Text(L10n.statsShowsContext(total: StatsFormat.duration(seconds: summary.showsSeconds)))
-                        .font(Theme.Typography.Manrope.regular(size: 13, relativeTo: .footnote))
-                        .foregroundStyle(Theme.mutedText)
-
-                    // The top show leads the same list, a step louder.
-                    VStack(spacing: 0) {
-                        ShowShareRow(share: top, isTop: true)
-                        ForEach(Array(summary.shows.dropFirst().prefix(7)), id: \.id) { share in
-                            ListDivider()
-                            ShowShareRow(share: share)
-                        }
+                    ForEach(Array(summary.shows.prefix(8)), id: \.id) { share in
+                        ShowBarRow(
+                            share: share,
+                            fraction: Double(share.seconds) / Double(max(top.seconds, 1)),
+                            isLeader: share.id == top.id
+                        )
                     }
                 } else {
                     StatsBodyText(L10n.statsEmptyShows)
+                }
+            }
+
+            if stats.communityUnlocked {
+                StatsPanel(spacing: 4) {
+                    Text(L10n.statsCommunityTitle)
+                        .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
+                        .foregroundStyle(Theme.mutedText)
+                    DurationText(seconds: summary.communitySeconds, numberSize: 30, unitSize: 16, lineHeight: 38)
+                    StatsBodyText(L10n.statsCommunityDescription)
                 }
             }
 

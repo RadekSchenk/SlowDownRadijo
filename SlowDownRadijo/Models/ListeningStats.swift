@@ -19,6 +19,11 @@ struct StatsSnapshot: Codable, Equatable {
     /// Listening per show over all time (`get_my_stats`, 017). Missing from
     /// an older server or a snapshot cached before it.
     let shows: [ShowTotal]?
+    /// Totals of the places right above and below `rank`, and the days with any listening (026). Anonymous numbers only;
+    /// missing from an older server.
+    var aheadSeconds: Int?
+    var behindSeconds: Int?
+    var listeningDays: Int?
 
     struct ShowTotal: Codable, Equatable {
         let showId: String
@@ -59,6 +64,12 @@ struct ListeningStatsSummary {
     var communitySeconds = 0
     var rank: Int?
     var rankedListeners = 0
+    /// Total of the place right above (`nil` at #1 or unknown).
+    var aheadSeconds: Int?
+    /// Total of the place right below (`nil` when last or unknown).
+    var behindSeconds: Int?
+    /// Days with any listening.
+    var listeningDays = 0
     /// The last seven days, oldest first, today last.
     var bars: [DayBar] = []
     var weekSeconds = 0

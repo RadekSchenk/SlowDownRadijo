@@ -68,9 +68,12 @@ final class NowPlayingViewModel: ObservableObject {
         // Listening stats: credit playback time to whichever show is airing
         // at each tick. Every way of playing goes through `player.state`, so
         // this one hook covers the lock screen, headphones and CarPlay too.
-        ListeningTracker.shared.configure { [weak scheduleStore] in
-            scheduleStore?.currentShow()?.id
-        }
+        ListeningTracker.shared.configure(
+            showProvider: { [weak scheduleStore] in scheduleStore?.currentShow()?.id },
+            // Which stream plays and the quality setting, summed on the
+            // server as totals only (027).
+            streamProvider: { [weak player] in (player?.currentStream?.rawValue, StreamQuality.current.rawValue) }
+        )
 
         playbackAnalytics = PlaybackAnalytics(player: player) { [weak scheduleStore] in
             scheduleStore?.currentShow()?.id
@@ -189,7 +192,7 @@ final class NowPlayingViewModel: ObservableObject {
             }
         }
 
-        trackStartedAt = Date()
+        trackStartedAt = AppClock.now
         // Animated so the now-playing row crossfades to the new track
         // instead of snapping instantly — paired with `.contentTransition`
         // on the artwork/text in `TrackDetailsRow`.
@@ -212,7 +215,7 @@ final class NowPlayingViewModel: ObservableObject {
             return
         }
         #endif
-        let now = Date()
+        let now = AppClock.now
         var trusted: NowPlayingTrack?
         if let track, TrackTrust.isRealSong(track, shows: allShows) {
             if let start = trackConfirmedStart {
@@ -237,7 +240,7 @@ final class NowPlayingViewModel: ObservableObject {
     /// when the current title started. Retried each minute until it shows
     /// up there.
     private func checkServerStart(for track: NowPlayingTrack) {
-        lastServerCheck = Date()
+        lastServerCheck = AppClock.now
         serverCheckTask?.cancel()
         serverCheckTask = Task { [weak self] in
             guard let rows = try? await RemoteHistoryService.fetchPage(
@@ -286,7 +289,7 @@ final class NowPlayingViewModel: ObservableObject {
     }
 
     private func updateShowState() {
-        let now = Date()
+        let now = AppClock.now
         let show = scheduleStore.currentShow(at: now)
         if show != currentShow {
             currentShow = show

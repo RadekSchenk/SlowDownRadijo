@@ -29,6 +29,28 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- Sign-in returns (Apple's web sign-in, the e-mail link): slowdownradijo://auth -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="slowdownradijo" android:host="auth" />
+            </intent-filter>
+            <!-- DJ invites to the chat: https://slowdownradijo.cz/dj/<code> (verified
+                 through /.well-known/assetlinks.json, see backend/README.md) and
+                 slowdownradijo://dj/<code>, which works without the web file. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="slowdownradijo.cz" android:pathPrefix="/dj/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="slowdownradijo" android:host="dj" />
+            </intent-filter>
         </activity>
 
         <!-- The live stream's media session: notification, lock screen,

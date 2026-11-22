@@ -33,6 +33,8 @@ class ListeningTracker(
     private val scope: CoroutineScope,
     private val isEnabled: () -> Boolean,
     private val showProvider: () -> String?,
+    /** The stream playing (`mp3` / `aac`) and the quality setting. */
+    private val streamProvider: () -> Pair<String?, String?> = { null to null },
     private val appVersion: String,
     private val zone: () -> ZoneId = ZoneId::systemDefault,
     private val now: () -> Instant = Instant::now,
@@ -137,8 +139,9 @@ class ListeningTracker(
         carry -= whole
         val day = dayString(at, zone())
         val show = showProvider() ?: UNKNOWN_SHOW
-        val row = queue.pending.firstOrNull { it.day == day && it.showId == show }
-        if (row != null) row.seconds += whole else queue.pending += ListeningRow(day, show, whole)
+        val (stream, quality) = streamProvider()
+        val row = queue.pending.firstOrNull { it.day == day && it.showId == show && it.stream == stream && it.quality == quality }
+        if (row != null) row.seconds += whole else queue.pending += ListeningRow(day, show, whole, stream, quality)
         save()
         _events.tryEmit(Event.ACCRUED)
     }

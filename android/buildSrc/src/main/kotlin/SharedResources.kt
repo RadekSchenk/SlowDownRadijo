@@ -39,7 +39,10 @@ abstract class SyncSharedResources : DefaultTask() {
         val vectors = File(res, "drawable").apply { mkdirs() }
         File(source, "Assets.xcassets").listFiles { f -> f.name.endsWith(".imageset") }!!.forEach { set ->
             set.listFiles { f -> f.extension.lowercase() == "svg" }?.firstOrNull()?.let { svg ->
-                File(vectors, "${snakeCase(set.nameWithoutExtension)}.xml").writeText(vectorDrawable(svg.readText()))
+                // "original" imagesets (e.g. the Google logo) keep their colours.
+                val original = File(set, "Contents.json").takeIf { it.exists() }?.readText()
+                    ?.contains(Regex(""""template-rendering-intent"\s*:\s*"original"""")) == true
+                File(vectors, "${snakeCase(set.nameWithoutExtension)}.xml").writeText(vectorDrawable(svg.readText(), keepColours = original))
                 return@forEach
             }
             val image = set.listFiles { f -> f.extension.lowercase() in setOf("png", "jpg", "jpeg") }
@@ -78,9 +81,11 @@ abstract class SyncSharedResources : DefaultTask() {
     /**
      * The iOS icons are simple SVGs (stroked or filled paths on a viewBox):
      * the same paths as an Android vector drawable. Template icons on iOS,
-     * so the colour is white here and the app tints them.
+     * so the colour is white here and the app tints them — unless
+     * [keepColours] (an imageset rendered "original", like the Google logo).
      */
-    private fun vectorDrawable(svg: String): String {
+    private fun vectorDrawable(svg: String, keepColours: Boolean = false): String {
+        fun colour(value: String) = if (keepColours && value.startsWith("#") && value.length == 7) "#FF" + value.drop(1).uppercase() else "#FFFFFFFF"
         fun attr(tag: String, name: String) = Regex("""\b$name="([^"]*)"""").find(tag)?.groupValues?.get(1)
         val root = Regex("<svg[^>]*>").find(svg)!!.value
         val box = attr(root, "viewBox")!!.split(Regex("[ ,]+")).map { it.toFloat() }
@@ -90,9 +95,9 @@ abstract class SyncSharedResources : DefaultTask() {
             val fill = attr(tag, "fill")?.takeIf { it != "none" }
             buildString {
                 append("    <path android:pathData=\"${attr(tag, "d")}\"")
-                if (fill != null) append("\n        android:fillColor=\"#FFFFFFFF\"")
+                if (fill != null) append("\n        android:fillColor=\"${colour(fill)}\"")
                 if (stroke != null) {
-                    append("\n        android:strokeColor=\"#FFFFFFFF\"")
+                    append("\n        android:strokeColor=\"${colour(stroke)}\"")
                     append("\n        android:strokeWidth=\"${attr(tag, "stroke-width") ?: "1"}\"")
                     attr(tag, "stroke-linecap")?.let { append("\n        android:strokeLineCap=\"$it\"") }
                     attr(tag, "stroke-linejoin")?.let { append("\n        android:strokeLineJoin=\"$it\"") }

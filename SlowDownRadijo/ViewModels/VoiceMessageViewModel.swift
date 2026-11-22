@@ -118,6 +118,8 @@ final class VoiceMessageViewModel: ObservableObject {
                 radioPlayer.reactivatePlaybackAudioSession()
                 state = .sent
                 Analytics.shared.track(.messageSent(success: true, seconds: Int(duration)))
+                // "Hlasové vzkazy" on the Profil dashboard.
+                Task { await AccountService.shared.countVoiceMessage() }
             } catch {
                 Analytics.shared.track(.messageSent(success: false, seconds: Int(duration)))
                 uploadFailedAlert = true

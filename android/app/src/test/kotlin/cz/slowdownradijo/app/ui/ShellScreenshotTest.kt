@@ -88,7 +88,7 @@ class ShellScreenshotTest {
 
     private val summary = StatsSummary(
         todaySeconds = 2 * 3600 + 17 * 60, totalSeconds = 3 * 86400 + 4 * 3600 + 5 * 60, communitySeconds = 412 * 3600,
-        rank = 7, rankedListeners = 128,
+        rank = 7, rankedListeners = 128, aheadSeconds = 3 * 86400 + 9 * 3600, behindSeconds = 3 * 86400 + 1 * 3600, listeningDays = 23,
         bars = listOf(1800, 0, 5400, 3600, 7200, 900, 8220).mapIndexed { i, s ->
             StatsSummary.DayBar("2026-11-0${4 + i}", (i + 3) % 7 + 1, s, s == 8220)
         },

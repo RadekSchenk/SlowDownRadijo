@@ -30,6 +30,9 @@ import cz.slowdownradijo.app.message.VoiceMessageUploader
 import cz.slowdownradijo.app.stats.ListeningStatsStore
 import cz.slowdownradijo.app.stats.ListeningTracker
 import cz.slowdownradijo.app.stats.SupabaseStatsApi
+import cz.slowdownradijo.app.account.AccountService
+import cz.slowdownradijo.app.account.SupabaseSessionProvider
+import cz.slowdownradijo.app.account.createAppSupabase
 import cz.slowdownradijo.app.reminders.ShowReminders
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +40,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import androidx.compose.material.icons.rounded.Star
+import kotlinx.coroutines.flow.launchIn
 import cz.slowdownradijo.app.widget.WidgetUpdates
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
@@ -76,7 +82,22 @@ class SlowDownApp : Application() {
         )
     }
 
-    private val statsApi by lazy { SupabaseStatsApi(http, getSharedPreferences("stats-session", MODE_PRIVATE)) }
+    /** Accounts, the chat and the stats session (see account/SupabaseSession.kt). */
+    val supabase by lazy { createAppSupabase(this) }
+    val sessions by lazy { SupabaseSessionProvider(supabase, getSharedPreferences("stats-session", MODE_PRIVATE)) }
+    val account by lazy { AccountService(supabase, sessions, scope) }
+    /** The superadmin's "Správa chatu" (Profil). */
+    val chatAdmin by lazy { cz.slowdownradijo.app.chat.ChatAdmin(supabase) }
+    /** The contest on the home screen (028_contests.sql). */
+    val contests by lazy {
+        cz.slowdownradijo.app.contests.ContestService(supabase, sessions, getSharedPreferences("contests", MODE_PRIVATE), { analytics }, scope)
+    }
+    /** Profil ▸ Správa ▸ Soutěže for admins and the superadmin. */
+    val contestAdmin by lazy { cz.slowdownradijo.app.contests.ContestAdmin(supabase, contests) { analytics } }
+    /** The listeners' chat; follows new messages while the app is in front. */
+    val chat by lazy { cz.slowdownradijo.app.chat.ChatService(supabase, account, getSharedPreferences("chat", MODE_PRIVATE), scope) }
+
+    private val statsApi by lazy { SupabaseStatsApi(http, sessions) }
     val tracker by lazy {
         ListeningTracker(
             api = statsApi,
@@ -85,6 +106,8 @@ class SlowDownApp : Application() {
             isEnabled = { settings.statsEnabled.value },
             // Credit the show on air at each tick.
             showProvider = { schedule.currentShow()?.id },
+            // Which stream plays and the quality setting, server totals only (027).
+            streamProvider = { radio.currentStream?.id to radio.streamQuality.id },
             appVersion = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) android",
         )
     }
@@ -95,7 +118,11 @@ class SlowDownApp : Application() {
     val voiceMessage by lazy {
         VoiceMessage(this, scope, VoiceMessageUploader(http.newBuilder().callTimeout(Duration.ofSeconds(60)).build()),
             pauseRadio = { radio.pause(StopReason.VOICE_MESSAGE) },
-            onSent = { success, seconds -> analytics.track(AnalyticsEvent.MessageSent(success, seconds)) })
+            onSent = { success, seconds ->
+                analytics.track(AnalyticsEvent.MessageSent(success, seconds))
+                // "Hlasové vzkazy" on the Profil dashboard.
+                if (success) scope.launch { account.countVoiceMessage() }
+            })
     }
 
     val news by lazy { NewsStore(this, NewsService(http)) }
@@ -121,6 +148,21 @@ class SlowDownApp : Application() {
     fun startNowPlaying() {
         if (started) return
         started = true
+        account.start()
+        // Analytics and the welcome toast after signing in (Figma Profil M9).
+        account.events.onEach { event ->
+            when (event) {
+                is AccountService.Event.Registered -> {
+                    analytics.track(AnalyticsEvent.AccountRegistered(event.method?.name?.lowercase() ?: "unknown", event.source, event.hadNickname))
+                    cz.slowdownradijo.app.ui.components.ToastCenter.show(cz.slowdownradijo.app.ui.components.ToastCenter.Toast(
+                        androidx.compose.material.icons.Icons.Rounded.Star,
+                        inLanguage(language.language.value).getString(if (event.hadNickname) R.string.welcomeSlowriderNickname else R.string.welcomeSlowrider),
+                    ))
+                }
+                is AccountService.Event.SignedInExisting ->
+                    analytics.track(AnalyticsEvent.AccountSignedIn(event.method?.name?.lowercase() ?: "unknown", event.source))
+            }
+        }.launchIn(scope)
         analytics.start()
         playbackAnalytics.start(scope)
         scope.launch {

@@ -1,6 +1,21 @@
 package cz.slowdownradijo.app.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import cz.slowdownradijo.app.account.AccountService
+import cz.slowdownradijo.app.chat.ChatContent
+import cz.slowdownradijo.app.chat.ChatHomeSection
+import cz.slowdownradijo.app.chat.ChatMessage
+import cz.slowdownradijo.app.chat.ChatService
+import cz.slowdownradijo.app.chat.ChatTimeline
+import cz.slowdownradijo.app.chat.ChatWriter
+import cz.slowdownradijo.app.profile.ProfileActions
+import cz.slowdownradijo.app.profile.ProfileContent
+import cz.slowdownradijo.app.profile.SlowrideStats
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,7 +41,6 @@ import cz.slowdownradijo.app.home.HomeUi
 import cz.slowdownradijo.app.home.OnAir
 import cz.slowdownradijo.app.l10n.AppLanguage
 import cz.slowdownradijo.app.l10n.ProvideAppLanguage
-import cz.slowdownradijo.app.menu.HubRoot
 import cz.slowdownradijo.app.message.MessageActions
 import cz.slowdownradijo.app.message.MessageContent
 import cz.slowdownradijo.app.message.MessageUi
@@ -63,13 +77,8 @@ class StoreScreenshotTest {
     @get:Rule val compose = createComposeRule()
 
     private val store = ScheduleStore(ScheduleStore.parse(File("../../SlowDownRadijo/Resources/schedule.json").readText()))
-    /**
-     * Sunday 8 Nov 2026, 17:30 in Prague: Kurátorská selekce, hosted, with only
-     * shows with bundled photos after it. Sunday is the one day without Show
-     * podle Majkla, which must not appear in the store's screenshots (the
-     * station's call, as `excludedShows` in `AppStoreScreenshotTests.swift`).
-     */
-    private val now = Instant.parse("2026-11-08T16:30:00Z")
+    /** Monday 16 Nov 2026, 7:40 in Prague: Morning Coffee with DJ Pufaz, as on iOS (`StoreDemo`). */
+    private val now = Instant.parse("2026-11-16T06:40:00Z")
     private val show = store.currentShow(now)!!
     private val onAir = OnAir(
         show = show,
@@ -105,44 +114,109 @@ class StoreScreenshotTest {
 
     private fun home(language: AppLanguage) = capture("1_home", language) {
         RootScreen(Tab.RADIO, {}, menuOpen = false, menu = {}) {
-            HomeScreen(HomeUi(onAir, PlaybackState.Playing, now.plus(Duration.ofMinutes(25)), now), HomeActions()) {
-                HomeProgramSection(store.days.value, show, now, followed = setOf("bass-time", "groove-lab-s-don-hoblinon"), onBell = {}, modifier = Modifier.padding(top = 32.dp))
+            HomeScreen(HomeUi(onAir, PlaybackState.Playing, null, now), HomeActions()) {
+                // The contest card between the player and the chat (1.3).
+                cz.slowdownradijo.app.contests.ContestInfobox(
+                    contest(language), {}, {}, Modifier.padding(top = Theme.Spacing.xl),
+                )
+                // The chat section under the player, as on the home page.
+                ChatHomeSection(
+                    ChatService.State(messages = chatMessages(language == AppLanguage.EN), loaded = true, lastSeenId = 10),
+                    onOpen = {}, onSeen = {}, modifier = Modifier.padding(top = Theme.Spacing.xl), now = now,
+                )
             }
         }
     }
 
-    private fun programme(language: AppLanguage) = capture("2_programme", language) {
-        RootScreen(Tab.RADIO, {}, menuOpen = false, menu = {}) {
+    // The chat during Morning Coffee (as `StoreDemo.messages` on iOS).
+    private fun msg(id: Long, minutesAgo: Double, name: String, body: String, role: String = "listener") =
+        ChatMessage(id, "u-$name", name, role, body, show.id, "Morning Coffee", now.minusSeconds((minutesAgo * 60).toLong()).toString())
+
+    private fun chatMessages(en: Boolean) = listOf(
+        msg(1, 38.0, "DJ Pufaz", if (en) "Good morning! What are you listening to over coffee? ☕" else "Dobré ráno! Co dnes posloucháte u kafe? ☕", "dj"),
+        msg(2, 12.0, "kafe_s_mlekem", if (en) "Good morning from tram number 9 🚋" else "Dobré ráno z tramvaje číslo 9 🚋"),
+        msg(3, 10.0, "cevapcicidisko", if (en) "That intro woke me up better than an espresso" else "Ten úvod mě probudil líp než espresso"),
+        msg(4, 9.0, "DJ Pufaz", if (en) "Thanks! Something by Khruangbin is coming up, stay tuned 🙌" else "Díky! Za chvíli přijde něco od Khruangbin, vydržte 🙌", "dj"),
+        msg(5, 7.0, "jana_z_letne", if (en) "Hello to the whole office in Smíchov ☀️" else "Pozdrav celé kanceláři na Smíchově ☀️"),
+        msg(6, 5.0, "nela", "🔥"), msg(7, 4.8, "marty", "🔥"), msg(8, 4.7, "ondra_b", "🔥"), msg(9, 4.6, "kafe_s_mlekem", "🔥"),
+        msg(10, 2.0, "groove_petr", if (en) "Could I ask for something by Erykah Badu? 🙏" else "Můžu poprosit o něco od Erykah Badu? 🙏"),
+    )
+
+    private fun chat(language: AppLanguage) = capture("2_chat", language) {
+        val messages = chatMessages(language == AppLanguage.EN)
+        val pinned = messages.first().copy(pinnedAtText = now.minusSeconds(38 * 60).toString())
+        Box(Modifier.fillMaxSize().background(Theme.background)) {
+            // The chat as a sheet over the home screen, as in the app.
+            RootScreen(Tab.RADIO, {}, menuOpen = false, menu = {}) {
+                HomeScreen(HomeUi(onAir, PlaybackState.Playing, null, now), HomeActions()) {}
+            }
+            Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.55f)))
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+                ChatContent(
+                    state = ChatService.State(messages = messages, pinned = pinned, loaded = true, lastSeenId = 10),
+                    show = show,
+                    writer = ChatWriter(signedIn = true, name = "cevapcicidisko", role = "listener", mutedUntil = null, blocked = false),
+                    draft = "", onDraft = {}, onSend = { _, _ -> }, onRetry = {}, onClose = {}, onRules = {}, onSeen = {},
+                    showLabel = { id, title, _ -> id?.let { ChatTimeline.ShowLabel("07:00", title ?: it) } },
+                    modifier = Modifier.fillMaxHeight(0.96f).clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)),
+                    now = now,
+                )
+            }
+        }
+    }
+
+    private val me = AccountService.Me(
+        userId = "u-cevapcicidisko", nickname = "cevapcicidisko", registeredAtText = "2026-09-14T10:00:00Z",
+        chatMessagesCount = 48, voiceMessagesCount = 3,
+    )
+
+    private val shows = listOf(
+        StatsSummary.ShowShare("morning-coffee-s-dj-pufaz", "Morning Coffee", "DJ Pufaz", null, "ShowArtMorningCoffee", 32 * 3600, 0.39),
+        StatsSummary.ShowShare("beat-brunch-s-jaro-cossiga", "Beat Brunch", "Jaro Cossiga", null, "ShowArtBeatBrunch", 21 * 3600, 0.26),
+        StatsSummary.ShowShare("diggin-time-s-dj-magic", "Diggin' Time", "DJ Magič", null, "ShowArtDigginTime", 14 * 3600, 0.17),
+        StatsSummary.ShowShare("weekend-aftertaste-s-cube-positive", "Weekend Aftertaste", "cube positive", null, "ShowArtWeekendAftertaste", 9 * 3600, 0.11),
+        StatsSummary.ShowShare("africa-incorporated-s-chuck-diesal", "Africa Incorporated", "Chuck Diesal", null, "ShowArtAfricaIncorporated", 6 * 3600, 0.07),
+    )
+
+    private fun profile(language: AppLanguage) = capture("3_profile", language) {
+        RootScreen(Tab.PROFILE, {}, menuOpen = false, menu = {}) {
             tabPage {
-                HomeProgramSection(store.days.value, show, now, followed = setOf("bass-time", "groove-lab-s-don-hoblinon"), onBell = {})
+                ProfileContent(
+                    AccountService.State.SignedIn(AccountService.SignInMethod.APPLE, null, me), busy = false, ProfileActions(), now,
+                    SlowrideStats(310_440, shows.take(3)),
+                )
             }
         }
     }
 
     private val summary = StatsSummary(
-        todaySeconds = 2 * 3600 + 17 * 60, totalSeconds = 3 * 86400 + 4 * 3600 + 5 * 60, communitySeconds = 412 * 3600,
-        rank = 7, rankedListeners = 128,
-        bars = listOf(1800, 0, 5400, 3600, 7200, 900, 8220).mapIndexed { i, s ->
-            StatsSummary.DayBar("2026-11-0${3 + i}", (i + 3) % 7 + 1, s, s == 8220)
+        todaySeconds = 40 * 60, totalSeconds = 310_440, communitySeconds = 1_238_424 * 3600,
+        rank = 12, rankedListeners = 1284, aheadSeconds = 310_440 + 88 * 60, behindSeconds = 310_440 - 5 * 3600 - 32 * 60, listeningDays = 41,
+        bars = listOf(60, 95, 40, 120, 75, 150, 40).mapIndexed { i, m ->
+            StatsSummary.DayBar(LocalDate.parse("2026-11-10").plusDays(i.toLong()).toString(), (i + 2) % 7 + 1, m * 60, m == 150)
         },
-        weekSeconds = 27_120, weekStart = LocalDate.parse("2026-11-03"), weekEnd = LocalDate.parse("2026-11-09"),
-        shows = listOf(
-            StatsSummary.ShowShare("africa-incorporated-s-chuck-diesal", "Africa Incorporated", "Chuck Diesal", null, null, 40_000, 0.42),
-            StatsSummary.ShowShare("beat-brunch-s-jaro-cossiga", "Beat Brunch", "Jaro Cossiga", null, null, 30_000, 0.31),
-            StatsSummary.ShowShare("morning-coffee-s-dj-pufaz", "Morning Coffee", "DJ Pufaz", null, null, 25_000, 0.27),
-        ),
-        showsSeconds = 95_000,
+        weekSeconds = 580 * 60, weekStart = LocalDate.parse("2026-11-10"), weekEnd = LocalDate.parse("2026-11-16"),
+        shows = shows, showsSeconds = 82 * 3600,
     )
 
-    private fun stats(language: AppLanguage) = capture("3_stats", language) {
+    private fun stats(language: AppLanguage) = capture("4_stats", language) {
         RootScreen(Tab.STATS, {}, menuOpen = false, menu = {}) {
             tabPage { StatsContent(StatsUi(summary, enabled = true, measuring = true, communityUnlocked = true, loadFailed = false), {}, {}) }
         }
     }
 
+    private fun programme(language: AppLanguage) = capture("5_programme", language) {
+        RootScreen(Tab.RADIO, {}, menuOpen = false, menu = {}) {
+            tabPage {
+                // Saturday: the weekdays have Show podle Majkla, which stays out of the store.
+                HomeProgramSection(store.days.value, show, now, followed = setOf("beat-brunch-s-jaro-cossiga", "diggin-time-s-dj-magic"), onBell = {}, initialWeekday = 7)
+            }
+        }
+    }
+
     private val levels = listOf(0.35f, 0.7f, 0.55f, 0.9f, 0.6f, 0.8f, 0.45f, 0.95f, 0.65f, 0.5f, 0.85f, 0.4f, 0.75f, 0.6f, 0.7f, 0.5f, 0.8f, 0.45f)
 
-    private fun message(language: AppLanguage) = capture("4_message", language) {
+    private fun message(language: AppLanguage) = capture("6_message", language) {
         RootScreen(Tab.MESSAGE, {}, menuOpen = false, menu = {}) {
             tabPage {
                 MessageContent(
@@ -153,19 +227,33 @@ class StoreScreenshotTest {
         }
     }
 
-    private fun menu(language: AppLanguage) = capture("5_menu", language) {
-        Box(Modifier.fillMaxSize().background(Theme.background)) { HubRoot({}, {}, {}) }
+    private fun contest(language: AppLanguage) = cz.slowdownradijo.app.contests.ContestDemo.contest(english = language == AppLanguage.EN, now = now)
+
+    private fun contestPage(language: AppLanguage) = capture("7_contest", language) {
+        Box(Modifier.fillMaxSize().background(Theme.background)) {
+            cz.slowdownradijo.app.contests.ContestContent(
+                contest(language), cz.slowdownradijo.app.contests.ContestPageState.Form,
+                cz.slowdownradijo.app.contests.ContestForm(selected = "B"),
+                cz.slowdownradijo.app.contests.ContestPageActions(),
+                Modifier.padding(top = 24.dp),
+            )
+        }
     }
 
+    @Test fun contestCs() = contestPage(AppLanguage.CS)
+    @Test fun contestEn() = contestPage(AppLanguage.EN)
+
     @Test fun homeCs() = home(AppLanguage.CS)
-    @Test fun programmeCs() = programme(AppLanguage.CS)
+    @Test fun chatCs() = chat(AppLanguage.CS)
+    @Test fun profileCs() = profile(AppLanguage.CS)
     @Test fun statsCs() = stats(AppLanguage.CS)
+    @Test fun programmeCs() = programme(AppLanguage.CS)
     @Test fun messageCs() = message(AppLanguage.CS)
-    @Test fun menuCs() = menu(AppLanguage.CS)
 
     @Test fun homeEn() = home(AppLanguage.EN)
-    @Test fun programmeEn() = programme(AppLanguage.EN)
+    @Test fun chatEn() = chat(AppLanguage.EN)
+    @Test fun profileEn() = profile(AppLanguage.EN)
     @Test fun statsEn() = stats(AppLanguage.EN)
+    @Test fun programmeEn() = programme(AppLanguage.EN)
     @Test fun messageEn() = message(AppLanguage.EN)
-    @Test fun menuEn() = menu(AppLanguage.EN)
 }

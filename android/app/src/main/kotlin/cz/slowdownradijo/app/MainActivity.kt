@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import io.github.jan.supabase.auth.handleDeeplinks
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -91,6 +92,7 @@ class MainActivity : ComponentActivity() {
             app.radio.play(PlayTrigger.AUTOPLAY)
         }
         handleReminder(intent)
+        handleAuthReturn(intent)
 
         setContent {
             val language by app.language.language.collectAsStateWithLifecycle()
@@ -105,7 +107,7 @@ class MainActivity : ComponentActivity() {
                             selected = tab,
                             onSelect = {
                                 if (it != tab) {
-                                    app.analytics.screen(when (it) { Tab.RADIO -> AnalyticsScreen.HOME; Tab.STATS -> AnalyticsScreen.STATS; Tab.MESSAGE -> AnalyticsScreen.MESSAGE })
+                                    app.analytics.screen(when (it) { Tab.RADIO -> AnalyticsScreen.HOME; Tab.STATS -> AnalyticsScreen.STATS; Tab.MESSAGE -> AnalyticsScreen.MESSAGE; Tab.PROFILE -> AnalyticsScreen.PROFILE })
                                     if (it == Tab.STATS) app.analytics.track(AnalyticsEvent.StatsOpened(app.stats.communityUnlocked))
                                 }
                                 tab = it
@@ -118,8 +120,13 @@ class MainActivity : ComponentActivity() {
                                 Tab.RADIO -> RadioPage(onOpenMenu = { menuOpen = true; app.analytics.screen(AnalyticsScreen.MENU) }, onOpenStats = { tab = Tab.STATS })
                                 Tab.STATS -> StatsPage(onOpenMenu = { menuOpen = true; app.analytics.screen(AnalyticsScreen.MENU) })
                                 Tab.MESSAGE -> MessagePage(onOpenMenu = { menuOpen = true; app.analytics.screen(AnalyticsScreen.MENU) }, onBackToRadio = { tab = Tab.RADIO })
+                                Tab.PROFILE -> cz.slowdownradijo.app.profile.ProfilePage(onOpenMenu = { menuOpen = true; app.analytics.screen(AnalyticsScreen.MENU) }, onOpenStats = { tab = Tab.STATS })
                             }
                         }
+                        cz.slowdownradijo.app.chat.HostInviteSheet(onOpenChat = {
+                            selectTab(Tab.RADIO)
+                            app.chat.requestOpen()
+                        })
                     }
                 }
             }
@@ -129,6 +136,18 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleReminder(intent)
+        handleAuthReturn(intent)
+    }
+
+    /** Apple's web sign-in and the e-mail link come back to slowdownradijo://auth. */
+    private fun handleAuthReturn(intent: Intent) {
+        // A DJ invite (https://slowdownradijo.cz/dj/<code>, slowdownradijo://dj/<code>).
+        if (app.chat.handleInvite(intent.dataString)) {
+            intent.data = null
+            return
+        }
+        if (intent.data?.scheme != "slowdownradijo") return
+        app.supabase.handleDeeplinks(intent, onError = app.account::handleDeeplinkError)
     }
 
     private fun Intent.isReminder() = hasExtra(ShowReminders.EXTRA_SHOW_ID)
@@ -150,9 +169,11 @@ class MainActivity : ComponentActivity() {
         app.analytics.onForeground()
         controller = MediaController.Builder(this, SessionToken(this, ComponentName(this, PlaybackService::class.java))).buildAsync()
         app.reminders.reschedule()
+        app.chat.resume()
     }
 
     override fun onStop() {
+        app.chat.pause()
         app.tracker.onBackground()
         app.analytics.onBackground()
         controller?.let(MediaController::releaseFuture)
@@ -322,6 +343,75 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
             },
         ),
     ) {
+        // Figma "Soutěže" H1–H2: the contest card between the player and the chat.
+        val contest by app.contests.current.collectAsStateWithLifecycle()
+        val dismissedContests by app.contests.dismissed.collectAsStateWithLifecycle()
+        val accountState by app.account.state.collectAsStateWithLifecycle()
+        var openContest by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<cz.slowdownradijo.app.contests.ContestService.Contest?>(null) }
+        var dismissingContest by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<cz.slowdownradijo.app.contests.ContestService.Contest?>(null) }
+        androidx.compose.runtime.LaunchedEffect(accountState) { app.contests.refresh() }
+        val contestScope = androidx.compose.runtime.rememberCoroutineScope()
+        androidx.lifecycle.compose.LifecycleResumeEffect(Unit) {
+            val job = contestScope.launch { app.contests.refresh() }
+            onPauseOrDispose { job.cancel() }
+        }
+        val infobox = app.contests.infoboxContest(contest, dismissedContests, now)
+        androidx.compose.animation.AnimatedVisibility(
+            visible = infobox != null,
+            enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.expandVertically(),
+            exit = androidx.compose.animation.fadeOut() + androidx.compose.animation.shrinkVertically(),
+        ) {
+            val shown = infobox ?: return@AnimatedVisibility
+            androidx.compose.runtime.LaunchedEffect(shown.id) { app.contests.infoboxShown(shown) }
+            cz.slowdownradijo.app.contests.ContestInfobox(
+                shown,
+                onOpen = {
+                    app.analytics.track(AnalyticsEvent.ContestInfoboxTapped(shown.id))
+                    openContest = shown
+                },
+                onClose = { dismissingContest = shown },
+                modifier = Modifier.padding(top = Theme.Spacing.xl),
+            )
+        }
+        openContest?.let { cz.slowdownradijo.app.contests.ContestSheet(it) { openContest = null } }
+        dismissingContest?.let { shown ->
+            cz.slowdownradijo.app.profile.ConfirmDialog(
+                androidx.compose.ui.res.stringResource(R.string.contestDismissTitle),
+                androidx.compose.ui.res.stringResource(R.string.contestDismissBody, shown.title),
+                androidx.compose.ui.res.stringResource(R.string.contestDismissConfirm),
+                destructive = true,
+                cancel = androidx.compose.ui.res.stringResource(R.string.contestKeep),
+                onDismiss = { dismissingContest = null },
+            ) {
+                dismissingContest = null
+                app.contests.dismiss(shown)
+            }
+        }
+        val chatState by app.chat.state.collectAsStateWithLifecycle()
+        var chatOpening by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<Boolean?>(null) }
+        // "Otevřít chat" after linking a DJ account.
+        val openRequests by app.chat.openRequests.collectAsStateWithLifecycle()
+        var handledOpen by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableIntStateOf(openRequests) }
+        androidx.compose.runtime.LaunchedEffect(openRequests) {
+            if (openRequests != handledOpen) {
+                handledOpen = openRequests
+                app.analytics.track(cz.slowdownradijo.app.analytics.AnalyticsEvent.ChatOpened("invite", app.account.analyticsAccount))
+                chatOpening = false
+            }
+        }
+        cz.slowdownradijo.app.chat.ChatHomeSection(
+            chatState,
+            onOpen = {
+                app.analytics.track(cz.slowdownradijo.app.analytics.AnalyticsEvent.ChatOpened(if (it) "home_field" else "home_section", app.account.analyticsAccount))
+                chatOpening = it
+            },
+            onSeen = app.chat::markSeen,
+            modifier = Modifier.padding(top = Theme.Spacing.xl),
+            now = now,
+        )
+        chatOpening?.let { withKeyboard ->
+            cz.slowdownradijo.app.chat.ChatSheet(withKeyboard, onAir.show) { chatOpening = null }
+        }
         val stats = statsUi()
         if (stats.enabled) StatsHomeBlock(stats, onOpenStats, Modifier.padding(top = Theme.Spacing.xl))
         val consent by app.analytics.consent.collectAsStateWithLifecycle()

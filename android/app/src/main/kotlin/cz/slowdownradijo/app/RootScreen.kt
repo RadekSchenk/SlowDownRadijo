@@ -37,11 +37,12 @@ import androidx.compose.ui.unit.dp
 import cz.slowdownradijo.app.ui.components.ToastHost
 import cz.slowdownradijo.app.ui.theme.Theme
 
-/** The bottom bar's tabs, as on iOS 1.1: Rádio, Statistiky, Vzkaz. */
+/** The bottom bar's tabs, as on iOS 1.3: Rádio, Statistiky, Vzkaz, Profil. */
 enum class Tab(val label: Int, val icon: Int) {
     RADIO(R.string.tabRadio, R.drawable.tab_icon_radio),
     STATS(R.string.tabStats, R.drawable.tab_icon_stats),
     MESSAGE(R.string.tabMessage, R.drawable.tab_icon_message),
+    PROFILE(R.string.tabProfile, R.drawable.tab_icon_profile),
 }
 
 /**

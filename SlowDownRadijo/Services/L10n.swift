@@ -1541,6 +1541,1719 @@ enum L10n {
 
 // Lives here rather than in `Show.swift`, which the widget also compiles
 // without `L10n`.
+// MARK: - Profil and accounts (app 1.3)
+
+extension L10n {
+    static var tabProfile: String {
+        switch lang {
+        case .cs: return "Profil"
+        case .en: return "Profile"
+        }
+    }
+
+    static var profileTitle: String {
+        switch lang {
+        case .cs: return "Profil"
+        case .en: return "Profile"
+        }
+    }
+
+    static var cancel: String {
+        switch lang {
+        case .cs: return "Zrušit"
+        case .en: return "Cancel"
+        }
+    }
+
+    static var profileSignInTitle: String {
+        switch lang {
+        case .cs: return "Přihlas se a piš do chatu"
+        case .en: return "Sign in to write in the chat"
+        }
+    }
+
+    static var profileSignInBody: String {
+        switch lang {
+        case .cs: return "Poslouchat a číst chat můžeš i bez účtu. Přihlášení potřebuješ jen k psaní."
+        case .en: return "You can listen and read the chat without an account. You only need to sign in to write."
+        }
+    }
+
+    static var signInApple: String {
+        switch lang {
+        case .cs: return "Pokračovat s Apple"
+        case .en: return "Continue with Apple"
+        }
+    }
+
+    static var signInGoogle: String {
+        switch lang {
+        case .cs: return "Pokračovat s Google"
+        case .en: return "Continue with Google"
+        }
+    }
+
+    static var signInEmail: String {
+        switch lang {
+        case .cs: return "Pokračovat e‑mailem"
+        case .en: return "Continue with e‑mail"
+        }
+    }
+
+    static var profileOtherSection: String {
+        switch lang {
+        case .cs: return "Ostatní"
+        case .en: return "More"
+        }
+    }
+
+    static var chatRulesTitle: String {
+        switch lang {
+        case .cs: return "Pravidla chatu"
+        case .en: return "Chat rules"
+        }
+    }
+
+    static var emailSignInTitle: String {
+        switch lang {
+        case .cs: return "Přihlášení e‑mailem"
+        case .en: return "Sign in with e‑mail"
+        }
+    }
+
+    static var emailSignInBody: String {
+        switch lang {
+        case .cs: return "Pošleme ti 6místný kód. Heslo si pamatovat nemusíš."
+        case .en: return "We’ll send you a 6‑digit code. No password to remember."
+        }
+    }
+
+    static var emailFieldLabel: String { "E‑mail" }
+
+    static var emailFieldPlaceholder: String {
+        switch lang {
+        case .cs: return "tvuj@email.cz"
+        case .en: return "you@example.com"
+        }
+    }
+
+    static var emailSendCode: String {
+        switch lang {
+        case .cs: return "Poslat kód"
+        case .en: return "Send code"
+        }
+    }
+
+    static var emailNewAccountNote: String {
+        switch lang {
+        case .cs: return "Pokud účet ještě nemáš, tímhle ho rovnou založíš."
+        case .en: return "If you don’t have an account yet, this creates one."
+        }
+    }
+
+    static var emailInvalidAddress: String {
+        switch lang {
+        case .cs: return "Tohle nevypadá jako e‑mailová adresa."
+        case .en: return "That doesn’t look like an e‑mail address."
+        }
+    }
+
+    static var emailCodeTitle: String {
+        switch lang {
+        case .cs: return "Zadej kód z e‑mailu"
+        case .en: return "Enter the code from the e‑mail"
+        }
+    }
+
+    static func emailCodeBody(_ email: String) -> String {
+        switch lang {
+        case .cs: return "Poslali jsme ho na \(email). Platí 10 minut. Funguje i odkaz přímo v e‑mailu."
+        case .en: return "We sent it to \(email). It’s valid for 10 minutes. The link in the e‑mail works too."
+        }
+    }
+
+    static func emailResendIn(_ time: String) -> String {
+        switch lang {
+        case .cs: return "Poslat znovu za \(time)"
+        case .en: return "Resend in \(time)"
+        }
+    }
+
+    static var emailResend: String {
+        switch lang {
+        case .cs: return "Poslat nový kód"
+        case .en: return "Send a new code"
+        }
+    }
+
+    static var emailChange: String {
+        switch lang {
+        case .cs: return "Změnit e‑mail"
+        case .en: return "Change e‑mail"
+        }
+    }
+
+    static var emailCodeInvalid: String {
+        switch lang {
+        case .cs: return "Kód nesedí nebo už vypršel."
+        case .en: return "The code is wrong or has expired."
+        }
+    }
+
+    static func signInFailed(_ provider: String) -> String {
+        switch lang {
+        case .cs: return "Přihlášení přes \(provider) se nepovedlo. Zkus to znovu."
+        case .en: return "Signing in with \(provider) didn’t work. Please try again."
+        }
+    }
+
+    static var signInUnavailable: String {
+        switch lang {
+        case .cs: return "Tohle přihlášení zatím není k dispozici."
+        case .en: return "This sign‑in isn’t available yet."
+        }
+    }
+
+    static var errorOffline: String {
+        switch lang {
+        case .cs: return "Nejsi připojený k internetu. Zkus to znovu."
+        case .en: return "You’re offline. Please try again."
+        }
+    }
+
+    static var errorTooManyRequests: String {
+        switch lang {
+        case .cs: return "Moc pokusů za sebou. Zkus to za chvíli."
+        case .en: return "Too many attempts. Please try again in a moment."
+        }
+    }
+
+    static var errorGeneric: String {
+        switch lang {
+        case .cs: return "Něco se nepovedlo. Zkus to znovu."
+        case .en: return "Something went wrong. Please try again."
+        }
+    }
+
+    static var signInMethodEmail: String { "e‑mail" }
+
+    static func signedInWith(_ method: String) -> String {
+        switch lang {
+        case .cs: return "Přihlášený přes \(method)"
+        case .en: return "Signed in with \(method)"
+        }
+    }
+
+    static var profileChatSection: String { "Chat" }
+
+    static var profileAccountSection: String {
+        switch lang {
+        case .cs: return "Účet"
+        case .en: return "Account"
+        }
+    }
+
+    static var profileNickname: String {
+        switch lang {
+        case .cs: return "Přezdívka"
+        case .en: return "Nickname"
+        }
+    }
+
+    static var profileHiddenUsers: String {
+        switch lang {
+        case .cs: return "Skrytí uživatelé"
+        case .en: return "Hidden listeners"
+        }
+    }
+
+    static var profileSignInMethod: String {
+        switch lang {
+        case .cs: return "Přihlášení"
+        case .en: return "Signed in with"
+        }
+    }
+
+    static var profileSignOut: String {
+        switch lang {
+        case .cs: return "Odhlásit se"
+        case .en: return "Sign out"
+        }
+    }
+
+    static var profileDeleteAccount: String {
+        switch lang {
+        case .cs: return "Smazat účet"
+        case .en: return "Delete account"
+        }
+    }
+
+    static var profileHostRole: String {
+        switch lang {
+        case .cs: return "Moderátor rádia"
+        case .en: return "Radio host"
+        }
+    }
+
+    static var profileHostName: String {
+        switch lang {
+        case .cs: return "Jméno v chatu"
+        case .en: return "Name in the chat"
+        }
+    }
+
+    static var profileHostNameValue: String {
+        switch lang {
+        case .cs: return "z programu rádia"
+        case .en: return "from the programme"
+        }
+    }
+
+    static var dayToday: String {
+        switch lang {
+        case .cs: return "dnes"
+        case .en: return "today"
+        }
+    }
+
+    static var dayTomorrow: String {
+        switch lang {
+        case .cs: return "zítra"
+        case .en: return "tomorrow"
+        }
+    }
+
+    static func mutedBanner(day: String, time: String) -> String {
+        switch lang {
+        case .cs: return "Psaní do chatu máš pozastavené do \(day) \(time)"
+        case .en: return "Your chat writing is paused until \(day) \(time)"
+        }
+    }
+
+    static var blockedBanner: String {
+        switch lang {
+        case .cs: return "Psaní do chatu máš zablokované"
+        case .en: return "You’re blocked from writing in the chat"
+        }
+    }
+
+    static var mutedBannerBody: String {
+        switch lang {
+        case .cs: return "Číst a poslouchat můžeš dál."
+        case .en: return "You can still read and listen."
+        }
+    }
+
+    static var nicknameSetupTitle: String {
+        switch lang {
+        case .cs: return "Ještě přezdívka"
+        case .en: return "One more thing: a nickname"
+        }
+    }
+
+    static var nicknameSetupBody: String {
+        switch lang {
+        case .cs: return "Pod tímhle jménem tě uvidí ostatní v chatu."
+        case .en: return "Others in the chat will see you under this name."
+        }
+    }
+
+    static var nicknamePlaceholder: String {
+        switch lang {
+        case .cs: return "např. vinylovy_tom"
+        case .en: return "e.g. vinyl_tom"
+        }
+    }
+
+    static var nicknameRules: String {
+        switch lang {
+        case .cs: return "3–20 znaků: písmena bez diakritiky, číslice, tečka a podtržítko. Změnit ji půjde jednou za 24 hodin."
+        case .en: return "3–20 characters: letters without accents, digits, dot and underscore. You can change it once every 24 hours."
+        }
+    }
+
+    static var nicknameDone: String {
+        switch lang {
+        case .cs: return "Hotovo"
+        case .en: return "Done"
+        }
+    }
+
+    static var nicknameAvailable: String {
+        switch lang {
+        case .cs: return "Přezdívka je volná"
+        case .en: return "This nickname is free"
+        }
+    }
+
+    static var nicknameTaken: String {
+        switch lang {
+        case .cs: return "Tahle přezdívka je obsazená"
+        case .en: return "This nickname is taken"
+        }
+    }
+
+    static var nicknameReserved: String {
+        switch lang {
+        case .cs: return "Tahle přezdívka je vyhrazená"
+        case .en: return "This nickname is reserved"
+        }
+    }
+
+    static var nicknameInvalid: String {
+        switch lang {
+        case .cs: return "3–20 znaků bez mezer a diakritiky"
+        case .en: return "3–20 characters, no spaces or accents"
+        }
+    }
+
+    static var nicknameEditInfo: String {
+        switch lang {
+        case .cs: return "Přezdívku můžeš měnit jednou za 24 hodin."
+        case .en: return "You can change your nickname once every 24 hours."
+        }
+    }
+
+    static var nicknameSave: String {
+        switch lang {
+        case .cs: return "Uložit"
+        case .en: return "Save"
+        }
+    }
+
+    static func nicknameConfirmTitle(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Změnit na \(name)?"
+        case .en: return "Change to \(name)?"
+        }
+    }
+
+    static var nicknameConfirmBody: String {
+        switch lang {
+        case .cs: return "Další změna bude možná až za 24 hodin. Tvoje starší zprávy se přejmenují taky."
+        case .en: return "The next change will be possible in 24 hours. Your earlier messages will be renamed too."
+        }
+    }
+
+    static var nicknameConfirmAction: String {
+        switch lang {
+        case .cs: return "Změnit přezdívku"
+        case .en: return "Change nickname"
+        }
+    }
+
+    static func nicknameCooldown(day: String, time: String) -> String {
+        switch lang {
+        case .cs: return "Další změna bude možná \(day) v \(time)."
+        case .en: return "The next change will be possible \(day) at \(time)."
+        }
+    }
+
+    static var signOutConfirmTitle: String {
+        switch lang {
+        case .cs: return "Odhlásit se?"
+        case .en: return "Sign out?"
+        }
+    }
+
+    static var signOutConfirmBody: String {
+        switch lang {
+        case .cs: return "Chat budeš dál vidět. Psát půjde po novém přihlášení."
+        case .en: return "You’ll still see the chat. To write, sign in again."
+        }
+    }
+
+    static var deleteAccountConfirmTitle: String {
+        switch lang {
+        case .cs: return "Smazat účet natrvalo?"
+        case .en: return "Delete your account for good?"
+        }
+    }
+
+    static var deleteAccountConfirmBody: String {
+        switch lang {
+        case .cs: return "Smažeme přezdívku, přihlášení i statistiky poslechu. Tvoje zprávy v chatu zůstanou jako „Smazaný účet“. Vrátit to nepůjde."
+        case .en: return "We’ll delete your nickname, sign‑in and listening stats. Your chat messages stay as “Deleted account”. This can’t be undone."
+        }
+    }
+
+    static var deletedAccount: String {
+        switch lang {
+        case .cs: return "Smazaný účet"
+        case .en: return "Deleted account"
+        }
+    }
+
+    static var hiddenUsersBody: String {
+        switch lang {
+        case .cs: return "Jejich zprávy v chatu nevidíš. Oni o tom nevědí."
+        case .en: return "You don’t see their messages in the chat. They don’t know."
+        }
+    }
+
+    static var hiddenUsersEmpty: String {
+        switch lang {
+        case .cs: return "Nikoho jsi zatím neskryl."
+        case .en: return "You haven’t hidden anyone."
+        }
+    }
+
+    static var hiddenUsersShow: String {
+        switch lang {
+        case .cs: return "Zobrazit"
+        case .en: return "Show"
+        }
+    }
+
+    static var chatRulesIntro: String {
+        switch lang {
+        case .cs: return "Chat je společný prostor posluchačů a moderátorů Slow Down Rádija."
+        case .en: return "The chat is a shared space for Slow Down Rádijo’s listeners and hosts."
+        }
+    }
+
+    static var chatRule1: String {
+        switch lang {
+        case .cs: return "Buď na ostatní slušný. Žádné urážky, nenávist ani obtěžování."
+        case .en: return "Be kind. No insults, hate or harassment."
+        }
+    }
+
+    static var chatRule2: String {
+        switch lang {
+        case .cs: return "Nespamuj a nepiš reklamu. Odkazy jen k hudbě a vysílání."
+        case .en: return "No spam or ads. Links only about music and the broadcast."
+        }
+    }
+
+    static var chatRule3: String {
+        switch lang {
+        case .cs: return "Nesdílej cizí osobní údaje."
+        case .en: return "Don’t share other people’s personal data."
+        }
+    }
+
+    static var chatRule4: String {
+        switch lang {
+        case .cs: return "Moderátoři můžou zprávu smazat, autora ztlumit nebo zablokovat."
+        case .en: return "Hosts can delete a message, mute its author or block them."
+        }
+    }
+
+    static var chatRule5: String {
+        switch lang {
+        case .cs: return "Nevhodnou zprávu nahlas podržením prstu na ní."
+        case .en: return "Report an inappropriate message by pressing and holding it."
+        }
+    }
+}
+
+// MARK: - Chat (app 1.3)
+
+extension L10n {
+    static var chatTitle: String {
+        switch lang {
+        case .cs: return "Chat"
+        case .en: return "Chat"
+        }
+    }
+
+    static var chatOpen: String {
+        switch lang {
+        case .cs: return "Otevřít chat"
+        case .en: return "Open the chat"
+        }
+    }
+
+    static var chatToday: String {
+        switch lang {
+        case .cs: return "Dnes"
+        case .en: return "Today"
+        }
+    }
+
+    static var chatYesterday: String {
+        switch lang {
+        case .cs: return "Včera"
+        case .en: return "Yesterday"
+        }
+    }
+
+    static var chatNoShow: String {
+        switch lang {
+        case .cs: return "Hudba bez moderace"
+        case .en: return "Music, no host"
+        }
+    }
+
+    static var chatPlaceholder: String {
+        switch lang {
+        case .cs: return "Napiš zprávu…"
+        case .en: return "Write a message…"
+        }
+    }
+
+    static var chatWritingAs: String {
+        switch lang {
+        case .cs: return "Píšeš jako"
+        case .en: return "Writing as"
+        }
+    }
+
+    static var chatSignInToSend: String {
+        switch lang {
+        case .cs: return "Pro odeslání se přihlas"
+        case .en: return "Sign in to send"
+        }
+    }
+
+    static var chatPinned: String {
+        switch lang {
+        case .cs: return "Připnuto"
+        case .en: return "Pinned"
+        }
+    }
+
+    static var chatDeletedByModerator: String {
+        switch lang {
+        case .cs: return "Zprávu odstranil moderátor"
+        case .en: return "Removed by a moderator"
+        }
+    }
+
+    static var chatQuietTitle: String {
+        switch lang {
+        case .cs: return "Dnes tu zatím ticho"
+        case .en: return "Quiet here today"
+        }
+    }
+
+    static var chatQuietBody: String {
+        switch lang {
+        case .cs: return "Začni ty — pozdrav ostatní nebo napiš, co posloucháš."
+        case .en: return "Start it off — say hi or tell us what you're listening to."
+        }
+    }
+
+    static var chatHomeQuiet: String {
+        switch lang {
+        case .cs: return "Dnes tu zatím ticho — pozdrav ostatní 👋"
+        case .en: return "Quiet here today — say hi 👋"
+        }
+    }
+
+    static var chatStarterHello: String {
+        switch lang {
+        case .cs: return "Ahoj 👋"
+        case .en: return "Hi 👋"
+        }
+    }
+
+    static var chatStarterWhatPlayed: String {
+        switch lang {
+        case .cs: return "Co to teď hrálo?"
+        case .en: return "What was that track?"
+        }
+    }
+
+    static var chatSending: String {
+        switch lang {
+        case .cs: return "Odesílám…"
+        case .en: return "Sending…"
+        }
+    }
+
+    static var chatNotSent: String {
+        switch lang {
+        case .cs: return "Neodesláno"
+        case .en: return "Not sent"
+        }
+    }
+
+    static var chatRetry: String {
+        switch lang {
+        case .cs: return "Zkusit znovu"
+        case .en: return "Try again"
+        }
+    }
+
+    static var chatJoinTitle: String {
+        switch lang {
+        case .cs: return "Připoj se do chatu"
+        case .en: return "Join the chat"
+        }
+    }
+
+    static var chatJoinBody: String {
+        switch lang {
+        case .cs: return "Číst může každý. Psát můžeš po přihlášení — zabere to pár vteřin a rozepsaná zpráva se pak odešle sama."
+        case .en: return "Anyone can read. To write, sign in — it takes a few seconds and your message is sent right after."
+        }
+    }
+
+    static var chatRateLimited: String {
+        switch lang {
+        case .cs: return "Zpomal trochu 🙂 Další zprávu pošleš za pár vteřin."
+        case .en: return "Slow down a little 🙂 You can send another message in a few seconds."
+        }
+    }
+
+    static var chatDuplicate: String {
+        switch lang {
+        case .cs: return "Tuhle zprávu jsi právě poslal(a)."
+        case .en: return "You've just sent this message."
+        }
+    }
+
+    static var chatLinksNeedAccount: String {
+        switch lang {
+        case .cs: return "Odkazy můžou posílat jen registrovaní Slowriders. Zaregistrovat se můžeš v Profilu."
+        case .en: return "Only registered Slowriders can post links. You can register in Profil."
+        }
+    }
+
+    static var chatNotNow: String {
+        switch lang {
+        case .cs: return "Teď ne"
+        case .en: return "Not now"
+        }
+    }
+
+    static var chatJoinLegal: String {
+        switch lang {
+        case .cs: return "Pokračováním souhlasíš s Pravidly chatu a Zásadami ochrany soukromí."
+        case .en: return "By continuing you agree to the Chat rules and the Privacy policy."
+        }
+    }
+
+    static var chatCopy: String {
+        switch lang {
+        case .cs: return "Kopírovat"
+        case .en: return "Copy"
+        }
+    }
+
+    static var chatEmoji: String {
+        switch lang {
+        case .cs: return "Emoji"
+        case .en: return "Emoji"
+        }
+    }
+
+    static var chatSend: String {
+        switch lang {
+        case .cs: return "Odeslat"
+        case .en: return "Send"
+        }
+    }
+
+    static var chatClose: String {
+        switch lang {
+        case .cs: return "Zavřít"
+        case .en: return "Close"
+        }
+    }
+
+    static var chatLoadFailed: String {
+        switch lang {
+        case .cs: return "Chat se teď nepodařilo načíst."
+        case .en: return "The chat couldn't load right now."
+        }
+    }
+
+    static var chatShowRules: String {
+        switch lang {
+        case .cs: return "Pravidla chatu"
+        case .en: return "Chat rules"
+        }
+    }
+
+    static func chatSentAs(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Odesláno jako \(name)"
+        case .en: return "Sent as \(name)"
+        }
+    }
+
+    static func chatNamesAndMore(_ names: String, _ count: Int) -> String {
+        switch lang {
+        case .cs: return "\(names) a \(count) další"
+        case .en: return "\(names) and \(count) more"
+        }
+    }
+
+    /// "↓ 3 nové zprávy" (plural; Android: `L10nLogic.chatNewMessages`).
+    static func chatNewMessages(_ count: Int) -> String {
+        switch lang {
+        case .cs:
+            if count == 1 { return "1 nová zpráva" }
+            if (2...4).contains(count) { return "\(count) nové zprávy" }
+            return "\(count) nových zpráv"
+        case .en:
+            return count == 1 ? "1 new message" : "\(count) new messages"
+        }
+    }
+}
+
+// MARK: - Chat moderation and DJ invites (app 1.3)
+
+extension L10n {
+    static var errorInviteOtherHost: String {
+        switch lang {
+        case .cs: return "Tvůj účet už je propojený s jiným moderátorem."
+        case .en: return "Your account is already linked to another host."
+        }
+    }
+
+    static var errorRestoreExpired: String {
+        switch lang {
+        case .cs: return "Zprávu už nejde vrátit."
+        case .en: return "The message can't be restored any more."
+        }
+    }
+
+    static var errorNotModerator: String {
+        switch lang {
+        case .cs: return "Na tohle nemáš oprávnění."
+        case .en: return "You aren't allowed to do that."
+        }
+    }
+
+    static var errorUserInvalid: String {
+        switch lang {
+        case .cs: return "Tohohle posluchače nejde ztlumit ani zablokovat."
+        case .en: return "This listener can't be muted or blocked."
+        }
+    }
+
+    static var errorMessageNotFound: String {
+        switch lang {
+        case .cs: return "Zpráva už v chatu není."
+        case .en: return "The message is no longer in the chat."
+        }
+    }
+
+    static var errorMuted: String {
+        switch lang {
+        case .cs: return "Psaní do chatu máš teď pozastavené."
+        case .en: return "Your chat writing is paused right now."
+        }
+    }
+
+    static var chatMenuPin: String {
+        switch lang {
+        case .cs: return "Připnout zprávu"
+        case .en: return "Pin message"
+        }
+    }
+
+    static var chatMenuUnpin: String {
+        switch lang {
+        case .cs: return "Odepnout zprávu"
+        case .en: return "Unpin message"
+        }
+    }
+
+    static var chatMenuCopy: String {
+        switch lang {
+        case .cs: return "Kopírovat text"
+        case .en: return "Copy text"
+        }
+    }
+
+    static var chatMenuDelete: String {
+        switch lang {
+        case .cs: return "Smazat zprávu"
+        case .en: return "Delete message"
+        }
+    }
+
+    static var chatMenuMute: String {
+        switch lang {
+        case .cs: return "Ztlumit…"
+        case .en: return "Mute…"
+        }
+    }
+
+    static var chatMenuUnmute: String {
+        switch lang {
+        case .cs: return "Zrušit ztlumení"
+        case .en: return "Unmute"
+        }
+    }
+
+    static var chatMenuBlock: String {
+        switch lang {
+        case .cs: return "Zablokovat…"
+        case .en: return "Block…"
+        }
+    }
+
+    static var chatMenuReport: String {
+        switch lang {
+        case .cs: return "Nahlásit zprávu"
+        case .en: return "Report message"
+        }
+    }
+
+    static var chatMuteBody: String {
+        switch lang {
+        case .cs: return "Dál bude poslouchat a číst chat, jen do něj nic nenapíše. Ostatní posluchači ztlumení neuvidí."
+        case .en: return "They can still listen and read the chat, just not write. Other listeners won't see the mute."
+        }
+    }
+
+    static var chatMuteHour: String {
+        switch lang {
+        case .cs: return "1 hodina"
+        case .en: return "1 hour"
+        }
+    }
+
+    static var chatMuteDay: String {
+        switch lang {
+        case .cs: return "24 hodin"
+        case .en: return "24 hours"
+        }
+    }
+
+    static var chatMuteWeek: String {
+        switch lang {
+        case .cs: return "7 dní"
+        case .en: return "7 days"
+        }
+    }
+
+    static var chatMuteActionHour: String {
+        switch lang {
+        case .cs: return "Ztlumit na 1 hodinu"
+        case .en: return "Mute for 1 hour"
+        }
+    }
+
+    static var chatMuteActionDay: String {
+        switch lang {
+        case .cs: return "Ztlumit na 24 hodin"
+        case .en: return "Mute for 24 hours"
+        }
+    }
+
+    static var chatMuteActionWeek: String {
+        switch lang {
+        case .cs: return "Ztlumit na 7 dní"
+        case .en: return "Mute for 7 days"
+        }
+    }
+
+    static var chatUndo: String {
+        switch lang {
+        case .cs: return "Vrátit"
+        case .en: return "Undo"
+        }
+    }
+
+    static var chatBlockBody: String {
+        switch lang {
+        case .cs: return "Do chatu už nenapíše, dokud blokaci nezruší správce rádia. Jeho dosavadní zprávy zůstanou — smazat je můžeš zvlášť."
+        case .en: return "They won't be able to write until the radio's admin lifts the block. Their messages so far stay — you can delete them one by one."
+        }
+    }
+
+    static var chatBlockAction: String {
+        switch lang {
+        case .cs: return "Zablokovat"
+        case .en: return "Block"
+        }
+    }
+
+    static var chatDeletedToast: String {
+        switch lang {
+        case .cs: return "Zpráva smazána"
+        case .en: return "Message deleted"
+        }
+    }
+
+    static var chatReportedToast: String {
+        switch lang {
+        case .cs: return "Díky. Zprávu uvidí moderátoři."
+        case .en: return "Thanks. The moderators will see it."
+        }
+    }
+
+    static var chatPinnedToast: String {
+        switch lang {
+        case .cs: return "Zpráva připnuta"
+        case .en: return "Message pinned"
+        }
+    }
+
+    static var chatUnpinnedToast: String {
+        switch lang {
+        case .cs: return "Zpráva odepnuta"
+        case .en: return "Message unpinned"
+        }
+    }
+
+    static var inviteKicker: String {
+        switch lang {
+        case .cs: return "Pozvánka pro moderátora"
+        case .en: return "Host invite"
+        }
+    }
+
+    static var inviteTitleGeneric: String {
+        switch lang {
+        case .cs: return "Propoj účet jako moderátor"
+        case .en: return "Link your account as a host"
+        }
+    }
+
+    static var inviteBody: String {
+        switch lang {
+        case .cs: return "V chatu pak budeš psát pod jménem z programu se štítkem DJ a můžeš připínat, mazat a ztlumovat zprávy."
+        case .en: return "In the chat you'll then write under your name from the programme with a DJ tag, and you can pin, delete and mute."
+        }
+    }
+
+    static var inviteSample: String {
+        switch lang {
+        case .cs: return "Dobré ráno! Co dnes posloucháte u kafe? ☕"
+        case .en: return "Good morning! What are you listening to with your coffee? ☕"
+        }
+    }
+
+    static var inviteOneUse: String {
+        switch lang {
+        case .cs: return "Pozvánka jde použít jen jednou."
+        case .en: return "The invite works only once."
+        }
+    }
+
+    static var inviteDoneBody: String {
+        switch lang {
+        case .cs: return "Tvůj účet je propojený. Takhle tě uvidí posluchači:"
+        case .en: return "Your account is linked. This is how listeners will see you:"
+        }
+    }
+
+    static var inviteDoneHint: String {
+        switch lang {
+        case .cs: return "Podržením prstu na zprávě ji připneš, smažeš nebo ztlumíš autora."
+        case .en: return "Press and hold a message to pin it, delete it or mute its author."
+        }
+    }
+
+    static var inviteOpenChat: String {
+        switch lang {
+        case .cs: return "Otevřít chat"
+        case .en: return "Open the chat"
+        }
+    }
+
+    static var inviteInvalidTitle: String {
+        switch lang {
+        case .cs: return "Pozvánka už neplatí"
+        case .en: return "This invite has expired"
+        }
+    }
+
+    static var inviteInvalidBody: String {
+        switch lang {
+        case .cs: return "Odkaz vypršel nebo už byl použitý. Napiš rádiu a pošleme ti nový."
+        case .en: return "The link has expired or was already used. Write to the radio and we'll send a new one."
+        }
+    }
+
+    static var inviteLinking: String {
+        switch lang {
+        case .cs: return "Propojuju účet…"
+        case .en: return "Linking your account…"
+        }
+    }
+
+    static var inviteClose: String {
+        switch lang {
+        case .cs: return "Zavřít"
+        case .en: return "Close"
+        }
+    }
+
+    static func chatMenuHide(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Skrýt zprávy od \(name)"
+        case .en: return "Hide messages from \(name)"
+        }
+    }
+
+    static func chatMutedStatus(_ day: String, _ time: String, _ by: String) -> String {
+        switch lang {
+        case .cs: return "Ztlumený do \(day) \(time) · ztlumil \(by)"
+        case .en: return "Muted until \(day) \(time) · by \(by)"
+        }
+    }
+
+    static func chatBlockedStatus(_ by: String) -> String {
+        switch lang {
+        case .cs: return "Zablokovaný · zablokoval \(by)"
+        case .en: return "Blocked · by \(by)"
+        }
+    }
+
+    static func chatRemainingHours(_ hours: Int) -> String {
+        switch lang {
+        case .cs: return "zbývá \(hours) h"
+        case .en: return "\(hours)h left"
+        }
+    }
+
+    static func chatRemainingMinutes(_ minutes: Int) -> String {
+        switch lang {
+        case .cs: return "zbývá \(minutes) min"
+        case .en: return "\(minutes)m left"
+        }
+    }
+
+    static func chatMuteTitle(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Ztlumit \(name)"
+        case .en: return "Mute \(name)"
+        }
+    }
+
+    static func chatMutedToast(_ name: String, _ day: String, _ time: String) -> String {
+        switch lang {
+        case .cs: return "\(name) je ztlumený do \(day) \(time)"
+        case .en: return "\(name) is muted until \(day) \(time)"
+        }
+    }
+
+    static func chatUnmutedToast(_ name: String) -> String {
+        switch lang {
+        case .cs: return "\(name) už není ztlumený"
+        case .en: return "\(name) is no longer muted"
+        }
+    }
+
+    static func chatBlockTitle(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Zablokovat \(name)?"
+        case .en: return "Block \(name)?"
+        }
+    }
+
+    static func chatBlockedToast(_ name: String) -> String {
+        switch lang {
+        case .cs: return "\(name) je zablokovaný"
+        case .en: return "\(name) is blocked"
+        }
+    }
+
+    static func chatHiddenToast(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Zprávy od \(name) už neuvidíš"
+        case .en: return "You won't see messages from \(name)"
+        }
+    }
+
+    static func inviteTitle(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Propoj účet jako \(name)"
+        case .en: return "Link your account as \(name)"
+        }
+    }
+
+    static func inviteValidUntil(_ date: String) -> String {
+        switch lang {
+        case .cs: return "Pozvánka platí do \(date) a jde použít jen jednou."
+        case .en: return "The invite is valid until \(date) and works only once."
+        }
+    }
+
+    static func inviteDoneTitle(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Hotovo, jsi \(name)"
+        case .en: return "Done, you're \(name)"
+        }
+    }
+
+}
+
+// MARK: - Chat v3: Slowriders, dashboard, admin (app 1.3)
+
+extension L10n {
+    static var chatNicknameTitle: String {
+        switch lang {
+        case .cs: return "Tvoje přezdívka"
+        case .en: return "Your nickname"
+        }
+    }
+
+    static var chatNicknameBody: String {
+        switch lang {
+        case .cs: return "Pod tímhle jménem tě uvidí ostatní v chatu. Účet k tomu nepotřebuješ."
+        case .en: return "Others in the chat will see you under this name. No account needed."
+        }
+    }
+
+    static var chatNicknameRules: String {
+        switch lang {
+        case .cs: return "3–20 znaků: písmena bez diakritiky, číslice, tečka a podtržítko. Změnit ji půjde po registraci v Profilu."
+        case .en: return "3–20 characters: letters without accents, digits, dot and underscore. You can change it after registering, in Profile."
+        }
+    }
+
+    static var chatNicknameSend: String {
+        switch lang {
+        case .cs: return "Uložit a odeslat zprávu"
+        case .en: return "Save and send"
+        }
+    }
+
+    static var chatHaveAccount: String {
+        switch lang {
+        case .cs: return "Už máš účet?"
+        case .en: return "Already have an account?"
+        }
+    }
+
+    static var chatSignInLink: String {
+        switch lang {
+        case .cs: return "Přihlas se"
+        case .en: return "Sign in"
+        }
+    }
+
+    static var chatSignInTitle: String {
+        switch lang {
+        case .cs: return "Přihlas se"
+        case .en: return "Sign in"
+        }
+    }
+
+    static var chatSignInBody: String {
+        switch lang {
+        case .cs: return "Máš účet z jiného telefonu? Přihlas se a vrátí se ti přezdívka i statistiky poslechu."
+        case .en: return "Have an account from another phone? Sign in to get your nickname and listening stats back."
+        }
+    }
+
+    static var chatBackToNickname: String {
+        switch lang {
+        case .cs: return "Zpět k přezdívce"
+        case .en: return "Back to the nickname"
+        }
+    }
+
+    static var chatFirstMessageHint: String {
+        switch lang {
+        case .cs: return "Při první zprávě si zvolíš přezdívku"
+        case .en: return "You'll pick a nickname with your first message"
+        }
+    }
+
+    static var chatHostBadge: String {
+        switch lang {
+        case .cs: return "Moderátor"
+        case .en: return "Host"
+        }
+    }
+
+    static var welcomeSlowrider: String {
+        switch lang {
+        case .cs: return "Vítej mezi Slowriders!"
+        case .en: return "Welcome to the Slowriders!"
+        }
+    }
+
+    static var welcomeSlowriderNickname: String {
+        switch lang {
+        case .cs: return "Vítej mezi Slowriders! Přezdívku teď můžeš změnit."
+        case .en: return "Welcome to the Slowriders! You can change your nickname now."
+        }
+    }
+
+    static var benefitProfileTitle: String {
+        switch lang {
+        case .cs: return "Správu profilu"
+        case .en: return "Your own profile"
+        }
+    }
+
+    static var benefitProfileBody: String {
+        switch lang {
+        case .cs: return "Přezdívku v chatu si změníš, kdy budeš chtít."
+        case .en: return "Change your chat nickname whenever you like."
+        }
+    }
+
+    static var benefitStatsTitle: String {
+        switch lang {
+        case .cs: return "Statistiky u tebe, ne u telefonu"
+        case .en: return "Stats that stay with you"
+        }
+    }
+
+    static var benefitStatsBody: String {
+        switch lang {
+        case .cs: return "Poslech se ukládá k účtu, takže ti zůstane i na novém telefonu."
+        case .en: return "Listening is saved to your account, so it moves with you to a new phone."
+        }
+    }
+
+    static var benefitMoreTitle: String {
+        switch lang {
+        case .cs: return "Víc funkcí"
+        case .en: return "More to come"
+        }
+    }
+
+    static var benefitMoreBody: String {
+        switch lang {
+        case .cs: return "Další výhody pro Slowridery budou přibývat."
+        case .en: return "More perks for Slowriders are on the way."
+        }
+    }
+
+    static var slowriderTitle: String {
+        switch lang {
+        case .cs: return "Staň se Slowriderem"
+        case .en: return "Become a Slowrider"
+        }
+    }
+
+    static var slowriderBenefitsIntro: String {
+        switch lang {
+        case .cs: return "Poslouchat i psát do chatu můžeš bez účtu. Registrace ti k tomu přidá:"
+        case .en: return "You can listen and write in the chat without an account. Registering adds:"
+        }
+    }
+
+    static var slowriderRegister: String {
+        switch lang {
+        case .cs: return "Zaregistrovat se"
+        case .en: return "Register"
+        }
+    }
+
+    static var slowrideTitle: String {
+        switch lang {
+        case .cs: return "Tvůj Slowride"
+        case .en: return "Your Slowride"
+        }
+    }
+
+    static var slowrideMember: String {
+        switch lang {
+        case .cs: return "Slowriderem"
+        case .en: return "Slowrider for"
+        }
+    }
+
+    static var slowrideListened: String {
+        switch lang {
+        case .cs: return "Odposloucháno"
+        case .en: return "Listened"
+        }
+    }
+
+    static var slowrideChatMessages: String {
+        switch lang {
+        case .cs: return "Zprávy v chatu"
+        case .en: return "Chat messages"
+        }
+    }
+
+    static var slowrideVoiceMessages: String {
+        switch lang {
+        case .cs: return "Hlasové vzkazy"
+        case .en: return "Voice messages"
+        }
+    }
+
+    static var slowrideTopShows: String {
+        switch lang {
+        case .cs: return "Nejoblíbenější pořady"
+        case .en: return "Favourite shows"
+        }
+    }
+
+    static var registerNicknameTitle: String {
+        switch lang {
+        case .cs: return "Přezdívku změníš s účtem"
+        case .en: return "Register to change your nickname"
+        }
+    }
+
+    static var profileWritingWithoutAccount: String {
+        switch lang {
+        case .cs: return "Píšeš do chatu bez účtu"
+        case .en: return "Writing in the chat without an account"
+        }
+    }
+
+    static var profileDeleteData: String {
+        switch lang {
+        case .cs: return "Smazat moje údaje"
+        case .en: return "Delete my data"
+        }
+    }
+
+    static var deleteDataConfirmTitle: String {
+        switch lang {
+        case .cs: return "Smazat moje údaje?"
+        case .en: return "Delete my data?"
+        }
+    }
+
+    static var deleteDataConfirmBody: String {
+        switch lang {
+        case .cs: return "Smaže se přezdívka a statistiky poslechu z tohohle telefonu. Zprávy v chatu zůstanou jako „Smazaný účet“."
+        case .en: return "Your nickname and the listening stats from this phone will be deleted. Chat messages stay as “Deleted account”."
+        }
+    }
+
+    static var adminSection: String {
+        switch lang {
+        case .cs: return "Správa"
+        case .en: return "Admin"
+        }
+    }
+
+    static var adminModerators: String {
+        switch lang {
+        case .cs: return "Moderátoři"
+        case .en: return "Hosts"
+        }
+    }
+
+    static var adminModeratorsBody: String {
+        switch lang {
+        case .cs: return "Moderátor s propojeným účtem píše v chatu pod jménem z programu se štítkem a může moderovat všechny své pořady."
+        case .en: return "A host with a linked account writes under their name from the programme, with a tag, and can moderate all their shows."
+        }
+    }
+
+    static var adminInviteModerator: String {
+        switch lang {
+        case .cs: return "Pozvat moderátora"
+        case .en: return "Invite a host"
+        }
+    }
+
+    static var adminLinked: String {
+        switch lang {
+        case .cs: return "Propojený"
+        case .en: return "Linked"
+        }
+    }
+
+    static var adminNoAccount: String {
+        switch lang {
+        case .cs: return "Bez účtu"
+        case .en: return "No account"
+        }
+    }
+
+    static var adminInviteBody: String {
+        switch lang {
+        case .cs: return "Vyber moderátora z programu; propojí se všechny jeho pořady. Odkaz platí 7 dní a jde použít jen jednou."
+        case .en: return "Pick a host from the programme; all their shows are linked. The link works for 7 days, once."
+        }
+    }
+
+    static var adminAlreadyLinked: String {
+        switch lang {
+        case .cs: return "Už propojený"
+        case .en: return "Already linked"
+        }
+    }
+
+    static var adminGuestHost: String {
+        switch lang {
+        case .cs: return "Host mimo program"
+        case .en: return "Guest host"
+        }
+    }
+
+    static var adminGuestHostBody: String {
+        switch lang {
+        case .cs: return "Zadáš jméno, pod kterým bude psát"
+        case .en: return "You'll enter the name they write under"
+        }
+    }
+
+    static var adminGuestNamePlaceholder: String {
+        switch lang {
+        case .cs: return "Jméno hosta"
+        case .en: return "Guest's name"
+        }
+    }
+
+    static var adminCreateInvite: String {
+        switch lang {
+        case .cs: return "Vytvořit pozvánku"
+        case .en: return "Create an invite"
+        }
+    }
+
+    static var adminInviteReady: String {
+        switch lang {
+        case .cs: return "Pozvánka je připravená"
+        case .en: return "The invite is ready"
+        }
+    }
+
+    static var adminShareLink: String {
+        switch lang {
+        case .cs: return "Sdílet odkaz"
+        case .en: return "Share the link"
+        }
+    }
+
+    static var adminCopyLink: String {
+        switch lang {
+        case .cs: return "Kopírovat odkaz"
+        case .en: return "Copy the link"
+        }
+    }
+
+    static var adminCopied: String {
+        switch lang {
+        case .cs: return "Zkopírováno"
+        case .en: return "Copied"
+        }
+    }
+
+    static var adminShows: String {
+        switch lang {
+        case .cs: return "Pořady"
+        case .en: return "Shows"
+        }
+    }
+
+    static var adminAccount: String {
+        switch lang {
+        case .cs: return "Účet"
+        case .en: return "Account"
+        }
+    }
+
+    static var adminWritesAs: String {
+        switch lang {
+        case .cs: return "V chatu píše jako"
+        case .en: return "Writes in the chat as"
+        }
+    }
+
+    static var adminSendNewInvite: String {
+        switch lang {
+        case .cs: return "Poslat novou pozvánku"
+        case .en: return "Send a new invite"
+        }
+    }
+
+    static var adminUnlink: String {
+        switch lang {
+        case .cs: return "Odpojit účet"
+        case .en: return "Unlink the account"
+        }
+    }
+
+    static var adminUnlinkNote: String {
+        switch lang {
+        case .cs: return "Po odpojení bude psát pod svou přezdívkou, bez štítku Moderátor a bez moderování."
+        case .en: return "Once unlinked they write under their nickname, without the Host tag or moderation."
+        }
+    }
+
+    static var adminAdmins: String {
+        switch lang {
+        case .cs: return "Správci"
+        case .en: return "Admins"
+        }
+    }
+
+    static var adminAdminsBody: String {
+        switch lang {
+        case .cs: return "Správce moderuje chat pod svou přezdívkou a může zrušit blokaci. Superadmin navíc zve moderátory a spravuje správce."
+        case .en: return "An admin moderates under their nickname and can lift blocks. The superadmin also invites hosts and manages admins."
+        }
+    }
+
+    static var adminYou: String {
+        switch lang {
+        case .cs: return "ty"
+        case .en: return "you"
+        }
+    }
+
+    static var adminSuperadmin: String {
+        switch lang {
+        case .cs: return "Superadmin"
+        case .en: return "Superadmin"
+        }
+    }
+
+    static var adminAddAdmin: String {
+        switch lang {
+        case .cs: return "Přidat správce"
+        case .en: return "Add an admin"
+        }
+    }
+
+    static var adminRemove: String {
+        switch lang {
+        case .cs: return "Odebrat"
+        case .en: return "Remove"
+        }
+    }
+
+    static var adminAddAdminBody: String {
+        switch lang {
+        case .cs: return "Správcem může být jen registrovaný Slowrider. Najdi ho podle přezdívky."
+        case .en: return "Only a registered Slowrider can be an admin. Find them by nickname."
+        }
+    }
+
+    static var adminSearchPlaceholder: String {
+        switch lang {
+        case .cs: return "Přezdívka"
+        case .en: return "Nickname"
+        }
+    }
+
+    static var adminAlreadyAdmin: String {
+        switch lang {
+        case .cs: return "Už je správce"
+        case .en: return "Already an admin"
+        }
+    }
+
+    static var adminNotRegistered: String {
+        switch lang {
+        case .cs: return "Píše bez účtu, nejde vybrat"
+        case .en: return "Writes without an account, can't be chosen"
+        }
+    }
+
+    static var adminMakeAdmin: String {
+        switch lang {
+        case .cs: return "Udělat správcem"
+        case .en: return "Make admin"
+        }
+    }
+
+    static var errorNotSuperadmin: String {
+        switch lang {
+        case .cs: return "Na tohle potřebuješ roli superadmina."
+        case .en: return "This needs the superadmin role."
+        }
+    }
+
+    static var errorHostInvalid: String {
+        switch lang {
+        case .cs: return "Tohle jméno moderátora nejde použít."
+        case .en: return "This host name can't be used."
+        }
+    }
+
+    static func slowriderCardBody(_ nickname: String) -> String {
+        switch lang {
+        case .cs: return "Přezdívka \(nickname) ti zůstane a změníš ji, kdy budeš chtít. Statistiky poslechu se uloží k účtu, takže je nepřijdeš ani s novým telefonem."
+        case .en: return "You keep \(nickname) and can change it whenever you like. Your listening stats are saved to the account, so a new phone won't lose them."
+        }
+    }
+
+    static func registerBody(_ nickname: String) -> String {
+        switch lang {
+        case .cs: return "Zaregistruj se a \(nickname) ti zůstane i se všemi zprávami. Hned potom ji můžeš změnit, bez čekání."
+        case .en: return "Register and keep \(nickname) with all your messages. You can change it right after, no waiting."
+        }
+    }
+
+    static func slowriderSinceLong(_ date: String) -> String {
+        switch lang {
+        case .cs: return "Jsi součástí Slowriders od \(date)"
+        case .en: return "A Slowrider since \(date)"
+        }
+    }
+
+    static func slowriderSince(_ date: String) -> String {
+        switch lang {
+        case .cs: return "Slowrider od \(date)"
+        case .en: return "Slowrider since \(date)"
+        }
+    }
+
+    static func adminInvitePending(_ date: String) -> String {
+        switch lang {
+        case .cs: return "Pozvánka čeká, platí do \(date)"
+        case .en: return "Invite pending, valid until \(date)"
+        }
+    }
+
+    static func adminInviteReadyBody(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Pošli odkaz pro \(name), třeba přes WhatsApp. Po otevření se v appce přihlásí a účet se propojí."
+        case .en: return "Send the link to \(name), e.g. on WhatsApp. Opening it, they sign in in the app and the account is linked."
+        }
+    }
+
+    static func adminInviteValidity(_ date: String) -> String {
+        switch lang {
+        case .cs: return "Platí do \(date) · jen jednou"
+        case .en: return "Valid until \(date) · once"
+        }
+    }
+
+    static func adminInviteShareMessage(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Pozvánka do chatu Slow Down Rádija pro \(name)"
+        case .en: return "Slow Down Rádijo chat invite for \(name)"
+        }
+    }
+
+    static func adminLinkedOn(_ date: String) -> String {
+        switch lang {
+        case .cs: return "propojený \(date)"
+        case .en: return "linked \(date)"
+        }
+    }
+
+    static func adminUnlinkConfirm(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Odpojit účet \(name)?"
+        case .en: return "Unlink \(name)?"
+        }
+    }
+
+    static func adminAdminSince(_ date: String) -> String {
+        switch lang {
+        case .cs: return "Správce od \(date)"
+        case .en: return "Admin since \(date)"
+        }
+    }
+
+    static func adminRemoveAdmin(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Odebrat \(name) ze správců?"
+        case .en: return "Remove \(name) from admins?"
+        }
+    }
+
+    /// "den" / "dny" / "dní" after a number (Android: `L10nLogic.slowrideDays`).
+    static func slowrideDays(_ count: Int) -> String {
+        switch lang {
+        case .cs:
+            if count == 1 { return "den" }
+            if (2...4).contains(count) { return "dny" }
+            return "dní"
+        case .en:
+            return count == 1 ? "day" : "days"
+        }
+    }
+}
+
 extension Show {
     /// The description in the app's language (English falls back to Czech).
     var localizedSummary: String? {
@@ -1554,5 +3267,925 @@ extension Show {
     var localizedName: String {
         guard L10n.isEnglish, title != nil, let range = name.range(of: " s ") else { return name }
         return name.replacingCharacters(in: range, with: " with ")
+    }
+}
+
+// Profil M15 and Statistiky S1 (Figma "Explorace 1.3 — Profil a Statistiky").
+extension L10n {
+    static var memberKicker: String {
+        switch lang {
+        case .cs: return "SLOWRIDER"
+        case .en: return "SLOWRIDER"
+        }
+    }
+
+    static func statsWeekTotal(_ duration: String) -> String {
+        switch lang {
+        case .cs: return "Tento týden \(duration)"
+        case .en: return "This week \(duration)"
+        }
+    }
+
+    static var statsLiveBadge: String {
+        switch lang {
+        case .cs: return "POSLOUCHÁŠ"
+        case .en: return "LISTENING"
+        }
+    }
+
+    static var statsStripTotal: String {
+        switch lang {
+        case .cs: return "celkem"
+        case .en: return "in total"
+        }
+    }
+
+    static var statsStripRank: String {
+        switch lang {
+        case .cs: return "v žebříčku"
+        case .en: return "on the leaderboard"
+        }
+    }
+
+    static var statsStripDays: String {
+        switch lang {
+        case .cs: return "s rádiem"
+        case .en: return "with the radio"
+        }
+    }
+
+    static func statsTierTop(_ share: String) -> String {
+        switch lang {
+        case .cs: return "TOP \(share)"
+        case .en: return "TOP \(share)"
+        }
+    }
+
+    static var statsTierLoyal: String {
+        switch lang {
+        case .cs: return "Patříš mezi nejvěrnější posluchače appky."
+        case .en: return "You're among the app's most loyal listeners."
+        }
+    }
+
+    static var statsFirstPlace: String {
+        switch lang {
+        case .cs: return "Jsi na prvním místě. Díky, že jsi s námi tolik."
+        case .en: return "You're number one. Thanks for spending so much time with us."
+        }
+    }
+
+    static var statsNeighbours: String {
+        switch lang {
+        case .cs: return "Tvoji sousedé v žebříčku"
+        case .en: return "Your neighbours on the leaderboard"
+        }
+    }
+
+    static var statsYou: String {
+        switch lang {
+        case .cs: return "Ty"
+        case .en: return "You"
+        }
+    }
+
+    static var statsLeaderboardAnonymous: String {
+        switch lang {
+        case .cs: return "Žebříček je anonymní: nikdo nevidí, kdo jsi, jen čísla."
+        case .en: return "The leaderboard is anonymous: nobody sees who you are, only numbers."
+        }
+    }
+
+}
+
+// Profil P1 (Figma "Explorace — Profil v2").
+extension L10n {
+    static var memberListenedShort: String {
+        switch lang {
+        case .cs: return "poslechu"
+        case .en: return "listened"
+        }
+    }
+
+    static func memberMessages(_ count: Int) -> String {
+        switch lang {
+        case .cs:
+            if count == 1 { return "zpráva" }
+            if (2...4).contains(count) { return "zprávy" }
+            return "zpráv"
+        case .en: return count == 1 ? "message" : "messages"
+        }
+    }
+
+    static func memberVoiceMessages(_ count: Int) -> String {
+        switch lang {
+        case .cs:
+            if count == 1 { return "vzkaz" }
+            if (2...4).contains(count) { return "vzkazy" }
+            return "vzkazů"
+        case .en: return count == 1 ? "voice message" : "voice messages"
+        }
+    }
+
+    static var profileEditNickname: String {
+        switch lang {
+        case .cs: return "Upravit přezdívku"
+        case .en: return "Edit nickname"
+        }
+    }
+
+    static var profileMyStats: String {
+        switch lang {
+        case .cs: return "Moje statistiky"
+        case .en: return "My stats"
+        }
+    }
+
+    static var profileFavouriteShows: String {
+        switch lang {
+        case .cs: return "Tvoje oblíbené pořady"
+        case .en: return "Your favourite shows"
+        }
+    }
+}
+
+// MARK: - Soutěže (1.3, Figma page "Soutěže")
+
+extension L10n {
+    static var contestBadge: String {
+        switch lang {
+        case .cs: return "SOUTĚŽ"
+        case .en: return "CONTEST"
+        }
+    }
+
+    static var contestJoin: String {
+        switch lang {
+        case .cs: return "Zapojit se"
+        case .en: return "Enter"
+        }
+    }
+
+    static func contestUntil(_ date: String) -> String {
+        switch lang {
+        case .cs: return "Do \(date)"
+        case .en: return "Until \(date)"
+        }
+    }
+
+    static var contestCloseLabel: String {
+        switch lang {
+        case .cs: return "Zavřít soutěž"
+        case .en: return "Close the contest"
+        }
+    }
+
+    static var contestDismissTitle: String {
+        switch lang {
+        case .cs: return "Zavřít soutěž?"
+        case .en: return "Close the contest?"
+        }
+    }
+
+    static func contestDismissBody(_ title: String) -> String {
+        switch lang {
+        case .cs: return "Nabídka zmizí a do soutěže „\(title)“ se už nebudeš moct zapojit. Vrátit to nepůjde."
+        case .en: return "The card goes away and you won't be able to enter “\(title)”. This can't be undone."
+        }
+    }
+
+    static var contestDismissConfirm: String {
+        switch lang {
+        case .cs: return "Zavřít a nesoutěžit"
+        case .en: return "Close and skip it"
+        }
+    }
+
+    static var contestKeep: String {
+        switch lang {
+        case .cs: return "Nechat soutěž"
+        case .en: return "Keep the contest"
+        }
+    }
+
+    static var contestFactUntil: String {
+        switch lang {
+        case .cs: return "Do"
+        case .en: return "Until"
+        }
+    }
+
+    static var contestFactPrize: String {
+        switch lang {
+        case .cs: return "Výhra"
+        case .en: return "Prize"
+        }
+    }
+
+    static var contestRules: String {
+        switch lang {
+        case .cs: return "Pravidla soutěže"
+        case .en: return "Contest rules"
+        }
+    }
+
+    static var contestQuestion: String {
+        switch lang {
+        case .cs: return "OTÁZKA"
+        case .en: return "QUESTION"
+        }
+    }
+
+    static var contestGateTitle: String {
+        switch lang {
+        case .cs: return "Soutěžit můžou jen Slowriders"
+        case .en: return "Only Slowriders can enter"
+        }
+    }
+
+    static var contestGateBody: String {
+        switch lang {
+        case .cs: return "Přihlas se nebo si založ účet, zabere to pár vteřin. Účet ti pohlídá i statistiky poslechu a přezdívku v chatu."
+        case .en: return "Sign in or create an account, it takes a few seconds. Your account also keeps your listening stats and your chat nickname."
+        }
+    }
+
+    static var contestGateButton: String {
+        switch lang {
+        case .cs: return "Přihlásit se a soutěžit"
+        case .en: return "Sign in and enter"
+        }
+    }
+
+    static var contestAnswerLabel: String {
+        switch lang {
+        case .cs: return "Tvoje odpověď"
+        case .en: return "Your answer"
+        }
+    }
+
+    static var contestAnswerPlaceholder: String {
+        switch lang {
+        case .cs: return "Napiš odpověď"
+        case .en: return "Type your answer"
+        }
+    }
+
+    static var contestPhoneLabel: String {
+        switch lang {
+        case .cs: return "Telefon"
+        case .en: return "Phone"
+        }
+    }
+
+    static var contestPhoneHint: String {
+        switch lang {
+        case .cs: return "Zavoláme jen výherci. Po losování číslo smažeme."
+        case .en: return "We only call the winner and delete the number after the draw."
+        }
+    }
+
+    static var contestConsent: String {
+        switch lang {
+        case .cs: return "Odesláním souhlasíš s pravidly soutěže. Telefon použijeme jen pro kontaktování výherce. Soutěž pořádá Slow Down Radio s.r.o., Apple ani Google ji nesponzorují."
+        case .en: return "By sending you agree to the contest rules. We only use your phone number to contact the winner. The contest is run by Slow Down Radio s.r.o. and is not sponsored by Apple or Google."
+        }
+    }
+
+    static var contestSubmit: String {
+        switch lang {
+        case .cs: return "Odeslat odpověď"
+        case .en: return "Send answer"
+        }
+    }
+
+    static var contestSending: String {
+        switch lang {
+        case .cs: return "Odesílám…"
+        case .en: return "Sending…"
+        }
+    }
+
+    static var contestErrorPickOption: String {
+        switch lang {
+        case .cs: return "Vyber jednu z odpovědí."
+        case .en: return "Pick one of the answers."
+        }
+    }
+
+    static var contestErrorAnswer: String {
+        switch lang {
+        case .cs: return "Napiš odpověď."
+        case .en: return "Write an answer."
+        }
+    }
+
+    static var contestErrorPhone: String {
+        switch lang {
+        case .cs: return "Zadej celé číslo, třeba +420 777 123 456."
+        case .en: return "Enter the full number, e.g. +420 777 123 456."
+        }
+    }
+
+    static var contestSendFailedTitle: String {
+        switch lang {
+        case .cs: return "Odpověď se nepodařilo odeslat"
+        case .en: return "Your answer wasn't sent"
+        }
+    }
+
+    static var contestSendFailedBody: String {
+        switch lang {
+        case .cs: return "Zkontroluj připojení a zkus to znovu. Vyplněné údaje ti necháme."
+        case .en: return "Check your connection and try again. We'll keep what you filled in."
+        }
+    }
+
+    static var contestRetry: String {
+        switch lang {
+        case .cs: return "Zkusit znovu"
+        case .en: return "Try again"
+        }
+    }
+
+    static var contestSentTitle: String {
+        switch lang {
+        case .cs: return "Jsi ve hře!"
+        case .en: return "You're in!"
+        }
+    }
+
+    static func contestSentBody(_ date: String) -> String {
+        switch lang {
+        case .cs: return "Odpověď dorazila. Losujeme po skončení soutěže (\(date)). Když vyhraješ, ozveme se ti."
+        case .en: return "Your answer is in. We draw after the contest ends (\(date)). If you win, we'll get in touch."
+        }
+    }
+
+    static var contestEnteredTitle: String {
+        switch lang {
+        case .cs: return "Už jsi v soutěži"
+        case .en: return "You've already entered"
+        }
+    }
+
+    static var contestEnteredBody: String {
+        switch lang {
+        case .cs: return "Do téhle soutěže máš odpověď odeslanou. Změnit ji už nejde, držíme palce."
+        case .en: return "You've sent your answer to this contest. It can't be changed now. Fingers crossed."
+        }
+    }
+
+    static var contestSummaryAnswer: String {
+        switch lang {
+        case .cs: return "Tvoje odpověď"
+        case .en: return "Your answer"
+        }
+    }
+
+    static var contestSummaryPhone: String {
+        switch lang {
+        case .cs: return "Telefon"
+        case .en: return "Phone"
+        }
+    }
+
+    static var contestSummarySent: String {
+        switch lang {
+        case .cs: return "Odesláno"
+        case .en: return "Sent"
+        }
+    }
+
+    static var contestSummaryDraw: String {
+        switch lang {
+        case .cs: return "Losování"
+        case .en: return "Draw"
+        }
+    }
+
+    static func contestDrawAfter(_ date: String) -> String {
+        switch lang {
+        case .cs: return "po \(date)"
+        case .en: return "after \(date)"
+        }
+    }
+
+    static var contestBackToRadio: String {
+        switch lang {
+        case .cs: return "Zpět do rádia"
+        case .en: return "Back to the radio"
+        }
+    }
+
+    static var contestEndedTitle: String {
+        switch lang {
+        case .cs: return "Soutěž už skončila"
+        case .en: return "This contest has ended"
+        }
+    }
+
+    static var contestEndedBody: String {
+        switch lang {
+        case .cs: return "Výherce oznámíme ve vysílání. Další soutěž se objeví na úvodní obrazovce."
+        case .en: return "We'll announce the winners on air. The next contest will show up on the home screen."
+        }
+    }
+
+    static var adminContests: String {
+        switch lang {
+        case .cs: return "Soutěže"
+        case .en: return "Contests"
+        }
+    }
+
+    static var adminContestsRunning: String {
+        switch lang {
+        case .cs: return "Běží"
+        case .en: return "Running"
+        }
+    }
+
+    static var adminContestsBody: String {
+        switch lang {
+        case .cs: return "Naráz běží jen jedna soutěž. Vidí ji všichni na úvodní obrazovce, soutěžit můžou jen přihlášení."
+        case .en: return "Only one contest runs at a time. Everyone sees it on the home screen; only signed-in listeners can enter."
+        }
+    }
+
+    static var adminContestRunningBadge: String {
+        switch lang {
+        case .cs: return "BĚŽÍ"
+        case .en: return "RUNNING"
+        }
+    }
+
+    static func adminContestRunningInfo(_ start: String, _ end: String) -> String {
+        switch lang {
+        case .cs: return "Spuštěno \(start) · končí \(end)"
+        case .en: return "Started \(start) · ends \(end)"
+        }
+    }
+
+    static var adminContestEntries: String {
+        switch lang {
+        case .cs: return "odpovědí"
+        case .en: return "answers"
+        }
+    }
+
+    static var adminContestCorrect: String {
+        switch lang {
+        case .cs: return "správně"
+        case .en: return "correct"
+        }
+    }
+
+    static var adminContestDismissed: String {
+        switch lang {
+        case .cs: return "zavřelo"
+        case .en: return "closed it"
+        }
+    }
+
+    static var adminContestWinnersCount: String {
+        switch lang {
+        case .cs: return "výherci"
+        case .en: return "winners"
+        }
+    }
+
+    static var adminContestAnswersRow: String {
+        switch lang {
+        case .cs: return "Odpovědi a losování"
+        case .en: return "Answers and draw"
+        }
+    }
+
+    static var adminContestEnd: String {
+        switch lang {
+        case .cs: return "Ukončit soutěž"
+        case .en: return "End the contest"
+        }
+    }
+
+    static var adminContestEndTitle: String {
+        switch lang {
+        case .cs: return "Ukončit soutěž předčasně?"
+        case .en: return "End the contest early?"
+        }
+    }
+
+    static var adminContestEndBody: String {
+        switch lang {
+        case .cs: return "Nabídka z úvodní obrazovky hned zmizí a další odpovědi už nepřijmeme. Odeslané odpovědi zůstanou a půjde z nich losovat."
+        case .en: return "The card leaves the home screen at once and no more answers are taken. The answers sent so far stay and can be drawn."
+        }
+    }
+
+    static var adminContestKeepRunning: String {
+        switch lang {
+        case .cs: return "Nechat běžet"
+        case .en: return "Keep it running"
+        }
+    }
+
+    static var adminContestNoneTitle: String {
+        switch lang {
+        case .cs: return "Teď neběží žádná soutěž"
+        case .en: return "No contest is running"
+        }
+    }
+
+    static var adminContestNoneBody: String {
+        switch lang {
+        case .cs: return "Nabídka na úvodní obrazovce je schovaná."
+        case .en: return "The home screen card is hidden."
+        }
+    }
+
+    static var adminContestNew: String {
+        switch lang {
+        case .cs: return "Nová soutěž"
+        case .en: return "New contest"
+        }
+    }
+
+    static var adminContestPrevious: String {
+        switch lang {
+        case .cs: return "Předchozí"
+        case .en: return "Earlier"
+        }
+    }
+
+    static func adminContestEndedRow(_ date: String, count: Int) -> String {
+        switch lang {
+        case .cs: return "Skončila \(date) · odpovědi: \(count)"
+        case .en: return "Ended \(date) · answers: \(count)"
+        }
+    }
+
+    static func adminContestEndedEarlyRow(_ date: String, count: Int) -> String {
+        switch lang {
+        case .cs: return "Ukončena předčasně \(date) · odpovědi: \(count)"
+        case .en: return "Ended early \(date) · answers: \(count)"
+        }
+    }
+
+    static var adminContestAwaitingDraw: String {
+        switch lang {
+        case .cs: return "Čeká na losování"
+        case .en: return "Waiting for the draw"
+        }
+    }
+
+    static var adminContestDrawn: String {
+        switch lang {
+        case .cs: return "Vylosováno"
+        case .en: return "Drawn"
+        }
+    }
+
+    static var adminContestFieldTitle: String {
+        switch lang {
+        case .cs: return "Název (ukáže se v nabídce)"
+        case .en: return "Title (shown on the card)"
+        }
+    }
+
+    static var adminContestFieldTitleHint: String {
+        switch lang {
+        case .cs: return "Nejvýš 60 znaků."
+        case .en: return "60 characters at most."
+        }
+    }
+
+    static var adminContestFieldBody: String {
+        switch lang {
+        case .cs: return "Text soutěže"
+        case .en: return "Contest text"
+        }
+    }
+
+    static var adminContestFieldBodyHint: String {
+        switch lang {
+        case .cs: return "Celý text v detailu soutěže."
+        case .en: return "The full text in the contest's detail."
+        }
+    }
+
+    static var adminContestFieldQuestion: String {
+        switch lang {
+        case .cs: return "Otázka"
+        case .en: return "Question"
+        }
+    }
+
+    static var adminContestAnswerType: String {
+        switch lang {
+        case .cs: return "Typ odpovědi"
+        case .en: return "Answer type"
+        }
+    }
+
+    static var adminContestTypeChoice: String {
+        switch lang {
+        case .cs: return "Výběr A/B/C"
+        case .en: return "Choice A/B/C"
+        }
+    }
+
+    static var adminContestTypeText: String {
+        switch lang {
+        case .cs: return "Volná odpověď"
+        case .en: return "Free answer"
+        }
+    }
+
+    static var adminContestOptions: String {
+        switch lang {
+        case .cs: return "Možnosti a správná odpověď"
+        case .en: return "Options and the right answer"
+        }
+    }
+
+    static func adminContestOptionPlaceholder(_ letter: String) -> String {
+        switch lang {
+        case .cs: return "Možnost \(letter)"
+        case .en: return "Option \(letter)"
+        }
+    }
+
+    static var adminContestOptionsHint: String {
+        switch lang {
+        case .cs: return "Kolečkem označ správnou odpověď. Losuje se jen ze správných."
+        case .en: return "Mark the right answer with the circle. Winners are drawn from right answers only."
+        }
+    }
+
+    static var adminContestTextHint: String {
+        switch lang {
+        case .cs: return "U volné odpovědi se losuje ze všech odpovědí."
+        case .en: return "With a free answer, winners are drawn from all answers."
+        }
+    }
+
+    static var adminContestFieldPrize: String {
+        switch lang {
+        case .cs: return "Výhra"
+        case .en: return "Prize"
+        }
+    }
+
+    static var adminContestFieldPrizeHint: String {
+        switch lang {
+        case .cs: return "Krátce, ukáže se jako štítek."
+        case .en: return "Short, it shows as a tag."
+        }
+    }
+
+    static var adminContestFieldWinners: String {
+        switch lang {
+        case .cs: return "Počet výherců"
+        case .en: return "Winners"
+        }
+    }
+
+    static var adminContestFieldEnd: String {
+        switch lang {
+        case .cs: return "Konec soutěže"
+        case .en: return "Contest ends"
+        }
+    }
+
+    static var adminContestFieldEndHint: String {
+        switch lang {
+        case .cs: return "V tu chvíli nabídka sama zmizí a odpovědi se uzavřou."
+        case .en: return "At that moment the card goes away and answers close."
+        }
+    }
+
+    static var adminContestFieldRules: String {
+        switch lang {
+        case .cs: return "Odkaz na pravidla soutěže"
+        case .en: return "Link to the contest rules"
+        }
+    }
+
+    static var adminContestFieldRulesHint: String {
+        switch lang {
+        case .cs: return "Povinné. Otevře se z detailu soutěže."
+        case .en: return "Required. It opens from the contest's detail."
+        }
+    }
+
+    static var adminContestReview: String {
+        switch lang {
+        case .cs: return "Zkontrolovat a spustit"
+        case .en: return "Review and start"
+        }
+    }
+
+    static var adminContestErrorRequired: String {
+        switch lang {
+        case .cs: return "Vyplň tohle pole."
+        case .en: return "Fill in this field."
+        }
+    }
+
+    static var adminContestErrorEnd: String {
+        switch lang {
+        case .cs: return "Konec musí být aspoň za 10 minut."
+        case .en: return "The end must be at least 10 minutes away."
+        }
+    }
+
+    static var adminContestErrorOptions: String {
+        switch lang {
+        case .cs: return "Vyplň všechny tři možnosti a označ správnou."
+        case .en: return "Fill in all three options and mark the right one."
+        }
+    }
+
+    static var adminContestErrorRules: String {
+        switch lang {
+        case .cs: return "Zadej odkaz, třeba slowdownradijo.cz/pravidla-soutezi."
+        case .en: return "Enter a link, e.g. slowdownradijo.cz/pravidla-soutezi."
+        }
+    }
+
+    static var adminContestLaunchTitle: String {
+        switch lang {
+        case .cs: return "Spustit soutěž?"
+        case .en: return "Start the contest?"
+        }
+    }
+
+    static var adminContestLaunchPreview: String {
+        switch lang {
+        case .cs: return "Takhle ji uvidí posluchači na úvodní obrazovce:"
+        case .en: return "This is how listeners will see it on the home screen:"
+        }
+    }
+
+    static var adminContestLaunchBody: String {
+        switch lang {
+        case .cs: return "Nabídka se ukáže hned všem. Po spuštění soutěž upravit nejde, jen ukončit."
+        case .en: return "The card shows to everyone at once. After the start the contest can't be edited, only ended."
+        }
+    }
+
+    static var adminContestLaunch: String {
+        switch lang {
+        case .cs: return "Spustit soutěž"
+        case .en: return "Start the contest"
+        }
+    }
+
+    static var adminContestEdit: String {
+        switch lang {
+        case .cs: return "Ještě upravit"
+        case .en: return "Keep editing"
+        }
+    }
+
+    static var adminContestRunningError: String {
+        switch lang {
+        case .cs: return "Mezitím už běží jiná soutěž."
+        case .en: return "Another contest started in the meantime."
+        }
+    }
+
+    static func adminContestEndedOn(_ date: String) -> String {
+        switch lang {
+        case .cs: return "SKONČILA \(date)"
+        case .en: return "ENDED \(date)"
+        }
+    }
+
+    static var adminContestDistribution: String {
+        switch lang {
+        case .cs: return "Rozložení odpovědí"
+        case .en: return "How the answers split"
+        }
+    }
+
+    static var adminContestCorrectMark: String {
+        switch lang {
+        case .cs: return "správná"
+        case .en: return "right"
+        }
+    }
+
+    static var adminContestAnswers: String {
+        switch lang {
+        case .cs: return "Odpovědi"
+        case .en: return "Answers"
+        }
+    }
+
+    static var adminContestNoAnswers: String {
+        switch lang {
+        case .cs: return "Zatím žádné odpovědi."
+        case .en: return "No answers yet."
+        }
+    }
+
+    static var adminContestDrawButton: String {
+        switch lang {
+        case .cs: return "Vylosovat výherce"
+        case .en: return "Draw the winners"
+        }
+    }
+
+    static var adminContestDrawAgain: String {
+        switch lang {
+        case .cs: return "Vylosovat náhradníka"
+        case .en: return "Draw a replacement"
+        }
+    }
+
+    static var adminContestExport: String {
+        switch lang {
+        case .cs: return "Exportovat CSV"
+        case .en: return "Export CSV"
+        }
+    }
+
+    static var adminContestWinners: String {
+        switch lang {
+        case .cs: return "Výherci"
+        case .en: return "Winners"
+        }
+    }
+
+    static var adminContestWinnersBody: String {
+        switch lang {
+        case .cs: return "Ozvi se jim telefonem nebo zprávou a domluv předání výhry. Telefony se smažou 30 dní po losování."
+        case .en: return "Get in touch by phone or message and arrange the prize. Phone numbers are deleted 30 days after the draw."
+        }
+    }
+
+    static var adminContestPhoneDeleted: String {
+        switch lang {
+        case .cs: return "Telefon už je smazaný"
+        case .en: return "Phone number deleted"
+        }
+    }
+
+    static var adminContestCopyPhone: String {
+        switch lang {
+        case .cs: return "Kopírovat číslo"
+        case .en: return "Copy number"
+        }
+    }
+
+    static var adminContestCall: String {
+        switch lang {
+        case .cs: return "Zavolat"
+        case .en: return "Call"
+        }
+    }
+
+    static var adminContestSMS: String {
+        switch lang {
+        case .cs: return "Napsat SMS"
+        case .en: return "Send a text"
+        }
+    }
+
+    static var adminContestPhoneCopied: String {
+        switch lang {
+        case .cs: return "Číslo je zkopírované"
+        case .en: return "Number copied"
+        }
+    }
+
+    static var adminContestNoEligible: String {
+        switch lang {
+        case .cs: return "Není z koho losovat."
+        case .en: return "There's no one left to draw."
+        }
+    }
+
+    static var adminContestStillRunning: String {
+        switch lang {
+        case .cs: return "Losovat jde až po skončení soutěže."
+        case .en: return "You can draw once the contest has ended."
+        }
+    }
+
+    static var adminContestStarted: String {
+        switch lang {
+        case .cs: return "Soutěž běží"
+        case .en: return "The contest is running"
+        }
+    }
+
+    static var adminContestEndedToast: String {
+        switch lang {
+        case .cs: return "Soutěž je ukončená"
+        case .en: return "The contest has ended"
+        }
     }
 }

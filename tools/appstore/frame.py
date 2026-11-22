@@ -8,7 +8,11 @@ soft clouds in the colours of the home screen's own (HeaderClouds). The
 clouds run on from card to card, so the five read as one strip in the App
 Store.
 
-    python3 tools/appstore/frame.py <screens dir> <output dir> [style]
+    python3 tools/appstore/frame.py <screens dir> <output dir> [style] [--play]
+
+With --bare the screen stands on its own, without a phone outline.
+With --play the cards are 1080 x 1920 (Google Play's 9:16) instead of
+1320 x 2868, for the Android screens from StoreScreenshotTest.
 
 Styles (the background): clouds (the one in use, the default), panorama
 (the sunset strip of 1.0), glow, sun, red, night.
@@ -64,6 +68,9 @@ CLOUDS = [
     (3960, 2250, 640, 600, CLOUD_RED, 0.3),
     (5280, 2500, 600, 520, CLOUD_VIOLET, 0.42),
     (6600, 2150, 560, 600, CLOUD_INDIGO, 0.55),
+    (6600, 160, 840, 640, CLOUD_PINK, 0.42),
+    (7360, 420, 760, 600, CLOUD_VIOLET, 0.5),
+    (7920, 2400, 600, 560, CLOUD_RED, 0.3),
 ]
 
 # Per screen: the caption in each language and the glow behind it
@@ -74,14 +81,14 @@ SCREENS = {
         "en": "Music picked by people,\nnot algorithms",
         "glow": [(SUN_ORANGE, 0.15), (SUN_RED, 0.85)],
     },
-    "2 sleep timer": {
-        "cs": "Usínej s rádiem,\nčasovač ho vypne",
-        "en": "Fall asleep to the radio,\nthe timer turns it off",
+    "2 chat": {
+        "cs": "Piš si s ostatními\nběhem vysílání",
+        "en": "Chat with listeners\nduring the show",
         "glow": [(SUN_RED, 0.1), (VIOLET, 0.9)],
     },
-    "3 programme": {
-        "cs": "Celý týden programu\ns připomínkami",
-        "en": "The whole week's shows,\nwith reminders",
+    "3 profile": {
+        "cs": "Staň se\nSlowriderem",
+        "en": "Become\na Slowrider",
         "glow": [(VIOLET, 0.2), (LIVE_RED, 0.95)],
     },
     "4 stats": {
@@ -89,7 +96,17 @@ SCREENS = {
         "en": "Your time with the\nstation, in numbers",
         "glow": [(LIVE_RED, 0.1), (SUN_ORANGE, 0.9)],
     },
-    "5 message": {
+    "5 programme": {
+        "cs": "Celý týden programu\ns připomínkami",
+        "en": "The whole week's shows,\nwith reminders",
+        "glow": [(VIOLET, 0.2), (LIVE_RED, 0.95)],
+    },
+    "7 contest": {
+        "cs": "Soutěž o ceny\nod rádia",
+        "en": "Win prizes\nfrom the station",
+        "glow": [(SUN_YELLOW, 0.15), (SUN_ORANGE, 0.85)],
+    },
+    "6 message": {
         "cs": "Pošli vzkaz\npřímo do vysílání",
         "en": "Send a voice message\nstraight to the studio",
         "glow": [(SUN_ORANGE, 0.1), (SUN_YELLOW, 0.85)],
@@ -100,6 +117,7 @@ PHONE_W = 960                 # the screen's width on the card
 BEZEL = 26
 SCREEN_RADIUS = 118
 PHONE_TOP = 640
+BARE = False  # --bare: the screen without a phone outline
 
 
 ORDER = list(SCREENS)
@@ -253,8 +271,21 @@ def frame(screen_path, lang, key, out_path, style="clouds"):
     else:
         draw.multiline_text(origin, text, font=font, fill=(255, 255, 255), spacing=26, align="center")
 
-    # The screen in a phone outline, with a soft shadow.
     screen = Image.open(screen_path).convert("RGB")
+    if BARE:
+        # No phone: the screen itself with rounded corners and a soft shadow.
+        sh = round(screen.height * PHONE_W / screen.width)
+        screen = screen.resize((PHONE_W, sh), Image.LANCZOS)
+        px = (W - PHONE_W) // 2
+        shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        ImageDraw.Draw(shadow).rounded_rectangle((px, PHONE_TOP + 24, px + PHONE_W, PHONE_TOP + 24 + sh), 48, fill=(0, 0, 0, 140))
+        shadow = shadow.filter(ImageFilter.GaussianBlur(44))
+        card = Image.alpha_composite(card.convert("RGBA"), shadow)
+        card.paste(screen, (px, PHONE_TOP), rounded(screen.size, 48))
+        card.convert("RGB").save(out_path)
+        return
+
+    # The screen in a phone outline, with a soft shadow.
     sh = round(screen.height * PHONE_W / screen.width)
     screen = screen.resize((PHONE_W, sh), Image.LANCZOS)
     pw, ph = PHONE_W + 2 * BEZEL, sh + 2 * BEZEL
@@ -277,9 +308,25 @@ def frame(screen_path, lang, key, out_path, style="clouds"):
     card.convert("RGB").save(out_path)
 
 
+def use_play_size():
+    """Google Play wants 9:16 (1080 x 1920): the same card, drawn at
+    1320 x 2347 with a smaller phone, scaled down on save."""
+    global H, PHONE_W, PHONE_TOP, SCREEN_RADIUS, CLOUDS, _cloud_strip
+    scale = 2347 / H
+    CLOUDS = [(cx, cy * scale, rx, ry * scale, c, k) for cx, cy, rx, ry, c, k in CLOUDS]
+    H, PHONE_W, PHONE_TOP, SCREEN_RADIUS = 2347, 860, 600, 70
+    _cloud_strip = None
+
+
 def main():
-    src, out = sys.argv[1], sys.argv[2]
-    style = sys.argv[3] if len(sys.argv) > 3 else "clouds"
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    play = "--play" in sys.argv
+    global BARE
+    BARE = "--bare" in sys.argv
+    src, out = args[0], args[1]
+    style = args[2] if len(args) > 2 else "clouds"
+    if play:
+        use_play_size()
     os.makedirs(out, exist_ok=True)
     for path in sorted(glob.glob(os.path.join(src, "*"))):
         name = os.path.splitext(os.path.basename(path))[0].replace("_", " ")
@@ -288,6 +335,8 @@ def main():
             continue
         target = os.path.join(out, f"{lang} {key}.png")
         frame(path, lang, key, target, style)
+        if play:
+            Image.open(target).convert("RGB").resize((1080, 1920), Image.LANCZOS).save(target)
         print(target)
 
 

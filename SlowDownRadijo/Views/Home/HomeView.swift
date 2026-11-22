@@ -24,6 +24,19 @@ struct HomeView: View {
     /// explainer sheet below only appears once, ever.
     @AppStorage("hasSeenFavoritesIntro") private var hasSeenFavoritesIntro = false
     @State private var isShowingFavoritesIntro = false
+    /// The chat sheet, opened from the home page section — with the
+    /// keyboard up when the listener tapped the field.
+    @State private var chatOpening: ChatOpening?
+    /// The running contest: its card under the player and its page.
+    @ObservedObject private var contests = ContestService.shared
+    @State private var openContest: ContestService.Contest?
+    @State private var contestToDismiss: ContestService.Contest?
+    @Environment(\.scenePhase) private var scenePhase
+
+    struct ChatOpening: Identifiable {
+        let id = UUID()
+        let withKeyboard: Bool
+    }
 
     var body: some View {
         ScrollView {
@@ -32,6 +45,29 @@ struct HomeView: View {
                     .padding(.top, AppHeaderView.topInset)
 
                 nowPlayingHeader
+
+                // Figma "Soutěže" H1: between the player and the chat.
+                if let contest = contests.infoboxContest {
+                    ContestInfobox(
+                        contest: contest,
+                        onOpen: {
+                            Analytics.shared.track(.contestInfoboxTapped(contestID: contest.id))
+                            openContest = contest
+                        },
+                        onClose: { contestToDismiss = contest }
+                    )
+                    .movesWithScroll()
+                    .padding(.top, Theme.Spacing.xl)
+                    .transition(.reveal)
+                    .onAppear { contests.infoboxShown(contest) }
+                }
+
+                ChatHomeSection { withKeyboard in
+                    Analytics.shared.track(.chatOpened(source: withKeyboard ? "home_field" : "home_section", account: AccountService.shared.analyticsAccount))
+                    chatOpening = ChatOpening(withKeyboard: withKeyboard)
+                }
+                .movesWithScroll()
+                .padding(.top, Theme.Spacing.xl)
 
                 // Figma's "scroll-content" wrapper spaces its top-level
                 // sections (now-playing card, stats, Pořady) 32pt apart —
@@ -66,6 +102,7 @@ struct HomeView: View {
             }
             .padding(.horizontal, 20)
             .padding(.bottom, Theme.Spacing.xl)
+            .animation(Motion.smoothOut(Motion.medium), value: contests.infoboxContest?.id)
             // Behind the header and the show, edge to edge, scrolling away
             // with them.
             .background(alignment: .top) {
@@ -87,6 +124,47 @@ struct HomeView: View {
             guard FeatureFlags.nowPlayingHistoryAndFavorites, newCount > oldCount, !hasSeenFavoritesIntro else { return }
             hasSeenFavoritesIntro = true
             isShowingFavoritesIntro = true
+        }
+        // "Otevřít chat" after linking a DJ account.
+        .onReceive(ChatService.shared.$openRequestID.compactMap { $0 }) { _ in
+            Analytics.shared.track(.chatOpened(source: "invite", account: AccountService.shared.analyticsAccount))
+            chatOpening = ChatOpening(withKeyboard: false)
+        }
+        .sheet(item: $chatOpening) { opening in
+            ChatSheetView(nowPlaying: nowPlaying, scheduleStore: scheduleStore, focusComposer: opening.withKeyboard)
+                .presentationDetents(Self.chatDetents)
+                .presentationDragIndicator(.visible)
+                .presentationCornerRadius(24)
+                .presentationBackground(Theme.statsCard)
+                .presentationContentInteraction(.scrolls)
+                .appTextSizeLimit()
+        }
+        .sheet(item: $openContest) { contest in
+            ContestSheetView(snapshot: contest)
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+                .presentationCornerRadius(24)
+                .presentationBackground(Theme.background)
+                .appTextSizeLimit()
+        }
+        // H2: closing the card for good asks first.
+        .confirmationDialog(
+            L10n.contestDismissTitle,
+            isPresented: Binding(get: { contestToDismiss != nil }, set: { if !$0 { contestToDismiss = nil } }),
+            titleVisibility: .visible,
+            presenting: contestToDismiss
+        ) { contest in
+            Button(L10n.contestDismissConfirm, role: .destructive) { contests.dismiss(contest) }
+            Button(L10n.contestKeep, role: .cancel) {}
+        } message: { contest in
+            Text(L10n.contestDismissBody(contest.title))
+        }
+        .task { await contests.refresh() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { Task { await contests.refresh() } }
+        }
+        .onReceive(AccountService.shared.$state.removeDuplicates().dropFirst()) { _ in
+            Task { await contests.refresh() }
         }
         .sheet(isPresented: $isShowingFavoritesIntro) {
             FavoritesIntroView()
@@ -226,7 +304,7 @@ struct HomeView: View {
                         // width steady.
                         TimelineView(.periodic(from: .now, by: 1)) { context in
                             PopNumberText(
-                                text: remainingLabel(now: context.date),
+                                text: remainingLabel(now: AppClock.now), // ticks with the timeline (moved in store screenshots)
                                 font: Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline).monospacedDigit(),
                                 color: Theme.mutedText
                             )
@@ -441,5 +519,16 @@ struct HomeView: View {
 private extension Array {
     subscript(safe index: Int) -> Element? {
         indices.contains(index) ? self[index] : nil
+    }
+}
+
+extension HomeView {
+    /// The chat sheet's sizes; store screenshots open it at full height so
+    /// the whole conversation shows.
+    static var chatDetents: Set<PresentationDetent> {
+        #if DEBUG
+        if StoreDemo.isOn { return [.large] }
+        #endif
+        return [.fraction(0.72), .large]
     }
 }
