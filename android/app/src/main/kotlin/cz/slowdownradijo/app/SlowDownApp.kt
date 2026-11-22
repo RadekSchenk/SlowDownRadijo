@@ -88,6 +88,12 @@ class SlowDownApp : Application() {
     val account by lazy { AccountService(supabase, sessions, scope) }
     /** The superadmin's "Správa chatu" (Profil). */
     val chatAdmin by lazy { cz.slowdownradijo.app.chat.ChatAdmin(supabase) }
+    /** The contest on the home screen (028_contests.sql). */
+    val contests by lazy {
+        cz.slowdownradijo.app.contests.ContestService(supabase, sessions, getSharedPreferences("contests", MODE_PRIVATE), { analytics }, scope)
+    }
+    /** Profil ▸ Správa ▸ Soutěže for admins and the superadmin. */
+    val contestAdmin by lazy { cz.slowdownradijo.app.contests.ContestAdmin(supabase, contests) { analytics } }
     /** The listeners' chat; follows new messages while the app is in front. */
     val chat by lazy { cz.slowdownradijo.app.chat.ChatService(supabase, account, getSharedPreferences("chat", MODE_PRIVATE), scope) }
 

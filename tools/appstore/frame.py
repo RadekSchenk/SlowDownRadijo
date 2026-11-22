@@ -101,6 +101,11 @@ SCREENS = {
         "en": "The whole week's shows,\nwith reminders",
         "glow": [(VIOLET, 0.2), (LIVE_RED, 0.95)],
     },
+    "7 contest": {
+        "cs": "Soutěž o ceny\nod rádia",
+        "en": "Win prizes\nfrom the station",
+        "glow": [(SUN_YELLOW, 0.15), (SUN_ORANGE, 0.85)],
+    },
     "6 message": {
         "cs": "Pošli vzkaz\npřímo do vysílání",
         "en": "Send a voice message\nstraight to the studio",

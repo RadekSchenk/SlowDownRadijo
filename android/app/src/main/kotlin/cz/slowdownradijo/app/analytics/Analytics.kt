@@ -95,6 +95,24 @@ sealed class AnalyticsEvent(val name: String, val properties: Map<String, Any>) 
     class ChatUserHidden : AnalyticsEvent("chat_user_hidden", emptyMap())
     class DjInviteOpened(valid: Boolean?) : AnalyticsEvent("dj_invite_opened", mapOf("valid" to when (valid) { true -> "yes"; false -> "no"; null -> "unknown" }))
     class DjInviteClaimed(success: Boolean) : AnalyticsEvent("dj_invite_claimed", mapOf("success" to success))
+    /** Contests (1.3): the home card and the answer. */
+    class ContestInfoboxShown(contestId: Long) : AnalyticsEvent("contest_infobox_shown", mapOf("contest_id" to contestId))
+    class ContestInfoboxTapped(contestId: Long) : AnalyticsEvent("contest_infobox_tapped", mapOf("contest_id" to contestId))
+    class ContestInfoboxDismissed(contestId: Long) : AnalyticsEvent("contest_infobox_dismissed", mapOf("contest_id" to contestId))
+    /** [error]: closed, alreadyEntered, answerInvalid, phoneInvalid, accountRequired, offline, other. */
+    class ContestEntrySubmitted(contestId: Long, answerType: String, success: Boolean, error: String?) : AnalyticsEvent(
+        "contest_entry_submitted",
+        buildMap {
+            put("contest_id", contestId)
+            put("answer_type", answerType)
+            put("success", success)
+            if (error != null) put("error", error)
+        },
+    )
+    /** Admins (Profil → Správa → Soutěže). */
+    class AdminContestCreated(answerType: String, winners: Int) : AnalyticsEvent("admin_contest_created", mapOf("answer_type" to answerType, "winners" to winners))
+    class AdminContestEnded : AnalyticsEvent("admin_contest_ended", emptyMap())
+    class AdminContestDrawn(replacement: Boolean) : AnalyticsEvent("admin_contest_drawn", mapOf("replacement" to replacement))
 
     companion object {
         fun rounded(seconds: Int, step: Int = 10) = maxOf(0, (seconds.toDouble() / step).roundToInt() * step)

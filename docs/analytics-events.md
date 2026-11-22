@@ -172,3 +172,19 @@ Až bude přístup do GA4:
 - **Identifiers ▸ Device ID**: Analytics (náhodné ID PostHogu), nepropojeno, bez sledování.
 - **Identifiers ▸ User ID**: App Functionality (anonymní ID statistik).
 - Další údaje (zpětná vazba, vzkaz, diagnostika) beze změny, viz `PrivacyInfo.xcprivacy`.
+
+#### Soutěže (od 1.3, implementováno v obou appkách)
+
+| událost | kdy | vlastnosti |
+|---|---|---|
+| `contest_infobox_shown` | žlutá nabídka soutěže se poprvé za spuštění ukázala na homepage | `contest_id` |
+| `contest_infobox_tapped` | klepnutí na nabídku (otevře soutěž) | `contest_id` |
+| `contest_infobox_dismissed` | posluchač nabídku zavřel křížkem a potvrdil „Zavřít a nesoutěžit“ | `contest_id` |
+| `contest_entry_submitted` | odeslání odpovědi | `contest_id`; `answer_type`: `choice` / `text`; `success`; `error`: `closed`, `alreadyEntered`, `answerInvalid`, `phoneInvalid`, `accountRequired`, `offline`, `other` |
+| `registration_prompt_shown` / `account_registered` | registrace ze soutěže | `reason` / `source`: `contest` |
+| `admin_contest_created` | správce spustil soutěž | `answer_type`, `winners` |
+| `admin_contest_ended` | předčasné ukončení | — |
+| `admin_contest_drawn` | losování | `replacement` (náhradník) |
+
+Nikdy se neposílá odpověď ani telefon. Konverze: funnel `contest_infobox_tapped` → `registration_prompt_shown` (reason = contest) → `account_registered` (source = contest) → `contest_entry_submitted` (success).
+

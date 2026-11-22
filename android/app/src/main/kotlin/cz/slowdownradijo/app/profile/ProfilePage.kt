@@ -45,7 +45,7 @@ import cz.slowdownradijo.app.ui.theme.Theme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-private enum class ProfileRoute { MAIN, EMAIL, NICKNAME, HIDDEN, RULES, ADMIN }
+private enum class ProfileRoute { MAIN, EMAIL, NICKNAME, HIDDEN, RULES, ADMIN, CONTESTS }
 
 private const val PRIVACY_POLICY = "https://slowdownradijo.cz/ochrana-osobnich-udaju/"
 
@@ -64,6 +64,8 @@ fun ProfilePage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit = {}) {
     var hiddenUsers by remember { mutableStateOf<List<AccountService.HiddenUser>?>(null) }
     val scope = rememberCoroutineScope()
     var adminRoute by remember { mutableStateOf<AdminRoute>(AdminRoute.Moderators) }
+    var contestRoute by remember { mutableStateOf<cz.slowdownradijo.app.contests.ContestAdminRoute>(cz.slowdownradijo.app.contests.ContestAdminRoute.List) }
+    val runningContest by app.contests.current.collectAsStateWithLifecycle()
     var registerReason by remember { mutableStateOf<String?>(null) }
     var registerEmail by remember { mutableStateOf(false) }
     val statsVersion by app.stats.version.collectAsStateWithLifecycle()
@@ -95,6 +97,8 @@ fun ProfilePage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit = {}) {
         },
         onAdminModerators = { adminRoute = AdminRoute.Moderators; route = ProfileRoute.ADMIN },
         onAdminAdmins = { adminRoute = AdminRoute.Admins; route = ProfileRoute.ADMIN },
+        onAdminContests = { contestRoute = cz.slowdownradijo.app.contests.ContestAdminRoute.List; route = ProfileRoute.CONTESTS },
+        contestRunning = runningContest?.isRunning() == true,
     )
     LaunchedEffect(state) { if (state is AccountService.State.SignedIn) registerReason = null }
     BackHandler(route == ProfileRoute.ADMIN) {
@@ -103,6 +107,11 @@ fun ProfilePage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit = {}) {
             AdminRoute.AddAdmin -> AdminRoute.Admins
             else -> { route = ProfileRoute.MAIN; adminRoute }
         }
+    }
+
+    BackHandler(route == ProfileRoute.CONTESTS) {
+        if (contestRoute == cz.slowdownradijo.app.contests.ContestAdminRoute.List) route = ProfileRoute.MAIN
+        else contestRoute = cz.slowdownradijo.app.contests.ContestAdminRoute.List
     }
 
     fun toast(text: String) = ToastCenter.show(ToastCenter.Toast(Icons.Rounded.ErrorOutline, text))
@@ -118,6 +127,9 @@ fun ProfilePage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit = {}) {
             }
         }
         ProfileRoute.ADMIN -> AdminFlow(adminRoute) { next -> if (next == null) route = ProfileRoute.MAIN else adminRoute = next }
+        ProfileRoute.CONTESTS -> cz.slowdownradijo.app.contests.ContestAdminFlow(contestRoute) { next ->
+            if (next == null) route = ProfileRoute.MAIN else contestRoute = next
+        }
         ProfileRoute.EMAIL -> EmailSignInScreen(
             sendCode = account::sendEmailCode,
             verify = account::verifyEmailCode,
@@ -237,7 +249,7 @@ private tailrec fun Context.findActivity(): Activity? = when (this) {
 /** "Přezdívku změníš s účtem" / the Slowrider card's sign-up (Figma Profil M8). */
 @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
-private fun RegisterSheet(
+internal fun RegisterSheet(
     reason: String,
     nickname: String,
     busy: Boolean,

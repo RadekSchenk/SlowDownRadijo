@@ -12,8 +12,8 @@ Czech and English; best while a show with a host is on air. Upload the
 files in the artifact's `framed-6.3` folder (1206 x 2622): App Store
 Connect's iPhone slot is the 6.1"/6.3" Dynamic Island size.
 
-The 1.3 set (Morning Coffee, chat, profile, stats, programme, message; taken with
-`-storeDemo YES`, so any time of day) is in `appstore/screenshots/6.3/{cs,en}`
+The 1.3 set (Morning Coffee with the contest card, chat, profile of `cevapcicidisko`, stats, programme, message, the contest page; taken with
+`-storeDemo YES -contestDemo YES`, so any time of day) is in `appstore/screenshots/6.3/{cs,en}`
 (upload these) and `appstore/screenshots/6.9/{cs,en}`.
 
 ## App information
@@ -36,11 +36,11 @@ Hip hop, soul, jazz a funk
 
 **Promotional text**
 
-Poslouchej rádio, kde hudbu vybírají lidi, ne algoritmy. Nově s chatem posluchačů, profilem Slowridera a novými statistikami.
+Poslouchej rádio, kde hudbu vybírají lidi, ne algoritmy. Nově s chatem posluchačů, profilem Slowridera a soutěžemi o ceny.
 
 **Keywords**
 
-radio,rádio,hiphop,rap,soul,funk,jazz,afrobeat,beats,groove,stream,živě,praha,chat
+radio,rádio,hiphop,rap,soul,funk,jazz,afrobeat,beats,groove,stream,živě,praha,chat,soutěž
 
 **Description**
 
@@ -54,6 +54,7 @@ CO APPKA UMÍ
 • Program na celý týden s popisy pořadů a připomínkou, když začíná tvůj oblíbený
 • Tvoje statistiky poslechu: dnešek, týden, celkový čas, oblíbené pořady a místo mezi posluchači
 • Profil Slowridera: s volitelným účtem si změníš přezdívku a statistiky ti zůstanou i na novém telefonu
+• Soutěže o ceny od rádia – odpověz na otázku přímo v appce (pro Slowridery s účtem)
 • Hlasový vzkaz do rádia – nahraj pozdrav nebo přání a pošli ho moderátorům
 • Kvalita zvuku podle připojení: na Wi-Fi naplno, na datech úsporně
 • Časovač vypnutí, novinky z rádia a widget na plochu
@@ -74,11 +75,11 @@ Hip hop, soul, jazz and funk
 
 **Promotional text**
 
-Listen to radio where people pick the music, not algorithms. Now with a listeners' chat, Slowrider profiles and new stats.
+Listen to radio where people pick the music, not algorithms. Now with a listeners' chat, Slowrider profiles and contests with prizes.
 
 **Keywords**
 
-radio,hiphop,rap,soul,funk,jazz,afrobeat,beats,groove,stream,live,online,prague,czech,chat
+radio,hiphop,rap,soul,funk,jazz,afrobeat,beats,groove,stream,live,online,prague,czech,chat,contest
 
 **Description**
 
@@ -92,6 +93,7 @@ WHAT IT DOES
 • The whole week's schedule with show descriptions and a reminder when your favourite starts
 • Your listening stats: today, this week, all time, your favourite shows and where you are among listeners
 • Slowrider profile: with an optional account you can change your nickname and keep your stats on a new phone
+• Contests with prizes from the station – answer the question right in the app (for Slowriders with an account)
 • Voice messages to the station – record a shout-out or a request and send it to the hosts
 • Sound quality to match your connection: full quality on Wi-Fi, data-saving on mobile
 • A sleep timer, news from the station and a Home Screen widget
@@ -157,6 +159,7 @@ Version" (cs and en). Version 1.0 had none.
 • Nové statistiky: dnešek a týden na první pohled, místo mezi posluchači.
 • Lepší zvuk: na Wi-Fi ve vysoké kvalitě, na datech úsporně.
 • V autě začne rádio hrát hned po otevření.
+• Soutěže: když rádio vyhlásí soutěž, uvidíš ji na úvodní obrazovce. Odpověz, nech nám telefon a hraj o ceny. Soutěžit můžou Slowriders s účtem.
 ```
 
 **1.3 — English**
@@ -167,6 +170,7 @@ Version" (cs and en). Version 1.0 had none.
 • New stats: today and this week at a glance, and where you are among listeners.
 • Better sound: high quality on Wi-Fi, data-saving on mobile.
 • In the car, the radio starts playing as soon as you open the app.
+• Contests: when the station runs a contest, you'll see it on the home screen. Answer, leave your phone number and play for prizes. Open to Slowriders with an account.
 ```
 
 ## Releasing a new version
@@ -191,6 +195,7 @@ Tracking → No for every type.
 | Data type | What it is | Purposes | Linked to the user |
 |---|---|---|---|
 | Contact Info → Email Address | The account's e-mail (1.3: optional account, only to write in the chat) | App Functionality | Yes |
+| Contact Info → Phone Number | 1.3: the phone number a Slowrider leaves when entering a contest, to contact the winner; deleted 30 days after the draw | App Functionality | Yes |
 | Identifiers → User ID | The random anonymous ID behind the listening stats, which becomes the account when the listener signs in; the chat nickname | App Functionality | Yes |
 | Identifiers → Device ID | PostHog's random analytics ID, only with consent | Analytics | No |
 | Usage Data → Product Interaction | Listening seconds per day and show; with consent, which features are used | App Functionality, Analytics | Yes |
@@ -198,7 +203,7 @@ Tracking → No for every type.
 | User Content → Other User Content | Chat messages (public in the app, with the nickname); the text of feedback messages | App Functionality | Yes |
 | Diagnostics → Other Diagnostic Data | App and iOS version and device model sent with feedback | App Functionality | No |
 
-Not collected: name, phone number, location, health, financial info, contacts,
+Not collected: name, location, health, financial info, contacts,
 browsing or search history, purchases, photos, crash data, sensitive
 info.
 
@@ -251,7 +256,7 @@ The app plays only the station's own live broadcast, the same stream offered at 
 
 ```
 1. SCREEN RECORDING
-A screen recording from an iPhone on the latest iOS is attached. It shows the live stream starting, the show, host and song on air, earlier songs, the sleep timer, the output picker, the weekly schedule with a reminder, the listeners' chat, the Profil tab, listening stats, a voice message and the menu.
+A screen recording from an iPhone on the latest iOS is attached. It shows the live stream starting, the show, host and song on air, earlier songs, the sleep timer, the output picker, the weekly schedule with a reminder, the listeners' chat, the contest card and page, the Profil tab, listening stats, a voice message and the menu.
 
 2. PURPOSE AND AUDIENCE
 Slow Down Rádijo is the official app of Slow Down Radio s.r.o., an internet radio station in Prague playing hip hop, soul, funk, jazz, Afrobeat and electronica hand-picked by its DJs. For listeners: one tap to play live, in the background and from the lock screen and CarPlay, with what is on air, the weekly schedule, a sleep timer, personal listening stats, voice messages to the studio and a listeners' chat.
@@ -284,6 +289,9 @@ The app plays only the station's own live broadcast, the same stream as at slowd
 7. ACCOUNT AND LISTENERS' CHAT (NEW IN 1.3)
 Anyone can read and write in the chat: the first message asks for a nickname, no account needed. An optional account (Sign in with Apple, Google or an e-mail code) lets the listener change the nickname and keeps the profile and stats on a new phone. Delete it in the app: Profil > Smazat účet.
 Safeguards (guideline 1.2): chat rules in Profil > Pravidla chatu; press and hold a message to report it or hide its author; the station's hosts and admins moderate (delete, mute for 1 h / 24 h / 7 days, block); anti-spam limits (5 messages per 30 s, no repeats within a minute, links only from accounts); reports are reviewed by the station; contact info@slowdownradijo.cz.
+
+8. CONTESTS (NEW IN 1.3, GUIDELINE 5.3)
+When the station runs a contest, a yellow card appears on the Rádio tab (it can be closed for good). The contest page shows the text, the prize, the end date, a link to the official rules (slowdownradijo.cz/pravidla-soutezi/) and the question. Entering needs a free account; the listener answers and leaves a phone number, used only to contact the winner. Entry is free, no purchase. The sponsor is Slow Down Radio s.r.o.; the page says that Apple and Google are not sponsors. Winners are drawn at random in the app by the station's admins. If no contest is running during review, the card is not shown.
 ```
 
 Keep it in step with the app: a new external service, account,

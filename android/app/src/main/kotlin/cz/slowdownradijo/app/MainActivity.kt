@@ -343,6 +343,50 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
             },
         ),
     ) {
+        // Figma "Soutěže" H1–H2: the contest card between the player and the chat.
+        val contest by app.contests.current.collectAsStateWithLifecycle()
+        val dismissedContests by app.contests.dismissed.collectAsStateWithLifecycle()
+        val accountState by app.account.state.collectAsStateWithLifecycle()
+        var openContest by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<cz.slowdownradijo.app.contests.ContestService.Contest?>(null) }
+        var dismissingContest by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<cz.slowdownradijo.app.contests.ContestService.Contest?>(null) }
+        androidx.compose.runtime.LaunchedEffect(accountState) { app.contests.refresh() }
+        val contestScope = androidx.compose.runtime.rememberCoroutineScope()
+        androidx.lifecycle.compose.LifecycleResumeEffect(Unit) {
+            val job = contestScope.launch { app.contests.refresh() }
+            onPauseOrDispose { job.cancel() }
+        }
+        val infobox = app.contests.infoboxContest(contest, dismissedContests, now)
+        androidx.compose.animation.AnimatedVisibility(
+            visible = infobox != null,
+            enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.expandVertically(),
+            exit = androidx.compose.animation.fadeOut() + androidx.compose.animation.shrinkVertically(),
+        ) {
+            val shown = infobox ?: return@AnimatedVisibility
+            androidx.compose.runtime.LaunchedEffect(shown.id) { app.contests.infoboxShown(shown) }
+            cz.slowdownradijo.app.contests.ContestInfobox(
+                shown,
+                onOpen = {
+                    app.analytics.track(AnalyticsEvent.ContestInfoboxTapped(shown.id))
+                    openContest = shown
+                },
+                onClose = { dismissingContest = shown },
+                modifier = Modifier.padding(top = Theme.Spacing.xl),
+            )
+        }
+        openContest?.let { cz.slowdownradijo.app.contests.ContestSheet(it) { openContest = null } }
+        dismissingContest?.let { shown ->
+            cz.slowdownradijo.app.profile.ConfirmDialog(
+                androidx.compose.ui.res.stringResource(R.string.contestDismissTitle),
+                androidx.compose.ui.res.stringResource(R.string.contestDismissBody, shown.title),
+                androidx.compose.ui.res.stringResource(R.string.contestDismissConfirm),
+                destructive = true,
+                cancel = androidx.compose.ui.res.stringResource(R.string.contestKeep),
+                onDismiss = { dismissingContest = null },
+            ) {
+                dismissingContest = null
+                app.contests.dismiss(shown)
+            }
+        }
         val chatState by app.chat.state.collectAsStateWithLifecycle()
         var chatOpening by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<Boolean?>(null) }
         // "Otevřít chat" after linking a DJ account.

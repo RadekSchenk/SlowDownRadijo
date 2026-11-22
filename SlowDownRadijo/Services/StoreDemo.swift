@@ -22,12 +22,14 @@ enum StoreDemo {
     // MARK: Profil
 
     static var me: AccountService.Me {
-        var me = AccountService.Me(userID: UUID(uuidString: "00000000-0000-0000-0000-00000000A001")!, nickname: "vinylovy_tom")
+        var me = AccountService.Me(userID: UUID(uuidString: "00000000-0000-0000-0000-00000000A001")!, nickname: "cevapcicidisko")
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(identifier: "Europe/Prague")!
         me.registeredAt = calendar.date(from: DateComponents(year: 2026, month: 9, day: 14, hour: 12))
         me.chatMessagesCount = 48
         me.voiceMessagesCount = 3
+        // `-contestDemo admin`: the contest admin pages in Profil.
+        if UserDefaults.standard.string(forKey: "contestDemo") == "admin" { me.isAdmin = true }
         return me
     }
 
@@ -62,7 +64,7 @@ enum StoreDemo {
         return [
             pinned,
             message(2, "kafe_s_mlekem", e ? "Good morning from tram number 9 🚋" : "Dobré ráno z tramvaje číslo 9 🚋", minutesAgo: 12),
-            message(3, "vinylovy_tom", e ? "That intro woke me up better than an espresso" : "Ten úvod mě probudil líp než espresso", minutesAgo: 10, user: me.userID),
+            message(3, "cevapcicidisko", e ? "That intro woke me up better than an espresso" : "Ten úvod mě probudil líp než espresso", minutesAgo: 10, user: me.userID),
             message(4, "DJ Pufaz", e ? "Thanks! Something by Khruangbin is coming up, stay tuned 🙌" : "Díky! Za chvíli přijde něco od Khruangbin, vydržte 🙌", minutesAgo: 9, role: .dj, user: pufaz),
             message(5, "jana_z_letne", e ? "Hello to the whole office in Smíchov ☀️" : "Pozdrav celé kanceláři na Smíchově ☀️", minutesAgo: 7),
             message(6, "nela", "🔥", minutesAgo: 5.0),

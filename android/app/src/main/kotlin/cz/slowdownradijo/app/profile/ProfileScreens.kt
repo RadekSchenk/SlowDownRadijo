@@ -96,6 +96,9 @@ data class ProfileActions(
     val onRegister: (reason: String) -> Unit = {},
     val onAdminModerators: () -> Unit = {},
     val onAdminAdmins: () -> Unit = {},
+    val onAdminContests: () -> Unit = {},
+    /** "Běží" next to Soutěže. */
+    val contestRunning: Boolean = false,
     /** Switches to the Statistiky tab (the row under the Slowrider card). */
     val onOpenStats: () -> Unit = {},
     val checkNickname: suspend (String) -> NicknameCheck? = { null },
@@ -222,11 +225,22 @@ private fun SignedIn(state: State.SignedIn, actions: ProfileActions, now: Instan
             if (me != null && (me.blocked || (me.mutedUntil?.isAfter(now) == true))) MutedBanner(me.mutedUntil, me.blocked, now)
         }
         if (me != null) SlowrideDashboard(me, stats, now, actions.onOpenStats, actions.onNickname)
-        if (me?.isSuperadmin == true) {
+        // Figma "Soutěže" P1/P2: contests for admins and the superadmin, moderators
+        // and admins for the superadmin only.
+        if (me?.isSuperadmin == true || me?.isAdmin == true) {
             ProfileSection(stringResource(R.string.adminSection)) {
-                ProfileRow(stringResource(R.string.adminModerators), onClick = actions.onAdminModerators)
-                ListDivider()
-                ProfileRow(stringResource(R.string.adminAdmins), onClick = actions.onAdminAdmins)
+                ProfileRow(
+                    stringResource(R.string.adminContests),
+                    if (actions.contestRunning) stringResource(R.string.adminContestsRunning) else null,
+                    valueColor = Theme.sunYellow,
+                    onClick = actions.onAdminContests,
+                )
+                if (me.isSuperadmin) {
+                    ListDivider()
+                    ProfileRow(stringResource(R.string.adminModerators), onClick = actions.onAdminModerators)
+                    ListDivider()
+                    ProfileRow(stringResource(R.string.adminAdmins), onClick = actions.onAdminAdmins)
+                }
             }
         }
         ProfileSection(stringResource(R.string.profileChatSection)) {
@@ -285,7 +299,7 @@ fun ProfileSection(title: String, content: @Composable () -> Unit) {
 }
 
 @Composable
-fun ProfileRow(title: String, value: String? = null, chevron: Boolean = true, destructive: Boolean = false, onClick: (() -> Unit)? = null) {
+fun ProfileRow(title: String, value: String? = null, chevron: Boolean = true, destructive: Boolean = false, valueColor: Color = Theme.mutedText, onClick: (() -> Unit)? = null) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -295,7 +309,7 @@ fun ProfileRow(title: String, value: String? = null, chevron: Boolean = true, de
         horizontalArrangement = Arrangement.spacedBy(Theme.Spacing.sm),
     ) {
         Text(title, style = Theme.Typography.Heading.item, color = if (destructive) Theme.liveRed else Theme.textPrimary, modifier = Modifier.weight(1f))
-        if (value != null) Text(value, style = Theme.Typography.Copy.body, color = Theme.mutedText, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        if (value != null) Text(value, style = Theme.Typography.Copy.body, color = valueColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
         if (chevron) Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null, tint = Theme.subtleText, modifier = Modifier.size(22.dp))
     }
 }
@@ -751,7 +765,7 @@ fun SubPage(title: String, back: () -> Unit, content: @Composable () -> Unit) {
 }
 
 @Composable
-fun ConfirmDialog(title: String, body: String, confirm: String, destructive: Boolean, onDismiss: () -> Unit, onConfirm: () -> Unit) {
+fun ConfirmDialog(title: String, body: String, confirm: String, destructive: Boolean, cancel: String? = null, onDismiss: () -> Unit, onConfirm: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = Theme.statsCard,
@@ -761,7 +775,7 @@ fun ConfirmDialog(title: String, body: String, confirm: String, destructive: Boo
             TextButton(onClick = onConfirm) { Text(confirm, style = Theme.Typography.Copy.link, color = if (destructive) Theme.liveRed else Theme.textPrimary) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel), style = Theme.Typography.Copy.link, color = Theme.mutedText) }
+            TextButton(onClick = onDismiss) { Text(cancel ?: stringResource(R.string.cancel), style = Theme.Typography.Copy.link, color = Theme.mutedText) }
         },
     )
 }

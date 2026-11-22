@@ -2914,8 +2914,8 @@ extension L10n {
 
     static var adminSection: String {
         switch lang {
-        case .cs: return "Správa chatu"
-        case .en: return "Chat admin"
+        case .cs: return "Správa"
+        case .en: return "Admin"
         }
     }
 
@@ -3405,6 +3405,787 @@ extension L10n {
         switch lang {
         case .cs: return "Tvoje oblíbené pořady"
         case .en: return "Your favourite shows"
+        }
+    }
+}
+
+// MARK: - Soutěže (1.3, Figma page "Soutěže")
+
+extension L10n {
+    static var contestBadge: String {
+        switch lang {
+        case .cs: return "SOUTĚŽ"
+        case .en: return "CONTEST"
+        }
+    }
+
+    static var contestJoin: String {
+        switch lang {
+        case .cs: return "Zapojit se"
+        case .en: return "Enter"
+        }
+    }
+
+    static func contestUntil(_ date: String) -> String {
+        switch lang {
+        case .cs: return "Do \(date)"
+        case .en: return "Until \(date)"
+        }
+    }
+
+    static var contestCloseLabel: String {
+        switch lang {
+        case .cs: return "Zavřít soutěž"
+        case .en: return "Close the contest"
+        }
+    }
+
+    static var contestDismissTitle: String {
+        switch lang {
+        case .cs: return "Zavřít soutěž?"
+        case .en: return "Close the contest?"
+        }
+    }
+
+    static func contestDismissBody(_ title: String) -> String {
+        switch lang {
+        case .cs: return "Nabídka zmizí a do soutěže „\(title)“ se už nebudeš moct zapojit. Vrátit to nepůjde."
+        case .en: return "The card goes away and you won't be able to enter “\(title)”. This can't be undone."
+        }
+    }
+
+    static var contestDismissConfirm: String {
+        switch lang {
+        case .cs: return "Zavřít a nesoutěžit"
+        case .en: return "Close and skip it"
+        }
+    }
+
+    static var contestKeep: String {
+        switch lang {
+        case .cs: return "Nechat soutěž"
+        case .en: return "Keep the contest"
+        }
+    }
+
+    static var contestFactUntil: String {
+        switch lang {
+        case .cs: return "Do"
+        case .en: return "Until"
+        }
+    }
+
+    static var contestFactPrize: String {
+        switch lang {
+        case .cs: return "Výhra"
+        case .en: return "Prize"
+        }
+    }
+
+    static var contestRules: String {
+        switch lang {
+        case .cs: return "Pravidla soutěže"
+        case .en: return "Contest rules"
+        }
+    }
+
+    static var contestQuestion: String {
+        switch lang {
+        case .cs: return "OTÁZKA"
+        case .en: return "QUESTION"
+        }
+    }
+
+    static var contestGateTitle: String {
+        switch lang {
+        case .cs: return "Soutěžit můžou jen Slowriders"
+        case .en: return "Only Slowriders can enter"
+        }
+    }
+
+    static var contestGateBody: String {
+        switch lang {
+        case .cs: return "Přihlas se nebo si založ účet, zabere to pár vteřin. Účet ti pohlídá i statistiky poslechu a přezdívku v chatu."
+        case .en: return "Sign in or create an account, it takes a few seconds. Your account also keeps your listening stats and your chat nickname."
+        }
+    }
+
+    static var contestGateButton: String {
+        switch lang {
+        case .cs: return "Přihlásit se a soutěžit"
+        case .en: return "Sign in and enter"
+        }
+    }
+
+    static var contestAnswerLabel: String {
+        switch lang {
+        case .cs: return "Tvoje odpověď"
+        case .en: return "Your answer"
+        }
+    }
+
+    static var contestAnswerPlaceholder: String {
+        switch lang {
+        case .cs: return "Napiš odpověď"
+        case .en: return "Type your answer"
+        }
+    }
+
+    static var contestPhoneLabel: String {
+        switch lang {
+        case .cs: return "Telefon"
+        case .en: return "Phone"
+        }
+    }
+
+    static var contestPhoneHint: String {
+        switch lang {
+        case .cs: return "Zavoláme jen výherci. Po losování číslo smažeme."
+        case .en: return "We only call the winner and delete the number after the draw."
+        }
+    }
+
+    static var contestConsent: String {
+        switch lang {
+        case .cs: return "Odesláním souhlasíš s pravidly soutěže. Telefon použijeme jen pro kontaktování výherce. Soutěž pořádá Slow Down Radio s.r.o., Apple ani Google ji nesponzorují."
+        case .en: return "By sending you agree to the contest rules. We only use your phone number to contact the winner. The contest is run by Slow Down Radio s.r.o. and is not sponsored by Apple or Google."
+        }
+    }
+
+    static var contestSubmit: String {
+        switch lang {
+        case .cs: return "Odeslat odpověď"
+        case .en: return "Send answer"
+        }
+    }
+
+    static var contestSending: String {
+        switch lang {
+        case .cs: return "Odesílám…"
+        case .en: return "Sending…"
+        }
+    }
+
+    static var contestErrorPickOption: String {
+        switch lang {
+        case .cs: return "Vyber jednu z odpovědí."
+        case .en: return "Pick one of the answers."
+        }
+    }
+
+    static var contestErrorAnswer: String {
+        switch lang {
+        case .cs: return "Napiš odpověď."
+        case .en: return "Write an answer."
+        }
+    }
+
+    static var contestErrorPhone: String {
+        switch lang {
+        case .cs: return "Zadej celé číslo, třeba +420 777 123 456."
+        case .en: return "Enter the full number, e.g. +420 777 123 456."
+        }
+    }
+
+    static var contestSendFailedTitle: String {
+        switch lang {
+        case .cs: return "Odpověď se nepodařilo odeslat"
+        case .en: return "Your answer wasn't sent"
+        }
+    }
+
+    static var contestSendFailedBody: String {
+        switch lang {
+        case .cs: return "Zkontroluj připojení a zkus to znovu. Vyplněné údaje ti necháme."
+        case .en: return "Check your connection and try again. We'll keep what you filled in."
+        }
+    }
+
+    static var contestRetry: String {
+        switch lang {
+        case .cs: return "Zkusit znovu"
+        case .en: return "Try again"
+        }
+    }
+
+    static var contestSentTitle: String {
+        switch lang {
+        case .cs: return "Jsi ve hře!"
+        case .en: return "You're in!"
+        }
+    }
+
+    static func contestSentBody(_ date: String) -> String {
+        switch lang {
+        case .cs: return "Odpověď dorazila. Losujeme po skončení soutěže (\(date)). Když vyhraješ, ozveme se ti."
+        case .en: return "Your answer is in. We draw after the contest ends (\(date)). If you win, we'll get in touch."
+        }
+    }
+
+    static var contestEnteredTitle: String {
+        switch lang {
+        case .cs: return "Už jsi v soutěži"
+        case .en: return "You've already entered"
+        }
+    }
+
+    static var contestEnteredBody: String {
+        switch lang {
+        case .cs: return "Do téhle soutěže máš odpověď odeslanou. Změnit ji už nejde, držíme palce."
+        case .en: return "You've sent your answer to this contest. It can't be changed now. Fingers crossed."
+        }
+    }
+
+    static var contestSummaryAnswer: String {
+        switch lang {
+        case .cs: return "Tvoje odpověď"
+        case .en: return "Your answer"
+        }
+    }
+
+    static var contestSummaryPhone: String {
+        switch lang {
+        case .cs: return "Telefon"
+        case .en: return "Phone"
+        }
+    }
+
+    static var contestSummarySent: String {
+        switch lang {
+        case .cs: return "Odesláno"
+        case .en: return "Sent"
+        }
+    }
+
+    static var contestSummaryDraw: String {
+        switch lang {
+        case .cs: return "Losování"
+        case .en: return "Draw"
+        }
+    }
+
+    static func contestDrawAfter(_ date: String) -> String {
+        switch lang {
+        case .cs: return "po \(date)"
+        case .en: return "after \(date)"
+        }
+    }
+
+    static var contestBackToRadio: String {
+        switch lang {
+        case .cs: return "Zpět do rádia"
+        case .en: return "Back to the radio"
+        }
+    }
+
+    static var contestEndedTitle: String {
+        switch lang {
+        case .cs: return "Soutěž už skončila"
+        case .en: return "This contest has ended"
+        }
+    }
+
+    static var contestEndedBody: String {
+        switch lang {
+        case .cs: return "Výherce oznámíme ve vysílání. Další soutěž se objeví na úvodní obrazovce."
+        case .en: return "We'll announce the winners on air. The next contest will show up on the home screen."
+        }
+    }
+
+    static var adminContests: String {
+        switch lang {
+        case .cs: return "Soutěže"
+        case .en: return "Contests"
+        }
+    }
+
+    static var adminContestsRunning: String {
+        switch lang {
+        case .cs: return "Běží"
+        case .en: return "Running"
+        }
+    }
+
+    static var adminContestsBody: String {
+        switch lang {
+        case .cs: return "Naráz běží jen jedna soutěž. Vidí ji všichni na úvodní obrazovce, soutěžit můžou jen přihlášení."
+        case .en: return "Only one contest runs at a time. Everyone sees it on the home screen; only signed-in listeners can enter."
+        }
+    }
+
+    static var adminContestRunningBadge: String {
+        switch lang {
+        case .cs: return "BĚŽÍ"
+        case .en: return "RUNNING"
+        }
+    }
+
+    static func adminContestRunningInfo(_ start: String, _ end: String) -> String {
+        switch lang {
+        case .cs: return "Spuštěno \(start) · končí \(end)"
+        case .en: return "Started \(start) · ends \(end)"
+        }
+    }
+
+    static var adminContestEntries: String {
+        switch lang {
+        case .cs: return "odpovědí"
+        case .en: return "answers"
+        }
+    }
+
+    static var adminContestCorrect: String {
+        switch lang {
+        case .cs: return "správně"
+        case .en: return "correct"
+        }
+    }
+
+    static var adminContestDismissed: String {
+        switch lang {
+        case .cs: return "zavřelo"
+        case .en: return "closed it"
+        }
+    }
+
+    static var adminContestWinnersCount: String {
+        switch lang {
+        case .cs: return "výherci"
+        case .en: return "winners"
+        }
+    }
+
+    static var adminContestAnswersRow: String {
+        switch lang {
+        case .cs: return "Odpovědi a losování"
+        case .en: return "Answers and draw"
+        }
+    }
+
+    static var adminContestEnd: String {
+        switch lang {
+        case .cs: return "Ukončit soutěž"
+        case .en: return "End the contest"
+        }
+    }
+
+    static var adminContestEndTitle: String {
+        switch lang {
+        case .cs: return "Ukončit soutěž předčasně?"
+        case .en: return "End the contest early?"
+        }
+    }
+
+    static var adminContestEndBody: String {
+        switch lang {
+        case .cs: return "Nabídka z úvodní obrazovky hned zmizí a další odpovědi už nepřijmeme. Odeslané odpovědi zůstanou a půjde z nich losovat."
+        case .en: return "The card leaves the home screen at once and no more answers are taken. The answers sent so far stay and can be drawn."
+        }
+    }
+
+    static var adminContestKeepRunning: String {
+        switch lang {
+        case .cs: return "Nechat běžet"
+        case .en: return "Keep it running"
+        }
+    }
+
+    static var adminContestNoneTitle: String {
+        switch lang {
+        case .cs: return "Teď neběží žádná soutěž"
+        case .en: return "No contest is running"
+        }
+    }
+
+    static var adminContestNoneBody: String {
+        switch lang {
+        case .cs: return "Nabídka na úvodní obrazovce je schovaná."
+        case .en: return "The home screen card is hidden."
+        }
+    }
+
+    static var adminContestNew: String {
+        switch lang {
+        case .cs: return "Nová soutěž"
+        case .en: return "New contest"
+        }
+    }
+
+    static var adminContestPrevious: String {
+        switch lang {
+        case .cs: return "Předchozí"
+        case .en: return "Earlier"
+        }
+    }
+
+    static func adminContestEndedRow(_ date: String, count: Int) -> String {
+        switch lang {
+        case .cs: return "Skončila \(date) · odpovědi: \(count)"
+        case .en: return "Ended \(date) · answers: \(count)"
+        }
+    }
+
+    static func adminContestEndedEarlyRow(_ date: String, count: Int) -> String {
+        switch lang {
+        case .cs: return "Ukončena předčasně \(date) · odpovědi: \(count)"
+        case .en: return "Ended early \(date) · answers: \(count)"
+        }
+    }
+
+    static var adminContestAwaitingDraw: String {
+        switch lang {
+        case .cs: return "Čeká na losování"
+        case .en: return "Waiting for the draw"
+        }
+    }
+
+    static var adminContestDrawn: String {
+        switch lang {
+        case .cs: return "Vylosováno"
+        case .en: return "Drawn"
+        }
+    }
+
+    static var adminContestFieldTitle: String {
+        switch lang {
+        case .cs: return "Název (ukáže se v nabídce)"
+        case .en: return "Title (shown on the card)"
+        }
+    }
+
+    static var adminContestFieldTitleHint: String {
+        switch lang {
+        case .cs: return "Nejvýš 60 znaků."
+        case .en: return "60 characters at most."
+        }
+    }
+
+    static var adminContestFieldBody: String {
+        switch lang {
+        case .cs: return "Text soutěže"
+        case .en: return "Contest text"
+        }
+    }
+
+    static var adminContestFieldBodyHint: String {
+        switch lang {
+        case .cs: return "Celý text v detailu soutěže."
+        case .en: return "The full text in the contest's detail."
+        }
+    }
+
+    static var adminContestFieldQuestion: String {
+        switch lang {
+        case .cs: return "Otázka"
+        case .en: return "Question"
+        }
+    }
+
+    static var adminContestAnswerType: String {
+        switch lang {
+        case .cs: return "Typ odpovědi"
+        case .en: return "Answer type"
+        }
+    }
+
+    static var adminContestTypeChoice: String {
+        switch lang {
+        case .cs: return "Výběr A/B/C"
+        case .en: return "Choice A/B/C"
+        }
+    }
+
+    static var adminContestTypeText: String {
+        switch lang {
+        case .cs: return "Volná odpověď"
+        case .en: return "Free answer"
+        }
+    }
+
+    static var adminContestOptions: String {
+        switch lang {
+        case .cs: return "Možnosti a správná odpověď"
+        case .en: return "Options and the right answer"
+        }
+    }
+
+    static func adminContestOptionPlaceholder(_ letter: String) -> String {
+        switch lang {
+        case .cs: return "Možnost \(letter)"
+        case .en: return "Option \(letter)"
+        }
+    }
+
+    static var adminContestOptionsHint: String {
+        switch lang {
+        case .cs: return "Kolečkem označ správnou odpověď. Losuje se jen ze správných."
+        case .en: return "Mark the right answer with the circle. Winners are drawn from right answers only."
+        }
+    }
+
+    static var adminContestTextHint: String {
+        switch lang {
+        case .cs: return "U volné odpovědi se losuje ze všech odpovědí."
+        case .en: return "With a free answer, winners are drawn from all answers."
+        }
+    }
+
+    static var adminContestFieldPrize: String {
+        switch lang {
+        case .cs: return "Výhra"
+        case .en: return "Prize"
+        }
+    }
+
+    static var adminContestFieldPrizeHint: String {
+        switch lang {
+        case .cs: return "Krátce, ukáže se jako štítek."
+        case .en: return "Short, it shows as a tag."
+        }
+    }
+
+    static var adminContestFieldWinners: String {
+        switch lang {
+        case .cs: return "Počet výherců"
+        case .en: return "Winners"
+        }
+    }
+
+    static var adminContestFieldEnd: String {
+        switch lang {
+        case .cs: return "Konec soutěže"
+        case .en: return "Contest ends"
+        }
+    }
+
+    static var adminContestFieldEndHint: String {
+        switch lang {
+        case .cs: return "V tu chvíli nabídka sama zmizí a odpovědi se uzavřou."
+        case .en: return "At that moment the card goes away and answers close."
+        }
+    }
+
+    static var adminContestFieldRules: String {
+        switch lang {
+        case .cs: return "Odkaz na pravidla soutěže"
+        case .en: return "Link to the contest rules"
+        }
+    }
+
+    static var adminContestFieldRulesHint: String {
+        switch lang {
+        case .cs: return "Povinné. Otevře se z detailu soutěže."
+        case .en: return "Required. It opens from the contest's detail."
+        }
+    }
+
+    static var adminContestReview: String {
+        switch lang {
+        case .cs: return "Zkontrolovat a spustit"
+        case .en: return "Review and start"
+        }
+    }
+
+    static var adminContestErrorRequired: String {
+        switch lang {
+        case .cs: return "Vyplň tohle pole."
+        case .en: return "Fill in this field."
+        }
+    }
+
+    static var adminContestErrorEnd: String {
+        switch lang {
+        case .cs: return "Konec musí být aspoň za 10 minut."
+        case .en: return "The end must be at least 10 minutes away."
+        }
+    }
+
+    static var adminContestErrorOptions: String {
+        switch lang {
+        case .cs: return "Vyplň všechny tři možnosti a označ správnou."
+        case .en: return "Fill in all three options and mark the right one."
+        }
+    }
+
+    static var adminContestErrorRules: String {
+        switch lang {
+        case .cs: return "Zadej odkaz, třeba slowdownradijo.cz/pravidla-soutezi."
+        case .en: return "Enter a link, e.g. slowdownradijo.cz/pravidla-soutezi."
+        }
+    }
+
+    static var adminContestLaunchTitle: String {
+        switch lang {
+        case .cs: return "Spustit soutěž?"
+        case .en: return "Start the contest?"
+        }
+    }
+
+    static var adminContestLaunchPreview: String {
+        switch lang {
+        case .cs: return "Takhle ji uvidí posluchači na úvodní obrazovce:"
+        case .en: return "This is how listeners will see it on the home screen:"
+        }
+    }
+
+    static var adminContestLaunchBody: String {
+        switch lang {
+        case .cs: return "Nabídka se ukáže hned všem. Po spuštění soutěž upravit nejde, jen ukončit."
+        case .en: return "The card shows to everyone at once. After the start the contest can't be edited, only ended."
+        }
+    }
+
+    static var adminContestLaunch: String {
+        switch lang {
+        case .cs: return "Spustit soutěž"
+        case .en: return "Start the contest"
+        }
+    }
+
+    static var adminContestEdit: String {
+        switch lang {
+        case .cs: return "Ještě upravit"
+        case .en: return "Keep editing"
+        }
+    }
+
+    static var adminContestRunningError: String {
+        switch lang {
+        case .cs: return "Mezitím už běží jiná soutěž."
+        case .en: return "Another contest started in the meantime."
+        }
+    }
+
+    static func adminContestEndedOn(_ date: String) -> String {
+        switch lang {
+        case .cs: return "SKONČILA \(date)"
+        case .en: return "ENDED \(date)"
+        }
+    }
+
+    static var adminContestDistribution: String {
+        switch lang {
+        case .cs: return "Rozložení odpovědí"
+        case .en: return "How the answers split"
+        }
+    }
+
+    static var adminContestCorrectMark: String {
+        switch lang {
+        case .cs: return "správná"
+        case .en: return "right"
+        }
+    }
+
+    static var adminContestAnswers: String {
+        switch lang {
+        case .cs: return "Odpovědi"
+        case .en: return "Answers"
+        }
+    }
+
+    static var adminContestNoAnswers: String {
+        switch lang {
+        case .cs: return "Zatím žádné odpovědi."
+        case .en: return "No answers yet."
+        }
+    }
+
+    static var adminContestDrawButton: String {
+        switch lang {
+        case .cs: return "Vylosovat výherce"
+        case .en: return "Draw the winners"
+        }
+    }
+
+    static var adminContestDrawAgain: String {
+        switch lang {
+        case .cs: return "Vylosovat náhradníka"
+        case .en: return "Draw a replacement"
+        }
+    }
+
+    static var adminContestExport: String {
+        switch lang {
+        case .cs: return "Exportovat CSV"
+        case .en: return "Export CSV"
+        }
+    }
+
+    static var adminContestWinners: String {
+        switch lang {
+        case .cs: return "Výherci"
+        case .en: return "Winners"
+        }
+    }
+
+    static var adminContestWinnersBody: String {
+        switch lang {
+        case .cs: return "Ozvi se jim telefonem nebo zprávou a domluv předání výhry. Telefony se smažou 30 dní po losování."
+        case .en: return "Get in touch by phone or message and arrange the prize. Phone numbers are deleted 30 days after the draw."
+        }
+    }
+
+    static var adminContestPhoneDeleted: String {
+        switch lang {
+        case .cs: return "Telefon už je smazaný"
+        case .en: return "Phone number deleted"
+        }
+    }
+
+    static var adminContestCopyPhone: String {
+        switch lang {
+        case .cs: return "Kopírovat číslo"
+        case .en: return "Copy number"
+        }
+    }
+
+    static var adminContestCall: String {
+        switch lang {
+        case .cs: return "Zavolat"
+        case .en: return "Call"
+        }
+    }
+
+    static var adminContestSMS: String {
+        switch lang {
+        case .cs: return "Napsat SMS"
+        case .en: return "Send a text"
+        }
+    }
+
+    static var adminContestPhoneCopied: String {
+        switch lang {
+        case .cs: return "Číslo je zkopírované"
+        case .en: return "Number copied"
+        }
+    }
+
+    static var adminContestNoEligible: String {
+        switch lang {
+        case .cs: return "Není z koho losovat."
+        case .en: return "There's no one left to draw."
+        }
+    }
+
+    static var adminContestStillRunning: String {
+        switch lang {
+        case .cs: return "Losovat jde až po skončení soutěže."
+        case .en: return "You can draw once the contest has ended."
+        }
+    }
+
+    static var adminContestStarted: String {
+        switch lang {
+        case .cs: return "Soutěž běží"
+        case .en: return "The contest is running"
+        }
+    }
+
+    static var adminContestEndedToast: String {
+        switch lang {
+        case .cs: return "Soutěž je ukončená"
+        case .en: return "The contest has ended"
         }
     }
 }
