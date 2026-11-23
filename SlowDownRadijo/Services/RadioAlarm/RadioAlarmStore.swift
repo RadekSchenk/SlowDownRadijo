@@ -5,26 +5,38 @@ import SwiftUI
 import AlarmKit
 #endif
 
-/// "Budík s rádiem" (Figma "Budík s rádiem", docs/radio-alarm.md): at the
-/// set time the system alarm rings (AlarmKit, iOS 26+, even in silent
-/// mode). "Pustit rádio" stops it, opens the app and starts the live
-/// stream; "Odložit" is the system's snooze. With the radio playing, the
-/// home screen offers snoozing again: the radio pauses and a one-off alarm
-/// rings after the snooze time.
+/// "Budík s rádiem" (Figma "Budík s rádiem", docs/radio-alarm.md).
 ///
-/// iOS can't start the stream without that tap — AlarmKit plays an alarm
-/// sound, not the app's audio. On iOS 17–25 the feature isn't shown.
+/// When the app is still running at the alarm's time (the listener fell
+/// asleep to the radio, or just didn't swipe the app away), the radio
+/// starts by itself (`RadioAlarmNightWatch`). Otherwise the system alarm
+/// rings (AlarmKit, iOS 26+, even in silent mode): "Pustit rádio" stops it,
+/// opens the app and starts the live stream; "Odložit" is the system's
+/// snooze. With the radio playing, the home screen and a notification offer
+/// snoozing again: the radio pauses and plays again after the snooze time.
+///
+/// On iOS 17–25 the feature isn't shown.
 struct RadioAlarmSettings: Codable, Equatable {
     var isOn = false
     var hour = 6
     var minute = 30
     /// `Calendar` weekdays (1 = Sunday … 7 = Saturday); empty = once.
     var weekdays: Set<Int> = [2, 3, 4, 5, 6]
-    var snoozeMinutes = 9
+    var snoozeMinutes = 10
     /// When a one-off alarm (no weekdays) rings; it switches itself off after.
     var onceAt: Date?
 
-    static let snoozeChoices = [5, 9, 10, 15]
+    static let snoozeChoices = [5, 10, 15, 20]
+
+    /// The same alarm (time, days, snooze), whether on or not.
+    func sameAlarm(as other: RadioAlarmSettings) -> Bool {
+        hour == other.hour && minute == other.minute && weekdays == other.weekdays && snoozeMinutes == other.snoozeMinutes
+    }
+
+    /// 1.4 betas offered 9 minutes: the nearest choice now.
+    static func snapped(_ minutes: Int) -> Int {
+        snoozeChoices.min { abs($0 - minutes) < abs($1 - minutes) } ?? 10
+    }
 }
 
 @MainActor
@@ -57,6 +69,7 @@ final class RadioAlarmStore: ObservableObject {
         if let data = UserDefaults.standard.data(forKey: Self.settingsKey),
            let saved = try? JSONDecoder().decode(RadioAlarmSettings.self, from: data) {
             settings = saved
+            settings.snoozeMinutes = RadioAlarmSettings.snapped(saved.snoozeMinutes)
         } else {
             settings = RadioAlarmSettings()
         }
@@ -64,17 +77,21 @@ final class RadioAlarmStore: ObservableObject {
 
     // MARK: - Settings
 
-    /// Turns the alarm on (asking for permission the first time) or off.
-    func setOn(_ on: Bool) async {
-        var next = settings
-        next.isOn = on
-        if on, !(await authorize()) { next.isOn = false }
+    /// "Uložit budík" / "Uložit změny": the alarm is on with these settings
+    /// (asking for permission the first time). False when it isn't allowed.
+    @discardableResult
+    func save(_ draft: RadioAlarmSettings) async -> Bool {
+        guard await authorize() else { return false }
+        var next = draft
+        next.isOn = true
         await apply(next)
+        return true
     }
 
-    func update(_ change: (inout RadioAlarmSettings) -> Void) async {
+    /// "Vypnout budík": off, the time and days stay for next time.
+    func turnOff() async {
         var next = settings
-        change(&next)
+        next.isOn = false
         await apply(next)
     }
 
@@ -87,7 +104,7 @@ final class RadioAlarmStore: ObservableObject {
             var next = settings
             next.isOn = false
             next.onceAt = nil
-            save(next)
+            store(next)
             return
         }
         if settings.isOn, authorization == .authorized, !isScheduled { await schedule() }
@@ -98,11 +115,11 @@ final class RadioAlarmStore: ObservableObject {
     private func apply(_ next: RadioAlarmSettings) async {
         var next = next
         next.onceAt = next.isOn && next.weekdays.isEmpty ? Self.nextFire(after: Date(), settings: next) : nil
-        save(next)
+        store(next)
         await schedule()
     }
 
-    private func save(_ next: RadioAlarmSettings) {
+    private func store(_ next: RadioAlarmSettings) {
         settings = next
         if let data = try? JSONEncoder().encode(next) {
             UserDefaults.standard.set(data, forKey: Self.settingsKey)
@@ -111,23 +128,53 @@ final class RadioAlarmStore: ObservableObject {
 
     // MARK: - Waking up
 
-    /// "Pustit rádio" on the alarm (`PlayRadioAlarmIntent`), or the time
-    /// to play again after snoozing from the app.
-    func wake() {
+    /// "Pustit rádio" on the alarm (`PlayRadioAlarmIntent`), "Hrát hned",
+    /// or the alarm's time with the app running (`ring()`), where the
+    /// volume rises over 30 s.
+    func wake(gently: Bool = false) {
         wokeAt = Date()
         snoozedUntil = nil
-        AppServices.shared.player.play(trigger: .alarm)
+        let player = AppServices.shared.player
+        if gently {
+            if player.state != .playing { player.play(trigger: .alarm) }
+            player.rampVolume(over: 30)
+        } else {
+            player.play(trigger: .alarm)
+        }
         if settings.weekdays.isEmpty, settings.isOn {
             var next = settings
             next.isOn = false
             next.onceAt = nil
-            save(next)
+            store(next)
         }
     }
 
-    /// "Odložit" on the home card: the radio pauses, a one-off alarm rings
-    /// after the snooze time.
+    /// The alarm's time (or the end of a snooze) with the app running
+    /// (`RadioAlarmNightWatch`): the system alarm is called off and the
+    /// radio plays instead. If it isn't playing 20 s later (no internet),
+    /// the system alarm rings after all.
+    func ring(endOfSnooze: Bool) async {
+        guard Self.isSupported else { return }
+        cancel(idKey: endOfSnooze ? Self.snoozeIDKey : Self.alarmIDKey)
+        let repeating = !settings.weekdays.isEmpty && settings.isOn
+        wake(gently: true)
+        RadioAlarmNotifier.postGoodMorning(canSnooze: canSnooze)
+        try? await Task.sleep(for: .seconds(20))
+        if AppServices.shared.player.state != .playing {
+            await scheduleOnce(at: Date().addingTimeInterval(1), idKey: Self.snoozeIDKey)
+        }
+        // The repeating alarm again, from tomorrow (its time has passed).
+        if repeating, !endOfSnooze {
+            try? await Task.sleep(for: .seconds(60))
+            if settings.isOn, !isScheduled { await schedule() }
+        }
+    }
+
+    /// "Odložit" on the home card or the notification: the radio pauses
+    /// and plays again after the snooze time (a one-off alarm, in case the
+    /// app isn't running then).
     func snooze() async {
+        RadioAlarmNotifier.removeGoodMorning()
         AppServices.shared.player.pause()
         snoozeCount += 1
         let until = Date().addingTimeInterval(TimeInterval(settings.snoozeMinutes * 60))
@@ -146,6 +193,7 @@ final class RadioAlarmStore: ObservableObject {
     func done() {
         wokeAt = nil
         snoozeCount = 0
+        RadioAlarmNotifier.removeGoodMorning()
     }
 
     /// "Vyzkoušet za 10 sekund".
@@ -173,6 +221,8 @@ final class RadioAlarmStore: ObservableObject {
     var nextFire: Date? {
         settings.isOn ? (settings.onceAt ?? Self.nextFire(after: Date(), settings: settings)) : nil
     }
+
+    var isAuthorized: Bool { authorization == .authorized }
 
     // MARK: - AlarmKit
 

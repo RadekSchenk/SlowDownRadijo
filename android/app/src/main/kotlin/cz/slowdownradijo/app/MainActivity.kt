@@ -462,11 +462,11 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
             app.radioAlarm.reschedule()
             onPauseOrDispose { }
         }
-        val fire = app.radioAlarm.nextFire(settings = alarmSettings.copy(isOn = true))
         cz.slowdownradijo.app.alarm.RadioAlarmSheet(
-            cz.slowdownradijo.app.alarm.RadioAlarmSheetUi(alarmSettings, canExact, fire, fire?.let { app.schedule.currentShow(it) }),
+            cz.slowdownradijo.app.alarm.RadioAlarmSheetUi(alarmSettings, canExact, showAt = { app.schedule.currentShow(it) }),
             cz.slowdownradijo.app.alarm.RadioAlarmActions(
-                update = app.radioAlarm::update,
+                save = { app.radioAlarm.save(it); showingAlarm = false },
+                switchOff = { app.radioAlarm.switchOff(); showingAlarm = false },
                 openPermission = { runCatching { context.startActivity(app.radioAlarm.exactAlarmSettingsIntent()) } },
                 test = app.radioAlarm::test,
             ),

@@ -107,6 +107,11 @@ final class RadioPlayerService: NSObject, ObservableObject {
     private static let connectTimeout: TimeInterval = 20
     private var stallObserver: NSObjectProtocol?
     private var sleepTimer: Timer?
+    /// The radio alarm's gentle start (`rampVolume`): from 20 % up to full
+    /// over `rampDuration`, also across reconnects.
+    private var rampStart: Date?
+    private var rampDuration: TimeInterval = 30
+    private var rampTimer: Timer?
 
     /// What the lock screen, Control Center and CarPlay show — set by
     /// `NowPlayingViewModel`.
@@ -199,8 +204,37 @@ final class RadioPlayerService: NSObject, ObservableObject {
         connectTimeoutTimer?.invalidate()
         connectTimeoutTimer = nil
         player?.pause()
+        endVolumeRamp()
         state = .paused
         updateNowPlayingPlaybackRate(0)
+    }
+
+    // MARK: - Volume ramp (radio alarm)
+
+    /// The radio alarm with the app running: the volume rises from 20 %
+    /// to full over `seconds`. Pausing ends it.
+    func rampVolume(over seconds: TimeInterval) {
+        rampStart = Date()
+        rampDuration = seconds
+        player?.volume = rampVolume
+        rampTimer?.invalidate()
+        rampTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+            guard let self else { return }
+            self.player?.volume = self.rampVolume
+            if self.rampVolume >= 1 { self.endVolumeRamp() }
+        }
+    }
+
+    private var rampVolume: Float {
+        guard let rampStart else { return 1 }
+        return Float(min(1, 0.2 + 0.8 * Date().timeIntervalSince(rampStart) / rampDuration))
+    }
+
+    private func endVolumeRamp() {
+        rampTimer?.invalidate()
+        rampTimer = nil
+        rampStart = nil
+        player?.volume = 1
     }
 
     /// Called by the view model whenever the parsed now-playing metadata or
@@ -291,6 +325,7 @@ final class RadioPlayerService: NSObject, ObservableObject {
         let item = AVPlayerItem(url: stream.url)
         let newPlayer = AVPlayer(playerItem: item)
         newPlayer.automaticallyWaitsToMinimizeStalling = true
+        newPlayer.volume = rampVolume
         player = newPlayer
         playerItem = item
 

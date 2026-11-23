@@ -179,7 +179,10 @@ struct HomeView: View {
             Text(L10n.contestDismissBody(contest.title))
         }
         .task { await contests.refresh() }
-        .task { await RadioAlarmStore.shared.sync() }
+        .task {
+            RadioAlarmNightWatch.shared.start()
+            await RadioAlarmStore.shared.sync()
+        }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
                 Task { await contests.refresh() }

@@ -157,8 +157,21 @@ class ShellScreenshotTest {
         page {
             cz.slowdownradijo.app.alarm.RadioAlarmSheetContent(
                 cz.slowdownradijo.app.alarm.RadioAlarmSheetUi(
-                    cz.slowdownradijo.app.alarm.RadioAlarmSettings(isOn = true), canScheduleExact = false,
-                    nextFire = java.time.Instant.parse("2026-11-24T05:30:00Z"), showAtNextFire = show,
+                    cz.slowdownradijo.app.alarm.RadioAlarmSettings(), canScheduleExact = false, showAt = { show },
+                    zone = java.time.ZoneId.of("Europe/Prague"), now = java.time.Instant.parse("2026-11-23T12:00:00Z"),
+                ),
+                cz.slowdownradijo.app.alarm.RadioAlarmActions(),
+            )
+        }()
+    }
+
+    /** Figma C3: a saved alarm — "Uložit změny" is off until something changes. */
+    @Test fun radioAlarmSheetSaved() = capture("radio_alarm_sheet_saved_cs") {
+        val show = store.catalog.first { it.hostName != null }
+        page {
+            cz.slowdownradijo.app.alarm.RadioAlarmSheetContent(
+                cz.slowdownradijo.app.alarm.RadioAlarmSheetUi(
+                    cz.slowdownradijo.app.alarm.RadioAlarmSettings(isOn = true), canScheduleExact = true, showAt = { show },
                     zone = java.time.ZoneId.of("Europe/Prague"), now = java.time.Instant.parse("2026-11-23T12:00:00Z"),
                 ),
                 cz.slowdownradijo.app.alarm.RadioAlarmActions(),

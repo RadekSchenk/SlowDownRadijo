@@ -140,6 +140,7 @@
 		BE526974FFC2E16B5AC43D98 /* FeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A299B9FEFA5DC0289BA56D5 /* FeedbackView.swift */; };
 		C1D2BE8B1459E25B278322BB /* ShowReminderStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8944F984D451CAEBE8E36B6C /* ShowReminderStore.swift */; };
 		C2B85DFE51A39B5DEE3E5FBC /* Manrope-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B26E607347B3911B648DB65E /* Manrope-Medium.ttf */; };
+		C725C992F72DDD744807425C /* RadioAlarmNightWatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED2A21EA700D9F0F62F7D8C3 /* RadioAlarmNightWatch.swift */; };
 		C7DD2A75A4963FCAD4DF5187 /* TrackDetailsRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3080A7F705A91A1A384AE650 /* TrackDetailsRow.swift */; };
 		C83A2BE8A69C12040B5E0036 /* HomeProgramSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D89DC4EC0B30059D3BD5A06 /* HomeProgramSection.swift */; };
 		CD052FDA395F46ECB096C1B4 /* WinterSeason.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48C342469BB315C1DD54C819 /* WinterSeason.swift */; };
@@ -367,6 +368,7 @@
 		E5FF8C9E35C7D05E19886C30 /* LocalizationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationManager.swift; sourceTree = "<group>"; };
 		E8128582EC2CE40C98E9AA6B /* KeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
 		EA30370E85EA8E17C80F01B5 /* PlayButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayButton.swift; sourceTree = "<group>"; };
+		ED2A21EA700D9F0F62F7D8C3 /* RadioAlarmNightWatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioAlarmNightWatch.swift; sourceTree = "<group>"; };
 		EF77DBC6399371C00824047B /* OutputPickerButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputPickerButton.swift; sourceTree = "<group>"; };
 		F62129DCB7967DB617A04918 /* ReviewPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewPrompt.swift; sourceTree = "<group>"; };
 		F6D1D0CA2B39C3E49003DAD8 /* ListeningTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningTracker.swift; sourceTree = "<group>"; };
@@ -673,6 +675,7 @@
 			isa = PBXGroup;
 			children = (
 				AD066C4FE705D492CDDA2681 /* RadioAlarmMetadata.swift */,
+				ED2A21EA700D9F0F62F7D8C3 /* RadioAlarmNightWatch.swift */,
 				523FE219001FEB0261D8997C /* RadioAlarmStore.swift */,
 			);
 			path = RadioAlarm;
@@ -1031,6 +1034,7 @@
 				F9FE1C689A80E18D46EEA0F7 /* ProfileView.swift in Sources */,
 				6757DCD4A558606FA4151453 /* ProgramView.swift in Sources */,
 				9F993A8DD882243A3021C7B0 /* RadioAlarmMetadata.swift in Sources */,
+				C725C992F72DDD744807425C /* RadioAlarmNightWatch.swift in Sources */,
 				7C74E2E7F0489562BF2FAD20 /* RadioAlarmStore.swift in Sources */,
 				400AB3593AAE899176C9B68E /* RadioAlarmViews.swift in Sources */,
 				2658E343F77502D4F346C748 /* RadioPlayerService.swift in Sources */,

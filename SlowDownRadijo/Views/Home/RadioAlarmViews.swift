@@ -1,8 +1,9 @@
 import SwiftUI
 
-/// Figma "Budík s rádiem", B1: under "Nastavit časovač vypnutí" — falling
-/// asleep and waking up in one place. "Nastavit budík ☀" without an alarm,
-/// "Budík Po–Pá 6:30" with one. Only on iOS 26+ (AlarmKit).
+/// Figma "Budík s rádiem", C1: under "Nastavit časovač vypnutí" — falling
+/// asleep and waking up in one place. "Budit se rádiem ☀" without an alarm
+/// (or with one turned off), "Vzbudí tě rádio · Po–Pá 6:30" with one. Only
+/// on iOS 26+ (AlarmKit).
 struct RadioAlarmLink: View {
     @ObservedObject var scheduleStore: ScheduleStore
     @ObservedObject private var alarm = RadioAlarmStore.shared
@@ -31,29 +32,39 @@ struct RadioAlarmLink: View {
     }
 }
 
-/// Figma B2: the alarm's settings — on/off, the time on the system wheel,
-/// the days, snooze length, who'll be on air, and a test alarm.
+/// Figma C2 / C3: the alarm's settings — the time on the system wheel, the
+/// days, snooze length, who'll be on air and a test alarm. Nothing applies
+/// until "Uložit budík" (new or turned off) / "Uložit změny" (on; enabled
+/// only after a change). "Vypnout budík" turns it off and keeps the rest.
 struct RadioAlarmSheet: View {
     @ObservedObject var scheduleStore: ScheduleStore
     @ObservedObject private var alarm = RadioAlarmStore.shared
     @ObservedObject private var loc = LocalizationManager.shared
     @Environment(\.openURL) private var openURL
+    @Environment(\.dismiss) private var dismiss
+    @State private var draft = RadioAlarmSettings()
     @State private var time = Date()
+    @State private var isSaving = false
+
+    private var isOn: Bool { alarm.settings.isOn }
+    private var hasChanges: Bool { !draft.sameAlarm(as: alarm.settings) }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(L10n.alarmTitle)
                         .font(Theme.Typography.Heading.hero)
                         .foregroundStyle(Theme.textPrimary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    Toggle(L10n.alarmTitle, isOn: Binding(
-                        get: { alarm.settings.isOn },
-                        set: { on in Task { await alarm.setOn(on) } }
-                    ))
-                    .labelsHidden()
-                    .tint(Theme.liveRed)
+                    if isOn, let fire = alarm.nextFire {
+                        Text(L10n.alarmStatusOn(RadioAlarmFormat.when(fire)))
+                            .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
+                            .foregroundStyle(Color(hex: 0x7FD49B))
+                    } else {
+                        Text(L10n.alarmIntro)
+                            .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
+                            .foregroundStyle(Theme.mutedText)
+                    }
                 }
 
                 if alarm.authorization == .denied {
@@ -74,7 +85,8 @@ struct RadioAlarmSheet: View {
                     .background(Color.white.opacity(0.04), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                     .onChange(of: time) { _, newValue in
                         let parts = Calendar.current.dateComponents([.hour, .minute], from: newValue)
-                        Task { await alarm.update { $0.hour = parts.hour ?? 6; $0.minute = parts.minute ?? 30 } }
+                        draft.hour = parts.hour ?? 6
+                        draft.minute = parts.minute ?? 30
                     }
 
                 VStack(alignment: .leading, spacing: 10) {
@@ -91,15 +103,12 @@ struct RadioAlarmSheet: View {
                 VStack(spacing: 0) {
                     ListRow(title: L10n.alarmSnooze, subtitle: L10n.alarmSnoozeDescription) {
                         Menu {
-                            Picker(L10n.alarmSnooze, selection: Binding(
-                                get: { alarm.settings.snoozeMinutes },
-                                set: { minutes in Task { await alarm.update { $0.snoozeMinutes = minutes } } }
-                            )) {
+                            Picker(L10n.alarmSnooze, selection: $draft.snoozeMinutes) {
                                 ForEach(RadioAlarmSettings.snoozeChoices, id: \.self) { Text(L10n.alarmMinutes($0)).tag($0) }
                             }
                         } label: {
                             HStack(spacing: 4) {
-                                Text(L10n.alarmMinutes(alarm.settings.snoozeMinutes))
+                                Text(L10n.alarmMinutes(draft.snoozeMinutes))
                                     .font(Theme.Typography.Manrope.semibold(size: 15, relativeTo: .subheadline))
                                 Image(systemName: "chevron.up.chevron.down").font(.footnote.weight(.semibold))
                             }
@@ -110,7 +119,7 @@ struct RadioAlarmSheet: View {
                 .padding(.horizontal, 16)
                 .background(Theme.statsCardRaised, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
 
-                if let fire = RadioAlarmStore.nextFire(after: Date(), settings: alarm.settings),
+                if let fire = RadioAlarmStore.nextFire(after: Date(), settings: draft),
                    let show = scheduleStore.show(at: fire) {
                     HStack(spacing: 12) {
                         ShowArtworkThumb(show: show)
@@ -134,11 +143,30 @@ struct RadioAlarmSheet: View {
                     .accessibilityElement(children: .combine)
                 }
 
-                SecondaryActionButton(title: L10n.alarmTest) {
-                    Task { await alarm.test() }
+                VStack(spacing: 12) {
+                    SecondaryActionButton(title: L10n.alarmTest) {
+                        Task { await alarm.test() }
+                    }
+                    PrimaryActionButton(
+                        title: isOn ? L10n.alarmSaveChanges : L10n.alarmSave,
+                        isEnabled: !isSaving && (!isOn || hasChanges)
+                    ) {
+                        save()
+                    }
+                    if isOn {
+                        Button(action: turnOff) {
+                            Text(L10n.alarmTurnOff)
+                                .font(Theme.Typography.Copy.button)
+                                .foregroundStyle(Color(hex: 0xFF6B84))
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 48)
+                                .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(Theme.liveRed, lineWidth: 1.5))
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
 
-                StatsBodyText(L10n.alarmFootnoteIOS, color: Theme.subtleText)
+                StatsBodyText(isOn ? L10n.alarmTurnOffNote : L10n.alarmFootnoteIOS, color: Theme.subtleText)
             }
             .padding(.horizontal, 20)
             .padding(.top, 28)
@@ -149,15 +177,32 @@ struct RadioAlarmSheet: View {
         .presentationCornerRadius(24)
         .presentationBackground(Theme.statsCard)
         .onAppear {
-            time = Calendar.current.date(bySettingHour: alarm.settings.hour, minute: alarm.settings.minute, second: 0, of: Date()) ?? Date()
+            draft = alarm.settings
+            time = Calendar.current.date(bySettingHour: draft.hour, minute: draft.minute, second: 0, of: Date()) ?? Date()
         }
         .task { await alarm.sync() }
     }
 
+    private func save() {
+        isSaving = true
+        Task {
+            let saved = await alarm.save(draft)
+            isSaving = false
+            if saved { dismiss() }
+        }
+    }
+
+    private func turnOff() {
+        Task {
+            await alarm.turnOff()
+            dismiss()
+        }
+    }
+
     private func dayChip(_ weekday: Int) -> some View {
-        let isOn = alarm.settings.weekdays.contains(weekday)
+        let isOn = draft.weekdays.contains(weekday)
         return Button {
-            Task { await alarm.update { if isOn { $0.weekdays.remove(weekday) } else { $0.weekdays.insert(weekday) } } }
+            if isOn { draft.weekdays.remove(weekday) } else { draft.weekdays.insert(weekday) }
         } label: {
             Text(L10n.shortDayName(weekday: weekday))
                 .font(isOn ? Theme.Typography.Manrope.extraBold(size: 13, relativeTo: .footnote)

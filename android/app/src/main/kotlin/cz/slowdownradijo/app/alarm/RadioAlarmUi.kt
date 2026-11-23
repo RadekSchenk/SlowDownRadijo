@@ -1,6 +1,7 @@
 package cz.slowdownradijo.app.alarm
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -27,6 +29,10 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -41,7 +47,7 @@ import cz.slowdownradijo.app.R
 import cz.slowdownradijo.app.data.Show
 import cz.slowdownradijo.app.l10n.L10nLogic
 import cz.slowdownradijo.app.l10n.LocalAppLanguage
-import cz.slowdownradijo.app.ui.components.AppSwitch
+import cz.slowdownradijo.app.ui.components.PrimaryActionButton
 import cz.slowdownradijo.app.ui.components.SecondaryActionButton
 import cz.slowdownradijo.app.ui.theme.Theme
 import java.time.Instant
@@ -50,7 +56,7 @@ import java.time.ZonedDateTime
 
 private val Sun = Color(0xFFF2C25B)
 
-/** Figma "Budík s rádiem" B1: under "Nastavit časovač vypnutí" — "Nastavit budík ☀", or the alarm's days and time. */
+/** Figma "Budík s rádiem" C1: under "Nastavit časovač vypnutí" — "Budit se rádiem ☀", or "Vzbudí tě rádio · Po–Pá 6:30". */
 @Composable
 fun RadioAlarmLink(settings: RadioAlarmSettings, onClick: () -> Unit) {
     val english = LocalAppLanguage.current.isEnglish
@@ -65,21 +71,28 @@ fun RadioAlarmLink(settings: RadioAlarmSettings, onClick: () -> Unit) {
 
 /** Everything the alarm sheet shows, so screenshot tests can set it. */
 data class RadioAlarmSheetUi(
+    /** As saved: [RadioAlarmSettings.isOn] says whether it's a new alarm or one to change. */
     val settings: RadioAlarmSettings,
     val canScheduleExact: Boolean,
-    val nextFire: Instant?,
-    val showAtNextFire: Show?,
+    val showAt: (Instant) -> Show? = { null },
     val zone: ZoneId = ZoneId.systemDefault(),
     val now: Instant = Instant.now(),
+    /** Screenshot tests: the sheet after a change. */
+    val initialDraft: RadioAlarmSettings? = null,
 )
 
 class RadioAlarmActions(
-    val update: ((RadioAlarmSettings) -> RadioAlarmSettings) -> Unit = {},
+    val save: (RadioAlarmSettings) -> Unit = {},
+    val switchOff: () -> Unit = {},
     val openPermission: () -> Unit = {},
     val test: () -> Unit = {},
 )
 
-/** Figma B2: on/off, the time, the days, snooze length, who'll be on air, a test alarm. */
+/**
+ * Figma C2 / C3: the time, the days, snooze length, who'll be on air, a test alarm. Nothing applies
+ * until "Uložit budík" (new or turned off) / "Uložit změny" (on; enabled only after a change).
+ * "Vypnout budík" turns it off and keeps the rest.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RadioAlarmSheet(ui: RadioAlarmSheetUi, actions: RadioAlarmActions, onDismiss: () -> Unit) {
@@ -97,7 +110,9 @@ fun RadioAlarmSheet(ui: RadioAlarmSheetUi, actions: RadioAlarmActions, onDismiss
 @Composable
 fun RadioAlarmSheetContent(ui: RadioAlarmSheetUi, actions: RadioAlarmActions) {
     val english = LocalAppLanguage.current.isEnglish
-    val settings = ui.settings
+    val saved = ui.settings
+    var settings by remember(saved) { mutableStateOf(ui.initialDraft ?: saved) }
+    val hasChanges = !settings.sameAlarm(saved)
     Column(
         Modifier
             .fillMaxWidth()
@@ -107,12 +122,14 @@ fun RadioAlarmSheetContent(ui: RadioAlarmSheetUi, actions: RadioAlarmActions) {
             .navigationBarsPadding(),
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(stringResource(R.string.alarmTitle), style = Theme.Typography.Heading.hero, color = Theme.textPrimary, modifier = Modifier.weight(1f))
-            AppSwitch(settings.isOn, { on ->
-                if (on && !ui.canScheduleExact) actions.openPermission()
-                actions.update { it.copy(isOn = on) }
-            }, stringResource(R.string.alarmTitle))
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(stringResource(R.string.alarmTitle), style = Theme.Typography.Heading.hero, color = Theme.textPrimary)
+            val savedFire = if (saved.isOn) RadioAlarm.nextFire(ui.now, saved, ui.zone) else null
+            if (savedFire != null) {
+                Text(stringResource(R.string.alarmStatusOn, whenLabel(english, savedFire, ui.now, ui.zone)), style = Theme.Typography.manrope(14f, FontWeight.SemiBold), color = Color(0xFF7FD49B))
+            } else {
+                Text(stringResource(R.string.alarmIntro), style = Theme.Typography.manrope(14f, FontWeight.SemiBold), color = Theme.mutedText)
+            }
         }
 
         if (!ui.canScheduleExact) {
@@ -128,7 +145,7 @@ fun RadioAlarmSheetContent(ui: RadioAlarmSheetUi, actions: RadioAlarmActions) {
 
         val time = rememberTimePickerState(initialHour = settings.hour, initialMinute = settings.minute, is24Hour = true)
         LaunchedEffect(time.hour, time.minute) {
-            if (time.hour != settings.hour || time.minute != settings.minute) actions.update { it.copy(hour = time.hour, minute = time.minute) }
+            if (time.hour != settings.hour || time.minute != settings.minute) settings = settings.copy(hour = time.hour, minute = time.minute)
         }
         Box(Modifier.fillMaxWidth().background(Color.White.copy(alpha = 0.04f), RoundedCornerShape(18.dp)).padding(vertical = 16.dp), contentAlignment = Alignment.Center) {
             TimeInput(
@@ -152,7 +169,7 @@ fun RadioAlarmSheetContent(ui: RadioAlarmSheetUi, actions: RadioAlarmActions) {
                             .weight(1f)
                             .aspectRatio(1f)
                             .background(if (on) Theme.liveRed else Color.White.copy(alpha = 0.06f), CircleShape)
-                            .clickable { actions.update { it.copy(weekdays = if (on) it.weekdays - day else it.weekdays + day) } }
+                            .clickable { settings = settings.copy(weekdays = if (on) settings.weekdays - day else settings.weekdays + day) }
                             .semantics { selected = on },
                         contentAlignment = Alignment.Center,
                     ) {
@@ -176,7 +193,7 @@ fun RadioAlarmSheetContent(ui: RadioAlarmSheetUi, actions: RadioAlarmActions) {
                         Modifier
                             .weight(1f)
                             .background(if (on) Color(0xFF3A2F5C) else Color.White.copy(alpha = 0.05f), RoundedCornerShape(10.dp))
-                            .clickable { actions.update { it.copy(snoozeMinutes = minutes) } }
+                            .clickable { settings = settings.copy(snoozeMinutes = minutes) }
                             .semantics { selected = on }
                             .padding(vertical = 10.dp),
                         contentAlignment = Alignment.Center,
@@ -187,8 +204,8 @@ fun RadioAlarmSheetContent(ui: RadioAlarmSheetUi, actions: RadioAlarmActions) {
             }
         }
 
-        val fire = ui.nextFire
-        val show = ui.showAtNextFire
+        val fire = RadioAlarm.nextFire(ui.now, settings, ui.zone)
+        val show = fire?.let(ui.showAt)
         if (fire != null && show != null) {
             Column(
                 Modifier.fillMaxWidth().background(Color.White.copy(alpha = 0.04f), RoundedCornerShape(16.dp)).padding(14.dp).semantics(mergeDescendants = true) {},
@@ -200,8 +217,29 @@ fun RadioAlarmSheetContent(ui: RadioAlarmSheetUi, actions: RadioAlarmActions) {
             }
         }
 
-        SecondaryActionButton(stringResource(R.string.alarmTest), onClick = actions.test)
-        Text(stringResource(R.string.alarmFootnoteAndroid), style = Theme.Typography.manrope(13f, FontWeight.Normal).copy(lineHeight = 18.sp), color = Theme.subtleText)
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            SecondaryActionButton(stringResource(R.string.alarmTest), onClick = actions.test)
+            PrimaryActionButton(
+                stringResource(if (saved.isOn) R.string.alarmSaveChanges else R.string.alarmSave),
+                enabled = !saved.isOn || hasChanges,
+            ) {
+                if (!ui.canScheduleExact) actions.openPermission()
+                actions.save(settings)
+            }
+            if (saved.isOn) {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .border(1.5.dp, Theme.liveRed, RoundedCornerShape(10.dp))
+                        .clickable(onClick = actions.switchOff),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(stringResource(R.string.alarmTurnOff), style = Theme.Typography.Copy.button, color = Color(0xFFFF6B84))
+                }
+            }
+        }
+        Text(stringResource(if (saved.isOn) R.string.alarmTurnOffNote else R.string.alarmFootnoteAndroid), style = Theme.Typography.manrope(13f, FontWeight.Normal).copy(lineHeight = 18.sp), color = Theme.subtleText)
     }
 }
 

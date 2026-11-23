@@ -1003,8 +1003,57 @@ enum L10n {
 
     static var alarmSet: String {
         switch lang {
-        case .cs: return "Nastavit budík"
-        case .en: return "Set an alarm"
+        case .cs: return "Budit se rádiem"
+        case .en: return "Wake up to the radio"
+        }
+    }
+
+    static var alarmIntro: String {
+        switch lang {
+        case .cs: return "Ráno tě vzbudí živé vysílání Slow Down Rádija."
+        case .en: return "Wake up to Slow Down Rádijo live."
+        }
+    }
+
+    static var alarmSave: String {
+        switch lang {
+        case .cs: return "Uložit budík"
+        case .en: return "Save alarm"
+        }
+    }
+
+    static var alarmSaveChanges: String {
+        switch lang {
+        case .cs: return "Uložit změny"
+        case .en: return "Save changes"
+        }
+    }
+
+    static var alarmTurnOff: String {
+        switch lang {
+        case .cs: return "Vypnout budík"
+        case .en: return "Turn off alarm"
+        }
+    }
+
+    static var alarmTurnOffNote: String {
+        switch lang {
+        case .cs: return "Vypnutím se nastavení neztratí – příště stačí budík jen znovu uložit."
+        case .en: return "Turning it off keeps the settings – next time just save the alarm again."
+        }
+    }
+
+    static var alarmPlayingNow: String {
+        switch lang {
+        case .cs: return "Budík pustil rádio."
+        case .en: return "Your alarm started the radio."
+        }
+    }
+
+    static func alarmStatusOn(_ when: String) -> String {
+        switch lang {
+        case .cs: return "Zapnutý · \(when)"
+        case .en: return "On · \(when)"
         }
     }
 
@@ -1052,8 +1101,8 @@ enum L10n {
 
     static var alarmSnoozeDescription: String {
         switch lang {
-        case .cs: return "Kolik minut se po „Odložit“ počká"
-        case .en: return "How long “Snooze” waits"
+        case .cs: return "5, 10, 15 nebo 20 minut"
+        case .en: return "5, 10, 15 or 20 minutes"
         }
     }
 
@@ -1080,8 +1129,8 @@ enum L10n {
 
     static var alarmFootnoteIOS: String {
         switch lang {
-        case .cs: return "Budík zazvoní i v tichém režimu. Rádio pustíš tlačítkem „Pustit rádio“ — iPhone ho bez klepnutí spustit nedovolí."
-        case .en: return "The alarm rings even in silent mode. Tap “Play radio” to start the radio — iPhone won’t start it without a tap."
+        case .cs: return "Když appku přes noc nezavřeš, vzbudí tě rovnou rádio. Jinak zazvoní budík (i v tichém režimu) a rádio pustíš tlačítkem „Pustit rádio“."
+        case .en: return "If you don’t close the app overnight, the radio itself wakes you. Otherwise the alarm rings (even in silent mode) and “Play radio” starts the radio."
         }
     }
 
@@ -1178,8 +1227,8 @@ enum L10n {
 
     static func alarmRow(_ when: String) -> String {
         switch lang {
-        case .cs: return "Budík \(when)"
-        case .en: return "Alarm \(when)"
+        case .cs: return "Vzbudí tě rádio · \(when)"
+        case .en: return "Radio wakes you · \(when)"
         }
     }
 

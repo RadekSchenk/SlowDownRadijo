@@ -46,10 +46,17 @@ data class RadioAlarmSettings(
     val hour: Int = 6,
     val minute: Int = 30,
     val weekdays: Set<Int> = setOf(1, 2, 3, 4, 5),
-    val snoozeMinutes: Int = 9,
+    val snoozeMinutes: Int = 10,
 ) {
+    /** The same alarm (time, days, snooze), whether on or not. */
+    fun sameAlarm(other: RadioAlarmSettings): Boolean =
+        hour == other.hour && minute == other.minute && weekdays == other.weekdays && snoozeMinutes == other.snoozeMinutes
+
     companion object {
-        val SNOOZE_CHOICES = listOf(5, 9, 10, 15)
+        val SNOOZE_CHOICES = listOf(5, 10, 15, 20)
+
+        /** 1.4 betas offered 9 minutes: the nearest choice now. */
+        fun snapped(minutes: Int): Int = SNOOZE_CHOICES.minBy { kotlin.math.abs(it - minutes) }
     }
 }
 
@@ -64,7 +71,7 @@ class RadioAlarm(private val context: Context, private val scope: CoroutineScope
     private val prefs = context.getSharedPreferences("radioAlarm", Context.MODE_PRIVATE)
     private val json = Json { ignoreUnknownKeys = true }
 
-    private val _settings = MutableStateFlow(prefs.getString(SETTINGS, null)?.let { runCatching { json.decodeFromString<RadioAlarmSettings>(it) }.getOrNull() } ?: RadioAlarmSettings())
+    private val _settings = MutableStateFlow(prefs.getString(SETTINGS, null)?.let { runCatching { json.decodeFromString<RadioAlarmSettings>(it) }.getOrNull() } ?.let { it.copy(snoozeMinutes = RadioAlarmSettings.snapped(it.snoozeMinutes)) } ?: RadioAlarmSettings())
     val settings: StateFlow<RadioAlarmSettings> = _settings.asStateFlow()
 
     /** The radio was started by the alarm at this moment (the "Dobré ráno" card for 15 minutes). */
@@ -97,6 +104,12 @@ class RadioAlarm(private val context: Context, private val scope: CoroutineScope
         prefs.edit().putString(SETTINGS, json.encodeToString(RadioAlarmSettings.serializer(), next)).apply()
         reschedule()
     }
+
+    /** "Uložit budík" / "Uložit změny": on, with these settings. */
+    fun save(draft: RadioAlarmSettings) = update { draft.copy(isOn = true) }
+
+    /** "Vypnout budík": off, the time and days stay for next time. */
+    fun switchOff() = update { it.copy(isOn = false) }
 
     /** The next time it rings, from [after]. */
     fun nextFire(after: Instant = Instant.now(), settings: RadioAlarmSettings = _settings.value): Instant? {
