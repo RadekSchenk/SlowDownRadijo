@@ -125,6 +125,9 @@
     <string name="settingsTitle">Settings</string>
     <string name="settingsAutoplayTitle">Autoplay</string>
     <string name="settingsAutoplayDescription">The app starts playing as soon as it opens, without tapping Play.</string>
+    <string name="winterLookTitle">Winter look</string>
+    <string name="winterLookDescription">Snow in the header and a Christmas bauble in the logo. From the first Sunday of Advent to Epiphany.</string>
+    <string name="winterChristmasWish">Happy holidays from Slow Down Rádijo</string>
     <string name="streamQualityTitle">Sound quality</string>
     <string name="streamQualityDescription">Automatic plays in high quality on Wi-Fi (MP3 160 kbps) and saves data on mobile (AAC 32 kbps).</string>
     <string name="streamQualityAuto">Automatic</string>

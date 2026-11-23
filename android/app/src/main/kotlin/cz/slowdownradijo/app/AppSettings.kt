@@ -22,6 +22,15 @@ class AppSettings(context: Context) {
     /** Which live stream plays: automatic by network, always MP3, or always AAC. */
     val streamQuality: StateFlow<StreamQuality> = _streamQuality.asStateFlow()
 
+    private val _winterLook = MutableStateFlow(prefs.getBoolean(WINTER_LOOK, true))
+    /** "Zimní vzhled" in its season ([cz.slowdownradijo.app.winter.WinterSeason]); the choice stays for later years. */
+    val winterLook: StateFlow<Boolean> = _winterLook.asStateFlow()
+
+    fun setWinterLook(on: Boolean) {
+        prefs.edit().putBoolean(WINTER_LOOK, on).apply()
+        _winterLook.value = on
+    }
+
     fun setAutoplay(on: Boolean) {
         prefs.edit().putBoolean(AUTOPLAY, on).apply()
         _autoplay.value = on
@@ -41,5 +50,6 @@ class AppSettings(context: Context) {
         const val AUTOPLAY = "autoplayEnabled"
         const val STATS = "statsEnabled"
         const val STREAM_QUALITY = "streamQuality"
+        const val WINTER_LOOK = "winterLookEnabled"
     }
 }

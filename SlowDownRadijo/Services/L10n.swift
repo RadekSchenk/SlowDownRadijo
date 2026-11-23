@@ -992,6 +992,29 @@ enum L10n {
         }
     }
 
+    // MARK: Winter look (WinterSeason)
+
+    static var winterLookTitle: String {
+        switch lang {
+        case .cs: return "Zimní vzhled"
+        case .en: return "Winter look"
+        }
+    }
+
+    static var winterLookDescription: String {
+        switch lang {
+        case .cs: return "Sněžení v záhlaví a vánoční ozdoba v logu. Od první adventní neděle do Tří králů."
+        case .en: return "Snow in the header and a Christmas bauble in the logo. From the first Sunday of Advent to Epiphany."
+        }
+    }
+
+    static var winterChristmasWish: String {
+        switch lang {
+        case .cs: return "Klidné svátky přeje Slow Down Rádijo"
+        case .en: return "Happy holidays from Slow Down Rádijo"
+        }
+    }
+
     static var streamQualityTitle: String {
         switch lang {
         case .cs: return "Kvalita zvuku"

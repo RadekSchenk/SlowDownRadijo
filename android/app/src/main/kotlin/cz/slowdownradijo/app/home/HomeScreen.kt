@@ -61,6 +61,8 @@ import cz.slowdownradijo.app.l10n.LocalAppLanguage
 import cz.slowdownradijo.app.player.PlaybackState
 import cz.slowdownradijo.app.ui.components.Hamburger
 import cz.slowdownradijo.app.ui.components.LocalAnimationsEnabled
+import cz.slowdownradijo.app.winter.WinterBauble
+import cz.slowdownradijo.app.winter.winterSnow
 import cz.slowdownradijo.app.ui.components.LocalReduceMotion
 import cz.slowdownradijo.app.ui.theme.Theme
 import java.time.Duration
@@ -75,6 +77,8 @@ data class HomeUi(
     val output: AudioOutputInfo = AudioOutputInfo.phone,
     /** The songs before the one playing now, newest first (`RecentSongs`). */
     val earlierSongs: List<RecentSong> = emptyList(),
+    /** "Zimní vzhled" ([cz.slowdownradijo.app.winter.WinterSeason]): snow in the header, the bauble on the logo. */
+    val winter: Boolean = false,
 )
 
 class HomeActions(
@@ -104,6 +108,8 @@ fun HomeScreen(ui: HomeUi, actions: HomeActions, below: @Composable ColumnScope.
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .headerClouds(isPlaying)
+                // In front of the clouds, behind everything else.
+                .winterSnow(ui.winter)
                 .padding(horizontal = 20.dp)
                 .navigationBarsPadding()
                 .padding(bottom = Theme.Spacing.xl),
@@ -130,6 +136,14 @@ private fun NowPlayingHeader(ui: HomeUi, actions: HomeActions) {
                     .padding(top = 22.dp)
                     .size(80.dp, 67.dp),
             )
+            if (ui.winter) {
+                WinterBauble(
+                    Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 22.dp)
+                        .size(80.dp, 67.dp),
+                )
+            }
         }
         Spacer(Modifier.height(22.dp + 67.dp + 10.dp - 66.dp))
 

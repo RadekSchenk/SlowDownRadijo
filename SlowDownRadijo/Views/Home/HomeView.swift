@@ -23,6 +23,8 @@ struct HomeView: View {
     /// One-shot: flips true the first time a favorite is ever added, so the
     /// explainer sheet below only appears once, ever.
     @AppStorage("hasSeenFavoritesIntro") private var hasSeenFavoritesIntro = false
+    /// "Zimní vzhled" (WinterSeason): snow in the header, the bauble on the logo.
+    @AppStorage(WinterSeason.enabledKey) private var winterLookEnabled = true
     @State private var isShowingFavoritesIntro = false
     /// The chat sheet, opened from the home page section — with the
     /// keyboard up when the listener tapped the field.
@@ -106,7 +108,16 @@ struct HomeView: View {
             // Behind the header and the show, edge to edge, scrolling away
             // with them.
             .background(alignment: .top) {
-                HeaderClouds(isPlaying: nowPlaying.playbackState == .playing)
+                ZStack(alignment: .top) {
+                    HeaderClouds(isPlaying: nowPlaying.playbackState == .playing)
+                    // In front of the clouds, behind everything else, and
+                    // gone before the player row.
+                    if isWinter {
+                        Snowfall()
+                            .frame(height: Self.snowHeight)
+                            .transition(.opacity)
+                    }
+                }
             }
             .scrollsToTopOnTabReselect()
         }
@@ -205,6 +216,9 @@ struct HomeView: View {
             // them, clear of the Dynamic Island; taps pass through to them.
             AnimatedBrandLogo()
                 .frame(width: Self.logoSize.width, height: Self.logoSize.height)
+                .overlay(alignment: .topLeading) {
+                    if isWinter { WinterBauble(size: Self.logoSize) }
+                }
                 .allowsHitTesting(false)
                 .frame(maxWidth: .infinity)
 
@@ -243,6 +257,12 @@ struct HomeView: View {
     /// about 48pt down) it has room to breathe instead of touching it.
     private static let logoTop = AppHeaderView.topInset + 22
     private static let logoSize = CGSize(width: 80, height: 67)
+    /// Figma A1: the snow thins out by the show's title.
+    private static let snowHeight: CGFloat = 340
+
+    private var isWinter: Bool {
+        winterLookEnabled && WinterSeason.isWinter()
+    }
 
     /// Figma "Pořad": the cover with its equalizer, 14pt, then the show's
     /// title and host.

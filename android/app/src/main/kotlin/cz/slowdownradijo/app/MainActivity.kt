@@ -325,8 +325,9 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
         val track = onAir.verifiedTrack ?: return@produceState
         value = app.earlierSongs(track, onAir.showStart)
     }
+    val winterLook by app.settings.winterLook.collectAsStateWithLifecycle()
     HomeScreen(
-        HomeUi(onAir, playback, sleepFireAt, now, output, earlierSongs),
+        HomeUi(onAir, playback, sleepFireAt, now, output, earlierSongs, winter = winterLook && cz.slowdownradijo.app.winter.WinterSeason.isSeason(now)),
         HomeActions(
             togglePlay = { app.radio.togglePlayPause() },
             openSleepTimer = { showingSleepTimer = true },
@@ -479,9 +480,10 @@ private fun Menu(onClose: () -> Unit) {
                 val autoplay by app.settings.autoplay.collectAsStateWithLifecycle()
                 val stats by app.settings.statsEnabled.collectAsStateWithLifecycle()
                 val streamQuality by app.settings.streamQuality.collectAsStateWithLifecycle()
+                val winterLook by app.settings.winterLook.collectAsStateWithLifecycle()
                 val followed by app.reminders.followed.collectAsStateWithLifecycle()
                 SettingsScreen(
-                    SettingsUi(autoplay, followed.size, stats, analyticsEnabled = analyticsConsent == cz.slowdownradijo.app.analytics.Analytics.Consent.GRANTED, streamQuality = streamQuality),
+                    SettingsUi(autoplay, followed.size, stats, analyticsEnabled = analyticsConsent == cz.slowdownradijo.app.analytics.Analytics.Consent.GRANTED, streamQuality = streamQuality, winterLook = winterLook.takeIf { cz.slowdownradijo.app.winter.WinterSeason.isSeason(Instant.now()) }),
                     SettingsActions(
                         setAutoplay = app.settings::setAutoplay,
                         setStats = {
@@ -493,6 +495,7 @@ private fun Menu(onClose: () -> Unit) {
                             app.settings.setStreamQuality(it)
                             app.radio.streamQualityChanged()
                         },
+                        setWinterLook = app.settings::setWinterLook,
                         deleteStats = { runCatching { app.tracker.deleteAllData() }.isSuccess },
                     ),
                     open, back,

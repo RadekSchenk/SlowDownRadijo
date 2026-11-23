@@ -173,6 +173,23 @@ Version" (cs and en). Version 1.0 had none.
 • Contests: when the station runs a contest, you'll see it on the home screen. Answer, leave your phone number and play for prizes. Open to Slowriders with an account.
 ```
 
+**1.4 — Czech**
+
+```
+• Zimní vzhled: od první adventní neděle do Tří králů v appce sněží a slunce v logu se mění ve vánoční ozdobu. Kdo nechce, vypne ho v Nastavení.
+• Zimní ikona na sezónu.
+```
+
+**1.4 — English**
+
+```
+• Winter look: from the first Sunday of Advent to Epiphany it snows in the app and the sun in the logo turns into a Christmas bauble. You can turn it off in Settings.
+• A winter icon for the season.
+```
+
+Release 1.4 manually on 29 Nov 2026, and the version that brings the normal
+icon back on 7 Jan 2027 (`docs/winter.md`).
+
 ## Releasing a new version
 
 1. Raise `MARKETING_VERSION` in `project.yml` (app and widget, the same

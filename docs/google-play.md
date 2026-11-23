@@ -103,6 +103,20 @@ No music. No life.
 
 Limit 500 znaků na jazyk (kratší než v App Store).
 
+**1.4 – čeština**
+
+```
+• Zimní vzhled: od první adventní neděle do Tří králů v appce sněží a slunce v logu se mění ve vánoční ozdobu. Vypnout jde v Nastavení.
+• Zimní ikona na sezónu.
+```
+
+**1.4 – English**
+
+```
+• Winter look: from the first Sunday of Advent to Epiphany it snows in the app and the sun in the logo turns into a Christmas bauble. You can turn it off in Settings.
+• A winter icon for the season.
+```
+
 **1.3 – čeština**
 
 ```

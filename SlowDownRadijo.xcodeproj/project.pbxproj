@@ -125,6 +125,7 @@
 		AA5479EBEE81275B5F272706 /* NicknameViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B80BD2EA97104ED3A35CC40D /* NicknameViews.swift */; };
 		ABCC45E5AE45F1965A09A6D2 /* Manrope-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D4863B328BC4D761671DC231 /* Manrope-Bold.ttf */; };
 		AD21F1047EECEBAB5FAFFF8D /* SleepMoon.swift in Sources */ = {isa = PBXBuildFile; fileRef = F83D4C2EFCC87DFC5CDD3889 /* SleepMoon.swift */; };
+		AD685EFBA1AE1089741C29ED /* WinterViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B80BD275715C523AE7D6C1EF /* WinterViews.swift */; };
 		B28609B8CE2E55A43DEEEDCA /* ShowProgressTrack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53135256E63DFF2CCD332E69 /* ShowProgressTrack.swift */; };
 		B3F69BBE9836D0289DEC62E1 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9F45C020F0FA2C48F203684 /* SettingsView.swift */; };
 		B678ECA3653A4478E049DC2F /* FavoriteTrackStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 264DEDF38592C9B0B92B86D3 /* FavoriteTrackStore.swift */; };
@@ -137,6 +138,7 @@
 		C2B85DFE51A39B5DEE3E5FBC /* Manrope-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B26E607347B3911B648DB65E /* Manrope-Medium.ttf */; };
 		C7DD2A75A4963FCAD4DF5187 /* TrackDetailsRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3080A7F705A91A1A384AE650 /* TrackDetailsRow.swift */; };
 		C83A2BE8A69C12040B5E0036 /* HomeProgramSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D89DC4EC0B30059D3BD5A06 /* HomeProgramSection.swift */; };
+		CD052FDA395F46ECB096C1B4 /* WinterSeason.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48C342469BB315C1DD54C819 /* WinterSeason.swift */; };
 		CD87D3E58B780CD8FCFC255E /* StatsHomeBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D2470C49CD8B3B20DA9895F /* StatsHomeBlock.swift */; };
 		D0E163C80D92ECB32D39B683 /* ChatHomeSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7251401D076C92C1C2C60FCE /* ChatHomeSection.swift */; };
 		D3FEA96BD7A91CC1A6F129F3 /* AppSupabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71443179EE9F7313B60197C8 /* AppSupabase.swift */; };
@@ -251,6 +253,7 @@
 		3DC0DD53F5302B6021C60A04 /* Show.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Show.swift; sourceTree = "<group>"; };
 		40782CE7CC1D37CB5A417C9E /* SlowDownRadijo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SlowDownRadijo.entitlements; sourceTree = "<group>"; };
 		47D49493DD44FD0AA6BE75F9 /* FeedbackUploadService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackUploadService.swift; sourceTree = "<group>"; };
+		48C342469BB315C1DD54C819 /* WinterSeason.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WinterSeason.swift; sourceTree = "<group>"; };
 		4C1714C7CB0A4E98D80D86D5 /* StatsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsResponse.swift; sourceTree = "<group>"; };
 		4D508971F5BA45331620FB53 /* DeviceInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceInfo.swift; sourceTree = "<group>"; };
 		507E75F7BD2E731117031FD5 /* ChatAdmin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAdmin.swift; sourceTree = "<group>"; };
@@ -321,6 +324,7 @@
 		B4F8F9F79C08E14505F9BAF7 /* FavoriteTrack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteTrack.swift; sourceTree = "<group>"; };
 		B5DC82166EB2B538C0565A55 /* NewsPost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsPost.swift; sourceTree = "<group>"; };
 		B62D6F6E76D0AB06D618F287 /* HomePromptCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePromptCard.swift; sourceTree = "<group>"; };
+		B80BD275715C523AE7D6C1EF /* WinterViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WinterViews.swift; sourceTree = "<group>"; };
 		B80BD2EA97104ED3A35CC40D /* NicknameViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NicknameViews.swift; sourceTree = "<group>"; };
 		B9F614148AA8BD43557EB70D /* ContestViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContestViews.swift; sourceTree = "<group>"; };
 		BBADEE545D3880AC7D8E9963 /* FeedbackViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackViewModel.swift; sourceTree = "<group>"; };
@@ -650,6 +654,7 @@
 				52EF3A0E684B2D1F4D5761A0 /* TextSizeLimit.swift */,
 				250E6095DAA24E4EC642BE2B /* Toast.swift */,
 				3080A7F705A91A1A384AE650 /* TrackDetailsRow.swift */,
+				B80BD275715C523AE7D6C1EF /* WinterViews.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -678,6 +683,7 @@
 				7BADD47AE92FCB3825D65C65 /* VoiceMessageRecorder.swift */,
 				FB944480FA340A7F8CF3B6EE /* VoiceMessageUploadService.swift */,
 				07A0FB6298D88B63B4B6DF6C /* WebScheduleService.swift */,
+				48C342469BB315C1DD54C819 /* WinterSeason.swift */,
 				623A2D797EBCF4D8DD083EF8 /* Account */,
 				75A0DC98BAAE393FD9EB4923 /* Analytics */,
 				7A15F18DE3BC470B97D5BC7F /* Contests */,
@@ -1056,6 +1062,8 @@
 				75861ED0E375D85E1BC3B8ED /* VoiceMessageViewModel.swift in Sources */,
 				3CBC1D2D185C427404D22728 /* WaveformBarsView.swift in Sources */,
 				DD3A326FA0F69C59640A4F8F /* WebScheduleService.swift in Sources */,
+				CD052FDA395F46ECB096C1B4 /* WinterSeason.swift in Sources */,
+				AD685EFBA1AE1089741C29ED /* WinterViews.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1144,7 +1152,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = cz.slowdownradijo.app.Widget;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1231,7 +1239,7 @@
 		ADB6E233E6EF814B8440BE70 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconWinter;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = SlowDownRadijo/SlowDownRadijo.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -1243,7 +1251,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = cz.slowdownradijo.app;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -1253,7 +1261,7 @@
 		BC50D12CD75376D439A62F09 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconWinter;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = SlowDownRadijo/SlowDownRadijo.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -1265,7 +1273,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = cz.slowdownradijo.app;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -1349,7 +1357,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = cz.slowdownradijo.app.Widget;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;

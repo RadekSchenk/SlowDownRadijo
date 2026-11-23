@@ -129,6 +129,10 @@ class ShellScreenshotTest {
         page { SettingsScreen(SettingsUi(autoplay = true, remindersCount = 2, statsEnabled = true, analyticsEnabled = false), SettingsActions(), {}, {}) }()
     }
 
+    @Test fun settingsWinter() = capture("settings_winter_cs") {
+        page { SettingsScreen(SettingsUi(autoplay = true, remindersCount = 2, statsEnabled = true, analyticsEnabled = false, winterLook = true), SettingsActions(), {}, {}) }()
+    }
+
     @Test fun showReminders() = capture("show_reminders_cs") {
         val shows = store.catalog.sortedBy { it.displayTitle.lowercase() }
         page { ShowRemindersScreen(shows, setOf(shows[1].id), notificationsBlocked = true, onToggle = { _, _ -> }, onUnfollowAll = {}, back = {}) }()

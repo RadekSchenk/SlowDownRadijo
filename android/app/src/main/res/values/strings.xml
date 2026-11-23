@@ -125,6 +125,9 @@
     <string name="settingsTitle">Nastavení</string>
     <string name="settingsAutoplayTitle">Automatické přehrávání</string>
     <string name="settingsAutoplayDescription">Appka spustí rádio hned po otevření, bez nutnosti klepnout na Přehrát.</string>
+    <string name="winterLookTitle">Zimní vzhled</string>
+    <string name="winterLookDescription">Sněžení v záhlaví a vánoční ozdoba v logu. Od první adventní neděle do Tří králů.</string>
+    <string name="winterChristmasWish">Klidné svátky přeje Slow Down Rádijo</string>
     <string name="streamQualityTitle">Kvalita zvuku</string>
     <string name="streamQualityDescription">Automaticky hraje na Wi-Fi ve vysoké kvalitě (MP3 160 kbps), na mobilních datech úsporně (AAC 32 kbps).</string>
     <string name="streamQualityAuto">Automaticky</string>
