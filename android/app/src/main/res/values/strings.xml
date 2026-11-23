@@ -327,9 +327,9 @@
     <string name="chatSignInToSend">Pro odeslání se přihlas</string>
     <string name="chatPinned">Připnuto</string>
     <string name="chatDeletedByModerator">Zprávu odstranil moderátor</string>
-    <string name="chatQuietTitle">Dnes tu zatím ticho</string>
-    <string name="chatQuietBody">Začni ty — pozdrav ostatní nebo napiš, co posloucháš.</string>
-    <string name="chatHomeQuiet">Dnes tu zatím ticho — pozdrav ostatní 👋</string>
+    <string name="chatQuietTitle">Dnes zatím nikdo nepsal</string>
+    <string name="chatQuietBody">Napiš první – třeba jak se ti líbí, co zrovna hraje.</string>
+    <string name="chatHomeQuiet">Dnes zatím nikdo nepsal. Napiš první 👋</string>
     <string name="chatStarterHello">Ahoj 👋</string>
     <string name="chatStarterWhatPlayed">Co to teď hrálo?</string>
     <string name="chatSending">Odesílám…</string>

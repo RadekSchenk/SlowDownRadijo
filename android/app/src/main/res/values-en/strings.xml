@@ -327,9 +327,9 @@
     <string name="chatSignInToSend">Sign in to send</string>
     <string name="chatPinned">Pinned</string>
     <string name="chatDeletedByModerator">Removed by a moderator</string>
-    <string name="chatQuietTitle">Quiet here today</string>
-    <string name="chatQuietBody">Start it off — say hi or tell us what you\'re listening to.</string>
-    <string name="chatHomeQuiet">Quiet here today — say hi 👋</string>
+    <string name="chatQuietTitle">No one’s written today yet</string>
+    <string name="chatQuietBody">Be the first – maybe say what you think of what\'s on.</string>
+    <string name="chatHomeQuiet">No one’s written today yet. Be the first 👋</string>
     <string name="chatStarterHello">Hi 👋</string>
     <string name="chatStarterWhatPlayed">What was that track?</string>
     <string name="chatSending">Sending…</string>

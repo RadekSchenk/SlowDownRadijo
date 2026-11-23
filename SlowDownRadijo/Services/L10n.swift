@@ -2428,22 +2428,22 @@ extension L10n {
 
     static var chatQuietTitle: String {
         switch lang {
-        case .cs: return "Dnes tu zatím ticho"
-        case .en: return "Quiet here today"
+        case .cs: return "Dnes zatím nikdo nepsal"
+        case .en: return "No one’s written today yet"
         }
     }
 
     static var chatQuietBody: String {
         switch lang {
-        case .cs: return "Začni ty — pozdrav ostatní nebo napiš, co posloucháš."
-        case .en: return "Start it off — say hi or tell us what you're listening to."
+        case .cs: return "Napiš první – třeba jak se ti líbí, co zrovna hraje."
+        case .en: return "Be the first – maybe say what you think of what's on."
         }
     }
 
     static var chatHomeQuiet: String {
         switch lang {
-        case .cs: return "Dnes tu zatím ticho — pozdrav ostatní 👋"
-        case .en: return "Quiet here today — say hi 👋"
+        case .cs: return "Dnes zatím nikdo nepsal. Napiš první 👋"
+        case .en: return "No one’s written today yet. Be the first 👋"
         }
     }
 
