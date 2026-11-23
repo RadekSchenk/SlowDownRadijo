@@ -143,7 +143,7 @@ The first Slow Down Rádijo for Android: the live stream, the schedule with remi
 | Položka | Odpověď |
 |---|---|
 | Zásady ochrany soukromí | https://slowdownradijo.cz/ochrana-osobnich-udaju/ |
-| Přihlašovací údaje (dříve Přístup k aplikaci) | Od 1.3: chat funguje i bez účtu (přezdívka s první zprávou); přihlášení (Google, Apple nebo e-mail s kódem) je potřeba jen pro změnu přezdívky, profil Slowridera a soutěže (1.3). Odpověď **Ano** (část je omezená). Recenzenti si nesmí zakládat účty ani používat vlastní, proto je zadaný samostatný Google účet `slowdownradijoreview@gmail.com` (heslo jen v Play Console a ve správci hesel, bez dvoufázového ověření) s pokyny „Profile → Sign in → Continue with Google“; přepínač testování na zařízeních Googlu zapnutý. Když během kontroly žádná soutěž neběží, karta soutěže se nezobrazí |
+| Přihlašovací údaje (dříve Přístup k aplikaci) | Od 1.3: chat funguje i bez účtu (přezdívka s první zprávou); přihlášení (Google, Apple nebo e-mail s kódem) je potřeba jen pro změnu přezdívky, profil Slowridera a soutěže (1.3). Odpověď **Ano** (část je omezená). Recenzenti si nesmí zakládat účty ani používat vlastní, proto je zadaný samostatný Google účet jen pro recenzenty (e-mail a heslo jen v Play Console a ve správci hesel, bez dvoufázového ověření) s pokyny „Profile → Sign in → Continue with Google“; přepínač testování na zařízeních Googlu zapnutý. Když během kontroly žádná soutěž neběží, karta soutěže se nezobrazí |
 | Reklamy | Aplikace neobsahuje reklamy |
 | Cílová skupina | 13–15, 16–17, 18 a více (ne pod 13: to by zapnulo pravidla pro rodiny a děti) |
 | Zpravodajská aplikace | Ne |
