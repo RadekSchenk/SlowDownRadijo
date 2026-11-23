@@ -143,7 +143,7 @@ The first Slow Down Rádijo for Android: the live stream, the schedule with remi
 | Položka | Odpověď |
 |---|---|
 | Zásady ochrany soukromí | https://slowdownradijo.cz/ochrana-osobnich-udaju/ |
-| Přihlašovací údaje (dříve Přístup k aplikaci) | Od 1.3: chat funguje i bez účtu (přezdívka s první zprávou); přihlášení (Google, Apple nebo e-mail s kódem) je potřeba jen pro změnu přezdívky, profil Slowridera a soutěže (1.3). Pro kontrolu přidat testovací účet; když během kontroly žádná soutěž neběží, karta soutěže se nezobrazí |
+| Přihlašovací údaje (dříve Přístup k aplikaci) | Od 1.3: chat funguje i bez účtu (přezdívka s první zprávou); přihlášení (Google, Apple nebo e-mail s kódem) je potřeba jen pro změnu přezdívky, profil Slowridera a soutěže (1.3). Odpověď **Ano** (část je omezená). Recenzenti si nesmí zakládat účty ani používat vlastní, proto je zadaný samostatný Google účet `slowdownradijoreview@gmail.com` (heslo jen v Play Console a ve správci hesel, bez dvoufázového ověření) s pokyny „Profile → Sign in → Continue with Google“; přepínač testování na zařízeních Googlu zapnutý. Když během kontroly žádná soutěž neběží, karta soutěže se nezobrazí |
 | Reklamy | Aplikace neobsahuje reklamy |
 | Cílová skupina | 13–15, 16–17, 18 a více (ne pod 13: to by zapnulo pravidla pro rodiny a děti) |
 | Zpravodajská aplikace | Ne |
@@ -152,7 +152,7 @@ The first Slow Down Rádijo for Android: the live stream, the schedule with remi
 | Reklamní ID | Ne (aplikace nemá oprávnění AD_ID) |
 | Finanční funkce | Žádné |
 | Zdraví | Žádné zdravotní funkce |
-| Služby na popředí (pokud se zeptá) | Přehrávání médií: živé vysílání rádia hraje na pozadí a ovládá se z notifikace a zamčené obrazovky. Spouští ho uživatel. |
+| Oprávnění používat služby v popředí | Jen **Přehrávání mediálního obsahu** (`FOREGROUND_SERVICE_MEDIA_PLAYBACK`, `PlaybackService`). Povinné video: 58 s z emulátoru s buildem 41 (rádio hraje, notifikace s přehrávačem, plocha), neveřejné na YouTube: https://www.youtube.com/watch?v=csGbULUwVnc. Vyplněno 23. 11. 2026 |
 
 ### Hodnocení obsahu (dotazník IARC)
 
@@ -161,11 +161,12 @@ USK 12, ClassInd 14.
 
 - Kategorie: **Všechny ostatní typy aplikací**.
 - Stažená aplikace (hodnocený obsah v balíčku): **Ne**.
-- Sdílení uživatelského obsahu: **Ne** do 1.2. **Od 1.3 Ano**: veřejný chat posluchačů (text), s moderací, nahlášením a blokací. Dotazník IARC vyplnit znovu před vydáním 1.3 (soutěže o věcné ceny nejsou hazard ani digitální nákup, „Odměny“ zůstává Ne).
+- Sdílení uživatelského obsahu: **Ne** do 1.2. **Od 1.3 Ano**: veřejný chat posluchačů (text), s moderací, nahlášením a blokací. Podotázky (23. 11. 2026): primární zdroj obsahu Ne, nahota Ne, násilí Ne, blokace Ano, nahlášení Ano, moderování Ano, jen pozvaní přátelé Ne. Soutěže o věcné ceny nejsou hazard, digitální nákup ani peněžní odměna (u dárkových karet nebo poukázek jako výhry vyplnit znovu).
 - Online obsah: **Ano** (živé vysílání, novinky a program z webu).
 - Násilí: **Ne**. Sexualita: **Ne**.
-- Jazyk: **Ano**. Rádio může pustit necenzurované verze skladeb. Hlavní zaměření: Ne; mírné klení: Ano; mírné nadávky: Ano; diskriminační mluva: Ne; sexuální nadávky: podle odpovědi v Play Console.
-- Drogy: **Ano**, odkazy v textech písní (vyobrazení: Ne).
+- Jazyk: **Ano**. Rádio může pustit necenzurované verze skladeb. Hlavní zaměření: Ne; mírné klení: Ano; mírné nadávky: Ano; diskriminační mluva: Ne; sexuální nadávky: Ano (necenzurovaný rap).
+- Drogy (sekce se jmenuje „Léky na předpis“): **Ano**, odkazy v textech písní (hlavní zaměření Ne, vyobrazení Ne).
+- Výsledek 23. 11. 2026 (1.3) beze změny: IARC 12+, PEGI Dohled rodičů, ESRB Teen, USK 12, ClassInd 14, vše s „Interakce uživatelů“.
 - Propagace produktů s věkovým omezením: **Ne**.
 - Různé (poloha, digitální nákupy, odměny, prohlížeč, zpravodajství): vše **Ne**.
 

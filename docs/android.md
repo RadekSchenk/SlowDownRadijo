@@ -182,6 +182,15 @@ Build 21 (1.2) is on internal testing and on closed testing (list
 turned on before the first review; production has countries set but no
 release yet.
 
+23 Nov 2026: build 41 (1.3, chat, accounts, contests) replaced 21 (1.2) in
+the production review, with the 1.3 listing, data safety (accounts, phone
+number), the foreground service declaration (video), reviewer sign-in and a
+new content rating; managed publishing is on, so 1.3 goes live only when
+published from the Publishing overview. Play warned that the manifest's
+portrait lock implies `android.hardware.screen.portrait` (ignored as "fix
+planned"): in 1.4 add `<uses-feature android:name="android.hardware.screen.portrait"
+android:required="false" />`.
+
 ## Parity
 
 | Feature | iOS | Android |
