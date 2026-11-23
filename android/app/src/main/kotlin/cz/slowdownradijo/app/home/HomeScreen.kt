@@ -79,6 +79,8 @@ data class HomeUi(
     val earlierSongs: List<RecentSong> = emptyList(),
     /** "Zimní vzhled" ([cz.slowdownradijo.app.winter.WinterSeason]): snow in the header, the bauble on the logo. */
     val winter: Boolean = false,
+    /** "Budík s rádiem", for the line under the sleep timer. */
+    val alarm: cz.slowdownradijo.app.alarm.RadioAlarmSettings = cz.slowdownradijo.app.alarm.RadioAlarmSettings(),
 )
 
 class HomeActions(
@@ -87,6 +89,7 @@ class HomeActions(
     val openSong: (NowPlayingTrack) -> Unit = {},
     val openMenu: () -> Unit = {},
     val openOutputPicker: () -> Unit = {},
+    val openAlarm: () -> Unit = {},
 )
 
 /**
@@ -171,6 +174,7 @@ private fun NowPlayingHeader(ui: HomeUi, actions: HomeActions) {
                         )
                     }
                     SleepTimerLink(ui.sleepTimerFireAt, ui.now, actions.openSleepTimer)
+                    cz.slowdownradijo.app.alarm.RadioAlarmLink(ui.alarm, actions.openAlarm)
                 }
                 // Where it plays, next to whether it plays.
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {

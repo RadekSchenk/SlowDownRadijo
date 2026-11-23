@@ -48,6 +48,8 @@
 	<string>$(GOOGLE_IOS_CLIENT_ID)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSAlarmKitUsageDescription</key>
+	<string>Ráno tě vzbudí živé vysílání. Budík zazvoní i v tichém režimu.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
@@ -55,6 +57,8 @@
 	</dict>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Slow Down Rádijo potřebuje mikrofon, abys mohl nahrát hlasový vzkaz pro rádio.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Manrope-Light.ttf</string>

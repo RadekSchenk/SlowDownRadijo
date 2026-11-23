@@ -178,6 +178,8 @@ Version" (cs and en). Version 1.0 had none.
 ```
 • Zimní vzhled: od první adventní neděle do Tří králů v appce sněží a slunce v logu se mění ve vánoční ozdobu. Kdo nechce, vypne ho v Nastavení.
 • Zimní ikona na sezónu.
+• Budík s rádiem: ráno tě vzbudí živé vysílání. Nastavíš ho pod časovačem vypnutí (iOS 26 a novější).
+• Statistiky: týdenní a měsíční žebříček, takže šanci má každý — i kdo poslouchá teprve chvíli. Nově i dny v řadě.
 ```
 
 **1.4 — English**
@@ -185,6 +187,8 @@ Version" (cs and en). Version 1.0 had none.
 ```
 • Winter look: from the first Sunday of Advent to Epiphany it snows in the app and the sun in the logo turns into a Christmas bauble. You can turn it off in Settings.
 • A winter icon for the season.
+• Radio alarm: wake up to the live broadcast. Set it under the sleep timer (iOS 26 and later).
+• Stats: weekly and monthly leaderboards, so everyone has a chance — even if you've only just started listening. Plus your days in a row.
 ```
 
 Release 1.4 manually on 29 Nov 2026, and the version that brings the normal

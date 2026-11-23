@@ -326,11 +326,16 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
         value = app.earlierSongs(track, onAir.showStart)
     }
     val winterLook by app.settings.winterLook.collectAsStateWithLifecycle()
+    val alarmSettings by app.radioAlarm.settings.collectAsStateWithLifecycle()
+    val alarmWokeAt by app.radioAlarm.wokeAt.collectAsStateWithLifecycle()
+    val alarmSnoozedUntil by app.radioAlarm.snoozedUntil.collectAsStateWithLifecycle()
+    var showingAlarm by rememberSaveable { mutableStateOf(false) }
     HomeScreen(
-        HomeUi(onAir, playback, sleepFireAt, now, output, earlierSongs, winter = winterLook && cz.slowdownradijo.app.winter.WinterSeason.isSeason(now)),
+        HomeUi(onAir, playback, sleepFireAt, now, output, earlierSongs, winter = winterLook && cz.slowdownradijo.app.winter.WinterSeason.isSeason(now), alarm = alarmSettings),
         HomeActions(
             togglePlay = { app.radio.togglePlayPause() },
             openSleepTimer = { showingSleepTimer = true },
+            openAlarm = { showingAlarm = true },
             openSong = { track ->
                 app.analytics.track(AnalyticsEvent.SpotifyOpened(onAir.show?.id))
                 spotifySearchUrl(track.artist, track.title)?.let {
@@ -344,6 +349,15 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
             },
         ),
     ) {
+        // Figma "Budík s rádiem" B5/B6: the morning card after the alarm, or the snooze.
+        cz.slowdownradijo.app.alarm.RadioAlarmCard(
+            wokeAt = alarmWokeAt, snoozedUntil = alarmSnoozedUntil, settings = alarmSettings,
+            canSnooze = app.radioAlarm.canSnooze, now = now,
+            onSnooze = app.radioAlarm::snooze, onDone = app.radioAlarm::done,
+            onCancelSnooze = app.radioAlarm::cancelSnooze,
+            onPlayNow = { app.radioAlarm.cancelSnooze(); app.radioAlarm.fire() },
+            modifier = Modifier.padding(top = Theme.Spacing.xl),
+        )
         // Figma "Soutěže" H1–H2: the contest card between the player and the chat.
         val contest by app.contests.current.collectAsStateWithLifecycle()
         val dismissedContests by app.contests.dismissed.collectAsStateWithLifecycle()
@@ -439,6 +453,27 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
             modifier = Modifier.padding(top = Theme.Spacing.xl),
         )
     }
+    if (showingAlarm) {
+        val context = androidx.compose.ui.platform.LocalContext.current
+        // Back from the system's "Alarms & reminders" screen: look again.
+        var canExact by remember { mutableStateOf(app.radioAlarm.canScheduleExact()) }
+        androidx.lifecycle.compose.LifecycleResumeEffect(Unit) {
+            canExact = app.radioAlarm.canScheduleExact()
+            app.radioAlarm.reschedule()
+            onPauseOrDispose { }
+        }
+        val fire = app.radioAlarm.nextFire(settings = alarmSettings.copy(isOn = true))
+        cz.slowdownradijo.app.alarm.RadioAlarmSheet(
+            cz.slowdownradijo.app.alarm.RadioAlarmSheetUi(alarmSettings, canExact, fire, fire?.let { app.schedule.currentShow(it) }),
+            cz.slowdownradijo.app.alarm.RadioAlarmActions(
+                update = app.radioAlarm::update,
+                openPermission = { runCatching { context.startActivity(app.radioAlarm.exactAlarmSettingsIntent()) } },
+                test = app.radioAlarm::test,
+            ),
+            onDismiss = { showingAlarm = false },
+        )
+    }
+
     if (showingSleepTimer) {
         SleepTimerSheet(
             activeOption = sleepOption,

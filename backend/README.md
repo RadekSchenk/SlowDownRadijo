@@ -351,6 +351,13 @@ listener's anonymous stats user, so their stats stay. Design and rules:
     `posthog_export.listening_quality_daily`, `listening_quality_users`,
     `chat_daily`, `chat_shows_30d` and `chat_retention` (turned on in the
     "radio" source, every 6 hours). On production since 21. 11. 2026.
+17. **Run `supabase/sql/029_period_ranking.sql`** (after 028) **before 1.4
+    goes out**: `get_my_stats` adds the leaderboard for this week and this
+    month (`periods`), last week and the run of days (Statistiky 1.4), and
+    `stats_config.min_period_listeners` (30): with fewer listeners in a
+    period, no places are shown. Older apps ignore the new keys. Without it,
+    1.4 shows only the listener's own time in the leaderboard and no place
+    on the home screen.
 9. **Invite links on slowdownradijo.cz.** Until these two files are on the
    web, the `https://slowdownradijo.cz/dj/<code>` link opens the website, not
    the app; `slowdownradijo://dj/<code>` works right away in both apps.

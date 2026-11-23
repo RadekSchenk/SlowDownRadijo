@@ -100,6 +100,10 @@ targets:
           NSAllowsArbitraryLoads: false
         # Translated in Resources/{cs,en}.lproj/InfoPlist.strings.
         NSMicrophoneUsageDescription: "Slow Down Rádijo potřebuje mikrofon, abys mohl nahrát hlasový vzkaz pro rádio."
+        # Budík s rádiem (AlarmKit, iOS 26+); translated in InfoPlist.strings.
+        NSAlarmKitUsageDescription: "Ráno tě vzbudí živé vysílání. Budík zazvoní i v tichém režimu."
+        # AlarmKit shows the snooze countdown as a Live Activity.
+        NSSupportsLiveActivities: true
         UIAppFonts:
           - "Manrope-Light.ttf"
           - "Manrope-Regular.ttf"
@@ -167,6 +171,7 @@ targets:
       - path: SlowDownRadijo/Services/WebScheduleService.swift
       - path: SlowDownRadijo/Models/RemotePlayedTrack.swift
       - path: SlowDownRadijo/Models/TrackTrust.swift
+      - path: SlowDownRadijo/Services/RadioAlarm/RadioAlarmMetadata.swift
       - path: SlowDownRadijo/DesignSystem/Theme.swift
       - path: SlowDownRadijo/Resources/schedule.json
       - path: SlowDownRadijo/Resources/Assets.xcassets

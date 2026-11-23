@@ -49,6 +49,14 @@ struct HomeView: View {
                 nowPlayingHeader
 
                 // Figma "Soutěže" H1: between the player and the chat.
+                // Figma "Budík s rádiem" B5/B6: the morning card after the
+                // alarm, or the snooze countdown.
+                if RadioAlarmStore.isSupported {
+                    // Pads itself: nothing at all when there's no card.
+                    RadioAlarmCard()
+                        .movesWithScroll()
+                }
+
                 if let contest = contests.infoboxContest {
                     ContestInfobox(
                         contest: contest,
@@ -171,8 +179,12 @@ struct HomeView: View {
             Text(L10n.contestDismissBody(contest.title))
         }
         .task { await contests.refresh() }
+        .task { await RadioAlarmStore.shared.sync() }
         .onChange(of: scenePhase) { _, phase in
-            if phase == .active { Task { await contests.refresh() } }
+            if phase == .active {
+                Task { await contests.refresh() }
+                Task { await RadioAlarmStore.shared.sync() }
+            }
         }
         .onReceive(AccountService.shared.$state.removeDuplicates().dropFirst()) { _ in
             Task { await contests.refresh() }
@@ -332,6 +344,9 @@ struct HomeView: View {
                         }
                     }
                     SleepTimerButton(player: nowPlaying.player, currentShowEndDate: nowPlaying.currentShowEndDate)
+                    if RadioAlarmStore.isSupported {
+                        RadioAlarmLink(scheduleStore: scheduleStore)
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 

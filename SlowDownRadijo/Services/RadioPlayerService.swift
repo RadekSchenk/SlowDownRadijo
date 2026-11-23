@@ -79,7 +79,7 @@ final class RadioPlayerService: NSObject, ObservableObject {
     /// What last started playback, and what last stopped it — read by
     /// `PlaybackAnalytics` when the state changes.
     enum PlayTrigger: String {
-        case user, autoplay, lockScreen = "lock_screen", notification, resume, preview, carPlay = "carplay"
+        case user, autoplay, lockScreen = "lock_screen", notification, resume, preview, carPlay = "carplay", alarm
     }
 
     enum StopReason: String {

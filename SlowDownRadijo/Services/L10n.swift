@@ -992,6 +992,239 @@ enum L10n {
         }
     }
 
+    // MARK: Radio alarm (RadioAlarmStore)
+
+    static var alarmTitle: String {
+        switch lang {
+        case .cs: return "Budík s rádiem"
+        case .en: return "Radio alarm"
+        }
+    }
+
+    static var alarmSet: String {
+        switch lang {
+        case .cs: return "Nastavit budík"
+        case .en: return "Set an alarm"
+        }
+    }
+
+    static var alarmRepeat: String {
+        switch lang {
+        case .cs: return "Opakovat"
+        case .en: return "Repeat"
+        }
+    }
+
+    static var alarmEveryDay: String {
+        switch lang {
+        case .cs: return "každý den"
+        case .en: return "every day"
+        }
+    }
+
+    static var alarmWorkdays: String {
+        switch lang {
+        case .cs: return "Po–Pá"
+        case .en: return "Mon–Fri"
+        }
+    }
+
+    static var alarmWeekend: String {
+        switch lang {
+        case .cs: return "So–Ne"
+        case .en: return "Sat–Sun"
+        }
+    }
+
+    static var alarmOnce: String {
+        switch lang {
+        case .cs: return "jednou"
+        case .en: return "once"
+        }
+    }
+
+    static var alarmSnooze: String {
+        switch lang {
+        case .cs: return "Odložení"
+        case .en: return "Snooze"
+        }
+    }
+
+    static var alarmSnoozeDescription: String {
+        switch lang {
+        case .cs: return "Kolik minut se po „Odložit“ počká"
+        case .en: return "How long “Snooze” waits"
+        }
+    }
+
+    static var alarmToday: String {
+        switch lang {
+        case .cs: return "Dnes"
+        case .en: return "Today"
+        }
+    }
+
+    static var alarmTomorrow: String {
+        switch lang {
+        case .cs: return "Zítra"
+        case .en: return "Tomorrow"
+        }
+    }
+
+    static var alarmTest: String {
+        switch lang {
+        case .cs: return "Vyzkoušet za 10 sekund"
+        case .en: return "Try it in 10 seconds"
+        }
+    }
+
+    static var alarmFootnoteIOS: String {
+        switch lang {
+        case .cs: return "Budík zazvoní i v tichém režimu. Rádio pustíš tlačítkem „Pustit rádio“ — iPhone ho bez klepnutí spustit nedovolí."
+        case .en: return "The alarm rings even in silent mode. Tap “Play radio” to start the radio — iPhone won’t start it without a tap."
+        }
+    }
+
+    static var alarmFootnoteAndroid: String {
+        switch lang {
+        case .cs: return "Rádio začne hrát samo. Když ráno nepůjde internet, zazvoní budík telefonu."
+        case .en: return "The radio starts on its own. If there’s no internet in the morning, the phone’s alarm sound rings."
+        }
+    }
+
+    static var alarmDenied: String {
+        switch lang {
+        case .cs: return "Budíky jsou pro Slow Down Rádijo vypnuté. Povolíš je v Nastavení telefonu."
+        case .en: return "Alarms are turned off for Slow Down Rádijo. You can allow them in the phone’s Settings."
+        }
+    }
+
+    static var alarmOpenSettings: String {
+        switch lang {
+        case .cs: return "Otevřít nastavení"
+        case .en: return "Open Settings"
+        }
+    }
+
+    static var alarmStopButton: String {
+        switch lang {
+        case .cs: return "Pustit rádio"
+        case .en: return "Play radio"
+        }
+    }
+
+    static var alarmSnoozeButton: String {
+        switch lang {
+        case .cs: return "Odložit"
+        case .en: return "Snooze"
+        }
+    }
+
+    static var alarmSnoozedTitle: String {
+        switch lang {
+        case .cs: return "Odloženo"
+        case .en: return "Snoozed"
+        }
+    }
+
+    static var alarmGoodMorning: String {
+        switch lang {
+        case .cs: return "Dobré ráno"
+        case .en: return "Good morning"
+        }
+    }
+
+    static var alarmDone: String {
+        switch lang {
+        case .cs: return "Hotovo"
+        case .en: return "Done"
+        }
+    }
+
+    static var alarmCancel: String {
+        switch lang {
+        case .cs: return "Zrušit budík"
+        case .en: return "Cancel alarm"
+        }
+    }
+
+    static var alarmPlayNow: String {
+        switch lang {
+        case .cs: return "Hrát hned"
+        case .en: return "Play now"
+        }
+    }
+
+    static var alarmTurnOffRadio: String {
+        switch lang {
+        case .cs: return "Vypnout rádio"
+        case .en: return "Turn off the radio"
+        }
+    }
+
+    static var alarmPermissionTitle: String {
+        switch lang {
+        case .cs: return "Povol přesné buzení"
+        case .en: return "Allow exact alarms"
+        }
+    }
+
+    static var alarmPermissionBody: String {
+        switch lang {
+        case .cs: return "Aby rádio začalo hrát přesně v čas budíku, potřebuje appka povolení „Budíky a připomenutí“."
+        case .en: return "To start the radio right on time, the app needs the “Alarms & reminders” permission."
+        }
+    }
+
+    static func alarmRow(_ when: String) -> String {
+        switch lang {
+        case .cs: return "Budík \(when)"
+        case .en: return "Alarm \(when)"
+        }
+    }
+
+    static func alarmMinutes(_ minutes: Int) -> String {
+        switch lang {
+        case .cs: return "\(minutes) min"
+        case .en: return "\(minutes) min"
+        }
+    }
+
+    static func alarmWakesYou(_ when: String) -> String {
+        switch lang {
+        case .cs: return "\(when) tě vzbudí"
+        case .en: return "\(when) you’ll wake up to"
+        }
+    }
+
+    static func alarmPlaying(_ time: String) -> String {
+        switch lang {
+        case .cs: return "Budík \(time) · rádio hraje"
+        case .en: return "Alarm \(time) · the radio is playing"
+        }
+    }
+
+    static func alarmSnoozeFor(_ minutes: Int) -> String {
+        switch lang {
+        case .cs: return "Odložit · \(minutes) min"
+        case .en: return "Snooze · \(minutes) min"
+        }
+    }
+
+    static func alarmSnoozedUntil(_ time: String) -> String {
+        switch lang {
+        case .cs: return "Rádio začne znovu hrát v \(time)"
+        case .en: return "The radio plays again at \(time)"
+        }
+    }
+
+    static func alarmShowAt(_ show: String) -> String {
+        switch lang {
+        case .cs: return "Hraje \(show)"
+        case .en: return "\(show) is on"
+        }
+    }
+
     // MARK: Winter look (WinterSeason)
 
     static var winterLookTitle: String {
@@ -3304,8 +3537,8 @@ extension L10n {
 
     static func statsWeekTotal(_ duration: String) -> String {
         switch lang {
-        case .cs: return "Tento týden \(duration)"
-        case .en: return "This week \(duration)"
+        case .cs: return "Posledních 7 dní \(duration)"
+        case .en: return "Last 7 days \(duration)"
         }
     }
 
@@ -3355,6 +3588,239 @@ extension L10n {
         switch lang {
         case .cs: return "Jsi na prvním místě. Díky, že jsi s námi tolik."
         case .en: return "You're number one. Thanks for spending so much time with us."
+        }
+    }
+
+    // MARK: Leaderboard by period (Statistiky 1.4)
+
+    static var statsLeaderboardWeekScope: String {
+        switch lang {
+        case .cs: return "Tvoje místo v žebříčku tento týden"
+        case .en: return "Your place on this week's leaderboard"
+        }
+    }
+
+    static var statsPeriodWeek: String {
+        switch lang {
+        case .cs: return "Týden"
+        case .en: return "Week"
+        }
+    }
+
+    static var statsPeriodMonth: String {
+        switch lang {
+        case .cs: return "Měsíc"
+        case .en: return "Month"
+        }
+    }
+
+    static var statsPeriodAll: String {
+        switch lang {
+        case .cs: return "Celkem"
+        case .en: return "All time"
+        }
+    }
+
+    static var statsPeriodWeekLabel: String {
+        switch lang {
+        case .cs: return "tento týden"
+        case .en: return "this week"
+        }
+    }
+
+    static var statsPeriodMonthLabel: String {
+        switch lang {
+        case .cs: return "tento měsíc"
+        case .en: return "this month"
+        }
+    }
+
+    static var statsPeriodAllLabel: String {
+        switch lang {
+        case .cs: return "od začátku"
+        case .en: return "since the start"
+        }
+    }
+
+    static var statsStripStreak: String {
+        switch lang {
+        case .cs: return "v řadě"
+        case .en: return "in a row"
+        }
+    }
+
+    static var statsTierLoyalWeek: String {
+        switch lang {
+        case .cs: return "Tento týden patříš mezi nejvěrnější posluchače."
+        case .en: return "This week you're among the most loyal listeners."
+        }
+    }
+
+    static var statsTierLoyalMonth: String {
+        switch lang {
+        case .cs: return "Tento měsíc patříš mezi nejvěrnější posluchače."
+        case .en: return "This month you're among the most loyal listeners."
+        }
+    }
+
+    static var statsPeriodFooterWeek: String {
+        switch lang {
+        case .cs: return "Každé pondělí začíná nový týden a všichni od nuly."
+        case .en: return "Every Monday a new week starts and everyone begins from zero."
+        }
+    }
+
+    static var statsPeriodFooterMonth: String {
+        switch lang {
+        case .cs: return "Měsíční žebříček se počítá od prvního dne v měsíci."
+        case .en: return "The monthly leaderboard counts from the first day of the month."
+        }
+    }
+
+    static var statsPeriodFooterAll: String {
+        switch lang {
+        case .cs: return "Tady rozhoduje vytrvalost. Pro čerstvý start máš Týden a Měsíc."
+        case .en: return "Here it's all about staying power. For a fresh start, there's Week and Month."
+        }
+    }
+
+    static var statsNeighboursWeek: String {
+        switch lang {
+        case .cs: return "Tvoji sousedé tento týden"
+        case .en: return "Your neighbours this week"
+        }
+    }
+
+    static var statsNeighboursMonth: String {
+        switch lang {
+        case .cs: return "Tvoji sousedé tento měsíc"
+        case .en: return "Your neighbours this month"
+        }
+    }
+
+    static var statsPersonalWeek: String {
+        switch lang {
+        case .cs: return "s rádiem tento týden"
+        case .en: return "with the radio this week"
+        }
+    }
+
+    static var statsPersonalMonth: String {
+        switch lang {
+        case .cs: return "s rádiem tento měsíc"
+        case .en: return "with the radio this month"
+        }
+    }
+
+    static var statsPersonalAll: String {
+        switch lang {
+        case .cs: return "s rádiem od začátku"
+        case .en: return "with the radio since the start"
+        }
+    }
+
+    static var statsPersonalTitle: String {
+        switch lang {
+        case .cs: return "Tvůj čas s rádiem"
+        case .en: return "Your time with the radio"
+        }
+    }
+
+    static var statsSameAsLastWeek: String {
+        switch lang {
+        case .cs: return "Stejně jako minulý týden"
+        case .en: return "Same as last week"
+        }
+    }
+
+    static var statsSameAsLastMonth: String {
+        switch lang {
+        case .cs: return "Stejně jako minulý měsíc"
+        case .en: return "Same as last month"
+        }
+    }
+
+    static var statsLastWeekTitle: String {
+        switch lang {
+        case .cs: return "Minulý týden"
+        case .en: return "Last week"
+        }
+    }
+
+    static var statsLastWeekGreat: String {
+        switch lang {
+        case .cs: return "Skvělý týden! Nový právě začal — všichni zase od nuly."
+        case .en: return "Great week! A new one has just started — everyone from zero again."
+        }
+    }
+
+    static var statsLastWeekNew: String {
+        switch lang {
+        case .cs: return "Nový týden právě začal."
+        case .en: return "A new week has just started."
+        }
+    }
+
+    static func statsMoreThanLastWeek(_ duration: String) -> String {
+        switch lang {
+        case .cs: return "↑ o \(duration) víc než minulý týden"
+        case .en: return "↑ \(duration) more than last week"
+        }
+    }
+
+    static func statsLessThanLastWeek(_ duration: String) -> String {
+        switch lang {
+        case .cs: return "o \(duration) méně než minulý týden"
+        case .en: return "\(duration) less than last week"
+        }
+    }
+
+    static func statsMoreThanLastMonth(_ duration: String) -> String {
+        switch lang {
+        case .cs: return "↑ o \(duration) víc než minulý měsíc"
+        case .en: return "↑ \(duration) more than last month"
+        }
+    }
+
+    static func statsLessThanLastMonth(_ duration: String) -> String {
+        switch lang {
+        case .cs: return "o \(duration) méně než minulý měsíc"
+        case .en: return "\(duration) less than last month"
+        }
+    }
+
+    static func statsToRankWeek(_ minutes: Int) -> String {
+        switch lang {
+        case .cs: return "Ještě \(minutes) min a jsi v týdenním žebříčku"
+        case .en: return "\(minutes) more min and you're on this week's leaderboard"
+        }
+    }
+
+    static func statsToRankMonth(_ minutes: Int) -> String {
+        switch lang {
+        case .cs: return "Ještě \(minutes) min a jsi v měsíčním žebříčku"
+        case .en: return "\(minutes) more min and you're on this month's leaderboard"
+        }
+    }
+
+    static func statsToRankProgress(_ minutes: Int) -> String {
+        switch lang {
+        case .cs: return "\(minutes) z 10 minut"
+        case .en: return "\(minutes) of 10 minutes"
+        }
+    }
+
+    static func statsLastWeekPlace(_ rank: Int) -> String {
+        switch lang {
+        case .cs: return "#\(rank) v týdenním žebříčku"
+        case .en: return "#\(rank) on the weekly leaderboard"
+        }
+    }
+
+    static func statsWithRadio(_ duration: String) -> String {
+        switch lang {
+        case .cs: return "\(duration) s rádiem"
+        case .en: return "\(duration) with the radio"
         }
     }
 

@@ -105,7 +105,18 @@ enum StoreDemo {
             shows: shows,
             aheadSeconds: 310_440 + 88 * 60,
             behindSeconds: 310_440 - 5 * 3600 - 32 * 60,
-            listeningDays: 41
+            listeningDays: 41,
+            periods: .init(
+                week: .init(seconds: 8 * 3600 + 40 * 60, previousSeconds: 7 * 3600 + 20 * 60, rank: 4, ranked: 412, open: true,
+                            aheadSeconds: 9 * 3600 + 10 * 60, behindSeconds: 7 * 3600 + 55 * 60),
+                month: .init(seconds: 33 * 3600 + 5 * 60, previousSeconds: 30 * 3600, rank: 9, ranked: 1020, open: true,
+                             aheadSeconds: 34 * 3600, behindSeconds: 31 * 3600),
+                all: .init(seconds: 310_440, rank: 12, ranked: 1284, open: true,
+                           aheadSeconds: 310_440 + 88 * 60, behindSeconds: 310_440 - 5 * 3600 - 32 * 60)
+            ),
+            lastWeek: .init(seconds: 12 * 3600 + 15 * 60, rank: 3),
+            streakDays: 6,
+            streakThrough: ListeningTracker.dayString(for: AppClock.now)
         )
     }
 }

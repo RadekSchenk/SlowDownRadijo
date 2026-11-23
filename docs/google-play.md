@@ -108,6 +108,8 @@ Limit 500 znaků na jazyk (kratší než v App Store).
 ```
 • Zimní vzhled: od první adventní neděle do Tří králů v appce sněží a slunce v logu se mění ve vánoční ozdobu. Vypnout jde v Nastavení.
 • Zimní ikona na sezónu.
+• Budík s rádiem: ráno tě vzbudí živé vysílání.
+• Týdenní a měsíční žebříček poslechu a dny v řadě.
 ```
 
 **1.4 – English**
@@ -115,6 +117,8 @@ Limit 500 znaků na jazyk (kratší než v App Store).
 ```
 • Winter look: from the first Sunday of Advent to Epiphany it snows in the app and the sun in the logo turns into a Christmas bauble. You can turn it off in Settings.
 • A winter icon for the season.
+• Radio alarm: wake up to the live broadcast.
+• Weekly and monthly listening leaderboards, and your days in a row.
 ```
 
 **1.3 – čeština**

@@ -9,6 +9,10 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Budík s rádiem rings at the exact minute (setAlarmClock); the listener
+         allows it in Settings → Alarms & reminders. Show reminders use it too
+         when allowed. Not USE_EXACT_ALARM, which Play keeps for clock apps. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <!-- The app is portrait-only (screenOrientation below), which would
          otherwise imply a required portrait screen and hide it from
          landscape-only devices (Play's warning on 1.3). -->
@@ -81,6 +85,17 @@
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Budík s rádiem: the alarm, its notification's buttons, re-planning after a reboot or update. -->
+        <receiver
+            android:name=".alarm.RadioAlarmReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
             </intent-filter>
         </receiver>
 
