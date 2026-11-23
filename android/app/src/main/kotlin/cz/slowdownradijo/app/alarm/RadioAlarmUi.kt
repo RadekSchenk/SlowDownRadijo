@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -19,6 +20,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.WbTwilight
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -40,6 +43,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -60,13 +66,20 @@ private val Sun = Color(0xFFF2C25B)
 @Composable
 fun RadioAlarmLink(settings: RadioAlarmSettings, onClick: () -> Unit) {
     val english = LocalAppLanguage.current.isEnglish
-    Row(Modifier.clickable(onClick = onClick), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            if (settings.isOn) stringResource(R.string.alarmRow, alarmSummary(english, settings)) else stringResource(R.string.alarmSet),
-            style = Theme.Typography.Copy.link, color = Theme.textPrimary,
-        )
-        Icon(Icons.Rounded.WbTwilight, null, tint = if (settings.isOn) Sun else Theme.textPrimary, modifier = Modifier.size(17.dp))
+    val label = if (settings.isOn) stringResource(R.string.alarmRow, alarmSummary(english, settings)) else stringResource(R.string.alarmSet)
+    // One text with the sun at its end: on two lines it follows the last word.
+    val text = buildAnnotatedString {
+        append(label)
+        // Non-breaking space and word joiner: the sun never wraps alone.
+        append("\u00A0\u00A0\u2060")
+        appendInlineContent("sun", "☀")
     }
+    val sun = mapOf(
+        "sun" to InlineTextContent(Placeholder(17.sp, 17.sp, PlaceholderVerticalAlign.TextCenter)) {
+            Icon(Icons.Rounded.WbTwilight, null, tint = if (settings.isOn) Sun else Theme.textPrimary, modifier = Modifier.fillMaxSize())
+        },
+    )
+    Text(text, Modifier.clickable(onClick = onClick), style = Theme.Typography.Copy.link, color = Theme.textPrimary, inlineContent = sun)
 }
 
 /** Everything the alarm sheet shows, so screenshot tests can set it. */

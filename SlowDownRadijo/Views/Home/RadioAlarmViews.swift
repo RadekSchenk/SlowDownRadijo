@@ -14,15 +14,17 @@ struct RadioAlarmLink: View {
         Button {
             isShowingSheet = true
         } label: {
-            HStack(spacing: 8) {
-                Text(alarm.settings.isOn ? L10n.alarmRow(RadioAlarmFormat.summary(alarm.settings)) : L10n.alarmSet)
-                    .font(Theme.Typography.Manrope.bold(size: 14, relativeTo: .subheadline))
-                    .foregroundStyle(Theme.textPrimary)
-                Image(systemName: "sunrise.fill")
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundStyle(alarm.settings.isOn ? Color(hex: 0xF2C25B) : Theme.textPrimary)
-                    .frame(width: 17, height: 15)
-            }
+            // One text with the sun at its end: on two lines it follows the
+            // last word instead of floating beside the block.
+            (Text(alarm.settings.isOn ? L10n.alarmRow(RadioAlarmFormat.summary(alarm.settings)) : L10n.alarmSet)
+                .foregroundStyle(Theme.textPrimary)
+             // Non-breaking space and word joiner: the sun never wraps alone.
+             + Text("\u{00A0}\u{00A0}\u{2060}")
+             + Text(Image(systemName: "sunrise.fill"))
+                .font(.system(size: 13, weight: .bold))
+                .foregroundStyle(alarm.settings.isOn ? Color(hex: 0xF2C25B) : Theme.textPrimary))
+                .font(Theme.Typography.Manrope.bold(size: 14, relativeTo: .subheadline))
+                .multilineTextAlignment(.leading)
         }
         .buttonStyle(.plain)
         .sheet(isPresented: $isShowingSheet) {

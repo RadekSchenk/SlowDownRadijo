@@ -53,6 +53,9 @@ final class RadioAlarmStore: ObservableObject {
     /// Snoozed from the app: the radio plays again at this moment.
     @Published private(set) var snoozedUntil: Date?
     @Published private(set) var snoozeCount = 0
+    /// "Vyzkoušet za 10 sekund": rings like the real alarm — the radio
+    /// when the app is running, the system alarm otherwise.
+    @Published private(set) var testAt: Date?
 
     /// After this many snoozes from the app, it just plays.
     static let maxSnoozes = 3
@@ -131,7 +134,7 @@ final class RadioAlarmStore: ObservableObject {
     /// "Pustit rádio" on the alarm (`PlayRadioAlarmIntent`), "Hrát hned",
     /// or the alarm's time with the app running (`ring()`), where the
     /// volume rises over 30 s.
-    func wake(gently: Bool = false) {
+    func wake(gently: Bool = false, endsOneOff: Bool = true) {
         wokeAt = Date()
         snoozedUntil = nil
         let player = AppServices.shared.player
@@ -141,7 +144,7 @@ final class RadioAlarmStore: ObservableObject {
         } else {
             player.play(trigger: .alarm)
         }
-        if settings.weekdays.isEmpty, settings.isOn {
+        if endsOneOff, settings.weekdays.isEmpty, settings.isOn {
             var next = settings
             next.isOn = false
             next.onceAt = nil
@@ -155,9 +158,10 @@ final class RadioAlarmStore: ObservableObject {
     /// the system alarm rings after all.
     func ring(endOfSnooze: Bool) async {
         guard Self.isSupported else { return }
+        testAt = nil
         cancel(idKey: endOfSnooze ? Self.snoozeIDKey : Self.alarmIDKey)
         let repeating = !settings.weekdays.isEmpty && settings.isOn
-        wake(gently: true)
+        wake(gently: true, endsOneOff: !endOfSnooze)
         RadioAlarmNotifier.postGoodMorning(canSnooze: canSnooze)
         try? await Task.sleep(for: .seconds(20))
         if AppServices.shared.player.state != .playing {
@@ -196,10 +200,14 @@ final class RadioAlarmStore: ObservableObject {
         RadioAlarmNotifier.removeGoodMorning()
     }
 
-    /// "Vyzkoušet za 10 sekund".
+    /// "Vyzkoušet za 10 sekund": the same as the morning — with the app
+    /// running the radio plays (`RadioAlarmNightWatch`), the system alarm
+    /// scheduled here is only the fallback.
     func test() async {
         guard await authorize() else { return }
-        await scheduleOnce(at: Date().addingTimeInterval(10), idKey: Self.snoozeIDKey)
+        let at = Date().addingTimeInterval(10)
+        await scheduleOnce(at: at, idKey: Self.snoozeIDKey)
+        testAt = at
     }
 
     var canSnooze: Bool { snoozeCount < Self.maxSnoozes }

@@ -36,6 +36,7 @@ final class RadioAlarmNightWatch {
         player.$state.removeDuplicates().sink { [weak self] _ in self?.schedule() }.store(in: &cancellables)
         store.$settings.sink { [weak self] _ in self?.schedule() }.store(in: &cancellables)
         store.$snoozedUntil.sink { [weak self] _ in self?.schedule() }.store(in: &cancellables)
+        store.$testAt.sink { [weak self] _ in self?.schedule() }.store(in: &cancellables)
         store.$authorization.sink { [weak self] _ in self?.schedule() }.store(in: &cancellables)
         NotificationCenter.default.publisher(for: AVAudioSession.interruptionNotification)
             .sink { [weak self] note in
@@ -49,6 +50,8 @@ final class RadioAlarmNightWatch {
     /// snooze, or the alarm.
     private var nextRing: (date: Date, endOfSnooze: Bool)? {
         let store = RadioAlarmStore.shared
+        // The test alarm and the end of a snooze share the one-off alarm.
+        if let test = store.testAt, test > Date() { return (test, true) }
         if let until = store.snoozedUntil, until > Date() { return (until, true) }
         if let fire = store.nextFire, fire > Date() { return (fire, false) }
         return nil

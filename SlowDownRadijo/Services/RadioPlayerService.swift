@@ -535,6 +535,14 @@ final class RadioPlayerService: NSObject, ObservableObject {
             }
         } catch {
             print("AVAudioSession configuration error: \(error)")
+            // From the background (the radio alarm, `RadioAlarmNightWatch`)
+            // iOS may refuse a session that stops other audio; a mixable
+            // one still plays. The next start in the app is the usual one.
+            if activate {
+                let session = AVAudioSession.sharedInstance()
+                try? session.setCategory(.playback, mode: .default, options: [.mixWithOthers])
+                try? session.setActive(true)
+            }
         }
     }
 
