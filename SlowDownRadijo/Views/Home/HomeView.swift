@@ -154,6 +154,7 @@ struct HomeView: View {
         }
         .sheet(item: $chatOpening) { opening in
             ChatSheetView(nowPlaying: nowPlaying, scheduleStore: scheduleStore, focusComposer: opening.withKeyboard)
+                .onAppear { Analytics.shared.screen(.chat) }
                 .presentationDetents(Self.chatDetents)
                 .presentationDragIndicator(.visible)
                 .presentationCornerRadius(24)
@@ -163,6 +164,7 @@ struct HomeView: View {
         }
         .sheet(item: $openContest) { contest in
             ContestSheetView(snapshot: contest)
+                .onAppear { Analytics.shared.screen(.contest) }
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
                 .presentationCornerRadius(24)

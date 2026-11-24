@@ -126,6 +126,20 @@ Přehledy v PostHogu pro v3:
 | Odkud přicházejí registrace | Trends `account_registered`, breakdown `source` a `method` |
 | Odrazuje okno přezdívky | Funnel `chat_nickname_prompt_shown` → `chat_nickname_set` → `chat_message_sent` |
 
+#### 1.4: budík, žebříčky, nové obrazovky (implementováno v obou appkách)
+
+| událost | kdy | vlastnosti |
+|---|---|---|
+| `screen_viewed` | nově i chat, soutěž, budík a zpětná vazba | `screen`: navíc `chat`, `contest`, `radio_alarm`, `feedback` |
+| `radio_alarm_saved` | Uložit budík / Uložit změny | `days`: `once`, `weekdays`, `weekend`, `daily`, `custom`; `hour` (0–23); `snooze_min`; `edit` (budík už byl zapnutý) |
+| `radio_alarm_turned_off` | Vypnout budík | — |
+| `radio_alarm_tested` | Vyzkoušet za 10 sekund | — |
+| `radio_alarm_snoozed` | Odložit (karta na úvodní obrazovce nebo upozornění) | `count` (kolikáté odložení to ráno) |
+| `stats_period_changed` | přepnutí Týden · Měsíc · Celkem ve Statistikách | `period`: `week` / `month` / `all`; `ranked` (je v tom žebříčku) |
+
+Probuzení budíkem je `playback_started` s `trigger` = `alarm` (už od 1.4 bety).
+Na iOS se `radio_alarm_saved` pošle, jen když budík dostal povolení.
+
 `show_id` je id pořadu ze `schedule.json`, `_` když žádný neběží.
 
 ### Doporučené přehledy v PostHogu

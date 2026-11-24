@@ -146,6 +146,8 @@ final class Analytics: ObservableObject {
 /// Screens as they appear in the data.
 enum AnalyticsScreen: String {
     case home, message, stats, support, profile, menu, settings, showReminders = "show_reminders", news
+    /// Sheets and pages added in 1.3 and 1.4.
+    case chat, contest, radioAlarm = "radio_alarm", feedback
 }
 
 /// Every event the app sends — names and properties in one place, the same
@@ -224,6 +226,16 @@ enum AnalyticsEvent {
     case adminContestCreated(answerType: String, winners: Int)
     case adminContestEnded
     case adminContestDrawn(replacement: Bool)
+    /// "Budík s rádiem" (1.4). `days`: `once`, `weekdays`, `weekend`,
+    /// `daily`, `custom`; `hour`: 0–23; `edit`: the alarm was already on.
+    /// Waking up is `playback_started` with `trigger` = `alarm`.
+    case radioAlarmSaved(days: String, hour: Int, snoozeMinutes: Int, edit: Bool)
+    case radioAlarmTurnedOff
+    case radioAlarmTested
+    /// `count`: the how-manieth snooze this morning.
+    case radioAlarmSnoozed(count: Int)
+    /// Statistiky 1.4: Týden · Měsíc · Celkem. `ranked`: on that leaderboard.
+    case statsPeriodChanged(period: String, ranked: Bool)
     case djInviteClaimed(success: Bool)
 
     var name: String {
@@ -270,6 +282,11 @@ enum AnalyticsEvent {
         case .adminContestCreated: return "admin_contest_created"
         case .adminContestEnded: return "admin_contest_ended"
         case .adminContestDrawn: return "admin_contest_drawn"
+        case .radioAlarmSaved: return "radio_alarm_saved"
+        case .radioAlarmTurnedOff: return "radio_alarm_turned_off"
+        case .radioAlarmTested: return "radio_alarm_tested"
+        case .radioAlarmSnoozed: return "radio_alarm_snoozed"
+        case .statsPeriodChanged: return "stats_period_changed"
         }
     }
 
@@ -365,6 +382,14 @@ enum AnalyticsEvent {
             return [:]
         case .adminContestDrawn(let replacement):
             return ["replacement": replacement]
+        case .radioAlarmSaved(let days, let hour, let snoozeMinutes, let edit):
+            return ["days": days, "hour": hour, "snooze_min": snoozeMinutes, "edit": edit]
+        case .radioAlarmTurnedOff, .radioAlarmTested:
+            return [:]
+        case .radioAlarmSnoozed(let count):
+            return ["count": count]
+        case .statsPeriodChanged(let period, let ranked):
+            return ["period": period, "ranked": ranked]
         }
     }
 

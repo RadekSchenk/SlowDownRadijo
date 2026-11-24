@@ -30,6 +30,7 @@ struct RadioAlarmLink: View {
         .sheet(isPresented: $isShowingSheet) {
             RadioAlarmSheet(scheduleStore: scheduleStore)
                 .appTextSizeLimit()
+                .onAppear { Analytics.shared.screen(.radioAlarm) }
         }
     }
 }

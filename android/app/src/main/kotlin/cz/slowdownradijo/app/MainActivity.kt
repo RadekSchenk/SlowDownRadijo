@@ -227,6 +227,7 @@ private fun StatsPage(onOpenMenu: () -> Unit) {
                     scope.launch { app.stats.refreshAll(force = true) }
                 },
                 onRetry = { scope.launch { app.stats.refreshAll(force = true) } },
+                onPeriodChanged = { period, ranked -> app.analytics.track(AnalyticsEvent.StatsPeriodChanged(period.id, ranked)) },
             )
         }
     }
@@ -400,7 +401,10 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
                 modifier = Modifier.padding(top = Theme.Spacing.xl),
             )
         }
-        openContest?.let { cz.slowdownradijo.app.contests.ContestSheet(it) { openContest = null } }
+        openContest?.let {
+            androidx.compose.runtime.LaunchedEffect(it) { app.analytics.screen(AnalyticsScreen.CONTEST) }
+            cz.slowdownradijo.app.contests.ContestSheet(it) { openContest = null }
+        }
         dismissingContest?.let { shown ->
             cz.slowdownradijo.app.profile.ConfirmDialog(
                 androidx.compose.ui.res.stringResource(R.string.contestDismissTitle),
@@ -437,6 +441,7 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
             now = now,
         )
         chatOpening?.let { withKeyboard ->
+            androidx.compose.runtime.LaunchedEffect(Unit) { app.analytics.screen(AnalyticsScreen.CHAT) }
             cz.slowdownradijo.app.chat.ChatSheet(withKeyboard, onAir.show) { chatOpening = null }
         }
         val stats = statsUi()
@@ -474,13 +479,19 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
             app.radioAlarm.reschedule()
             onPauseOrDispose { }
         }
+        androidx.compose.runtime.LaunchedEffect(Unit) { app.analytics.screen(AnalyticsScreen.RADIO_ALARM) }
         cz.slowdownradijo.app.alarm.RadioAlarmSheet(
             cz.slowdownradijo.app.alarm.RadioAlarmSheetUi(alarmSettings, canExact, showAt = { app.schedule.currentShow(it) }),
             cz.slowdownradijo.app.alarm.RadioAlarmActions(
-                save = { app.radioAlarm.save(it); showingAlarm = false },
-                switchOff = { app.radioAlarm.switchOff(); showingAlarm = false },
+                save = {
+                    val edit = alarmSettings.isOn
+                    app.radioAlarm.save(it)
+                    app.analytics.track(AnalyticsEvent.RadioAlarmSaved(it.analyticsDays, it.hour, it.snoozeMinutes, edit))
+                    showingAlarm = false
+                },
+                switchOff = { app.radioAlarm.switchOff(); app.analytics.track(AnalyticsEvent.RadioAlarmTurnedOff()); showingAlarm = false },
                 openPermission = { runCatching { context.startActivity(app.radioAlarm.exactAlarmSettingsIntent()) } },
-                test = app.radioAlarm::test,
+                test = { app.radioAlarm.test(); app.analytics.track(AnalyticsEvent.RadioAlarmTested()) },
             ),
             onDismiss = { showingAlarm = false },
         )
@@ -584,6 +595,7 @@ private fun Menu(onClose: () -> Unit) {
             },
             newsDetail = { id, back -> NewsDetailScreen(app.news.post(id), back) },
             feedback = { back ->
+                androidx.compose.runtime.LaunchedEffect(Unit) { app.analytics.screen(AnalyticsScreen.FEEDBACK) }
                 val message by app.feedback.message.collectAsStateWithLifecycle()
                 val state by app.feedback.state.collectAsStateWithLifecycle()
                 val language = cz.slowdownradijo.app.l10n.LocalAppLanguage.current

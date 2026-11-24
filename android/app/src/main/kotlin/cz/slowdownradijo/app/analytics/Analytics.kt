@@ -28,6 +28,8 @@ import kotlin.math.roundToInt
 /** The screens, with the iOS names (`AnalyticsScreen`). */
 enum class AnalyticsScreen(val id: String) {
     HOME("home"), MESSAGE("message"), STATS("stats"), PROFILE("profile"), MENU("menu"), SETTINGS("settings"), SHOW_REMINDERS("show_reminders"), NEWS("news"),
+    /** Sheets and pages added in 1.3 and 1.4. */
+    CHAT("chat"), CONTEST("contest"), RADIO_ALARM("radio_alarm"), FEEDBACK("feedback"),
 }
 
 /** The events, with the iOS names and properties (`AnalyticsEvent` in Analytics.swift). */
@@ -113,6 +115,17 @@ sealed class AnalyticsEvent(val name: String, val properties: Map<String, Any>) 
     class AdminContestCreated(answerType: String, winners: Int) : AnalyticsEvent("admin_contest_created", mapOf("answer_type" to answerType, "winners" to winners))
     class AdminContestEnded : AnalyticsEvent("admin_contest_ended", emptyMap())
     class AdminContestDrawn(replacement: Boolean) : AnalyticsEvent("admin_contest_drawn", mapOf("replacement" to replacement))
+
+    /** "Budík s rádiem" (1.4). `days`: once, weekdays, weekend, daily, custom; `edit`: it was already on. Waking up is `playback_started` with `trigger` = `alarm`. */
+    class RadioAlarmSaved(days: String, hour: Int, snoozeMinutes: Int, edit: Boolean) : AnalyticsEvent(
+        "radio_alarm_saved", mapOf("days" to days, "hour" to hour, "snooze_min" to snoozeMinutes, "edit" to edit),
+    )
+    class RadioAlarmTurnedOff : AnalyticsEvent("radio_alarm_turned_off", emptyMap())
+    class RadioAlarmTested : AnalyticsEvent("radio_alarm_tested", emptyMap())
+    /** `count`: the how-manieth snooze this morning. */
+    class RadioAlarmSnoozed(count: Int) : AnalyticsEvent("radio_alarm_snoozed", mapOf("count" to count))
+    /** Statistiky 1.4: Týden · Měsíc · Celkem. `ranked`: on that leaderboard. */
+    class StatsPeriodChanged(period: String, ranked: Boolean) : AnalyticsEvent("stats_period_changed", mapOf("period" to period, "ranked" to ranked))
 
     companion object {
         fun rounded(seconds: Int, step: Int = 10) = maxOf(0, (seconds.toDouble() / step).roundToInt() * step)
