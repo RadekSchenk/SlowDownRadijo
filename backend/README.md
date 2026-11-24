@@ -351,6 +351,11 @@ listener's anonymous stats user, so their stats stay. Design and rules:
     `posthog_export.listening_quality_daily`, `listening_quality_users`,
     `chat_daily`, `chat_shows_30d` and `chat_retention` (turned on in the
     "radio" source, every 6 hours). On production since 21. 11. 2026.
+17. **Run `supabase/sql/029_admin_find_hosts.sql`** (after 028): "Přidat
+    správce" also finds moderators linked by an invite. They have no
+    nickname (they write under the programme's name, e.g. "DJ Pufaz"), so
+    the search now matches that name too, from the start of any word, and
+    the list of admins shows it. Backend only; both apps as they are.
 9. **Invite links on slowdownradijo.cz.** Until these two files are on the
    web, the `https://slowdownradijo.cz/dj/<code>` link opens the website, not
    the app; `slowdownradijo://dj/<code>` works right away in both apps.
