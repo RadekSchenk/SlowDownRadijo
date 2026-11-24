@@ -27,10 +27,14 @@
         android:supportsRtl="false"
         android:theme="@style/Theme.SlowDownRadijo">
 
+        <!-- Phones stay portrait, tablets turn every way (1.4): set in
+             MainActivity.onCreate by the screen's smallest width. Turning
+             doesn't recreate the activity (configChanges), Compose just lays
+             out again, so a recording or an open sheet survives it. -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>

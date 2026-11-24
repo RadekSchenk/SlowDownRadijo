@@ -103,6 +103,7 @@ import cz.slowdownradijo.app.ui.theme.Theme
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.time.Instant
+import cz.slowdownradijo.app.ui.theme.contentColumn
 
 /** What the composer may do (Figma B, G, L3). */
 data class ChatWriter(
@@ -734,7 +735,7 @@ fun NicknameFirstStep(
     var saving by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     Column(
-        Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(top = 8.dp, bottom = 24.dp).navigationBarsPadding().imePadding(),
+        Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).contentColumn().padding(horizontal = 20.dp).padding(top = 8.dp, bottom = 24.dp).navigationBarsPadding().imePadding(),
         verticalArrangement = Arrangement.spacedBy(Theme.Spacing.lg),
     ) {
         ProfileHeading(stringResource(R.string.chatNicknameTitle), stringResource(R.string.chatNicknameBody), hero = true)
@@ -772,7 +773,7 @@ fun NicknameFirstStep(
 @Composable
 fun SignInExisting(busy: Boolean, actions: ProfileActions, onBack: () -> Unit, onRules: () -> Unit) {
     Column(
-        Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(top = 8.dp, bottom = 24.dp).navigationBarsPadding(),
+        Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).contentColumn().padding(horizontal = 20.dp).padding(top = 8.dp, bottom = 24.dp).navigationBarsPadding(),
         verticalArrangement = Arrangement.spacedBy(Theme.Spacing.lg),
     ) {
         ProfileHeading(stringResource(R.string.chatSignInTitle), stringResource(R.string.chatSignInBody), hero = true)

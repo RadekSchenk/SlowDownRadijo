@@ -36,6 +36,7 @@ struct StatsView: View {
                 .padding(.bottom, 36)
             }
             .padding(.horizontal, 20)
+            .contentColumn()
             .scrollsToTopOnTabReselect()
         }
         .ignoresSafeArea(edges: .top)

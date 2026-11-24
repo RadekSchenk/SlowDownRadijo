@@ -67,6 +67,7 @@ import cz.slowdownradijo.app.ui.components.LocalReduceMotion
 import cz.slowdownradijo.app.ui.theme.Theme
 import java.time.Duration
 import java.time.Instant
+import cz.slowdownradijo.app.ui.theme.contentColumn
 
 /** Everything the home screen draws, so screenshot tests can set it. */
 data class HomeUi(
@@ -113,6 +114,7 @@ fun HomeScreen(ui: HomeUi, actions: HomeActions, below: @Composable ColumnScope.
                 .headerClouds(isPlaying)
                 // In front of the clouds, behind everything else.
                 .winterSnow(ui.winter)
+                .contentColumn()
                 .padding(horizontal = 20.dp)
                 .navigationBarsPadding()
                 .padding(bottom = Theme.Spacing.xl),

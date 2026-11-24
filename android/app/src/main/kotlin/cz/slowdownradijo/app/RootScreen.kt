@@ -36,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cz.slowdownradijo.app.ui.components.ToastHost
 import cz.slowdownradijo.app.ui.theme.Theme
+import cz.slowdownradijo.app.ui.theme.contentColumn
 
 /** The bottom bar's tabs, as on iOS 1.3: Rádio, Statistiky, Vzkaz, Profil. */
 enum class Tab(val label: Int, val icon: Int) {
@@ -96,7 +97,9 @@ fun BottomBar(selected: Tab, onSelect: (Tab) -> Unit) = cz.slowdownradijo.app.ui
         Box(Modifier.fillMaxWidth().height(1.dp).background(Theme.hairline(0.08f)))
         Row(
             Modifier
-                .fillMaxWidth()
+                // Tablets: the tabs over the content column, the bar's
+                // background edge to edge.
+                .contentColumn()
                 .padding(horizontal = 24.dp)
                 .padding(top = Theme.TabBar.topPadding, bottom = Theme.TabBar.iconLabelSpacing),
         ) {

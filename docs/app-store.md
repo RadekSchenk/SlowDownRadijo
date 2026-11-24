@@ -16,6 +16,11 @@ The 1.3 set (Morning Coffee with the contest card, chat, profile of `cevapcicidi
 `-storeDemo YES -contestDemo YES`, so any time of day) is in `appstore/screenshots/6.3/{cs,en}`
 (upload these) and `appstore/screenshots/6.9/{cs,en}`.
 
+From 1.4 the app is also an iPad app (`TARGETED_DEVICE_FAMILY` 1,2), so
+App Store Connect also wants a 13" iPad set (2064 x 2752, or 2752 x 2064
+in landscape). The screenshot job doesn't take them yet: for now from the
+iPad Pro 13-inch simulator by hand, with the same launch arguments.
+
 ## App information
 
 | Field | Value |

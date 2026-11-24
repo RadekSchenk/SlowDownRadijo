@@ -55,6 +55,7 @@ import cz.slowdownradijo.app.ui.components.SecondaryActionButton
 import cz.slowdownradijo.app.ui.theme.Theme
 import java.time.Instant
 import java.time.format.DateTimeFormatter
+import cz.slowdownradijo.app.ui.theme.contentColumn
 
 /** What pressing and holding a message offers (Figma L1, L2/Z1, Z4). */
 enum class ChatMenuAction { PIN, UNPIN, COPY, DELETE, MUTE, UNMUTE, BLOCK, REPORT, HIDE }
@@ -240,7 +241,7 @@ fun HostInviteContent(
     onClose: () -> Unit,
 ) {
     Column(
-        Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(top = 8.dp, bottom = 24.dp).navigationBarsPadding(),
+        Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).contentColumn().padding(horizontal = 20.dp).padding(top = 8.dp, bottom = 24.dp).navigationBarsPadding(),
         verticalArrangement = Arrangement.spacedBy(Theme.Spacing.lg),
     ) {
         when (phase) {

@@ -43,6 +43,7 @@ import cz.slowdownradijo.app.ui.components.ListRow
 import cz.slowdownradijo.app.ui.components.ListRowIcon
 import cz.slowdownradijo.app.ui.components.PrimaryActionButton
 import cz.slowdownradijo.app.ui.theme.Theme
+import cz.slowdownradijo.app.ui.theme.contentColumn
 
 private fun NewsPost.dateLabel(english: Boolean) = L10nLogic.formattedDate(english, dateGmt.atZone(ScheduleStore.STATION_ZONE).toLocalDate())
 
@@ -51,7 +52,7 @@ private fun NewsPost.dateLabel(english: Boolean) = L10nLogic.formattedDate(engli
 fun NewsListScreen(state: NewsStore.State, notificationsOn: Boolean, onNotifications: (Boolean) -> Unit, onOpen: (NewsPost) -> Unit, back: () -> Unit) {
     val english = LocalAppLanguage.current.isEnglish
     Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(top = 20.dp, bottom = Theme.Spacing.xl),
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).contentColumn().padding(horizontal = 20.dp).padding(top = 20.dp, bottom = Theme.Spacing.xl),
         verticalArrangement = Arrangement.spacedBy(Theme.Spacing.lg),
     ) {
         BackHeader(stringResource(R.string.newsTitle), stringResource(R.string.close), back)
@@ -93,7 +94,7 @@ fun NewsDetailScreen(post: NewsPost?, back: () -> Unit) {
     val english = LocalAppLanguage.current.isEnglish
     val context = LocalContext.current
     Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(top = 20.dp, bottom = Theme.Spacing.xl),
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).contentColumn().padding(horizontal = 20.dp).padding(top = 20.dp, bottom = Theme.Spacing.xl),
         verticalArrangement = Arrangement.spacedBy(Theme.Spacing.lg),
     ) {
         BackHeader(stringResource(R.string.newsTitle), stringResource(R.string.close), back)

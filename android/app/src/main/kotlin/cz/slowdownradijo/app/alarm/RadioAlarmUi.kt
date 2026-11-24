@@ -59,6 +59,7 @@ import cz.slowdownradijo.app.ui.theme.Theme
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import cz.slowdownradijo.app.ui.theme.contentColumn
 
 private val Sun = Color(0xFFF2C25B)
 
@@ -130,6 +131,7 @@ fun RadioAlarmSheetContent(ui: RadioAlarmSheetUi, actions: RadioAlarmActions) {
         Modifier
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
+            .contentColumn()
             .padding(horizontal = 20.dp)
             .padding(top = 12.dp, bottom = 16.dp)
             .navigationBarsPadding(),

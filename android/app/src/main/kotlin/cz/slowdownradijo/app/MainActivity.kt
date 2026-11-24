@@ -1,5 +1,6 @@
 package cz.slowdownradijo.app
 
+import android.content.pm.ActivityInfo
 import android.content.ComponentName
 import android.content.Intent
 import android.net.Uri
@@ -74,6 +75,7 @@ import cz.slowdownradijo.app.stats.StatsContent
 import cz.slowdownradijo.app.stats.StatsHomeBlock
 import cz.slowdownradijo.app.stats.StatsUi
 import java.time.Instant
+import cz.slowdownradijo.app.ui.theme.contentColumn
 
 class MainActivity : ComponentActivity() {
     private var controller: ListenableFuture<MediaController>? = null
@@ -85,6 +87,14 @@ class MainActivity : ComponentActivity() {
             navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
         )
         super.onCreate(savedInstanceState)
+        // Phones stay portrait; tablets (600 dp and wider either way) turn
+        // every way, like the iPad (1.4). Android 16 ignores the lock on
+        // large screens anyway.
+        requestedOrientation = if (resources.configuration.smallestScreenWidthDp >= 600) {
+            ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
         val app = app
         app.startNowPlaying()
         // A radio app makes sound as soon as it opens, unless the listener turned that off.
@@ -203,6 +213,7 @@ private fun StatsPage(onOpenMenu: () -> Unit) {
         Modifier
             .fillMaxSize()
             .androidx_verticalScroll()
+            .contentColumn()
             .padding(horizontal = 20.dp)
     ) {
         androidx.compose.foundation.layout.Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
@@ -257,6 +268,7 @@ private fun MessagePage(onOpenMenu: () -> Unit, onBackToRadio: () -> Unit) {
         Modifier
             .fillMaxSize()
             .androidx_verticalScroll()
+            .contentColumn()
             .padding(horizontal = 20.dp)
             .padding(bottom = Theme.Spacing.xl)
     ) {
