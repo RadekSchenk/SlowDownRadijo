@@ -229,7 +229,8 @@ class ChatService(
                     put("p_body", pending.body)
                     put("p_show_id", showId)
                     put("p_show_title", showTitle)
-                    put("p_reply_to", pending.replyTo?.id)
+                    // Only for a reply: a server without 030 still takes ordinary messages.
+                    pending.replyTo?.let { put("p_reply_to", it.id) }
                 },
             ).decodeAs<ChatMessage>()
             removeOutgoing(id)
