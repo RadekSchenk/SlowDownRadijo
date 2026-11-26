@@ -439,6 +439,8 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
             onSeen = app.chat::markSeen,
             modifier = Modifier.padding(top = Theme.Spacing.xl),
             now = now,
+            viewerId = app.account.me?.userId,
+            onFocus = app.chat::requestFocus,
         )
         chatOpening?.let { withKeyboard ->
             androidx.compose.runtime.LaunchedEffect(Unit) { app.analytics.screen(AnalyticsScreen.CHAT) }

@@ -2666,6 +2666,78 @@ extension L10n {
         }
     }
 
+    // Replies (1.4, Figma Chat ▸ "Chat 1.4 — Odpovědi na zprávy")
+
+    static var chatMenuReply: String {
+        switch lang {
+        case .cs: return "Odpovědět"
+        case .en: return "Reply"
+        }
+    }
+
+    static func chatReplyingTo(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Odpovídáš: \(name)"
+        case .en: return "Replying to \(name)"
+        }
+    }
+
+    static var chatReplyCancel: String {
+        switch lang {
+        case .cs: return "Zrušit odpověď"
+        case .en: return "Cancel reply"
+        }
+    }
+
+    static var chatQuoteYou: String {
+        switch lang {
+        case .cs: return "Ty"
+        case .en: return "You"
+        }
+    }
+
+    static var chatQuoteUnavailable: String {
+        switch lang {
+        case .cs: return "Původní zpráva už tu není"
+        case .en: return "The original message is no longer here"
+        }
+    }
+
+    static var chatHomeToYou: String {
+        switch lang {
+        case .cs: return "tobě"
+        case .en: return "you"
+        }
+    }
+
+    static var chatBackToLatest: String {
+        switch lang {
+        case .cs: return "Zpět na nejnovější"
+        case .en: return "Back to latest"
+        }
+    }
+
+    static var chatReplyUnavailable: String {
+        switch lang {
+        case .cs: return "Zpráva, na kterou odpovídáš, už tu není."
+        case .en: return "The message you're replying to is no longer here."
+        }
+    }
+
+    static func chatReplyTo(_ name: String) -> String {
+        switch lang {
+        case .cs: return "Odpověď pro \(name)"
+        case .en: return "Reply to \(name)"
+        }
+    }
+
+    static var chatReplyToYou: String {
+        switch lang {
+        case .cs: return "Odpověď na tvou zprávu"
+        case .en: return "Reply to your message"
+        }
+    }
+
     static var chatMenuDelete: String {
         switch lang {
         case .cs: return "Smazat zprávu"

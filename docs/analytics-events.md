@@ -140,6 +140,19 @@ Přehledy v PostHogu pro v3:
 Probuzení budíkem je `playback_started` s `trigger` = `alarm` (už od 1.4 bety).
 Na iOS se `radio_alarm_saved` pošle, jen když budík dostal povolení.
 
+#### Odpovědi v chatu (od 1.4, v obou appkách)
+
+| událost | kdy | vlastnosti |
+|---|---|---|
+| `chat_reply_started` | posluchač začal odpovídat na zprávu | `source`: `swipe` (táhnutí doprava) / `menu` (podržení → Odpovědět) / `accessibility` (akce VoiceOver / TalkBack) |
+| `chat_message_sent` | nově i vlastnost `is_reply` | `true`, když zpráva odpovídá na jinou |
+
+| otázka | jak |
+|---|---|
+| Používají se odpovědi | Trends `chat_message_sent` (success), breakdown `is_reply` |
+| Jak se na odpověď přichází | Trends `chat_reply_started`, breakdown `source` |
+| Dopíše se odpověď | Funnel `chat_reply_started` → `chat_message_sent` (`is_reply` = true) |
+
 `show_id` je id pořadu ze `schedule.json`, `_` když žádný neběží.
 
 ### Doporučené přehledy v PostHogu

@@ -34,6 +34,16 @@ struct ChatSheetView: View {
     @State private var afterMenu: (() -> Void)?
     @State private var isAtBottom = true
     @State private var bottomSeenID: Int64 = 0
+    /// The message being answered (Figma R3): the bar above the field.
+    @State private var replyTarget: ChatMessage?
+    /// The reply that waits for sign-in together with `pendingText`.
+    @State private var pendingReply: ChatMessage?
+    /// Where a tapped quote (or a reply on the home page) scrolls to.
+    @State private var jumpTarget: Int64?
+    /// The original, briefly tinted after the jump (R6).
+    @State private var highlightedID: Int64?
+    /// Jumped up to an original: "Zpět na nejnovější" until back down.
+    @State private var hasJumped = false
 
     private static let bottomID = "chat-bottom"
 
@@ -56,10 +66,13 @@ struct ChatSheetView: View {
             bottomSeenID = chat.messages.last?.id ?? 0
             if focusComposer {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { isComposerFocused = true }
+            } else if let focus = chat.focusMessageID {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { jumpTarget = focus }
             }
+            chat.focusMessageID = nil
         }
         .onDisappear { chat.markSeen() }
-        .sheet(isPresented: $isShowingJoin, onDismiss: { pendingText = nil }) {
+        .sheet(isPresented: $isShowingJoin, onDismiss: { pendingText = nil; pendingReply = nil }) {
             ChatJoinSheet(onReady: joined)
                 .appTextSizeLimit()
         }
@@ -127,8 +140,46 @@ struct ChatSheetView: View {
             viewer: account.me?.userID,
             isModerator: isModerator,
             isPinned: chat.pinned?.id == message.id,
-            status: menuStatus
+            status: menuStatus,
+            canReply: canReply(message)
         )
+    }
+
+    // MARK: - Replies (Figma Chat 1.4, R1–R6)
+
+    private func canReply(_ message: ChatMessage) -> Bool {
+        canWrite && !message.isDeleted
+    }
+
+    /// R1 (swipe) and R2 (menu): the bar above the field, keyboard up.
+    private func startReply(to message: ChatMessage, source: String) {
+        guard canReply(message) else { return }
+        Analytics.shared.track(.chatReplyStarted(source: source))
+        withAnimation(Motion.smoothOut(Motion.fast)) {
+            replyTarget = message
+            isShowingEmoji = false
+        }
+        isComposerFocused = true
+    }
+
+    private func quote(for message: ChatMessage) -> ChatQuote.Display? {
+        message.replyTo?.display(viewer: account.me?.userID, hidden: chat.hiddenUserIDs)
+    }
+
+    /// R6: tapping a quote scrolls to the original and tints it for a moment.
+    private func jump(to id: Int64, rows: [ChatTimeline.Row], proxy: ScrollViewProxy) {
+        guard let rowID = rows.first(where: { row in
+            if case .message(let m) = row { return m.id == id }
+            return false
+        })?.id else { return }
+        hasJumped = true
+        withAnimation(Motion.smoothOut(Motion.medium)) { proxy.scrollTo(rowID, anchor: .center) }
+        withAnimation(Motion.smoothOut(Motion.fast)) { highlightedID = id }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            withAnimation(Motion.smoothOut(Motion.medium)) {
+                if highlightedID == id { highlightedID = nil }
+            }
+        }
     }
 
     private func toast(_ message: String, icon: String = "checkmark.circle", undoTitle: String? = nil, undo: (() -> Void)? = nil) {
@@ -148,6 +199,8 @@ struct ChatSheetView: View {
     private func perform(_ action: ChatMenuAction, on message: ChatMessage) {
         let name = ChatStyle.name(message)
         switch action {
+        case .reply:
+            startReply(to: message, source: "menu")
         case .copy:
             UIPasteboard.general.string = message.body
         case .pin:
@@ -330,6 +383,7 @@ struct ChatSheetView: View {
                         .id(Self.bottomID)
                         .onAppear {
                             isAtBottom = true
+                            hasJumped = false
                             bottomSeenID = chat.messages.last?.id ?? 0
                             chat.markSeen()
                         }
@@ -341,16 +395,16 @@ struct ChatSheetView: View {
             .defaultScrollAnchor(.bottom)
             .scrollDismissesKeyboard(.interactively)
             .overlay(alignment: .bottom) {
-                if !isAtBottom, unseenCount > 0 {
+                if !isAtBottom, unseenCount > 0 || hasJumped {
                     Button {
                         withAnimation(Motion.smoothOut(Motion.medium)) { proxy.scrollTo(Self.bottomID, anchor: .bottom) }
                     } label: {
-                        Text("↓ \(L10n.chatNewMessages(unseenCount))")
+                        Text(unseenCount > 0 ? "↓ \(L10n.chatNewMessages(unseenCount))" : "\(L10n.chatBackToLatest) ↓")
                             .font(Theme.Typography.Manrope.extraBold(size: 14, relativeTo: .subheadline))
                             .foregroundStyle(Theme.textPrimary)
                             .padding(.horizontal, 16)
                             .frame(height: 36)
-                            .background(Theme.liveRed, in: Capsule())
+                            .background(unseenCount > 0 ? Theme.liveRed : Theme.statsCardRaised, in: Capsule())
                     }
                     .buttonStyle(.plain)
                     .padding(.bottom, 12)
@@ -361,6 +415,11 @@ struct ChatSheetView: View {
                 if isAtBottom || !chat.outgoing.isEmpty {
                     withAnimation(Motion.smoothOut(Motion.medium)) { proxy.scrollTo(Self.bottomID, anchor: .bottom) }
                 }
+            }
+            .onChange(of: jumpTarget) { _, target in
+                guard let target else { return }
+                jumpTarget = nil
+                jump(to: target, rows: rows, proxy: proxy)
             }
         }
     }
@@ -381,17 +440,28 @@ struct ChatSheetView: View {
         case .divider(_, let text):
             ChatDividerRow(text: text)
         case .message(let message):
-            ChatMessageRow(message: message)
-                .onLongPressGesture(minimumDuration: 0.35) { openMenu(message) }
-                .accessibilityAction(named: L10n.chatMenuCopy) { UIPasteboard.general.string = message.body }
-                .accessibilityAction { openMenu(message) }
+            ChatMessageRow(message: message, quote: quote(for: message)) {
+                if let id = message.replyTo?.id { jumpTarget = id }
+            }
+            .background {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(Color.white.opacity(highlightedID == message.id ? 0.07 : 0))
+                    .padding(.horizontal, -10)
+                    .padding(.vertical, -6)
+            }
+            .swipeToReply(enabled: canReply(message)) { startReply(to: message, source: "swipe") }
+            .onLongPressGesture(minimumDuration: 0.35) { openMenu(message) }
+            .accessibilityAction(named: L10n.chatMenuReply) { startReply(to: message, source: "accessibility") }
+            .accessibilityAction(named: L10n.chatMenuCopy) { UIPasteboard.general.string = message.body }
+            .accessibilityAction { openMenu(message) }
         case .emoji(_, let emoji, let count, let names):
             ChatEmojiGroupRow(emoji: emoji, count: count, names: names)
         case .outgoing(let message):
             ChatOutgoingRow(
                 message: message,
                 name: account.me?.chatName ?? "",
-                role: account.me.map { ChatMessage.Role(rawValue: $0.role.rawValue) ?? .listener } ?? .listener
+                role: account.me.map { ChatMessage.Role(rawValue: $0.role.rawValue) ?? .listener } ?? .listener,
+                quote: message.replyTo?.display(viewer: account.me?.userID, hidden: chat.hiddenUserIDs)
             ) {
                 Task { try? await chat.retry(message.id) }
             }
@@ -446,6 +516,10 @@ struct ChatSheetView: View {
                 if !isShowingEmoji {
                     quickEmoji
                 }
+                if let replyTarget {
+                    replyBar(replyTarget)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
                 HStack(spacing: 10) {
                     HStack(alignment: .bottom, spacing: 8) {
                         TextField(L10n.chatPlaceholder, text: $draft, axis: .vertical)
@@ -489,6 +563,43 @@ struct ChatSheetView: View {
         } else {
             mutedBanner
         }
+    }
+
+    /// R3: "Odpovídáš: karolina.pivnivila ★" and the start of the message,
+    /// a stripe in the author's colour, ✕ to cancel (the text stays).
+    private func replyBar(_ message: ChatMessage) -> some View {
+        let name = ChatStyle.name(message) + (message.role == .supporter ? " ★" : "")
+        let bold = Theme.Typography.Manrope.extraBold(size: 13, relativeTo: .footnote)
+        return HStack(spacing: 10) {
+            Rectangle()
+                .fill(ChatStyle.nameColor(message.role))
+                .frame(width: 3)
+            VStack(alignment: .leading, spacing: 1) {
+                (Text(L10n.chatReplyingTo("")).foregroundColor(Theme.subtleText)
+                 + Text(name).font(bold).foregroundColor(ChatStyle.nameColor(message.role)))
+                    .font(Theme.Typography.Copy.label)
+                    .lineLimit(1)
+                Text((message.body ?? "").split(whereSeparator: \.isNewline).joined(separator: " "))
+                    .font(Theme.Typography.Copy.label)
+                    .foregroundStyle(Theme.mutedText)
+                    .lineLimit(1)
+            }
+            .padding(.vertical, 7)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            Button {
+                withAnimation(Motion.smoothOut(Motion.fast)) { replyTarget = nil }
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(Theme.mutedText)
+                    .frame(width: 44, height: 44)
+            }
+            .accessibilityLabel(L10n.chatReplyCancel)
+        }
+        .fixedSize(horizontal: false, vertical: true)
+        .background(Theme.statsCardRaised)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .accessibilityElement(children: .contain)
     }
 
     private var hasDraft: Bool { !draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
@@ -596,22 +707,25 @@ struct ChatSheetView: View {
             Analytics.shared.track(.chatNicknamePromptShown)
             pendingText = text
             pendingKind = kind
+            pendingReply = replyTarget
             isComposerFocused = false
             isShowingJoin = true
             return
         }
-        if clearsDraft {
-            withAnimation(Motion.smoothOut(Motion.fast)) { draft = "" }
+        let reply = replyTarget
+        withAnimation(Motion.smoothOut(Motion.fast)) {
+            if clearsDraft { draft = "" }
+            replyTarget = nil
         }
-        send(text, announce: false, kind: kind)
+        send(text, announce: false, kind: kind, replyTo: reply)
     }
 
-    private func send(_ text: String, announce: Bool, kind: String) {
+    private func send(_ text: String, announce: Bool, kind: String, replyTo: ChatMessage? = nil) {
         let first = (account.me?.chatMessagesCount ?? 0) == 0 && !chat.messages.contains { $0.userID == account.me?.userID }
         Task {
             do {
-                try await chat.send(text, show: scheduleStore.currentShow() ?? nowPlaying.currentShow)
-                Analytics.shared.track(.chatMessageSent(kind: kind, success: true, first: first, account: account.analyticsAccount))
+                try await chat.send(text, show: scheduleStore.currentShow() ?? nowPlaying.currentShow, replyTo: replyTo)
+                Analytics.shared.track(.chatMessageSent(kind: kind, success: true, first: first, account: account.analyticsAccount, isReply: replyTo != nil))
                 UIImpactFeedbackGenerator(style: .soft).impactOccurred()
                 if announce, let name = account.me?.chatName {
                     ToastCenter.shared.show(.init(systemImage: "checkmark.circle", message: L10n.chatSentAs(name)))
@@ -619,12 +733,18 @@ struct ChatSheetView: View {
             } catch AccountError.nicknameRequired {
                 pendingText = text
                 pendingKind = kind
+                pendingReply = replyTo
                 isShowingJoin = true
             } catch let error as AccountError {
-                Analytics.shared.track(.chatMessageSent(kind: kind, success: false, first: first, account: account.analyticsAccount))
+                Analytics.shared.track(.chatMessageSent(kind: kind, success: false, first: first, account: account.analyticsAccount, isReply: replyTo != nil))
                 if case .offline = error { return } // shown on the message itself
                 if case .linksNeedAccount = error, draft.isEmpty {
                     // Back in the field, to take the link out.
+                    draft = text
+                    replyTarget = replyTo
+                }
+                if case .replyUnavailable = error, draft.isEmpty, kind == "text" {
+                    // The original is gone: the text comes back, as a plain message.
                     draft = text
                 }
                 ToastCenter.shared.show(.init(systemImage: "exclamationmark.circle", message: error.userMessage))
@@ -636,10 +756,67 @@ struct ChatSheetView: View {
         isShowingJoin = false
         guard let text = pendingText else { return }
         pendingText = nil
+        let reply = pendingReply
+        pendingReply = nil
+        if replyTarget?.id == reply?.id { replyTarget = nil }
         if draft.trimmingCharacters(in: .whitespacesAndNewlines) == text {
             withAnimation(Motion.smoothOut(Motion.fast)) { draft = "" }
         }
-        send(text, announce: true, kind: pendingKind)
+        send(text, announce: true, kind: pendingKind, replyTo: reply)
+    }
+}
+
+// MARK: - Swipe to reply (Figma R1)
+
+private struct SwipeToReply: ViewModifier {
+    let enabled: Bool
+    let onReply: () -> Void
+
+    @State private var offset: CGFloat = 0
+    @State private var armed = false
+
+    static let threshold: CGFloat = 56
+
+    func body(content: Content) -> some View {
+        content
+            .offset(x: offset)
+            .background(alignment: .leading) {
+                Image(systemName: "arrowshape.turn.up.left.fill")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Theme.textPrimary)
+                    .frame(width: 32, height: 32)
+                    .background(Theme.statsCardRaised, in: Circle())
+                    .scaleEffect(armed ? 1 : 0.8)
+                    .opacity(Double(min(1, offset / Self.threshold)))
+                    .accessibilityHidden(true)
+            }
+            .simultaneousGesture(enabled ? drag : nil)
+    }
+
+    private var drag: some Gesture {
+        DragGesture(minimumDistance: 18, coordinateSpace: .local)
+            .onChanged { value in
+                let dx = value.translation.width, dy = value.translation.height
+                guard dx > 0, dx > abs(dy) * 1.5 || offset > 0 else { return }
+                // Follows the finger up to the threshold, then slower.
+                offset = dx <= Self.threshold ? dx : Self.threshold + (dx - Self.threshold) * 0.25
+                let nowArmed = offset >= Self.threshold
+                if nowArmed != armed {
+                    armed = nowArmed
+                    if nowArmed { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
+                }
+            }
+            .onEnded { _ in
+                if armed { onReply() }
+                armed = false
+                withAnimation(Motion.smoothOut(Motion.medium)) { offset = 0 }
+            }
+    }
+}
+
+extension View {
+    func swipeToReply(enabled: Bool, onReply: @escaping () -> Void) -> some View {
+        modifier(SwipeToReply(enabled: enabled, onReply: onReply))
     }
 }
 

@@ -28,6 +28,9 @@ final class ChatService: ObservableObject {
     @Published private(set) var lastSeenID: Int64
     /// Set to open the chat sheet from outside the home page.
     @Published fileprivate(set) var openRequestID: UUID?
+    /// A message the chat should open on, highlighted (a reply to the
+    /// listener tapped on the home page). The sheet clears it.
+    @Published var focusMessageID: Int64?
     /// A DJ invite link the app was opened with (`handleInvite`).
     @Published var pendingInvite: PendingInvite?
 
@@ -205,16 +208,18 @@ final class ChatService: ObservableObject {
         let p_body: String
         let p_show_id: String?
         let p_show_title: String?
+        let p_reply_to: Int64?
     }
 
     /// Sends `body` under the show on air (the app knows the programme; the
     /// server only checks it). Shows "sending…" right away; on failure the
     /// message stays with "Zkusit znovu", except for errors the listener
     /// must act on (muted, no nickname), which are thrown.
-    func send(_ rawBody: String, show: Show?) async throws {
+    func send(_ rawBody: String, show: Show?, replyTo: ChatMessage? = nil) async throws {
         let body = rawBody.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !body.isEmpty else { return }
-        let pending = OutgoingChatMessage(id: UUID(), body: String(body.prefix(500)), createdAt: Date(), status: .sending)
+        let pending = OutgoingChatMessage(id: UUID(), body: String(body.prefix(500)), createdAt: Date(), status: .sending,
+                                          replyTo: replyTo.map(ChatQuote.init))
         outgoingShow = (show?.id, show?.displayTitle)
         outgoing.append(pending)
         try await deliver(pending.id)
@@ -234,7 +239,8 @@ final class ChatService: ObservableObject {
         guard let pending = outgoing.first(where: { $0.id == id }) else { return }
         do {
             let message: ChatMessage = try await client
-                .rpc("send_chat_message", params: SendParams(p_body: pending.body, p_show_id: outgoingShow.id, p_show_title: outgoingShow.title))
+                .rpc("send_chat_message", params: SendParams(p_body: pending.body, p_show_id: outgoingShow.id, p_show_title: outgoingShow.title,
+                                                      p_reply_to: pending.replyTo?.id))
                 .execute()
                 .value
             outgoing.removeAll { $0.id == id }
@@ -244,7 +250,7 @@ final class ChatService: ObservableObject {
             let accountError = AccountError.from(error)
             switch accountError {
             case .muted, .blocked, .nicknameRequired, .notSignedIn, .accountRequired, .messageInvalid,
-                 .duplicateMessage, .linksNeedAccount:
+                 .duplicateMessage, .linksNeedAccount, .replyUnavailable:
                 outgoing.removeAll { $0.id == id }
                 if case .muted = accountError { await AccountService.shared.refresh() }
                 if case .blocked = accountError { await AccountService.shared.refresh() }
@@ -340,9 +346,10 @@ extension ChatService {
         try await call("delete_chat_message", MessageParam(p_message_id: message.id))
         replace(message.id) { old in
             ChatMessage(id: old.id, userID: old.userID, authorName: old.authorName, role: old.role, body: nil,
-                        showID: old.showID, showTitle: old.showTitle, createdAt: old.createdAt, deletedAt: Date(), pinnedAt: nil)
+                        showID: old.showID, showTitle: old.showTitle, createdAt: old.createdAt, deletedAt: Date(), pinnedAt: nil, replyTo: old.replyTo)
         }
         if pinned?.id == message.id { pinned = nil }
+        updateQuotes(of: message.id, body: nil)
     }
 
     /// "Vrátit" within 10 minutes of deleting.
@@ -350,6 +357,22 @@ extension ChatService {
         try await call("restore_chat_message", MessageParam(p_message_id: message.id))
         replace(message.id) { _ in message }
         if message.pinnedAt != nil, pinned == nil { pinned = message }
+        updateQuotes(of: message.id, body: message.body)
+    }
+
+    /// The server updates replies' quotes itself (Realtime brings them);
+    /// this only shows a moderator's change at once.
+    private func updateQuotes(of id: Int64, body: String?) {
+        for index in messages.indices {
+            guard let quote = messages[index].replyTo, quote.id == id else { continue }
+            let m = messages[index]
+            messages[index] = ChatMessage(
+                id: m.id, userID: m.userID, authorName: m.authorName, role: m.role, body: m.body,
+                showID: m.showID, showTitle: m.showTitle, createdAt: m.createdAt, deletedAt: m.deletedAt, pinnedAt: m.pinnedAt,
+                replyTo: ChatQuote(id: quote.id, userID: quote.userID, authorName: quote.authorName, role: quote.role,
+                                   body: body.map { String($0.prefix(140)) })
+            )
+        }
     }
 
     func pin(_ message: ChatMessage) async throws {
@@ -358,11 +381,11 @@ extension ChatService {
         if let old = pinned, old.id != message.id {
             replace(old.id) { m in
                 ChatMessage(id: m.id, userID: m.userID, authorName: m.authorName, role: m.role, body: m.body,
-                            showID: m.showID, showTitle: m.showTitle, createdAt: m.createdAt, deletedAt: m.deletedAt, pinnedAt: nil)
+                            showID: m.showID, showTitle: m.showTitle, createdAt: m.createdAt, deletedAt: m.deletedAt, pinnedAt: nil, replyTo: m.replyTo)
             }
         }
         let updated = ChatMessage(id: message.id, userID: message.userID, authorName: message.authorName, role: message.role, body: message.body,
-                                  showID: message.showID, showTitle: message.showTitle, createdAt: message.createdAt, deletedAt: nil, pinnedAt: now)
+                                  showID: message.showID, showTitle: message.showTitle, createdAt: message.createdAt, deletedAt: nil, pinnedAt: now, replyTo: message.replyTo)
         replace(message.id) { _ in updated }
         pinned = updated
     }
@@ -372,7 +395,7 @@ extension ChatService {
         if let old = pinned {
             replace(old.id) { m in
                 ChatMessage(id: m.id, userID: m.userID, authorName: m.authorName, role: m.role, body: m.body,
-                            showID: m.showID, showTitle: m.showTitle, createdAt: m.createdAt, deletedAt: m.deletedAt, pinnedAt: nil)
+                            showID: m.showID, showTitle: m.showTitle, createdAt: m.createdAt, deletedAt: m.deletedAt, pinnedAt: nil, replyTo: m.replyTo)
             }
         }
         pinned = nil

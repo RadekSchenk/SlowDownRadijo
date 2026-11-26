@@ -55,6 +55,8 @@ class ChatService(
         val loadFailed: Boolean = false,
         /** The newest message seen on the home page or in the chat (the ticker plays from here). */
         val lastSeenId: Long = 0,
+        /** A message the chat should open on, highlighted (a reply to the listener tapped on the home page). */
+        val focusMessageId: Long? = null,
     ) {
         val visibleMessages: List<ChatMessage> get() = messages.filter { it.userId == null || it.userId !in hidden }
     }
@@ -193,10 +195,10 @@ class ChatService(
      * "Zkusit znovu", except for errors the listener must act on (muted, no
      * nickname), which are thrown.
      */
-    suspend fun send(rawBody: String, show: Show?) {
+    suspend fun send(rawBody: String, show: Show?, replyTo: ChatMessage? = null) {
         val body = rawBody.trim().take(500)
         if (body.isEmpty()) return
-        val pending = OutgoingChatMessage(body = body, createdAt = Instant.now())
+        val pending = OutgoingChatMessage(body = body, createdAt = Instant.now(), replyTo = replyTo?.let(ChatQuote::of))
         _state.value = _state.value.copy(
             outgoing = _state.value.outgoing + pending,
             outgoingShow = show?.id to show?.displayTitle,
@@ -227,6 +229,7 @@ class ChatService(
                     put("p_body", pending.body)
                     put("p_show_id", showId)
                     put("p_show_title", showTitle)
+                    put("p_reply_to", pending.replyTo?.id)
                 },
             ).decodeAs<ChatMessage>()
             removeOutgoing(id)
@@ -237,7 +240,7 @@ class ChatService(
             when (error) {
                 is AccountError.Muted, AccountError.Blocked, AccountError.NicknameRequired, AccountError.NotSignedIn,
                 AccountError.AccountRequired, AccountError.MessageInvalid,
-                AccountError.DuplicateMessage, AccountError.LinksNeedAccount -> {
+                AccountError.DuplicateMessage, AccountError.LinksNeedAccount, AccountError.ReplyUnavailable -> {
                     removeOutgoing(id)
                     if (error is AccountError.Muted || error == AccountError.Blocked) account.refresh()
                 }
@@ -297,6 +300,23 @@ class ChatService(
         call("delete_chat_message", buildJsonObject { put("p_message_id", message.id) })
         replace(message.id) { it.copy(body = null, deletedAtText = Instant.now().toString(), pinnedAtText = null) }
         if (_state.value.pinned?.id == message.id) _state.value = _state.value.copy(pinned = null)
+        updateQuotes(message.id, null)
+    }
+
+    /** The server updates replies' quotes itself (Realtime brings them); this only shows a moderator's change at once. */
+    private fun updateQuotes(id: Long, body: String?) {
+        _state.value = _state.value.copy(
+            messages = _state.value.messages.map { if (it.replyToId == id) it.copy(replyToBody = body?.take(140)) else it },
+        )
+    }
+
+    /** The chat opens on [id] (a reply to the listener tapped on the home page). */
+    fun requestFocus(id: Long?) {
+        _state.value = _state.value.copy(focusMessageId = id)
+    }
+
+    fun consumeFocus(): Long? = _state.value.focusMessageId.also {
+        if (it != null) _state.value = _state.value.copy(focusMessageId = null)
     }
 
     /** "Vrátit" within 10 minutes of deleting. */
@@ -304,6 +324,7 @@ class ChatService(
         call("restore_chat_message", buildJsonObject { put("p_message_id", message.id) })
         replace(message.id) { message }
         if (message.pinnedAtText != null && _state.value.pinned == null) _state.value = _state.value.copy(pinned = message)
+        updateQuotes(message.id, message.body)
     }
 
     suspend fun pin(message: ChatMessage) {

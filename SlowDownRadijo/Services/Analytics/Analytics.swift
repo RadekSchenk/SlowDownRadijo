@@ -189,8 +189,11 @@ enum AnalyticsEvent {
     // `account`: none, anonymous, registered (`AccountService.analyticsAccount`).
     /// `source`: home_section, home_field, invite.
     case chatOpened(source: String, account: String)
-    /// `kind`: text, emoji, starter; `first`: the listener's first message ever.
-    case chatMessageSent(kind: String, success: Bool, first: Bool, account: String)
+    /// `kind`: text, emoji, starter; `first`: the listener's first message ever;
+    /// `is_reply`: answers another message (1.4).
+    case chatMessageSent(kind: String, success: Bool, first: Bool, account: String, isReply: Bool = false)
+    /// Started answering a message (1.4). `source`: swipe, menu, accessibility.
+    case chatReplyStarted(source: String)
     /// "Tvoje přezdívka" before the first message.
     case chatNicknamePromptShown
     /// `when`: first_message, change.
@@ -259,6 +262,7 @@ enum AnalyticsEvent {
         case .feedbackSent: return "feedback_sent"
         case .chatOpened: return "chat_opened"
         case .chatMessageSent: return "chat_message_sent"
+        case .chatReplyStarted: return "chat_reply_started"
         case .chatNicknamePromptShown: return "chat_nickname_prompt_shown"
         case .chatNicknameSet: return "chat_nickname_set"
         case .registrationPromptShown: return "registration_prompt_shown"
@@ -338,8 +342,10 @@ enum AnalyticsEvent {
             return ["success": success]
         case .chatOpened(let source, let account):
             return ["source": source, "account": account]
-        case .chatMessageSent(let kind, let success, let first, let account):
-            return ["kind": kind, "success": success, "first": first, "account": account]
+        case .chatMessageSent(let kind, let success, let first, let account, let isReply):
+            return ["kind": kind, "success": success, "first": first, "account": account, "is_reply": isReply]
+        case .chatReplyStarted(let source):
+            return ["source": source]
         case .chatNicknamePromptShown, .adminHostUnlinked:
             return [:]
         case .chatNicknameSet(let when):
