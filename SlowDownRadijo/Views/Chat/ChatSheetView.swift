@@ -304,6 +304,7 @@ struct ChatSheetView: View {
                     .background(Theme.statsCardRaised, in: Circle())
             }
             .accessibilityLabel(L10n.chatClose)
+            .accessibilityIdentifier("chat.close")
         }
         .padding(.horizontal, 20)
         .padding(.top, 20)
