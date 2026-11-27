@@ -43,7 +43,7 @@ v chatu se odešle.
 ## 3. Build
 
 - ✅ TestFlight 2611272027 (celá 1.4 + oprava scrollování) – na otestování.
-- ⬜ Na skutečném iPhonu projít:
+- ✅ Na skutečném iPhonu projít (27. 11. 2026, budík s „Pustit rádio“ funguje):
   - scrollování chatu nahoru a dolů, odpověď swipem i podržením, skok na citaci,
     „↳ tobě“ na úvodní obrazovce,
   - **budík s rádiem** (v simulátoru nejde ověřit): nastavit za pár minut,
@@ -64,7 +64,7 @@ v chatu se odešle.
 - ⬜ **Popis** (cs, en) – doplněný budík, odpovědi, žebříčky a iPad.
 - ⬜ **Klíčová slova** – přibylo „budík“ / „alarm“ (EN bez „online“, kvůli limitu 100).
 - ⬜ **Co je nového ve verzi 1.4** (cs, en) – `docs/app-store.md`, oddíl What's New.
-- ⬜ **Build**: vybrat **2611272110** (a sloučit PR #15).
+- ⬜ **Build**: vybrat **2611272110** (PR #15 sloučený ✅).
 - ⬜ **App Review Information → Notes**: celý blok „Notes for 1.4“
   (~3 300 znaků). Příloha s nahrávkou obrazovky může zůstat z 1.3.
 - ⬜ **Version Release**: „Manually release this version“.
