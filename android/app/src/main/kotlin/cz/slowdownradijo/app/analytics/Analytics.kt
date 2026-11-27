@@ -65,10 +65,12 @@ sealed class AnalyticsEvent(val name: String, val properties: Map<String, Any>) 
     // [account]: none, anonymous, registered (`AccountService.analyticsAccount`).
     /** [source]: home_section, home_field, invite. */
     class ChatOpened(source: String, account: String) : AnalyticsEvent("chat_opened", mapOf("source" to source, "account" to account))
-    /** [kind]: text, emoji, starter; [first]: the listener's first message ever. */
-    class ChatMessageSent(kind: String, success: Boolean, first: Boolean, account: String) : AnalyticsEvent(
-        "chat_message_sent", mapOf("kind" to kind, "success" to success, "first" to first, "account" to account),
+    /** [kind]: text, emoji, starter; [first]: the listener's first message ever; [isReply]: answers another message (1.4). */
+    class ChatMessageSent(kind: String, success: Boolean, first: Boolean, account: String, isReply: Boolean = false) : AnalyticsEvent(
+        "chat_message_sent", mapOf("kind" to kind, "success" to success, "first" to first, "account" to account, "is_reply" to isReply),
     )
+    /** Started answering a message (1.4). [source]: swipe, menu, accessibility. */
+    class ChatReplyStarted(source: String) : AnalyticsEvent("chat_reply_started", mapOf("source" to source))
     /** "Tvoje přezdívka" before the first message. */
     class ChatNicknamePromptShown : AnalyticsEvent("chat_nickname_prompt_shown", emptyMap())
     /** [whenSet]: first_message, change. */

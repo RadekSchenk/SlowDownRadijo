@@ -26,6 +26,8 @@ enum AccountError: Error, Equatable {
     case duplicateMessage
     /// A web address from someone writing without an account.
     case linksNeedAccount
+    /// The message being answered was deleted meanwhile (030_chat_replies.sql).
+    case replyUnavailable
     case notModerator
     case notAdmin
     case notSuperadmin
@@ -88,6 +90,7 @@ enum AccountError: Error, Equatable {
         case "rate_limited": return .rateLimited
         case "duplicate_message": return .duplicateMessage
         case "links_need_account": return .linksNeedAccount
+        case "reply_unavailable": return .replyUnavailable
         case "not_moderator": return .notModerator
         case "not_admin": return .notAdmin
         case "not_superadmin": return .notSuperadmin
@@ -121,6 +124,7 @@ extension AccountError {
         case .rateLimited: return L10n.chatRateLimited
         case .duplicateMessage: return L10n.chatDuplicate
         case .linksNeedAccount: return L10n.chatLinksNeedAccount
+        case .replyUnavailable: return L10n.chatReplyUnavailable
         case .codeInvalid: return L10n.emailCodeInvalid
         case .nicknameTaken: return L10n.nicknameTaken
         case .nicknameReserved: return L10n.nicknameReserved

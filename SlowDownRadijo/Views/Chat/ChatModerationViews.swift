@@ -3,24 +3,29 @@ import UIKit
 
 /// What pressing and holding a message offers (Figma L1, L2/Z1, Z4).
 enum ChatMenuAction: Equatable {
-    case pin, unpin, copy, delete, mute, unmute, block, report, hide
+    case reply, pin, unpin, copy, delete, mute, unmute, block, report, hide
 }
 
 /// The actions for `message`, by who is looking (`docs/chat-concept.md` 2d):
-/// a listener copies, reports and hides others; a DJ or admin also pins,
-/// deletes, mutes and blocks — but never another moderator, nor themselves.
+/// anyone who can write replies (first); a listener copies, reports and
+/// hides others; a DJ or admin also pins, deletes, mutes and blocks — but
+/// never another moderator, nor themselves.
 enum ChatMenu {
     static func actions(
         for message: ChatMessage,
         viewer: UUID?,
         isModerator: Bool,
         isPinned: Bool,
-        status: ChatService.UserStatus?
+        status: ChatService.UserStatus?,
+        canReply: Bool = false
     ) -> [ChatMenuAction] {
         if message.isDeleted { return [] }
         let isOwn = message.userID != nil && message.userID == viewer
         let author = message.userID
         var actions: [ChatMenuAction] = []
+        if canReply {
+            actions.append(.reply)
+        }
         if isModerator {
             actions.append(isPinned ? .unpin : .pin)
         }
@@ -134,6 +139,7 @@ struct ChatMessageMenu: View {
 
     private func title(_ action: ChatMenuAction) -> String {
         switch action {
+        case .reply: return L10n.chatMenuReply
         case .pin: return L10n.chatMenuPin
         case .unpin: return L10n.chatMenuUnpin
         case .copy: return L10n.chatMenuCopy
@@ -148,6 +154,7 @@ struct ChatMessageMenu: View {
 
     static func icon(_ action: ChatMenuAction) -> String {
         switch action {
+        case .reply: return "arrowshape.turn.up.left"
         case .pin: return "pin"
         case .unpin: return "pin.slash"
         case .copy: return "doc.on.doc"
