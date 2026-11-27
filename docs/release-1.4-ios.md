@@ -55,21 +55,21 @@ v chatu se odešle.
 
 ## 4. App Store Connect → iOS App → **+** → verze **1.4**
 
-- ⬜ **Snímky iPhone** (slot 6,3"/6,1"): `appstore/screenshots/6.3/cs` a `/en`
+- ✅ **Snímky iPhone** (slot 6,3"/6,1"): `appstore/screenshots/6.3/cs` a `/en`
   (7 kusů, pořadí podle čísla v názvu; připravené ✅). Velikost 6,9" je
   v `6.9/`, kdyby ji App Store Connect chtěl.
-- ⬜ **Snímky iPad 13"** – nově povinné, appka je od 1.4 i pro iPad:
+- ✅ **Snímky iPad 13"** – nově povinné, appka je od 1.4 i pro iPad:
   `appstore/screenshots/ipad-13/cs` a `/en` (2064 × 2752, 7 kusů; připravené ✅).
-- ⬜ **Propagační text** (cs, en) – nový, `docs/app-store.md`.
-- ⬜ **Popis** (cs, en) – doplněný budík, odpovědi, žebříčky a iPad.
-- ⬜ **Klíčová slova** – přibylo „budík“ / „alarm“ (EN bez „online“, kvůli limitu 100).
-- ⬜ **Co je nového ve verzi 1.4** (cs, en) – `docs/app-store.md`, oddíl What's New.
-- ⬜ **Build**: vybrat **2611272110** (PR #15 sloučený ✅).
-- ⬜ **App Review Information → Notes**: celý blok „Notes for 1.4“
+- ✅ **Propagační text** (cs, en) – nový, `docs/app-store.md`.
+- ✅ **Popis** (cs, en) – doplněný budík, odpovědi, žebříčky a iPad.
+- ✅ **Klíčová slova** – přibylo „budík“ / „alarm“ (EN bez „online“, kvůli limitu 100).
+- ✅ **Co je nového ve verzi 1.4** (cs, en) – `docs/app-store.md`, oddíl What's New.
+- ✅ **Build**: vybrat **2611272110** (PR #15 sloučený ✅).
+- ✅ **App Review Information → Notes**: celý blok „Notes for 1.4“
   (~3 300 znaků). Příloha s nahrávkou obrazovky může zůstat z 1.3.
-- ⬜ **Version Release**: „Manually release this version“.
-- ⬜ App Privacy: beze změny (odpovědi jsou obsah chatu, budík je jen v telefonu).
-- ⬜ Add for Review → Submit.
+- ✅ **Version Release**: nakonec „Automatically release this version“ (Radek, 27. 11.).
+- ✅ App Privacy: beze změny (odpovědi jsou obsah chatu, budík je jen v telefonu).
+- ✅ Add for Review → Submit.
 
 ⚠️ Riziko u kontroly: budík drží appku přes noc naživu tichým zvukem
 (pravidlo 2.5.4). Poznámka pro recenzenta to vysvětluje. Kdyby to Apple
@@ -78,7 +78,8 @@ budík (`docs/radio-alarm.md`).
 
 ## 5. Vydání
 
-- ⬜ **29. 11. ráno**: App Store Connect → 1.4 → Release This Version.
+- ✅ **Odesláno ke kontrole 27. 11. 2026 ve 21:47** (build 2611272110). Po schválení se vydá automaticky.
+
 - ⬜ PostHog: na dashboardu přehledy „Budík s rádiem“ a „Statistiky: který
   žebříček“ a nové `chat_reply_started` / `is_reply` u `chat_message_sent`.
 
