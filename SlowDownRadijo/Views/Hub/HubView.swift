@@ -60,6 +60,7 @@ struct HubView: View {
                         ListDivider()
                         NavigationLink {
                             FeedbackView()
+                                .onAppear { Analytics.shared.screen(.feedback) }
                         } label: {
                             row(icon: "envelope.fill", title: L10n.hubFeedbackRow, subtitle: L10n.hubFeedbackRowSubtitle)
                         }

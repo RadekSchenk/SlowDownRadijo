@@ -71,7 +71,7 @@ data class StatsUi(
  * per show, everyone together, then how it is measured.
  */
 @Composable
-fun StatsContent(ui: StatsUi, onEnable: () -> Unit, onRetry: () -> Unit) {
+fun StatsContent(ui: StatsUi, onEnable: () -> Unit, onRetry: () -> Unit, onPeriodChanged: (StatsPeriod, ranked: Boolean) -> Unit = { _, _ -> }) {
     val english = LocalAppLanguage.current.isEnglish
     val summary = ui.summary
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -117,7 +117,7 @@ fun StatsContent(ui: StatsUi, onEnable: () -> Unit, onRetry: () -> Unit) {
                 )
             )
             LastWeekCard(summary)
-            Leaderboard(ui, onRetry)
+            Leaderboard(ui, onRetry, onPeriodChanged)
 
             StatsPanel(spacing = 16) {
                 Text(stringResource(R.string.statsShowsTitle), style = Theme.Typography.manrope(16f, FontWeight.ExtraBold), color = Theme.textPrimary)
@@ -161,7 +161,7 @@ private const val RANKED_SECONDS = 600
  * period, the listener's own time instead of a place.
  */
 @Composable
-private fun Leaderboard(ui: StatsUi, onRetry: () -> Unit) {
+private fun Leaderboard(ui: StatsUi, onRetry: () -> Unit, onPeriodChanged: (StatsPeriod, ranked: Boolean) -> Unit) {
     val english = LocalAppLanguage.current.isEnglish
     val summary = ui.summary
     var periodId by rememberSaveable { mutableStateOf(StatsPeriod.WEEK.id) }
@@ -184,7 +184,10 @@ private fun Leaderboard(ui: StatsUi, onRetry: () -> Unit) {
             BodyText(stringResource(R.string.statsLeaderboardLocked))
             return@StatsPanel
         }
-        PeriodPicker(period) { periodId = it.id }
+        PeriodPicker(period) {
+            if (it.id != periodId) onPeriodChanged(it, summary.period(it).rank != null)
+            periodId = it.id
+        }
         val rank = standing.rank
         when {
             rank != null -> {

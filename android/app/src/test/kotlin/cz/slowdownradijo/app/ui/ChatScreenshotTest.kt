@@ -16,6 +16,7 @@ import com.github.takahirom.roborazzi.captureRoboImage
 import cz.slowdownradijo.app.chat.ChatContent
 import cz.slowdownradijo.app.chat.ChatHomeSection
 import cz.slowdownradijo.app.chat.ChatMessage
+import cz.slowdownradijo.app.chat.ChatQuote
 import cz.slowdownradijo.app.chat.ChatService
 import cz.slowdownradijo.app.chat.ChatTimeline
 import cz.slowdownradijo.app.chat.ChatWriter
@@ -78,12 +79,42 @@ class ChatScreenshotTest {
     }
 
     @Composable
-    private fun sheet(state: ChatService.State, writer: ChatWriter, draft: String = "") = ChatContent(
+    private fun sheet(state: ChatService.State, writer: ChatWriter, draft: String = "", replyTarget: ChatMessage? = null) = ChatContent(
         state = state, show = show, writer = writer, draft = draft, onDraft = {}, onSend = { _, _ -> }, onRetry = {},
         onClose = {}, onRules = {}, onSeen = {},
         showLabel = { id, title, _ -> id?.let { ChatTimeline.ShowLabel(shows[it], title ?: it) } },
         modifier = Modifier.fillMaxSize(), now = now,
+        viewerId = "u-vinylovy_tom", replyTarget = replyTarget,
     )
+
+    // Replies (Figma Chat ▸ "Chat 1.4 — Odpovědi na zprávy", R3–R5, H1–H2)
+
+    private val mine = msg(12, 4, "vinylovy_tom", "Tenhle groove jede 🔥")
+    private val replies = listOf(
+        msg(13, 3, "marty", "Taky sázíme, u nás na zahradě to trvalo tři roky 😅").withQuote(ChatQuote.of(today[1])),
+        mine,
+        msg(14, 2, "nela", "Jede! Kdo to je? 😍").withQuote(ChatQuote.of(mine)),
+        msg(15, 1, "jana", "S tímhle nesouhlasím 🙂").withQuote(ChatQuote(99, "u-x", "x", "listener", null)),
+    )
+
+    @Test fun sheetReplying() = capture("chat_sheet_replying_cs") {
+        sheet(ChatService.State(messages = yesterday + today, pinned = pinned, loaded = true), listener, draft = "Ty jo, přeju hodně štěstí 🌱", replyTarget = today[1])
+    }
+
+    @Test fun sheetReplies() = capture("chat_sheet_replies_cs") {
+        sheet(ChatService.State(messages = today + replies, pinned = pinned, loaded = true), listener)
+    }
+
+    @Test fun sheetRepliesEnglish() = capture("chat_sheet_replies_en", AppLanguage.EN) {
+        sheet(ChatService.State(messages = today + replies, pinned = pinned, loaded = true), listener)
+    }
+
+    @Test fun homeSectionReplies() = capture("chat_home_replies_cs", padded = true) {
+        ChatHomeSection(
+            ChatService.State(messages = today + replies.take(3), loaded = true, lastSeenId = 14), onOpen = {}, onSeen = {}, now = now,
+            viewerId = "u-vinylovy_tom",
+        )
+    }
 
     @Test fun homeSection() = capture("chat_home_cs", padded = true) {
         ChatHomeSection(ChatService.State(messages = yesterday + today, loaded = true, lastSeenId = 10), onOpen = {}, onSeen = {}, now = now)

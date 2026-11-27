@@ -23,19 +23,35 @@ enum AppSupabase {
     )
 }
 
-/// `AuthLocalStorage` on top of `KeychainStore` (`AfterFirstUnlockThisDeviceOnly`).
-struct KeychainAuthStorage: AuthLocalStorage {
+/// `AuthLocalStorage` on top of `KeychainStore` (`AfterFirstUnlockThisDeviceOnly`),
+/// with an in-memory copy of everything stored during this run.
+///
+/// The SDK keeps no session of its own: `currentSession` reads it back from
+/// here every time. If the Keychain refuses a write or a read on some phone,
+/// the SDK would see "no session" at every upload and sign in anonymously
+/// again — in November 2026 one iPhone turned into a new listener every five
+/// minutes that way. The memory copy keeps one user for the whole run, and
+/// it wins over the Keychain because it is always the newest write (a failed
+/// update would otherwise hand back an older session).
+final class KeychainAuthStorage: AuthLocalStorage, @unchecked Sendable {
     private static let prefix = "auth."
+    private let lock = NSLock()
+    private var memory: [String: Data] = [:]
 
     func store(key: String, value: Data) throws {
+        lock.withLock { memory[key] = value }
         KeychainStore.write(value, account: Self.prefix + key)
     }
 
     func retrieve(key: String) throws -> Data? {
-        KeychainStore.read(account: Self.prefix + key)
+        if let cached = lock.withLock({ memory[key] }) { return cached }
+        guard let stored = KeychainStore.read(account: Self.prefix + key) else { return nil }
+        lock.withLock { memory[key] = stored }
+        return stored
     }
 
     func remove(key: String) throws {
+        lock.withLock { _ = memory.removeValue(forKey: key) }
         KeychainStore.delete(account: Self.prefix + key)
     }
 }

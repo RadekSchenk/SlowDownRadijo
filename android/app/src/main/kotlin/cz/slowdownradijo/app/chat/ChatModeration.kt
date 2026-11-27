@@ -16,6 +16,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Reply
 import androidx.compose.material.icons.automirrored.rounded.VolumeOff
 import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material.icons.outlined.Flag
@@ -58,19 +59,23 @@ import java.time.format.DateTimeFormatter
 import cz.slowdownradijo.app.ui.theme.contentColumn
 
 /** What pressing and holding a message offers (Figma L1, L2/Z1, Z4). */
-enum class ChatMenuAction { PIN, UNPIN, COPY, DELETE, MUTE, UNMUTE, BLOCK, REPORT, HIDE }
+enum class ChatMenuAction { REPLY, PIN, UNPIN, COPY, DELETE, MUTE, UNMUTE, BLOCK, REPORT, HIDE }
 
 /**
  * The actions for a message by who is looking, as `ChatMenu` in ChatModerationViews.swift:
- * a listener copies, reports and hides others; a DJ or admin also pins, deletes, mutes
+ * anyone who can write replies (first); a listener copies, reports and hides others; a DJ or admin also pins, deletes, mutes
  * and blocks, but never another moderator nor themselves.
  */
 object ChatMenu {
-    fun actions(message: ChatMessage, viewer: String?, isModerator: Boolean, isPinned: Boolean, status: ChatService.UserStatus?): List<ChatMenuAction> {
+    fun actions(
+        message: ChatMessage, viewer: String?, isModerator: Boolean, isPinned: Boolean, status: ChatService.UserStatus?,
+        canReply: Boolean = false,
+    ): List<ChatMenuAction> {
         if (message.isDeleted) return emptyList()
         val author = message.userId
         val own = author != null && author == viewer
         val out = mutableListOf<ChatMenuAction>()
+        if (canReply) out += ChatMenuAction.REPLY
         if (isModerator) out += if (isPinned) ChatMenuAction.UNPIN else ChatMenuAction.PIN
         out += ChatMenuAction.COPY
         if (isModerator) {
@@ -90,6 +95,7 @@ object ChatMenu {
     fun isDestructive(action: ChatMenuAction) = action in setOf(ChatMenuAction.DELETE, ChatMenuAction.MUTE, ChatMenuAction.BLOCK)
 
     fun icon(action: ChatMenuAction): ImageVector = when (action) {
+        ChatMenuAction.REPLY -> Icons.AutoMirrored.Rounded.Reply
         ChatMenuAction.PIN -> Icons.Outlined.PushPin
         ChatMenuAction.UNPIN -> Icons.Rounded.PushPin
         ChatMenuAction.COPY -> Icons.Rounded.ContentCopy
@@ -147,6 +153,7 @@ fun ChatMessageMenu(
 
 @Composable
 private fun title(action: ChatMenuAction, name: String): String = when (action) {
+    ChatMenuAction.REPLY -> stringResource(R.string.chatMenuReply)
     ChatMenuAction.PIN -> stringResource(R.string.chatMenuPin)
     ChatMenuAction.UNPIN -> stringResource(R.string.chatMenuUnpin)
     ChatMenuAction.COPY -> stringResource(R.string.chatMenuCopy)
