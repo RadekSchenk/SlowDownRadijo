@@ -38,7 +38,7 @@ enum StoreDemo {
     private static let morningCoffee = "morning-coffee-s-dj-pufaz"
     private static let pufaz = UUID(uuidString: "00000000-0000-0000-0000-00000000D001")!
 
-    private static func message(_ id: Int64, _ name: String, _ body: String, minutesAgo: Double, role: ChatMessage.Role = .listener, user: UUID? = nil, pinned: Bool = false) -> ChatMessage {
+    private static func message(_ id: Int64, _ name: String, _ body: String, minutesAgo: Double, role: ChatMessage.Role = .listener, user: UUID? = nil, pinned: Bool = false, replyTo: ChatMessage? = nil) -> ChatMessage {
         let at = AppClock.now.addingTimeInterval(-minutesAgo * 60)
         return ChatMessage(
             id: id,
@@ -50,7 +50,8 @@ enum StoreDemo {
             showTitle: "Morning Coffee",
             createdAt: at,
             deletedAt: nil,
-            pinnedAt: pinned ? at : nil
+            pinnedAt: pinned ? at : nil,
+            replyTo: replyTo.map(ChatQuote.init)
         )
     }
 
@@ -61,11 +62,12 @@ enum StoreDemo {
 
     static var messages: [ChatMessage] {
         let e = english
+        let mine = message(3, "cevapcicidisko", e ? "That intro woke me up better than an espresso" : "Ten úvod mě probudil líp než espresso", minutesAgo: 10, user: me.userID)
         return [
             pinned,
             message(2, "kafe_s_mlekem", e ? "Good morning from tram number 9 🚋" : "Dobré ráno z tramvaje číslo 9 🚋", minutesAgo: 12),
-            message(3, "cevapcicidisko", e ? "That intro woke me up better than an espresso" : "Ten úvod mě probudil líp než espresso", minutesAgo: 10, user: me.userID),
-            message(4, "DJ Pufaz", e ? "Thanks! Something by Khruangbin is coming up, stay tuned 🙌" : "Díky! Za chvíli přijde něco od Khruangbin, vydržte 🙌", minutesAgo: 9, role: .dj, user: pufaz),
+            mine,
+            message(4, "DJ Pufaz", e ? "Thanks! Something by Khruangbin is coming up, stay tuned 🙌" : "Díky! Za chvíli přijde něco od Khruangbin, vydržte 🙌", minutesAgo: 9, role: .dj, user: pufaz, replyTo: mine),
             message(5, "jana_z_letne", e ? "Hello to the whole office in Smíchov ☀️" : "Pozdrav celé kanceláři na Smíchově ☀️", minutesAgo: 7),
             message(6, "nela", "🔥", minutesAgo: 5.0),
             message(7, "marty", "🔥", minutesAgo: 4.8),
@@ -105,7 +107,18 @@ enum StoreDemo {
             shows: shows,
             aheadSeconds: 310_440 + 88 * 60,
             behindSeconds: 310_440 - 5 * 3600 - 32 * 60,
-            listeningDays: 41
+            listeningDays: 41,
+            periods: .init(
+                week: .init(seconds: 8 * 3600 + 40 * 60, previousSeconds: 7 * 3600 + 20 * 60, rank: 4, ranked: 412, open: true,
+                            aheadSeconds: 9 * 3600 + 10 * 60, behindSeconds: 7 * 3600 + 55 * 60),
+                month: .init(seconds: 33 * 3600 + 5 * 60, previousSeconds: 30 * 3600, rank: 9, ranked: 1020, open: true,
+                             aheadSeconds: 34 * 3600, behindSeconds: 31 * 3600),
+                all: .init(seconds: 310_440, rank: 12, ranked: 1284, open: true,
+                           aheadSeconds: 310_440 + 88 * 60, behindSeconds: 310_440 - 5 * 3600 - 32 * 60)
+            ),
+            lastWeek: .init(seconds: 12 * 3600 + 15 * 60, rank: 3),
+            streakDays: 6,
+            streakThrough: ListeningTracker.dayString(for: AppClock.now)
         )
     }
 }

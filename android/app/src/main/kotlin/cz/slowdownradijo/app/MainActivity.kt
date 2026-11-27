@@ -1,5 +1,6 @@
 package cz.slowdownradijo.app
 
+import android.content.pm.ActivityInfo
 import android.content.ComponentName
 import android.content.Intent
 import android.net.Uri
@@ -74,6 +75,7 @@ import cz.slowdownradijo.app.stats.StatsContent
 import cz.slowdownradijo.app.stats.StatsHomeBlock
 import cz.slowdownradijo.app.stats.StatsUi
 import java.time.Instant
+import cz.slowdownradijo.app.ui.theme.contentColumn
 
 class MainActivity : ComponentActivity() {
     private var controller: ListenableFuture<MediaController>? = null
@@ -85,6 +87,14 @@ class MainActivity : ComponentActivity() {
             navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
         )
         super.onCreate(savedInstanceState)
+        // Phones stay portrait; tablets (600 dp and wider either way) turn
+        // every way, like the iPad (1.4). Android 16 ignores the lock on
+        // large screens anyway.
+        requestedOrientation = if (resources.configuration.smallestScreenWidthDp >= 600) {
+            ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
         val app = app
         app.startNowPlaying()
         // A radio app makes sound as soon as it opens, unless the listener turned that off.
@@ -203,6 +213,7 @@ private fun StatsPage(onOpenMenu: () -> Unit) {
         Modifier
             .fillMaxSize()
             .androidx_verticalScroll()
+            .contentColumn()
             .padding(horizontal = 20.dp)
     ) {
         androidx.compose.foundation.layout.Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
@@ -216,6 +227,7 @@ private fun StatsPage(onOpenMenu: () -> Unit) {
                     scope.launch { app.stats.refreshAll(force = true) }
                 },
                 onRetry = { scope.launch { app.stats.refreshAll(force = true) } },
+                onPeriodChanged = { period, ranked -> app.analytics.track(AnalyticsEvent.StatsPeriodChanged(period.id, ranked)) },
             )
         }
     }
@@ -257,6 +269,7 @@ private fun MessagePage(onOpenMenu: () -> Unit, onBackToRadio: () -> Unit) {
         Modifier
             .fillMaxSize()
             .androidx_verticalScroll()
+            .contentColumn()
             .padding(horizontal = 20.dp)
             .padding(bottom = Theme.Spacing.xl)
     ) {
@@ -325,11 +338,17 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
         val track = onAir.verifiedTrack ?: return@produceState
         value = app.earlierSongs(track, onAir.showStart)
     }
+    val winterLook by app.settings.winterLook.collectAsStateWithLifecycle()
+    val alarmSettings by app.radioAlarm.settings.collectAsStateWithLifecycle()
+    val alarmWokeAt by app.radioAlarm.wokeAt.collectAsStateWithLifecycle()
+    val alarmSnoozedUntil by app.radioAlarm.snoozedUntil.collectAsStateWithLifecycle()
+    var showingAlarm by rememberSaveable { mutableStateOf(false) }
     HomeScreen(
-        HomeUi(onAir, playback, sleepFireAt, now, output, earlierSongs),
+        HomeUi(onAir, playback, sleepFireAt, now, output, earlierSongs, winter = winterLook && cz.slowdownradijo.app.winter.WinterSeason.isSeason(now), alarm = alarmSettings),
         HomeActions(
             togglePlay = { app.radio.togglePlayPause() },
             openSleepTimer = { showingSleepTimer = true },
+            openAlarm = { showingAlarm = true },
             openSong = { track ->
                 app.analytics.track(AnalyticsEvent.SpotifyOpened(onAir.show?.id))
                 spotifySearchUrl(track.artist, track.title)?.let {
@@ -343,6 +362,15 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
             },
         ),
     ) {
+        // Figma "Budík s rádiem" B5/B6: the morning card after the alarm, or the snooze.
+        cz.slowdownradijo.app.alarm.RadioAlarmCard(
+            wokeAt = alarmWokeAt, snoozedUntil = alarmSnoozedUntil, settings = alarmSettings,
+            canSnooze = app.radioAlarm.canSnooze, now = now,
+            onSnooze = app.radioAlarm::snooze, onDone = app.radioAlarm::done,
+            onCancelSnooze = app.radioAlarm::cancelSnooze,
+            onPlayNow = { app.radioAlarm.cancelSnooze(); app.radioAlarm.fire() },
+            modifier = Modifier.padding(top = Theme.Spacing.xl),
+        )
         // Figma "Soutěže" H1–H2: the contest card between the player and the chat.
         val contest by app.contests.current.collectAsStateWithLifecycle()
         val dismissedContests by app.contests.dismissed.collectAsStateWithLifecycle()
@@ -373,7 +401,10 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
                 modifier = Modifier.padding(top = Theme.Spacing.xl),
             )
         }
-        openContest?.let { cz.slowdownradijo.app.contests.ContestSheet(it) { openContest = null } }
+        openContest?.let {
+            androidx.compose.runtime.LaunchedEffect(it) { app.analytics.screen(AnalyticsScreen.CONTEST) }
+            cz.slowdownradijo.app.contests.ContestSheet(it) { openContest = null }
+        }
         dismissingContest?.let { shown ->
             cz.slowdownradijo.app.profile.ConfirmDialog(
                 androidx.compose.ui.res.stringResource(R.string.contestDismissTitle),
@@ -408,8 +439,11 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
             onSeen = app.chat::markSeen,
             modifier = Modifier.padding(top = Theme.Spacing.xl),
             now = now,
+            viewerId = app.account.me?.userId,
+            onFocus = app.chat::requestFocus,
         )
         chatOpening?.let { withKeyboard ->
+            androidx.compose.runtime.LaunchedEffect(Unit) { app.analytics.screen(AnalyticsScreen.CHAT) }
             cz.slowdownradijo.app.chat.ChatSheet(withKeyboard, onAir.show) { chatOpening = null }
         }
         val stats = statsUi()
@@ -438,6 +472,33 @@ private fun RadioPage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit) {
             modifier = Modifier.padding(top = Theme.Spacing.xl),
         )
     }
+    if (showingAlarm) {
+        val context = androidx.compose.ui.platform.LocalContext.current
+        // Back from the system's "Alarms & reminders" screen: look again.
+        var canExact by remember { mutableStateOf(app.radioAlarm.canScheduleExact()) }
+        androidx.lifecycle.compose.LifecycleResumeEffect(Unit) {
+            canExact = app.radioAlarm.canScheduleExact()
+            app.radioAlarm.reschedule()
+            onPauseOrDispose { }
+        }
+        androidx.compose.runtime.LaunchedEffect(Unit) { app.analytics.screen(AnalyticsScreen.RADIO_ALARM) }
+        cz.slowdownradijo.app.alarm.RadioAlarmSheet(
+            cz.slowdownradijo.app.alarm.RadioAlarmSheetUi(alarmSettings, canExact, showAt = { app.schedule.currentShow(it) }),
+            cz.slowdownradijo.app.alarm.RadioAlarmActions(
+                save = {
+                    val edit = alarmSettings.isOn
+                    app.radioAlarm.save(it)
+                    app.analytics.track(AnalyticsEvent.RadioAlarmSaved(it.analyticsDays, it.hour, it.snoozeMinutes, edit))
+                    showingAlarm = false
+                },
+                switchOff = { app.radioAlarm.switchOff(); app.analytics.track(AnalyticsEvent.RadioAlarmTurnedOff()); showingAlarm = false },
+                openPermission = { runCatching { context.startActivity(app.radioAlarm.exactAlarmSettingsIntent()) } },
+                test = { app.radioAlarm.test(); app.analytics.track(AnalyticsEvent.RadioAlarmTested()) },
+            ),
+            onDismiss = { showingAlarm = false },
+        )
+    }
+
     if (showingSleepTimer) {
         SleepTimerSheet(
             activeOption = sleepOption,
@@ -479,9 +540,10 @@ private fun Menu(onClose: () -> Unit) {
                 val autoplay by app.settings.autoplay.collectAsStateWithLifecycle()
                 val stats by app.settings.statsEnabled.collectAsStateWithLifecycle()
                 val streamQuality by app.settings.streamQuality.collectAsStateWithLifecycle()
+                val winterLook by app.settings.winterLook.collectAsStateWithLifecycle()
                 val followed by app.reminders.followed.collectAsStateWithLifecycle()
                 SettingsScreen(
-                    SettingsUi(autoplay, followed.size, stats, analyticsEnabled = analyticsConsent == cz.slowdownradijo.app.analytics.Analytics.Consent.GRANTED, streamQuality = streamQuality),
+                    SettingsUi(autoplay, followed.size, stats, analyticsEnabled = analyticsConsent == cz.slowdownradijo.app.analytics.Analytics.Consent.GRANTED, streamQuality = streamQuality, winterLook = winterLook.takeIf { cz.slowdownradijo.app.winter.WinterSeason.isSeason(Instant.now()) }),
                     SettingsActions(
                         setAutoplay = app.settings::setAutoplay,
                         setStats = {
@@ -493,6 +555,7 @@ private fun Menu(onClose: () -> Unit) {
                             app.settings.setStreamQuality(it)
                             app.radio.streamQualityChanged()
                         },
+                        setWinterLook = app.settings::setWinterLook,
                         deleteStats = { runCatching { app.tracker.deleteAllData() }.isSuccess },
                     ),
                     open, back,
@@ -534,6 +597,7 @@ private fun Menu(onClose: () -> Unit) {
             },
             newsDetail = { id, back -> NewsDetailScreen(app.news.post(id), back) },
             feedback = { back ->
+                androidx.compose.runtime.LaunchedEffect(Unit) { app.analytics.screen(AnalyticsScreen.FEEDBACK) }
                 val message by app.feedback.message.collectAsStateWithLifecycle()
                 val state by app.feedback.state.collectAsStateWithLifecycle()
                 val language = cz.slowdownradijo.app.l10n.LocalAppLanguage.current

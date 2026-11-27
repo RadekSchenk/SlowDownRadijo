@@ -241,6 +241,9 @@ final class ListeningStatsStore: ObservableObject {
         totalSeconds += UserDefaults.standard.integer(forKey: "debugStatsTotalSeconds")
         #endif
 
+        let periods = makePeriods(now: now, perDay: perDay, totalSeconds: totalSeconds)
+        let streakDays = makeStreak(now: now, perDay: perDay)
+
         return ListeningStatsSummary(
             todaySeconds: (perDay[todayKey] ?? [:]).values.reduce(0, +),
             totalSeconds: totalSeconds,
@@ -254,8 +257,90 @@ final class ListeningStatsStore: ObservableObject {
             weekSeconds: weekSeconds,
             weekRangeLabel: StatsFormat.dateRange(from: days.first ?? now, to: days.last ?? now),
             shows: shows,
-            showsSeconds: showsSeconds
+            showsSeconds: showsSeconds,
+            periods: periods,
+            streakDays: streakDays,
+            lastWeekSeconds: snapshot?.lastWeek?.seconds ?? 0,
+            lastWeekRank: snapshot?.lastWeek?.rank
         )
+    }
+
+    /// Weeks from Monday and calendar months, in Prague time.
+    static let pragueCalendar: Calendar = {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Europe/Prague") ?? .current
+        calendar.firstWeekday = 2
+        return calendar
+    }()
+
+    /// The server's standing per period (029) plus what this phone hasn't
+    /// sent yet. Without it (an older server), the times from the recent
+    /// days the snapshot holds, unranked, and all time as before.
+    private func makePeriods(now: Date, perDay: [String: [String: Int]], totalSeconds: Int) -> [StatsPeriod: PeriodStanding] {
+        let unsynced = ListeningTracker.shared.unsyncedRows
+        let calendar = Self.pragueCalendar
+        let weekKey = ListeningTracker.dayString(for: calendar.dateInterval(of: .weekOfYear, for: now)?.start ?? now)
+        let monthKey = ListeningTracker.dayString(for: calendar.dateInterval(of: .month, for: now)?.start ?? now)
+        func unsyncedSince(_ key: String) -> Int {
+            unsynced.filter { $0.day >= key }.reduce(0) { $0 + $1.seconds }
+        }
+        func localSince(_ key: String) -> Int {
+            perDay.filter { $0.key >= key }.values.reduce(0) { $0 + $1.values.reduce(0, +) }
+        }
+        func standing(_ rank: StatsSnapshot.PeriodRank, seconds: Int) -> PeriodStanding {
+            PeriodStanding(
+                seconds: seconds,
+                previousSeconds: rank.previousSeconds,
+                rank: rank.rank,
+                ranked: rank.ranked ?? 0,
+                isOpen: rank.open ?? false,
+                aheadSeconds: rank.aheadSeconds,
+                behindSeconds: rank.behindSeconds
+            )
+        }
+
+        guard let server = snapshot?.periods else {
+            return [
+                .week: PeriodStanding(seconds: localSince(weekKey)),
+                .month: PeriodStanding(seconds: localSince(monthKey)),
+                .all: PeriodStanding(
+                    seconds: totalSeconds,
+                    rank: snapshot?.rank,
+                    ranked: snapshot?.rankedListeners ?? 0,
+                    isOpen: snapshot?.rank != nil,
+                    aheadSeconds: snapshot?.aheadSeconds,
+                    behindSeconds: snapshot?.behindSeconds
+                ),
+            ]
+        }
+        var result: [StatsPeriod: PeriodStanding] = [:]
+        if let week = server.week { result[.week] = standing(week, seconds: week.seconds + unsyncedSince(weekKey)) }
+        if let month = server.month { result[.month] = standing(month, seconds: month.seconds + unsyncedSince(monthKey)) }
+        if let all = server.all { result[.all] = standing(all, seconds: totalSeconds) }
+        return result
+    }
+
+    /// Days in a row up to today or yesterday: the server's run, plus today
+    /// when only this phone knows about it yet; without it, counted from the
+    /// days the snapshot holds.
+    private func makeStreak(now: Date, perDay: [String: [String: Int]]) -> Int {
+        let calendar = Calendar.current
+        let today = ListeningTracker.dayString(for: now)
+        let yesterday = ListeningTracker.dayString(for: calendar.date(byAdding: .day, value: -1, to: now) ?? now)
+        let listenedToday = (perDay[today] ?? [:]).values.reduce(0, +) > 0
+        if let days = snapshot?.streakDays {
+            let through = snapshot?.streakThrough
+            if through == today || !listenedToday { return through == nil ? 0 : days }
+            return through == yesterday ? days + 1 : 1
+        }
+        var count = 0
+        var date = listenedToday ? now : (calendar.date(byAdding: .day, value: -1, to: now) ?? now)
+        while (perDay[ListeningTracker.dayString(for: date)] ?? [:]).values.reduce(0, +) > 0 {
+            count += 1
+            guard let previous = calendar.date(byAdding: .day, value: -1, to: date) else { break }
+            date = previous
+        }
+        return count
     }
 
     /// The server's count, plus today when only this phone knows about it

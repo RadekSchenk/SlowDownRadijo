@@ -99,6 +99,14 @@ enum NewsNotificationManager {
             withCompletionHandler completionHandler: @escaping () -> Void
         ) {
             let content = response.notification.request.content
+            if content.categoryIdentifier == RadioAlarmNotifier.categoryID {
+                let action = response.actionIdentifier
+                DispatchQueue.main.async {
+                    MainActor.assumeIsolated { RadioAlarmNotifier.handle(actionID: action) }
+                    completionHandler()
+                }
+                return
+            }
             guard content.categoryIdentifier == ShowReminderStore.categoryID else {
                 completionHandler()
                 return

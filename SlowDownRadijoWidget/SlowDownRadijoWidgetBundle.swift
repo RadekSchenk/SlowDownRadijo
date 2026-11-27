@@ -5,6 +5,11 @@ import WidgetKit
 struct SlowDownRadijoWidgetBundle: WidgetBundle {
     var body: some Widget {
         NowPlayingWidget()
+        #if canImport(AlarmKit)
+        if #available(iOS 26.0, *) {
+            RadioAlarmLiveActivity()
+        }
+        #endif
     }
 }
 

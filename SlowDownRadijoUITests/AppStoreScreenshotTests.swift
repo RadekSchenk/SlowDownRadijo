@@ -79,7 +79,10 @@ final class AppStoreScreenshotTests: XCTestCase {
             chat.tap()
             sleep(3)
             capture("2 chat")
-            app.swipeDown(velocity: .fast)
+            // On iPad the chat is a form sheet in the middle of the screen,
+            // which a swipe down doesn't reliably close.
+            let close = app.buttons["chat.close"]
+            if close.exists, close.isHittable { close.tap() } else { app.swipeDown(velocity: .fast) }
             sleep(2)
         }
 

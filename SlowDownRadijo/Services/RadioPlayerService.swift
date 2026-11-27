@@ -79,7 +79,7 @@ final class RadioPlayerService: NSObject, ObservableObject {
     /// What last started playback, and what last stopped it — read by
     /// `PlaybackAnalytics` when the state changes.
     enum PlayTrigger: String {
-        case user, autoplay, lockScreen = "lock_screen", notification, resume, preview, carPlay = "carplay"
+        case user, autoplay, lockScreen = "lock_screen", notification, resume, preview, carPlay = "carplay", alarm
     }
 
     enum StopReason: String {
@@ -107,6 +107,11 @@ final class RadioPlayerService: NSObject, ObservableObject {
     private static let connectTimeout: TimeInterval = 20
     private var stallObserver: NSObjectProtocol?
     private var sleepTimer: Timer?
+    /// The radio alarm's gentle start (`rampVolume`): from 20 % up to full
+    /// over `rampDuration`, also across reconnects.
+    private var rampStart: Date?
+    private var rampDuration: TimeInterval = 30
+    private var rampTimer: Timer?
 
     /// What the lock screen, Control Center and CarPlay show — set by
     /// `NowPlayingViewModel`.
@@ -199,8 +204,37 @@ final class RadioPlayerService: NSObject, ObservableObject {
         connectTimeoutTimer?.invalidate()
         connectTimeoutTimer = nil
         player?.pause()
+        endVolumeRamp()
         state = .paused
         updateNowPlayingPlaybackRate(0)
+    }
+
+    // MARK: - Volume ramp (radio alarm)
+
+    /// The radio alarm with the app running: the volume rises from 20 %
+    /// to full over `seconds`. Pausing ends it.
+    func rampVolume(over seconds: TimeInterval) {
+        rampStart = Date()
+        rampDuration = seconds
+        player?.volume = rampVolume
+        rampTimer?.invalidate()
+        rampTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+            guard let self else { return }
+            self.player?.volume = self.rampVolume
+            if self.rampVolume >= 1 { self.endVolumeRamp() }
+        }
+    }
+
+    private var rampVolume: Float {
+        guard let rampStart else { return 1 }
+        return Float(min(1, 0.2 + 0.8 * Date().timeIntervalSince(rampStart) / rampDuration))
+    }
+
+    private func endVolumeRamp() {
+        rampTimer?.invalidate()
+        rampTimer = nil
+        rampStart = nil
+        player?.volume = 1
     }
 
     /// Called by the view model whenever the parsed now-playing metadata or
@@ -291,6 +325,7 @@ final class RadioPlayerService: NSObject, ObservableObject {
         let item = AVPlayerItem(url: stream.url)
         let newPlayer = AVPlayer(playerItem: item)
         newPlayer.automaticallyWaitsToMinimizeStalling = true
+        newPlayer.volume = rampVolume
         player = newPlayer
         playerItem = item
 
@@ -500,6 +535,14 @@ final class RadioPlayerService: NSObject, ObservableObject {
             }
         } catch {
             print("AVAudioSession configuration error: \(error)")
+            // From the background (the radio alarm, `RadioAlarmNightWatch`)
+            // iOS may refuse a session that stops other audio; a mixable
+            // one still plays. The next start in the app is the usual one.
+            if activate {
+                let session = AVAudioSession.sharedInstance()
+                try? session.setCategory(.playback, mode: .default, options: [.mixWithOthers])
+                try? session.setActive(true)
+            }
         }
     }
 

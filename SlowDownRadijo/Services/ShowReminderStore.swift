@@ -105,7 +105,8 @@ final class ShowReminderStore: ObservableObject {
             options: [.foreground]
         )
         let category = UNNotificationCategory(identifier: categoryID, actions: [listen], intentIdentifiers: [])
-        UNUserNotificationCenter.current().setNotificationCategories([category])
+        // One call sets every category the app has.
+        UNUserNotificationCenter.current().setNotificationCategories([category, RadioAlarmNotifier.category])
     }
 
     // MARK: - Following

@@ -134,6 +134,14 @@ enum Theme {
         static let xxl: CGFloat = 48
     }
 
+    /// Tablets (1.4, Figma "Tablety"): every page's content sits in a
+    /// centred column no wider than this (600 of content plus the 20pt
+    /// margins); the background and the tab bar still run edge to edge.
+    /// On a phone the column is simply the whole screen.
+    enum Layout {
+        static let contentColumnWidth: CGFloat = 640
+    }
+
     enum Radius {
         static let card: CGFloat = 20
         static let button: CGFloat = 16
@@ -235,6 +243,16 @@ extension View {
     /// the difference evenly above and below, the way CSS half-leading does.
     func manropeLineHeight(_ lineHeight: CGFloat, fontSize: CGFloat) -> some View {
         padding(.vertical, (lineHeight - fontSize * 1.366) / 2)
+    }
+}
+
+extension View {
+    /// The tablet column (`Theme.Layout.contentColumnWidth`), centred in
+    /// whatever width there is. Goes after a page's horizontal padding, so
+    /// the padding is part of the column.
+    func contentColumn() -> some View {
+        frame(maxWidth: Theme.Layout.contentColumnWidth)
+            .frame(maxWidth: .infinity)
     }
 }
 

@@ -29,7 +29,16 @@ data class StatsSummary(
     val weekEnd: LocalDate? = null,
     val shows: List<ShowShare> = emptyList(),
     val showsSeconds: Int = 0,
+    /** The leaderboard for this week, this month and all time (Statistiky 1.4). */
+    val periods: Map<StatsPeriod, PeriodStanding> = emptyMap(),
+    /** Days in a row with the radio, up to today or yesterday. */
+    val streakDays: Int = 0,
+    val lastWeekSeconds: Int = 0,
+    val lastWeekRank: Int? = null,
 ) {
+    fun period(period: StatsPeriod): PeriodStanding =
+        periods[period] ?: PeriodStanding(seconds = if (period == StatsPeriod.ALL) totalSeconds else 0)
+
     data class DayBar(val day: String, val weekday: Int, val seconds: Int, val isPeak: Boolean)
 
     data class ShowShare(
@@ -43,6 +52,22 @@ data class StatsSummary(
         val fraction: Double,
     )
 }
+
+/** The leaderboard's periods: weeks Monday to Sunday and calendar months, in Prague time. */
+enum class StatsPeriod(val id: String) { WEEK("week"), MONTH("month"), ALL("all");
+    companion object { fun fromId(id: String?) = entries.firstOrNull { it.id == id } ?: WEEK }
+}
+
+/** The listener in one period, as `PeriodStanding` on iOS: no `rank` when not ranked or when the period has too few listeners (`isOpen` false). */
+data class PeriodStanding(
+    val seconds: Int,
+    val previousSeconds: Int? = null,
+    val rank: Int? = null,
+    val ranked: Int = 0,
+    val isOpen: Boolean = false,
+    val aheadSeconds: Int? = null,
+    val behindSeconds: Int? = null,
+)
 
 /** The listener's numbers, as `ListeningStatsStore.swift`: the server's snapshot plus what this phone hasn't sent yet. */
 class ListeningStatsStore(
@@ -167,9 +192,13 @@ class ListeningStatsStore(
                 )
             }
 
+        val totalSeconds = (snapshot?.totalSeconds ?: 0) + unsyncedSeconds
+        val periods = periods(at, perDay, unsynced, snapshot, totalSeconds)
+        val streak = streak(today, perDay, snapshot)
+
         return StatsSummary(
             todaySeconds = perDay[today.toString()]?.values?.sum() ?: 0,
-            totalSeconds = (snapshot?.totalSeconds ?: 0) + unsyncedSeconds,
+            totalSeconds = totalSeconds,
             communitySeconds = (snapshot?.communitySeconds ?: _public.value?.communitySeconds ?: 0) + unsyncedSeconds,
             rank = snapshot?.rank,
             rankedListeners = snapshot?.rankedListeners ?: _public.value?.rankedListeners ?: 0,
@@ -187,10 +216,61 @@ class ListeningStatsStore(
             weekEnd = days.last(),
             shows = shows,
             showsSeconds = showsSeconds,
+            periods = periods,
+            streakDays = streak,
+            lastWeekSeconds = snapshot?.lastWeek?.seconds ?: 0,
+            lastWeekRank = snapshot?.lastWeek?.rank,
         )
     }
 
+    /** The server's standing per period plus what this phone hasn't sent yet; without it (an older server), unranked times from the snapshot's days, as iOS. */
+    private fun periods(
+        at: Instant,
+        perDay: Map<String, Map<String, Int>>,
+        unsynced: List<ListeningRow>,
+        snapshot: StatsSnapshot?,
+        totalSeconds: Int,
+    ): Map<StatsPeriod, PeriodStanding> {
+        val pragueToday = at.atZone(PRAGUE).toLocalDate()
+        val weekKey = pragueToday.with(java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY)).toString()
+        val monthKey = pragueToday.withDayOfMonth(1).toString()
+        fun unsyncedSince(key: String) = unsynced.filter { it.day >= key }.sumOf { it.seconds }
+        fun localSince(key: String) = perDay.filterKeys { it >= key }.values.sumOf { it.values.sum() }
+        fun standing(rank: StatsSnapshot.PeriodRank, seconds: Int) = PeriodStanding(
+            seconds, rank.previousSeconds, rank.rank, rank.ranked ?: 0, rank.open ?: false, rank.aheadSeconds, rank.behindSeconds,
+        )
+        val server = snapshot?.periods ?: return mapOf(
+            StatsPeriod.WEEK to PeriodStanding(localSince(weekKey)),
+            StatsPeriod.MONTH to PeriodStanding(localSince(monthKey)),
+            StatsPeriod.ALL to PeriodStanding(
+                totalSeconds, rank = snapshot?.rank, ranked = snapshot?.rankedListeners ?: 0, isOpen = snapshot?.rank != null,
+                aheadSeconds = snapshot?.aheadSeconds, behindSeconds = snapshot?.behindSeconds,
+            ),
+        )
+        return buildMap {
+            server.week?.let { put(StatsPeriod.WEEK, standing(it, it.seconds + unsyncedSince(weekKey))) }
+            server.month?.let { put(StatsPeriod.MONTH, standing(it, it.seconds + unsyncedSince(monthKey))) }
+            server.all?.let { put(StatsPeriod.ALL, standing(it, totalSeconds)) }
+        }
+    }
+
+    /** Days in a row up to today or yesterday, as iOS: the server's run plus today when only this phone knows it. */
+    private fun streak(today: LocalDate, perDay: Map<String, Map<String, Int>>, snapshot: StatsSnapshot?): Int {
+        val listenedToday = (perDay[today.toString()]?.values?.sum() ?: 0) > 0
+        val days = snapshot?.streakDays
+        if (days != null) {
+            val through = snapshot.streakThrough
+            if (through == today.toString() || !listenedToday) return if (through == null) 0 else days
+            return if (through == today.minusDays(1).toString()) days + 1 else 1
+        }
+        var count = 0
+        var day = if (listenedToday) today else today.minusDays(1)
+        while ((perDay[day.toString()]?.values?.sum() ?: 0) > 0) { count++; day = day.minusDays(1) }
+        return count
+    }
+
     private companion object {
+        val PRAGUE: ZoneId = ZoneId.of("Europe/Prague")
         const val SNAPSHOT = "stats.snapshot"
         const val PUBLIC = "stats.publicStats"
         const val MIN_REFRESH_GAP = 20L

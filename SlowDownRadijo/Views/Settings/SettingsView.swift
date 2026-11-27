@@ -10,6 +10,7 @@ struct SettingsView: View {
     @ObservedObject private var reminders = ShowReminderStore.shared
     @ObservedObject private var analytics = Analytics.shared
     @AppStorage("autoplayEnabled") private var autoplayEnabled = true
+    @AppStorage(WinterSeason.enabledKey) private var winterLookEnabled = true
     @AppStorage(StatsConfig.enabledKey) private var statsEnabled = true
     @AppStorage(StreamQuality.storageKey) private var streamQuality: StreamQuality = .auto
     @Environment(\.dismiss) private var dismiss
@@ -35,6 +36,17 @@ struct SettingsView: View {
                         Toggle("", isOn: $autoplayEnabled)
                             .labelsHidden()
                             .tint(Theme.liveRed)
+                    }
+
+                    // Only while it's winter: out of season the switch
+                    // would have nothing to do. The choice stays.
+                    if WinterSeason.isWinter() {
+                        ListDivider()
+                        ListRow(title: L10n.winterLookTitle, subtitle: L10n.winterLookDescription) {
+                            Toggle("", isOn: $winterLookEnabled)
+                                .labelsHidden()
+                                .tint(Theme.liveRed)
+                        }
                     }
 
                     ListDivider()

@@ -61,6 +61,7 @@ class SlowDownApp : Application() {
     val language by lazy { LanguageStore(this) }
     val settings by lazy { AppSettings(this) }
     val reminders by lazy { ShowReminders(this, schedule) }
+    val radioAlarm by lazy { cz.slowdownradijo.app.alarm.RadioAlarm(this, scope) }
 
     val schedule by lazy { ScheduleStore(ScheduleStore.bundled(this), File(cacheDir, "schedule-web.json")) }
     private val webSchedule by lazy { WebScheduleService(http) }

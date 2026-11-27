@@ -255,6 +255,9 @@ struct RootTabView: View {
             .padding(.horizontal, 40)
             .padding(.top, 10)
             .padding(.bottom, 6)
+            // Tablets: the tabs stay over the content column, the bar's
+            // background runs edge to edge.
+            .contentColumn()
         }
         // The bar runs to the screen's bottom edge (`body` ignores the bottom
         // safe area); below the tabs it keeps the design's 19pt home-indicator

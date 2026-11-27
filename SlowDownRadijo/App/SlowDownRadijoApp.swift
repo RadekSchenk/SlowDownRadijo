@@ -34,19 +34,27 @@ struct SlowDownRadijoApp: App {
 /// view is mounted from the start, so its services warm up underneath.
 private struct AppRootView: View {
     @State private var showSplash = true
+    /// Once a day in the winter season (`WinterSeason.takeSplash`).
+    @State private var winterSplash = WinterSeason.takeSplash()
+    private let christmas = WinterSeason.isChristmasNow()
 
     /// Just long enough for the home screen to lay out under the cover;
     /// the app itself is ready by then (the schedule ships in the bundle,
     /// and the slower start-up work waits until after it — see
     /// `RootTabView`'s autoplay and `PlayHistoryStore`).
     private static let hold: Duration = .milliseconds(80)
+    /// The winter splash stays long enough to be seen: its picture comes in
+    /// over `SplashScreenView.reveal`, then rests a moment (the wish a
+    /// little longer). The radio's autoplay starts underneath meanwhile.
+    private static let winterHold: Duration = .milliseconds(1500)
+    private static let christmasHold: Duration = .milliseconds(2100)
 
     var body: some View {
         ZStack {
             RootTabView()
 
             if showSplash {
-                SplashScreenView()
+                SplashScreenView(winter: winterSplash, christmas: winterSplash && christmas)
                     .transition(.opacity)
             }
         }
@@ -54,8 +62,9 @@ private struct AppRootView: View {
         .preferredColorScheme(.dark)
         .appTextSizeLimit()
         .task {
-            try? await Task.sleep(for: Self.hold)
-            withAnimation(.easeOut(duration: 0.2)) {
+            let hold = !winterSplash ? Self.hold : christmas ? Self.christmasHold : Self.winterHold
+            try? await Task.sleep(for: hold)
+            withAnimation(.easeOut(duration: winterSplash ? 0.35 : 0.2)) {
                 showSplash = false
             }
         }

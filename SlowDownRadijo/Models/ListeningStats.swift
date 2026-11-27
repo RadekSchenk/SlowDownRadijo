@@ -24,6 +24,37 @@ struct StatsSnapshot: Codable, Equatable {
     var aheadSeconds: Int?
     var behindSeconds: Int?
     var listeningDays: Int?
+    /// The leaderboard by period (029, Statistiky 1.4), last week, and the
+    /// run of days. Missing from an older server.
+    var periods: Periods?
+    var lastWeek: LastWeek?
+    var streakDays: Int?
+    /// The last day of the run (yyyy-MM-dd): today or yesterday.
+    var streakThrough: String?
+
+    struct Periods: Codable, Equatable {
+        let week: PeriodRank?
+        let month: PeriodRank?
+        let all: PeriodRank?
+    }
+
+    /// One period's place. `rank` is nil unless the listener has 10 min in
+    /// it and the period has enough listeners (`open`); `ranked` only
+    /// feeds the TOP % label and is never shown.
+    struct PeriodRank: Codable, Equatable {
+        let seconds: Int
+        var previousSeconds: Int?
+        var rank: Int?
+        var ranked: Int?
+        var open: Bool?
+        var aheadSeconds: Int?
+        var behindSeconds: Int?
+    }
+
+    struct LastWeek: Codable, Equatable {
+        let seconds: Int
+        var rank: Int?
+    }
 
     struct ShowTotal: Codable, Equatable {
         let showId: String
@@ -79,4 +110,35 @@ struct ListeningStatsSummary {
     var shows: [ShowShare] = []
     /// All the time in `shows` together.
     var showsSeconds = 0
+    /// The leaderboard for this week, this month and all time.
+    var periods: [StatsPeriod: PeriodStanding] = [:]
+    /// Days in a row with the radio, up to today or yesterday.
+    var streakDays = 0
+    /// Last week, for the card on Monday and Tuesday.
+    var lastWeekSeconds = 0
+    var lastWeekRank: Int?
+
+    func period(_ period: StatsPeriod) -> PeriodStanding {
+        periods[period] ?? PeriodStanding(seconds: period == .all ? totalSeconds : 0)
+    }
+}
+
+/// The leaderboard's periods (Figma "Statistiky 1.4"): weeks Monday to
+/// Sunday and calendar months, in Prague time.
+enum StatsPeriod: String, CaseIterable, Identifiable {
+    case week, month, all
+    var id: String { rawValue }
+}
+
+/// The listener in one period. `rank` is nil when they aren't ranked or
+/// the period has too few listeners to show places at all (`isOpen`
+/// false); then Statistiky shows their own time instead.
+struct PeriodStanding: Equatable {
+    var seconds: Int
+    var previousSeconds: Int?
+    var rank: Int?
+    var ranked = 0
+    var isOpen = false
+    var aheadSeconds: Int?
+    var behindSeconds: Int?
 }

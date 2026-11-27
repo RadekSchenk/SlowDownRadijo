@@ -24,6 +24,7 @@ sealed class AccountError(message: String) : Exception(message) {
         RateLimited -> R.string.chatRateLimited
         DuplicateMessage -> R.string.chatDuplicate
         LinksNeedAccount -> R.string.chatLinksNeedAccount
+        ReplyUnavailable -> R.string.chatReplyUnavailable
         CodeInvalid -> R.string.emailCodeInvalid
         NicknameTaken -> R.string.nicknameTaken
         NicknameReserved -> R.string.nicknameReserved
@@ -62,6 +63,8 @@ sealed class AccountError(message: String) : Exception(message) {
     data object DuplicateMessage : AccountError("duplicate_message")
     /** A web address from someone writing without an account. */
     data object LinksNeedAccount : AccountError("links_need_account")
+    /** The message being answered was deleted meanwhile (030_chat_replies.sql). */
+    data object ReplyUnavailable : AccountError("reply_unavailable")
     data object NotModerator : AccountError("not_moderator")
     data object NotAdmin : AccountError("not_admin")
     data object NotSuperadmin : AccountError("not_superadmin")
@@ -113,6 +116,7 @@ sealed class AccountError(message: String) : Exception(message) {
                 "rate_limited" -> RateLimited
                 "duplicate_message" -> DuplicateMessage
                 "links_need_account" -> LinksNeedAccount
+                "reply_unavailable" -> ReplyUnavailable
                 "not_moderator" -> NotModerator
                 "not_admin" -> NotAdmin
                 "not_superadmin" -> NotSuperadmin

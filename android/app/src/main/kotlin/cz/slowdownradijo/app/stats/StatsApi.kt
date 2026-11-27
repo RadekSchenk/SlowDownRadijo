@@ -40,7 +40,30 @@ data class StatsSnapshot(
     @SerialName("ahead_seconds") val aheadSeconds: Int? = null,
     @SerialName("behind_seconds") val behindSeconds: Int? = null,
     @SerialName("listening_days") val listeningDays: Int? = null,
+    /** The leaderboard by period, last week and the run of days (029, Statistiky 1.4). */
+    val periods: Periods? = null,
+    @SerialName("last_week") val lastWeek: LastWeek? = null,
+    @SerialName("streak_days") val streakDays: Int? = null,
+    @SerialName("streak_through") val streakThrough: String? = null,
 ) {
+    @Serializable
+    data class Periods(val week: PeriodRank? = null, val month: PeriodRank? = null, val all: PeriodRank? = null)
+
+    /** `rank` is null unless the listener has 10 min in the period and it has enough listeners (`open`); `ranked` only feeds the TOP % label. */
+    @Serializable
+    data class PeriodRank(
+        val seconds: Int = 0,
+        @SerialName("previous_seconds") val previousSeconds: Int? = null,
+        val rank: Int? = null,
+        val ranked: Int? = null,
+        val open: Boolean? = null,
+        @SerialName("ahead_seconds") val aheadSeconds: Int? = null,
+        @SerialName("behind_seconds") val behindSeconds: Int? = null,
+    )
+
+    @Serializable
+    data class LastWeek(val seconds: Int = 0, val rank: Int? = null)
+
     @Serializable
     data class Row(val day: String, @SerialName("show_id") val showId: String, val seconds: Int)
 

@@ -15,6 +15,9 @@
   nebo stránka s e-mailem.
 - ⬜ **Snímky obrazovky** iPhone 6,9" (1320 × 2868), stačí jedna sada, 3–10 kusů.
   Návrh: Rádio (hraje), Pořady, Statistiky, Vzkaz, Podpora.
+- ⬜ **Snímky obrazovky iPad 13"** (2064 × 2752 nebo na šířku 2752 × 2064):
+  od 1.4 je appka i pro iPad, bez této sady App Store Connect verzi
+  nepustí ke kontrole. Stačí 3–10 kusů, stejné obrazovky jako u iPhonu.
 
 ## 2. Rizika při schvalování
 
