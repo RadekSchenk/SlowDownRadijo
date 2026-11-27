@@ -790,7 +790,45 @@ private struct SwipeToReply: ViewModifier {
                     .opacity(Double(min(1, offset / Self.threshold)))
                     .accessibilityHidden(true)
             }
-            .simultaneousGesture(enabled ? drag : nil)
+            .modifier(ReplyDrag(enabled: enabled, onChange: track, onEnd: finish, drag: drag))
+    }
+
+    /// On iOS 18 a SwiftUI DragGesture on a row inside the ScrollView takes
+    /// the vertical pans from it, so the list barely scrolls. A UIKit pan that
+    /// only begins for a rightward, mostly horizontal swipe leaves every other
+    /// touch to the scroll view.
+    private struct ReplyDrag<G: Gesture>: ViewModifier {
+        let enabled: Bool
+        let onChange: (CGFloat) -> Void
+        let onEnd: () -> Void
+        let drag: G
+
+        func body(content: Content) -> some View {
+            if !enabled {
+                content
+            } else if #available(iOS 18.0, *) {
+                content.gesture(HorizontalSwipe(onChange: onChange, onEnd: onEnd))
+            } else {
+                content.simultaneousGesture(drag)
+            }
+        }
+    }
+
+    private func track(_ dx: CGFloat) {
+        let dx = max(0, dx)
+        // Follows the finger up to the threshold, then slower.
+        offset = dx <= Self.threshold ? dx : Self.threshold + (dx - Self.threshold) * 0.25
+        let nowArmed = offset >= Self.threshold
+        if nowArmed != armed {
+            armed = nowArmed
+            if nowArmed { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
+        }
+    }
+
+    private func finish() {
+        if armed { onReply() }
+        armed = false
+        withAnimation(Motion.smoothOut(Motion.medium)) { offset = 0 }
     }
 
     private var drag: some Gesture {
@@ -798,19 +836,41 @@ private struct SwipeToReply: ViewModifier {
             .onChanged { value in
                 let dx = value.translation.width, dy = value.translation.height
                 guard dx > 0, dx > abs(dy) * 1.5 || offset > 0 else { return }
-                // Follows the finger up to the threshold, then slower.
-                offset = dx <= Self.threshold ? dx : Self.threshold + (dx - Self.threshold) * 0.25
-                let nowArmed = offset >= Self.threshold
-                if nowArmed != armed {
-                    armed = nowArmed
-                    if nowArmed { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
-                }
+                track(dx)
             }
-            .onEnded { _ in
-                if armed { onReply() }
-                armed = false
-                withAnimation(Motion.smoothOut(Motion.medium)) { offset = 0 }
-            }
+            .onEnded { _ in finish() }
+    }
+}
+
+/// A pan that begins only when the finger moves right more than it moves up
+/// or down; vertical drags fail it at once and stay with the scroll view.
+@available(iOS 18.0, *)
+private struct HorizontalSwipe: UIGestureRecognizerRepresentable {
+    let onChange: (CGFloat) -> Void
+    let onEnd: () -> Void
+
+    func makeUIGestureRecognizer(context: Context) -> UIPanGestureRecognizer {
+        let pan = UIPanGestureRecognizer()
+        pan.delegate = context.coordinator
+        return pan
+    }
+
+    func makeCoordinator(converter: CoordinateSpaceConverter) -> Coordinator { Coordinator() }
+
+    func handleUIGestureRecognizerAction(_ recognizer: UIPanGestureRecognizer, context: Context) {
+        switch recognizer.state {
+        case .began, .changed: onChange(recognizer.translation(in: recognizer.view).x)
+        case .ended, .cancelled, .failed: onEnd()
+        default: break
+        }
+    }
+
+    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        func gestureRecognizerShouldBegin(_ recognizer: UIGestureRecognizer) -> Bool {
+            guard let pan = recognizer as? UIPanGestureRecognizer else { return false }
+            let v = pan.velocity(in: pan.view)
+            return v.x > 0 && v.x > abs(v.y) * 1.5
+        }
     }
 }
 
