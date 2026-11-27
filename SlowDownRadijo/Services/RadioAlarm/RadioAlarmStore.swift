@@ -1,4 +1,5 @@
 import AppIntents
+import Combine
 import Foundation
 import SwiftUI
 #if canImport(AlarmKit)
@@ -158,12 +159,59 @@ final class RadioAlarmStore: ObservableObject {
         } else {
             player.play(trigger: .alarm)
         }
+        keepPlaying()
         if endsOneOff, settings.weekdays.isEmpty, settings.isOn {
             var next = settings
             next.isOn = false
             next.onceAt = nil
             store(next)
         }
+    }
+
+    /// The stream the alarm has just started can be stopped at once: the
+    /// alarm's own sound ending is an audio interruption, which iOS may
+    /// report only as the app comes forward, and a start from the
+    /// background can be refused. With the app still running from the night
+    /// (`RadioAlarmNightWatch`) there's no fresh launch, so autoplay doesn't
+    /// cover it either. For a short while, start it again — unless the
+    /// listener paused it themselves.
+    private var keepPlayingUntil: Date?
+    private var keepPlayingObservers: [AnyCancellable] = []
+
+    private func keepPlaying(for seconds: TimeInterval = 20) {
+        keepPlayingUntil = Date().addingTimeInterval(seconds)
+        keepPlayingObservers.removeAll()
+        let player = AppServices.shared.player
+        let retry: (_ afterError: Bool) -> Void = { [weak self] afterError in
+            guard let self else { return }
+            guard let until = self.keepPlayingUntil, Date() < until else {
+                self.keepPlayingUntil = nil
+                self.keepPlayingObservers.removeAll()
+                return
+            }
+            switch player.state {
+            case .playing, .connecting:
+                return
+            case .paused where player.lastStopReason != .interruption:
+                // Paused by the listener, the snooze or "Vypnout rádio".
+                self.keepPlayingUntil = nil
+                self.keepPlayingObservers.removeAll()
+            case .error:
+                // The player reconnects by itself; once more only when the
+                // app has just come forward.
+                if afterError { player.play(trigger: .alarm) }
+            case .idle, .paused:
+                player.play(trigger: .alarm)
+            }
+        }
+        player.$state.dropFirst().removeDuplicates()
+            .debounce(for: .milliseconds(600), scheduler: RunLoop.main)
+            .sink { _ in retry(false) }
+            .store(in: &keepPlayingObservers)
+        NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
+            .delay(for: .milliseconds(300), scheduler: RunLoop.main)
+            .sink { _ in retry(true) }
+            .store(in: &keepPlayingObservers)
     }
 
     /// The alarm's time (or the end of a snooze) with the app running
@@ -192,6 +240,7 @@ final class RadioAlarmStore: ObservableObject {
     /// and plays again after the snooze time (a one-off alarm, in case the
     /// app isn't running then).
     func snooze() async {
+        keepPlayingUntil = nil
         RadioAlarmNotifier.removeGoodMorning()
         AppServices.shared.player.pause()
         snoozeCount += 1
@@ -210,6 +259,7 @@ final class RadioAlarmStore: ObservableObject {
 
     /// "Hotovo": the morning card goes, the radio keeps playing.
     func done() {
+        keepPlayingUntil = nil
         wokeAt = nil
         snoozeCount = 0
         RadioAlarmNotifier.removeGoodMorning()
