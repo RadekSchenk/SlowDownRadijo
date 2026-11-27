@@ -51,9 +51,7 @@ v chatu se odešle.
     (zazvoní systémový budík → „Pustit rádio“),
   - žebříček týden/měsíc, zimní vzhled (od 29. 11.; vypíná se v Nastavení),
   - iPad: otáčení, chat, statistiky.
-- ⬜ Po sloučení do `main` nahrát finální build (Xcode zavřený):
-  `git switch main && git pull && tools/release/upload.sh`.
-  Nebo poslat ke kontrole přímo 2611272027, obsahuje totéž.
+- ✅ Finální build z `main`: **2611272056** (27. 11. 2026) – ten poslat ke kontrole.
 
 ## 4. App Store Connect → iOS App → **+** → verze **1.4**
 
@@ -66,7 +64,7 @@ v chatu se odešle.
 - ⬜ **Popis** (cs, en) – doplněný budík, odpovědi, žebříčky a iPad.
 - ⬜ **Klíčová slova** – přibylo „budík“ / „alarm“ (EN bez „online“, kvůli limitu 100).
 - ⬜ **Co je nového ve verzi 1.4** (cs, en) – `docs/app-store.md`, oddíl What's New.
-- ⬜ **Build**: vybrat 2611272027 (nebo finální z `main`).
+- ⬜ **Build**: vybrat **2611272056**.
 - ⬜ **App Review Information → Notes**: celý blok „Notes for 1.4“
   (~3 300 znaků). Příloha s nahrávkou obrazovky může zůstat z 1.3.
 - ⬜ **Version Release**: „Manually release this version“.
