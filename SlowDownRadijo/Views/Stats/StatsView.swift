@@ -36,6 +36,7 @@ struct StatsView: View {
                 .padding(.bottom, 36)
             }
             .padding(.horizontal, 20)
+            .contentColumn()
             .scrollsToTopOnTabReselect()
         }
         .ignoresSafeArea(edges: .top)
@@ -177,6 +178,10 @@ struct StatsView: View {
             }
         }
         .animation(Motion.smoothOut(Motion.medium), value: periodRaw)
+        .onChange(of: periodRaw) { _, raw in
+            let period = StatsPeriod(rawValue: raw) ?? .week
+            Analytics.shared.track(.statsPeriodChanged(period: period.rawValue, ranked: summary.period(period).rank != nil))
+        }
     }
 
     /// 10 minutes in a period put a listener on its leaderboard (019).

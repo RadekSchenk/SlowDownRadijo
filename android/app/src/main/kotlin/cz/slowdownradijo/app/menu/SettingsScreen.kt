@@ -51,6 +51,7 @@ import cz.slowdownradijo.app.ui.components.ListRowChevron
 import cz.slowdownradijo.app.ui.components.SecondaryActionButton
 import cz.slowdownradijo.app.ui.theme.Theme
 import kotlinx.coroutines.launch
+import cz.slowdownradijo.app.ui.theme.contentColumn
 
 /** Everything Settings shows and changes, so screenshot tests can set it. */
 data class SettingsUi(
@@ -88,6 +89,7 @@ fun SettingsScreen(ui: SettingsUi, actions: SettingsActions, open: (MenuPage) ->
         Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
+            .contentColumn()
             .padding(horizontal = 20.dp)
             .padding(top = 20.dp, bottom = Theme.Spacing.xl),
         verticalArrangement = Arrangement.spacedBy(Theme.Spacing.lg),
@@ -228,6 +230,7 @@ fun ShowRemindersScreen(
         Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
+            .contentColumn()
             .padding(horizontal = 20.dp)
             .padding(top = 20.dp, bottom = Theme.Spacing.xl),
         verticalArrangement = Arrangement.spacedBy(Theme.Spacing.lg),

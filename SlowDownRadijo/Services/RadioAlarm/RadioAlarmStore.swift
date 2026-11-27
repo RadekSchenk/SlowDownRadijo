@@ -28,6 +28,17 @@ struct RadioAlarmSettings: Codable, Equatable {
 
     static let snoozeChoices = [5, 10, 15, 20]
 
+    /// The days for analytics: `once`, `weekdays`, `weekend`, `daily`, `custom`.
+    var analyticsDays: String {
+        switch weekdays {
+        case []: "once"
+        case [2, 3, 4, 5, 6]: "weekdays"
+        case [1, 7]: "weekend"
+        case Set(1...7): "daily"
+        default: "custom"
+        }
+    }
+
     /// The same alarm (time, days, snooze), whether on or not.
     func sameAlarm(as other: RadioAlarmSettings) -> Bool {
         hour == other.hour && minute == other.minute && weekdays == other.weekdays && snoozeMinutes == other.snoozeMinutes
@@ -85,9 +96,11 @@ final class RadioAlarmStore: ObservableObject {
     @discardableResult
     func save(_ draft: RadioAlarmSettings) async -> Bool {
         guard await authorize() else { return false }
+        let edit = settings.isOn
         var next = draft
         next.isOn = true
         await apply(next)
+        Analytics.shared.track(.radioAlarmSaved(days: next.analyticsDays, hour: next.hour, snoozeMinutes: next.snoozeMinutes, edit: edit))
         return true
     }
 
@@ -96,6 +109,7 @@ final class RadioAlarmStore: ObservableObject {
         var next = settings
         next.isOn = false
         await apply(next)
+        Analytics.shared.track(.radioAlarmTurnedOff)
     }
 
     /// On launch and when the app comes back: a one-off alarm that has rung
@@ -181,6 +195,7 @@ final class RadioAlarmStore: ObservableObject {
         RadioAlarmNotifier.removeGoodMorning()
         AppServices.shared.player.pause()
         snoozeCount += 1
+        Analytics.shared.track(.radioAlarmSnoozed(count: snoozeCount))
         let until = Date().addingTimeInterval(TimeInterval(settings.snoozeMinutes * 60))
         snoozedUntil = until
         wokeAt = nil
@@ -208,6 +223,7 @@ final class RadioAlarmStore: ObservableObject {
         let at = Date().addingTimeInterval(10)
         await scheduleOnce(at: at, idKey: Self.snoozeIDKey)
         testAt = at
+        Analytics.shared.track(.radioAlarmTested)
     }
 
     var canSnooze: Bool { snoozeCount < Self.maxSnoozes }

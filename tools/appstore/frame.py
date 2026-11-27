@@ -13,6 +13,8 @@ Store.
 With --bare the screen stands on its own, without a phone outline.
 With --play the cards are 1080 x 1920 (Google Play's 9:16) instead of
 1320 x 2868, for the Android screens from StoreScreenshotTest.
+With --ipad the cards are 2064 x 2752 (App Store Connect's 13" iPad slot),
+for screens from the iPad Pro 13-inch simulator.
 
 Styles (the background): clouds (the one in use, the default), panorama
 (the sunset strip of 1.0), glow, sun, red, night.
@@ -92,8 +94,8 @@ SCREENS = {
         "glow": [(VIOLET, 0.2), (LIVE_RED, 0.95)],
     },
     "4 stats": {
-        "cs": "Tvůj čas s rádiem\nve statistikách",
-        "en": "Your time with the\nstation, in numbers",
+        "cs": "Týdenní a měsíční\nžebříček posluchačů",
+        "en": "Weekly and monthly\nlistener leaderboards",
         "glow": [(LIVE_RED, 0.1), (SUN_ORANGE, 0.9)],
     },
     "5 programme": {
@@ -117,6 +119,8 @@ PHONE_W = 960                 # the screen's width on the card
 BEZEL = 26
 SCREEN_RADIUS = 118
 PHONE_TOP = 640
+CAPTION_SIZE = 92
+CAPTION_Y = 330
 BARE = False  # --bare: the screen without a phone outline
 
 
@@ -252,11 +256,11 @@ def frame(screen_path, lang, key, out_path, style="clouds"):
 
     # Caption.
     draw = ImageDraw.Draw(card)
-    font = ImageFont.truetype(FONT, 92)
+    font = ImageFont.truetype(FONT, CAPTION_SIZE)
     text = spec[lang]
     box = draw.multiline_textbbox((0, 0), text, font=font, spacing=26, align="center")
     tw, th = box[2] - box[0], box[3] - box[1]
-    origin = ((W - tw) / 2 - box[0], 330 - th / 2 - box[1])
+    origin = ((W - tw) / 2 - box[0], CAPTION_Y - th / 2 - box[1])
     if style == "night":
         # The caption in the logo's sunset gradient.
         grad = Image.new("RGB", (1, 3))
@@ -266,7 +270,7 @@ def frame(screen_path, lang, key, out_path, style="clouds"):
         mask = Image.new("L", (W, H), 0)
         ImageDraw.Draw(mask).multiline_text(origin, text, font=font, fill=255, spacing=26, align="center")
         full = Image.new("RGB", (W, H))
-        full.paste(fill, (0, int(330 - th / 2) - 20))
+        full.paste(fill, (0, int(CAPTION_Y - th / 2) - 20))
         card.paste(full, (0, 0), mask)
     else:
         draw.multiline_text(origin, text, font=font, fill=(255, 255, 255), spacing=26, align="center")
@@ -318,8 +322,22 @@ def use_play_size():
     _cloud_strip = None
 
 
+def use_ipad_size():
+    """App Store Connect's 13" iPad slot (2064 x 2752): a wider card, the
+    clouds stretched to it, and the screen in a tablet outline."""
+    global W, H, PHONE_W, PHONE_TOP, SCREEN_RADIUS, BEZEL, CLOUDS, CAPTION_SIZE, CAPTION_Y, _cloud_strip
+    sx, sy = 2064 / W, 2752 / H
+    CLOUDS = [(cx * sx, cy * sy, rx * sx, ry * sy, c, k) for cx, cy, rx, ry, c, k in CLOUDS]
+    W, H = 2064, 2752
+    PHONE_W, PHONE_TOP, SCREEN_RADIUS, BEZEL = 1480, 600, 56, 30
+    CAPTION_SIZE, CAPTION_Y = 104, 320
+    _cloud_strip = None
+
+
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    if "--ipad" in sys.argv:
+        use_ipad_size()
     play = "--play" in sys.argv
     global BARE
     BARE = "--bare" in sys.argv

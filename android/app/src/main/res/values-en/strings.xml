@@ -359,6 +359,16 @@
     <string name="chatMenuPin">Pin message</string>
     <string name="chatMenuUnpin">Unpin message</string>
     <string name="chatMenuCopy">Copy text</string>
+    <string name="chatMenuReply">Reply</string>
+    <string name="chatReplyingTo">Replying to %1$s</string>
+    <string name="chatReplyCancel">Cancel reply</string>
+    <string name="chatQuoteYou">You</string>
+    <string name="chatQuoteUnavailable">The original message is no longer here</string>
+    <string name="chatHomeToYou">you</string>
+    <string name="chatBackToLatest">Back to latest</string>
+    <string name="chatReplyUnavailable">The message you\'re replying to is no longer here.</string>
+    <string name="chatReplyTo">Reply to %1$s</string>
+    <string name="chatReplyToYou">Reply to your message</string>
     <string name="chatMenuDelete">Delete message</string>
     <string name="chatMenuMute">Mute…</string>
     <string name="chatMenuUnmute">Unmute</string>

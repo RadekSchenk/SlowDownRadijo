@@ -46,7 +46,8 @@ import java.time.Instant
 /**
  * The tightest cases: a small phone (360 × 640 dp, as the smallest common
  * Androids) at the normal text size, and a usual phone at the largest
- * text size Android offers (200 %).
+ * text size Android offers (200 %). And tablets (1.4): the content in the
+ * centred 640 dp column, the clouds and the tab bar edge to edge.
  */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -94,5 +95,9 @@ class ScreenSizesScreenshotTest {
     @Test @Config(qualifiers = "w411dp-h891dp-xxhdpi") fun largeTextHome() = capture("large_text_home", 2f) { home() }
     @Test @Config(qualifiers = "w411dp-h891dp-xxhdpi") fun largeTextMessage() = capture("large_text_message", 2f) { message() }
     @Test @Config(qualifiers = "w411dp-h891dp-xxhdpi") fun largeTextSleepTimer() = capture("large_text_sleep_timer", 2f) { sleep() }
+    @Test @Config(qualifiers = "w800dp-h1280dp-port-mdpi") fun tabletHome() = capture("tablet_home", content = { home() })
+    @Test @Config(qualifiers = "w1280dp-h800dp-land-mdpi") fun tabletLandscapeHome() = capture("tablet_landscape_home", content = { home() })
+    @Test @Config(qualifiers = "w1280dp-h800dp-land-mdpi") fun tabletLandscapeMenu() = capture("tablet_landscape_menu", content = { HubRoot({}, {}, {}) })
+
     @Test @Config(qualifiers = "w411dp-h891dp-xxhdpi") fun largeTextMenu() = capture("large_text_menu", 2f) { HubRoot({}, {}, {}) }
 }

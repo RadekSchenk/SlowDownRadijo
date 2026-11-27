@@ -111,6 +111,9 @@ struct HomeView: View {
                 }
             }
             .padding(.horizontal, 20)
+            // Tablets: the content in the centred column, the clouds below
+            // still across the whole width.
+            .contentColumn()
             .padding(.bottom, Theme.Spacing.xl)
             .animation(Motion.smoothOut(Motion.medium), value: contests.infoboxContest?.id)
             // Behind the header and the show, edge to edge, scrolling away
@@ -151,6 +154,7 @@ struct HomeView: View {
         }
         .sheet(item: $chatOpening) { opening in
             ChatSheetView(nowPlaying: nowPlaying, scheduleStore: scheduleStore, focusComposer: opening.withKeyboard)
+                .onAppear { Analytics.shared.screen(.chat) }
                 .presentationDetents(Self.chatDetents)
                 .presentationDragIndicator(.visible)
                 .presentationCornerRadius(24)
@@ -160,6 +164,7 @@ struct HomeView: View {
         }
         .sheet(item: $openContest) { contest in
             ContestSheetView(snapshot: contest)
+                .onAppear { Analytics.shared.screen(.contest) }
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
                 .presentationCornerRadius(24)

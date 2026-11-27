@@ -58,6 +58,15 @@ data class RadioAlarmSettings(
         /** 1.4 betas offered 9 minutes: the nearest choice now. */
         fun snapped(minutes: Int): Int = SNOOZE_CHOICES.minBy { kotlin.math.abs(it - minutes) }
     }
+
+    /** The days for analytics, as iOS: once, weekdays, weekend, daily, custom. */
+    val analyticsDays: String get() = when (weekdays) {
+        emptySet<Int>() -> "once"
+        setOf(1, 2, 3, 4, 5) -> "weekdays"
+        setOf(6, 7) -> "weekend"
+        (1..7).toSet() -> "daily"
+        else -> "custom"
+    }
 }
 
 /**
@@ -175,6 +184,7 @@ class RadioAlarm(private val context: Context, private val scope: CoroutineScope
     /** "Odložit": the radio pauses, plays again after the snooze time. */
     fun snooze() {
         snoozeCount++
+        context.app.analytics.track(cz.slowdownradijo.app.analytics.AnalyticsEvent.RadioAlarmSnoozed(snoozeCount))
         watchdog?.cancel()
         stopFallback()
         context.app.radio.pause()

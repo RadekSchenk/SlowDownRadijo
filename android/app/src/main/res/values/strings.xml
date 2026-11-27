@@ -359,6 +359,16 @@
     <string name="chatMenuPin">Připnout zprávu</string>
     <string name="chatMenuUnpin">Odepnout zprávu</string>
     <string name="chatMenuCopy">Kopírovat text</string>
+    <string name="chatMenuReply">Odpovědět</string>
+    <string name="chatReplyingTo">Odpovídáš: %1$s</string>
+    <string name="chatReplyCancel">Zrušit odpověď</string>
+    <string name="chatQuoteYou">Ty</string>
+    <string name="chatQuoteUnavailable">Původní zpráva už tu není</string>
+    <string name="chatHomeToYou">tobě</string>
+    <string name="chatBackToLatest">Zpět na nejnovější</string>
+    <string name="chatReplyUnavailable">Zpráva, na kterou odpovídáš, už tu není.</string>
+    <string name="chatReplyTo">Odpověď pro %1$s</string>
+    <string name="chatReplyToYou">Odpověď na tvou zprávu</string>
     <string name="chatMenuDelete">Smazat zprávu</string>
     <string name="chatMenuMute">Ztlumit…</string>
     <string name="chatMenuUnmute">Zrušit ztlumení</string>

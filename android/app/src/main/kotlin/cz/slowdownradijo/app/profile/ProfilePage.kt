@@ -44,6 +44,7 @@ import cz.slowdownradijo.app.ui.components.ToastCenter
 import cz.slowdownradijo.app.ui.theme.Theme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import cz.slowdownradijo.app.ui.theme.contentColumn
 
 private enum class ProfileRoute { MAIN, EMAIL, NICKNAME, HIDDEN, RULES, ADMIN, CONTESTS }
 
@@ -118,7 +119,7 @@ fun ProfilePage(onOpenMenu: () -> Unit, onOpenStats: () -> Unit = {}) {
 
     when (route) {
         ProfileRoute.MAIN -> Column(
-            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp)
+            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).contentColumn().padding(horizontal = 20.dp)
         ) {
             Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
             AppHeader(hostedShowOnAir = onAir.show?.hostName != null, onMenu = onOpenMenu)

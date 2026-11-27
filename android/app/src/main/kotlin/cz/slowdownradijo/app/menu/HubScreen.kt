@@ -61,6 +61,7 @@ import cz.slowdownradijo.app.ui.components.ListRow
 import cz.slowdownradijo.app.ui.components.ListRowChevron
 import cz.slowdownradijo.app.ui.components.ListRowIcon
 import cz.slowdownradijo.app.ui.theme.Theme
+import cz.slowdownradijo.app.ui.theme.contentColumn
 
 /** The pages the menu can show over itself. */
 sealed interface MenuPage {
@@ -127,6 +128,7 @@ fun HubRoot(onLanguage: (AppLanguage) -> Unit, onClose: () -> Unit, open: (MenuP
         Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
+            .contentColumn()
             .padding(horizontal = 20.dp)
             .padding(top = 20.dp, bottom = Theme.Spacing.xl),
         verticalArrangement = Arrangement.spacedBy(Theme.Spacing.xl),

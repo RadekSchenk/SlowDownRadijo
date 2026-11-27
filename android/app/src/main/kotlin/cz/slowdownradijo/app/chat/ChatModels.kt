@@ -27,16 +27,33 @@ data class ChatMessage(
     @SerialName("created_at") val createdAtText: String,
     @SerialName("deleted_at") val deletedAtText: String? = null,
     @SerialName("pinned_at") val pinnedAtText: String? = null,
+    /** The message this one answers (1.4, `030_chat_replies.sql`), with its quote. */
+    @SerialName("reply_to_id") val replyToId: Long? = null,
+    @SerialName("reply_to_user_id") val replyToUserId: String? = null,
+    @SerialName("reply_to_author") val replyToAuthor: String? = null,
+    @SerialName("reply_to_role") val replyToRole: String? = null,
+    @SerialName("reply_to_body") val replyToBody: String? = null,
 ) {
     val createdAt: Instant get() = parse(createdAtText) ?: Instant.EPOCH
     val pinnedAt: Instant? get() = pinnedAtText?.let(::parse)
     val isDeleted: Boolean get() = deletedAtText != null || body == null
+    val isReply: Boolean get() = replyToId != null
 
-    /** The message is a single emoji ("🔥"): those merge into "🔥 ×4". */
+    /** The message it answers, as the reply carries it; null for an ordinary message. */
+    val replyTo: ChatQuote?
+        get() = replyToId?.let { ChatQuote(it, replyToUserId, replyToAuthor, replyToRole ?: "listener", replyToBody) }
+
+    /** The same message answering `quote` (or nothing). */
+    fun withQuote(quote: ChatQuote?): ChatMessage = copy(
+        replyToId = quote?.id, replyToUserId = quote?.userId, replyToAuthor = quote?.authorName,
+        replyToRole = quote?.role, replyToBody = quote?.body,
+    )
+
+    /** The message is a single emoji ("🔥"): those merge into "🔥 ×4". A reply stays on its own. */
     val singleEmoji: String?
         get() {
             val text = body?.trim() ?: return null
-            if (isDeleted || text.isEmpty()) return null
+            if (isDeleted || isReply || text.isEmpty()) return null
             val graphemes = java.text.BreakIterator.getCharacterInstance().run {
                 setText(text)
                 var count = 0
@@ -58,12 +75,51 @@ data class ChatMessage(
     }
 }
 
+/**
+ * The message a reply answers, as the reply carries it (as `ChatQuote` in
+ * ChatModels.swift). No body = "Původní zpráva už tu není".
+ */
+data class ChatQuote(
+    val id: Long,
+    val userId: String?,
+    val authorName: String?,
+    val role: String,
+    val body: String?,
+) {
+    /** What the quote line shows (Figma "Chat/Citace"). */
+    sealed interface Display {
+        /** "karolina.pivnivila · Výsadba nové chmelnice…" */
+        data class Message(val name: String?, val role: String, val body: String) : Display
+        /** "Ty · Tenhle groove jede 🔥": a reply to the viewer. */
+        data class Mine(val body: String) : Display
+        /** "Původní zpráva už tu není" */
+        data object Unavailable : Display
+    }
+
+    /** `name` is null for a deleted account ("Smazaný účet"). */
+    fun display(viewer: String?, hidden: Set<String> = emptySet()): Display {
+        val text = body?.trim()?.lines()?.joinToString(" ")?.takeIf { it.isNotBlank() } ?: return Display.Unavailable
+        if (userId != null && userId in hidden) return Display.Unavailable
+        if (userId != null && userId == viewer) return Display.Mine(text)
+        return Display.Message(authorName, role, text)
+    }
+
+    /** The reply answers the viewer's own message. */
+    fun isTo(viewer: String?): Boolean = viewer != null && userId == viewer && body != null
+
+    companion object {
+        fun of(message: ChatMessage) = ChatQuote(message.id, message.userId, message.authorName, message.role, message.body)
+    }
+}
+
 /** A message the listener sent that the server hasn't confirmed yet (Figma K). */
 data class OutgoingChatMessage(
     val id: String = UUID.randomUUID().toString(),
     val body: String,
     val createdAt: Instant,
     val failed: Boolean = false,
+    /** The message it answers, if any. */
+    val replyTo: ChatQuote? = null,
 )
 
 /** The listener's role, from `chat_me`, for their own unsent messages. */

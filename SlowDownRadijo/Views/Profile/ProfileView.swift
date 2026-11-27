@@ -51,20 +51,26 @@ struct ProfileView: View {
                         .animation(Motion.smoothOut(Motion.medium), value: stateKey)
                 }
                 .padding(.horizontal, 20)
+                .contentColumn()
                 .scrollsToTopOnTabReselect()
             }
             .ignoresSafeArea(edges: .top)
             .background(Theme.background.ignoresSafeArea())
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(for: Route.self) { route in
-                switch route {
-                case .email: EmailSignInView(onSignedIn: { path.removeAll() })
-                case .nickname: NicknameEditView()
-                case .hiddenUsers: HiddenUsersView()
-                case .rules: ChatRulesView()
-                case .admin(let admin): adminDestination(admin)
-                case .contests(let route): contestDestination(route)
+                Group {
+                    switch route {
+                    case .email: EmailSignInView(onSignedIn: { path.removeAll() })
+                    case .nickname: NicknameEditView()
+                    case .hiddenUsers: HiddenUsersView()
+                    case .rules: ChatRulesView()
+                    case .admin(let admin): adminDestination(admin)
+                    case .contests(let route): contestDestination(route)
+                    }
                 }
+                // Tablets: the pages pushed from Profil in the same column.
+                .contentColumn()
+                .background(Theme.background.ignoresSafeArea())
             }
         }
         .sheet(isPresented: $isShowingPrivacyPolicy) {

@@ -12,9 +12,20 @@ Czech and English; best while a show with a host is on air. Upload the
 files in the artifact's `framed-6.3` folder (1206 x 2622): App Store
 Connect's iPhone slot is the 6.1"/6.3" Dynamic Island size.
 
-The 1.3 set (Morning Coffee with the contest card, chat, profile of `cevapcicidisko`, stats, programme, message, the contest page; taken with
+The 1.4 set (the same screens, the stats with the week's leaderboard,
+the chat with a reply; `-storeDemo YES -contestDemo YES`) is in
+`appstore/screenshots/6.3/{cs,en}` (iPhone, upload these),
+`appstore/screenshots/6.9/{cs,en}` and `appstore/screenshots/ipad-13/{cs,en}`
+(2064 x 2752, framed with `tools/appstore/frame.py <dir> <out> clouds --ipad`).
+
+Before that, the 1.3 set (Morning Coffee with the contest card, chat, profile of `cevapcicidisko`, stats, programme, message, the contest page; taken with
 `-storeDemo YES -contestDemo YES`, so any time of day) is in `appstore/screenshots/6.3/{cs,en}`
 (upload these) and `appstore/screenshots/6.9/{cs,en}`.
+
+From 1.4 the app is also an iPad app (`TARGETED_DEVICE_FAMILY` 1,2), so
+App Store Connect also wants a 13" iPad set (2064 x 2752, or 2752 x 2064
+in landscape). The screenshot job doesn't take them yet: for now from the
+iPad Pro 13-inch simulator by hand, with the same launch arguments.
 
 ## App information
 
@@ -36,11 +47,11 @@ Hip hop, soul, jazz a funk
 
 **Promotional text**
 
-Poslouchej rádio, kde hudbu vybírají lidi, ne algoritmy. Nově s chatem posluchačů, profilem Slowridera a soutěžemi o ceny.
+Poslouchej rádio, kde hudbu vybírají lidi, ne algoritmy. Nově tě ráno vzbudí živé vysílání, v chatu odpovíš na konkrétní zprávu a appka je i pro iPad.
 
 **Keywords**
 
-radio,rádio,hiphop,rap,soul,funk,jazz,afrobeat,beats,groove,stream,živě,praha,chat,soutěž
+radio,rádio,hiphop,rap,soul,funk,jazz,afrobeat,beats,groove,stream,živě,praha,chat,soutěž,budík
 
 **Description**
 
@@ -48,17 +59,18 @@ Slow Down Rádijo v kapse. Živé vysílání rádia, které hraje hip hop, soul
 
 CO APPKA UMÍ
 • Živé vysílání na jedno klepnutí – i na pozadí, ze zamčené obrazovky, přes AirPlay a Bluetooth a v autě s CarPlay
-• Chat posluchačů: piš si s ostatními i s moderátory během vysílání – stačí přezdívka, bez registrace
+• Chat posluchačů: piš si s ostatními i s moderátory během vysílání a odpovídej na konkrétní zprávy – stačí přezdívka, bez registrace
 • Co se právě vysílá: pořad, moderátor a skladba, kterou jedním klepnutím najdeš na Spotify
 • Skladby, které hrály před chvílí – stačí přejet prstem do strany
 • Program na celý týden s popisy pořadů a připomínkou, když začíná tvůj oblíbený
-• Tvoje statistiky poslechu: dnešek, týden, celkový čas, oblíbené pořady a místo mezi posluchači
+• Tvoje statistiky poslechu: dnešek, týden, celkový čas, dny v řadě, oblíbené pořady a místo v týdenním i měsíčním žebříčku posluchačů
+• Budík s rádiem: ráno tě vzbudí živé vysílání (iOS 26 a novější)
 • Profil Slowridera: s volitelným účtem si změníš přezdívku a statistiky ti zůstanou i na novém telefonu
 • Soutěže o ceny od rádia – odpověz na otázku přímo v appce (pro Slowridery s účtem)
 • Hlasový vzkaz do rádia – nahraj pozdrav nebo přání a pošli ho moderátorům
 • Kvalita zvuku podle připojení: na Wi-Fi naplno, na datech úsporně
 • Časovač vypnutí, novinky z rádia a widget na plochu
-• Česky i anglicky
+• Na iPhonu i iPadu, česky i anglicky
 
 BEZ REKLAM, ÚČET JEN KDYŽ CHCEŠ
 Appku používáš bez reklam a bez registrace – i do chatu můžeš psát jen s přezdívkou. Účet Slowridera je dobrovolný. Statistiky poslechu jsou anonymní a můžeš je kdykoli vypnout i smazat. Měření používání appky se zapne jen s tvým souhlasem.
@@ -75,11 +87,11 @@ Hip hop, soul, jazz and funk
 
 **Promotional text**
 
-Listen to radio where people pick the music, not algorithms. Now with a listeners' chat, Slowrider profiles and contests with prizes.
+Listen to radio where people pick the music, not algorithms. Now it wakes you up with the live broadcast, you can reply to a message in the chat, and it runs on iPad.
 
 **Keywords**
 
-radio,hiphop,rap,soul,funk,jazz,afrobeat,beats,groove,stream,live,online,prague,czech,chat,contest
+radio,hiphop,rap,soul,funk,jazz,afrobeat,beats,groove,stream,live,prague,czech,chat,contest,alarm
 
 **Description**
 
@@ -87,17 +99,18 @@ Slow Down Rádijo in your pocket. The live stream of a radio station playing hip
 
 WHAT IT DOES
 • The live stream in one tap – in the background, from the lock screen, over AirPlay and Bluetooth, and in the car with CarPlay
-• Listeners' chat: talk with other listeners and the hosts during the show – just pick a nickname, no sign-up
+• Listeners' chat: talk with other listeners and the hosts during the show and reply to a particular message – just pick a nickname, no sign-up
 • What's on air: the show, the host and the song, which you can find on Spotify in one tap
 • The songs that played a moment ago – just swipe sideways
 • The whole week's schedule with show descriptions and a reminder when your favourite starts
-• Your listening stats: today, this week, all time, your favourite shows and where you are among listeners
+• Your listening stats: today, this week, all time, days in a row, your favourite shows and your place in the weekly and monthly listener leaderboards
+• Radio alarm: wake up to the live broadcast (iOS 26 and later)
 • Slowrider profile: with an optional account you can change your nickname and keep your stats on a new phone
 • Contests with prizes from the station – answer the question right in the app (for Slowriders with an account)
 • Voice messages to the station – record a shout-out or a request and send it to the hosts
 • Sound quality to match your connection: full quality on Wi-Fi, data-saving on mobile
 • A sleep timer, news from the station and a Home Screen widget
-• In Czech and English
+• On iPhone and iPad, in Czech and English
 
 NO ADS, AN ACCOUNT ONLY IF YOU WANT ONE
 No ads and no sign-up – you can even write in the chat with just a nickname. A Slowrider account is optional. Listening stats are anonymous, and you can turn them off and delete them at any time. Usage measurement only starts with your consent.
@@ -180,6 +193,8 @@ Version" (cs and en). Version 1.0 had none.
 • Zimní ikona na sezónu.
 • Budík s rádiem: ráno tě vzbudí živé vysílání. Nastavíš ho pod časovačem vypnutí (iOS 26 a novější).
 • Statistiky: týdenní a měsíční žebříček, takže šanci má každý — i kdo poslouchá teprve chvíli. Nově i dny v řadě.
+• Odpovědi v chatu: přejeď po zprávě prstem doprava nebo ji podrž a odpověz přímo na ni. Na úvodní obrazovce uvidíš, když ti někdo odpověděl.
+• Slow Down Rádijo i na iPadu, na výšku i na šířku.
 ```
 
 **1.4 — English**
@@ -189,6 +204,8 @@ Version" (cs and en). Version 1.0 had none.
 • A winter icon for the season.
 • Radio alarm: wake up to the live broadcast. Set it under the sleep timer (iOS 26 and later).
 • Stats: weekly and monthly leaderboards, so everyone has a chance — even if you've only just started listening. Plus your days in a row.
+• Replies in the chat: swipe a message to the right or press and hold it to reply to it directly. The home screen shows when someone has replied to you.
+• Slow Down Rádijo on iPad too, in portrait and landscape.
 ```
 
 Release 1.4 manually on 29 Nov 2026, and the version that brings the normal
@@ -313,6 +330,51 @@ Safeguards (guideline 1.2): chat rules in Profil > Pravidla chatu; press and hol
 
 8. CONTESTS (NEW IN 1.3, GUIDELINE 5.3)
 When the station runs a contest, a yellow card appears on the Rádio tab (it can be closed for good). The contest page shows the text, the prize, the end date, a link to the official rules (slowdownradijo.cz/pravidla-soutezi/) and the question. Entering needs a free account; the listener answers and leaves a phone number, used only to contact the winner. Entry is free, no purchase. The sponsor is Slow Down Radio s.r.o.; the page says that Apple and Google are not sponsors. Winners are drawn at random in the app by the station's admins. If no contest is running during review, the card is not shown.
+```
+
+**Notes for 1.4** (the whole field, about 3300 of the 4,000 characters; replaces the 1.3 notes; new section 9, the rest shortened to fit):
+
+```
+1. SCREEN RECORDING
+A screen recording from an iPhone on the latest iOS is attached: the live stream, what is on air, earlier songs, sleep timer, output picker, schedule with a reminder, chat, contest, Profil, stats, voice message and menu. New in 1.4: see 9.
+
+2. PURPOSE AND AUDIENCE
+Slow Down Rádijo is the official app of Slow Down Radio s.r.o., an internet radio station in Prague playing hip hop, soul, funk, jazz, Afrobeat and electronica hand-picked by its DJs. For listeners on iPhone, iPad and CarPlay: one tap to play live, what is on air, the weekly schedule, a sleep timer, a radio alarm, listening stats, voice messages to the studio and a listeners' chat.
+
+3. HOW TO USE IT
+Open the app; the live stream starts (or tap Play).
+- Rádio: show, host and song on air (tap the song for Spotify, swipe for earlier songs); moon: sleep timer; the radio alarm below it; the Chat section; the schedule with reminders.
+- Statistiky: own listening time, weekly and monthly anonymous leaderboards.
+- Vzkaz: record a voice message (microphone permission) and send it.
+- Profil: optional account (see 7).
+- Menu (top left): news, settings, feedback.
+Czech and English.
+
+4. EXTERNAL SERVICES
+- Live audio: play.cz Icecast servers (the station's provider).
+- Supabase (UK): stats, songs played, optional account (Sign in with Apple, Google, e-mail codes), chat, voice messages and feedback.
+- Resend: e-mail for voice messages, feedback and sign-in codes.
+- slowdownradijo.cz: news and programme.
+- iTunes Search API: artwork. PostHog (EU): analytics only after opt-in. Spotify: a search link, no SDK.
+No payments or AI.
+
+5. REGIONAL DIFFERENCES
+None.
+
+6. THIRD-PARTY MATERIAL
+Only the station's own live broadcast, as at slowdownradijo.cz. Licences from OSA and INTERGRAM. Photos and logos belong to the station.
+
+7. ACCOUNT AND CHAT (GUIDELINE 1.2)
+Anyone can read and write; the first message asks for a nickname. An optional account changes the nickname and keeps the profile on a new phone; delete it in Profil > Smazat účet. Rules in Profil > Pravidla chatu; press and hold a message to report it or hide its author; hosts and admins moderate (delete, mute, block); anti-spam limits; reports are reviewed; info@slowdownradijo.cz.
+
+8. CONTESTS (GUIDELINE 5.3)
+When a contest runs, a card appears on the Rádio tab, with the rules (slowdownradijo.cz/pravidla-soutezi/), the prize and a question. Entering needs a free account and a phone number to contact the winner. Free, no purchase; sponsor Slow Down Radio s.r.o., not Apple or Google. Winners drawn at random. No contest during review = no card.
+
+9. NEW IN 1.4
+- iPad: native, portrait and landscape.
+- Radio alarm (iOS 26+, AlarmKit): Rádio tab > "Vzbudí tě rádio" under the sleep timer; pick a time and days, allow alarms. While an alarm is set within the next 12 hours and the app is still running, it keeps a silent, mixable audio session so that at the alarm time it can play the live stream the listener chose to wake up to, with a fade-in. Otherwise the system alarm rings and its "Pustit rádio" button opens the app and starts the stream.
+- Chat replies: swipe a message right or press and hold > Odpovědět; tap the quote to jump to the original.
+- Winter look: 29 Nov to 6 Jan it snows in the header (can be turned off in Menu > Nastavení). Before 29 Nov only the winter icon shows.
 ```
 
 Keep it in step with the app: a new external service, account,

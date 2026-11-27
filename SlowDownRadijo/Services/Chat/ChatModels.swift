@@ -20,8 +20,12 @@ struct ChatMessage: Identifiable, Equatable, Decodable {
     let createdAt: Date
     let deletedAt: Date?
     let pinnedAt: Date?
+    /// The message this one answers (1.4), with its quote as the server keeps
+    /// it (`030_chat_replies.sql`); `nil` for an ordinary message.
+    let replyTo: ChatQuote?
 
     var isDeleted: Bool { deletedAt != nil || body == nil }
+    var isReply: Bool { replyTo != nil }
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -34,11 +38,16 @@ struct ChatMessage: Identifiable, Equatable, Decodable {
         case createdAt = "created_at"
         case deletedAt = "deleted_at"
         case pinnedAt = "pinned_at"
+        case replyToID = "reply_to_id"
+        case replyToUserID = "reply_to_user_id"
+        case replyToAuthor = "reply_to_author"
+        case replyToRole = "reply_to_role"
+        case replyToBody = "reply_to_body"
     }
 
     init(id: Int64, userID: UUID?, authorName: String?, role: Role = .listener, body: String?,
          showID: String? = nil, showTitle: String? = nil, createdAt: Date,
-         deletedAt: Date? = nil, pinnedAt: Date? = nil) {
+         deletedAt: Date? = nil, pinnedAt: Date? = nil, replyTo: ChatQuote? = nil) {
         self.id = id
         self.userID = userID
         self.authorName = authorName
@@ -49,6 +58,7 @@ struct ChatMessage: Identifiable, Equatable, Decodable {
         self.createdAt = createdAt
         self.deletedAt = deletedAt
         self.pinnedAt = pinnedAt
+        self.replyTo = replyTo
     }
 
     init(from decoder: Decoder) throws {
@@ -68,6 +78,17 @@ struct ChatMessage: Identifiable, Equatable, Decodable {
         createdAt = date(.createdAt) ?? AppClock.now
         deletedAt = date(.deletedAt)
         pinnedAt = date(.pinnedAt)
+        if let replyID = try? c.decodeIfPresent(Int64.self, forKey: .replyToID) {
+            replyTo = ChatQuote(
+                id: replyID,
+                userID: try? c.decodeIfPresent(UUID.self, forKey: .replyToUserID),
+                authorName: try? c.decodeIfPresent(String.self, forKey: .replyToAuthor),
+                role: (try? c.decodeIfPresent(Role.self, forKey: .replyToRole)) ?? .listener,
+                body: try? c.decodeIfPresent(String.self, forKey: .replyToBody)
+            )
+        } else {
+            replyTo = nil
+        }
     }
 
     static func parseDate(_ text: String) -> Date? {
@@ -80,11 +101,60 @@ struct ChatMessage: Identifiable, Equatable, Decodable {
     }
 
     /// The message is a single emoji ("🔥") — those can merge into "🔥 ×4".
+    /// An emoji sent as a reply stays on its own, with its quote.
     var singleEmoji: String? {
-        guard let body, !isDeleted else { return nil }
+        guard let body, !isDeleted, !isReply else { return nil }
         let text = body.trimmingCharacters(in: .whitespacesAndNewlines)
         guard text.count == 1, let character = text.first, character.isChatEmoji else { return nil }
         return text
+    }
+}
+
+/// The message a reply answers, as the reply carries it: the author, their
+/// role and the first 140 characters. No body = "Původní zpráva už tu není"
+/// (deleted by a moderator, or gone after 90 days).
+struct ChatQuote: Equatable {
+    let id: Int64
+    let userID: UUID?
+    let authorName: String?
+    let role: ChatMessage.Role
+    let body: String?
+
+    init(id: Int64, userID: UUID?, authorName: String?, role: ChatMessage.Role, body: String?) {
+        self.id = id
+        self.userID = userID
+        self.authorName = authorName
+        self.role = role
+        self.body = body
+    }
+
+    init(_ message: ChatMessage) {
+        self.init(id: message.id, userID: message.userID, authorName: message.authorName,
+                  role: message.role, body: message.body)
+    }
+
+    /// What the quote line shows to `viewer` (Figma "Chat/Citace").
+    enum Display: Equatable {
+        /// "karolina.pivnivila · Výsadba nové chmelnice…"
+        case message(name: String, role: ChatMessage.Role, body: String)
+        /// "Ty · Tenhle groove jede 🔥" — a reply to the viewer.
+        case mine(body: String)
+        /// "Původní zpráva už tu není"
+        case unavailable
+    }
+
+    func display(viewer: UUID?, hidden: Set<UUID> = []) -> Display {
+        guard let body = body?.trimmingCharacters(in: .whitespacesAndNewlines), !body.isEmpty else { return .unavailable }
+        if let userID, hidden.contains(userID) { return .unavailable }
+        let line = body.split(whereSeparator: \.isNewline).joined(separator: " ")
+        if let userID, userID == viewer { return .mine(body: line) }
+        return .message(name: authorName ?? L10n.deletedAccount, role: role, body: line)
+    }
+
+    /// The reply answers the viewer's own message.
+    func isTo(_ viewer: UUID?) -> Bool {
+        guard let viewer, let userID, body != nil else { return false }
+        return userID == viewer
     }
 }
 
@@ -105,6 +175,8 @@ struct OutgoingChatMessage: Identifiable, Equatable {
     let body: String
     let createdAt: Date
     var status: Status
+    /// The message it answers, if any.
+    var replyTo: ChatQuote? = nil
 }
 
 /// What the chat stream draws, worked out from the messages

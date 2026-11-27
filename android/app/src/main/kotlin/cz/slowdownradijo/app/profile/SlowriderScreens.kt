@@ -76,6 +76,7 @@ import kotlinx.coroutines.delay
 import java.time.Instant
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
+import cz.slowdownradijo.app.ui.theme.contentColumn
 
 /** What the "Tvůj Slowride" dashboard shows from the listening stats. */
 data class SlowrideStats(
@@ -270,7 +271,7 @@ private fun Tile(label: String, number: String, unit: String?, modifier: Modifie
 @Composable
 fun RegisterContent(reason: String, nickname: String, busy: Boolean, actions: ProfileActions, onDismiss: () -> Unit) {
     Column(
-        Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(top = 8.dp, bottom = 24.dp).navigationBarsPadding(),
+        Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).contentColumn().padding(horizontal = 20.dp).padding(top = 8.dp, bottom = 24.dp).navigationBarsPadding(),
         verticalArrangement = Arrangement.spacedBy(Theme.Spacing.lg),
     ) {
         ProfileHeading(

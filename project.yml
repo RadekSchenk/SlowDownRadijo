@@ -28,7 +28,7 @@ settings:
     SWIFT_VERSION: "5.0"
     # Slow Down Radio s.r.o. (Apple Developer Program).
     DEVELOPMENT_TEAM: 9W8BX34TJH
-    TARGETED_DEVICE_FAMILY: "1"
+    TARGETED_DEVICE_FAMILY: "1,2"
     ENABLE_PREVIEWS: "YES"
 
 targets:
@@ -71,6 +71,13 @@ targets:
           UIImageName: "LaunchLogo"
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
+        # iPad (1.4): every way round, which also lets the app share the
+        # screen (Split View, Stage Manager). Phones stay portrait.
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
         UIBackgroundModes:
           - audio
         # Sign-in: Google's iOS OAuth client (from the build settings below)
@@ -118,7 +125,7 @@ targets:
         # XcodeGen's preset for an iOS app target says iPhone + iPad, which
         # overrode the base, and App Store Connect then refused the upload
         # (an iPad app must support every orientation).
-        TARGETED_DEVICE_FAMILY: "1"
+        TARGETED_DEVICE_FAMILY: "1,2"
         # The winter icon for the season's release (1.4, docs/winter.md);
         # the first release after Epiphany sets this back to AppIcon.
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIconWinter
@@ -153,7 +160,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: cz.slowdownradijo.app.UITests
         TEST_TARGET_NAME: SlowDownRadijo
         GENERATE_INFOPLIST_FILE: "YES"
-        TARGETED_DEVICE_FAMILY: "1"
+        TARGETED_DEVICE_FAMILY: "1,2"
 
   # Home Screen widget — small/medium "what's on now" tile. Self-contained,
   # no App Group: it reads its own bundled copy of schedule.json and makes
@@ -198,7 +205,7 @@ targets:
         MARKETING_VERSION: "1.4"
         CURRENT_PROJECT_VERSION: "5"
         SKIP_INSTALL: "YES"
-        TARGETED_DEVICE_FAMILY: "1"
+        TARGETED_DEVICE_FAMILY: "1,2"
 
 schemes:
   SlowDownRadijo:

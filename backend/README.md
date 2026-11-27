@@ -358,6 +358,14 @@ listener's anonymous stats user, so their stats stay. Design and rules:
     period, no places are shown. Older apps ignore the new keys. Without it,
     1.4 shows only the listener's own time in the leaderboard and no place
     on the home screen.
+18. **Run `supabase/sql/030_chat_replies.sql`** (after 029) **before 1.4
+    goes out**: chat replies. `chat_messages` gets `reply_to_id` and the quote of the
+    original (`reply_to_user_id`, `reply_to_author`, `reply_to_role`,
+    `reply_to_body`, first 140 characters), kept live by a trigger (rename,
+    account deletion, a moderator's deletion and undo, the 90-day
+    clean-up). `send_chat_message` takes `p_reply_to` (default null, so the
+    1.3 apps keep working); a deleted original is refused with
+    `reply_unavailable`.
 9. **Invite links on slowdownradijo.cz.** Until these two files are on the
    web, the `https://slowdownradijo.cz/dj/<code>` link opens the website, not
    the app; `slowdownradijo://dj/<code>` works right away in both apps.

@@ -16,6 +16,9 @@ enum ChatStyle {
         message.authorName ?? L10n.deletedAccount
     }
 
+    /// The curved line from a quote to the replier's name.
+    static let spine = Color(hex: 0x5A507C)
+
     static let quickEmoji = ["🔥", "❤️", "😂", "🎵", "👏", "💜", "🎧"]
 
     static let pickerEmoji = [
@@ -65,12 +68,19 @@ struct ChatAuthorLine: View {
 }
 
 /// One message in the chat sheet: the name above the text, no time (the
-/// dividers say when; the exact time is in the menu).
+/// dividers say when; the exact time is in the menu). A reply has its quote
+/// above the name (Figma "Chat/Zpráva s odpovědí").
 struct ChatMessageRow: View {
     let message: ChatMessage
+    var quote: ChatQuote.Display? = nil
+    var onQuoteTap: (() -> Void)? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
+            if let quote {
+                ChatQuoteLine(display: quote, onTap: onQuoteTap)
+                    .padding(.bottom, -2)
+            }
             ChatAuthorLine(name: ChatStyle.name(message), role: message.role)
             if message.isDeleted {
                 Text(L10n.chatDeletedByModerator)
@@ -87,6 +97,73 @@ struct ChatMessageRow: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
+    }
+}
+
+/// The quote above a reply (Figma "Chat/Citace", variant A): one line,
+/// "karolina.pivnivila · Výsadba nové chmelnice…", and a thin curved line
+/// that runs from it down to the replier's name. Tapping it jumps to the
+/// original.
+struct ChatQuoteLine: View {
+    let display: ChatQuote.Display
+    var onTap: (() -> Void)? = nil
+
+    var body: some View {
+        Button { onTap?() } label: {
+            HStack(alignment: .bottom, spacing: 4) {
+                ChatSpine()
+                    .stroke(ChatStyle.spine, style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                    .frame(width: 26, height: 14)
+                text
+                    .font(Theme.Typography.Copy.label)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .padding(.bottom, -3)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .disabled(onTap == nil || display == .unavailable)
+        .accessibilityLabel(accessibilityText)
+    }
+
+    private var text: Text {
+        let bold = Theme.Typography.Manrope.extraBold(size: 13, relativeTo: .footnote)
+        switch display {
+        case .message(let name, let role, let body):
+            var head = Text(name).font(bold).foregroundColor(ChatStyle.nameColor(role))
+            if role == .supporter { head = head + Text(" ★").font(bold).foregroundColor(Theme.gold) }
+            return head + Text(" · " + body).foregroundColor(Theme.subtleText)
+        case .mine(let body):
+            return Text(L10n.chatQuoteYou).font(bold).foregroundColor(Theme.textPrimary)
+                + Text(" · " + body).foregroundColor(Theme.subtleText)
+        case .unavailable:
+            return Text(L10n.chatQuoteUnavailable).foregroundColor(Theme.subtleText)
+        }
+    }
+
+    private var accessibilityText: String {
+        switch display {
+        case .message(let name, _, let body): return "\(L10n.chatReplyTo(name)): \(body)"
+        case .mine(let body): return "\(L10n.chatReplyToYou): \(body)"
+        case .unavailable: return L10n.chatQuoteUnavailable
+        }
+    }
+}
+
+/// ╭── from the quote, bending down towards the name below.
+struct ChatSpine: Shape {
+    func path(in rect: CGRect) -> Path {
+        let sx = rect.width / 26, sy = rect.height / 14
+        var path = Path()
+        path.move(to: CGPoint(x: 5 * sx, y: 14 * sy))
+        path.addLine(to: CGPoint(x: 5 * sx, y: 9.5 * sy))
+        path.addCurve(to: CGPoint(x: 10 * sx, y: 5 * sy),
+                      control1: CGPoint(x: 5 * sx, y: 6.5 * sy),
+                      control2: CGPoint(x: 7 * sx, y: 5 * sy))
+        path.addLine(to: CGPoint(x: 24 * sx, y: 5 * sy))
+        return path
     }
 }
 
@@ -144,10 +221,15 @@ struct ChatOutgoingRow: View {
     let message: OutgoingChatMessage
     let name: String
     let role: ChatMessage.Role
+    var quote: ChatQuote.Display? = nil
     let onRetry: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
+            if let quote {
+                ChatQuoteLine(display: quote)
+                    .padding(.bottom, -2)
+            }
             ChatAuthorLine(name: name, role: role)
             Text(message.body)
                 .font(Theme.Typography.Copy.reading)

@@ -6,6 +6,7 @@ import cz.slowdownradijo.app.chat.ChatMenuAction.DELETE
 import cz.slowdownradijo.app.chat.ChatMenuAction.HIDE
 import cz.slowdownradijo.app.chat.ChatMenuAction.MUTE
 import cz.slowdownradijo.app.chat.ChatMenuAction.PIN
+import cz.slowdownradijo.app.chat.ChatMenuAction.REPLY
 import cz.slowdownradijo.app.chat.ChatMenuAction.REPORT
 import cz.slowdownradijo.app.chat.ChatMenuAction.UNMUTE
 import cz.slowdownradijo.app.chat.ChatMenuAction.UNPIN
@@ -47,6 +48,13 @@ class ChatModerationTest {
     @Test fun deletedAccountCantBeMutedOrHidden() {
         assertEquals(listOf(PIN, COPY, DELETE), ChatMenu.actions(msg(user = null), viewer = "dj", isModerator = true, isPinned = false, status = null))
         assertEquals(listOf(COPY, REPORT), ChatMenu.actions(msg(user = null), viewer = "me", isModerator = false, isPinned = false, status = null))
+    }
+
+    @Test fun replyComesFirstForWhoeverCanWrite() {
+        assertEquals(listOf(REPLY, COPY, REPORT, HIDE), ChatMenu.actions(msg(), viewer = "me", isModerator = false, isPinned = false, status = null, canReply = true))
+        assertEquals(listOf(REPLY, PIN, COPY, DELETE, MUTE, BLOCK), ChatMenu.actions(msg(), viewer = "dj", isModerator = true, isPinned = false, status = null, canReply = true))
+        assertEquals(listOf(REPLY, COPY), ChatMenu.actions(msg(user = "me"), viewer = "me", isModerator = false, isPinned = false, status = null, canReply = true))
+        assertEquals(emptyList<ChatMenuAction>(), ChatMenu.actions(msg(deleted = true), viewer = "me", isModerator = false, isPinned = false, status = null, canReply = true))
     }
 
     @Test fun deletedMessageHasNoActions() =
