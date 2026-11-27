@@ -336,7 +336,7 @@ When the station runs a contest, a yellow card appears on the Rádio tab (it can
 
 ```
 1. SCREEN RECORDING
-A screen recording from an iPhone on the latest iOS is attached: the live stream, what is on air, earlier songs, sleep timer, output picker, schedule with a reminder, chat, contest, Profil, stats, voice message and menu. New in 1.4: see 9.
+A screen recording of the whole app (live stream, what is on air, schedule, chat, contest, Profil, stats, voice message, menu) was attached to the 1.3 review; it still applies. New in 1.4: see 9.
 
 2. PURPOSE AND AUDIENCE
 Slow Down Rádijo is the official app of Slow Down Radio s.r.o., an internet radio station in Prague playing hip hop, soul, funk, jazz, Afrobeat and electronica hand-picked by its DJs. For listeners on iPhone, iPad and CarPlay: one tap to play live, what is on air, the weekly schedule, a sleep timer, a radio alarm, listening stats, voice messages to the studio and a listeners' chat.
@@ -372,7 +372,7 @@ When a contest runs, a card appears on the Rádio tab, with the rules (slowdownr
 
 9. NEW IN 1.4
 - iPad: native, portrait and landscape.
-- Radio alarm (iOS 26+, AlarmKit): Rádio tab > "Vzbudí tě rádio" under the sleep timer; pick a time and days, allow alarms. While an alarm is set within the next 12 hours and the app is still running, it keeps a silent, mixable audio session so that at the alarm time it can play the live stream the listener chose to wake up to, with a fade-in. Otherwise the system alarm rings and its "Pustit rádio" button opens the app and starts the stream.
+- Radio alarm (iOS 26+, AlarmKit): Rádio tab > "Budit se rádiem" under the sleep timer; pick a time and days, allow alarms. While an alarm is set within the next 12 hours and the app is still running, it keeps a silent, mixable audio session so that at the alarm time it can play the live stream the listener chose to wake up to, with a fade-in. Otherwise the system alarm rings and its "Pustit rádio" button opens the app and starts the stream.
 - Chat replies: swipe a message right or press and hold > Odpovědět; tap the quote to jump to the original.
 - Winter look: 29 Nov to 6 Jan it snows in the header (can be turned off in Menu > Nastavení). Before 29 Nov only the winter icon shows.
 ```
