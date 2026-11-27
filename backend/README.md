@@ -351,14 +351,20 @@ listener's anonymous stats user, so their stats stay. Design and rules:
     `posthog_export.listening_quality_daily`, `listening_quality_users`,
     `chat_daily`, `chat_shows_30d` and `chat_retention` (turned on in the
     "radio" source, every 6 hours). On production since 21. 11. 2026.
-17. **Run `supabase/sql/029_period_ranking.sql`** (after 028) **before 1.4
+17. **Run `supabase/sql/029_admin_find_hosts.sql`** (after 028): "Přidat
+    správce" also finds moderators linked by an invite. They have no
+    nickname (they write under the programme's name, e.g. "DJ Pufaz"), so
+    the search now matches that name too, from the start of any word, and
+    the list of admins shows it. Backend only; both apps as they are.
+    On production since 24. 11. 2026.
+18. **Run `supabase/sql/029_period_ranking.sql`** (after 028) **before 1.4
     goes out**: `get_my_stats` adds the leaderboard for this week and this
     month (`periods`), last week and the run of days (Statistiky 1.4), and
     `stats_config.min_period_listeners` (30): with fewer listeners in a
     period, no places are shown. Older apps ignore the new keys. Without it,
     1.4 shows only the listener's own time in the leaderboard and no place
     on the home screen.
-18. **Run `supabase/sql/030_chat_replies.sql`** (after 029) **before 1.4
+19. **Run `supabase/sql/030_chat_replies.sql`** (after 029) **before 1.4
     goes out**: chat replies. `chat_messages` gets `reply_to_id` and the quote of the
     original (`reply_to_user_id`, `reply_to_author`, `reply_to_role`,
     `reply_to_body`, first 140 characters), kept live by a trigger (rename,
