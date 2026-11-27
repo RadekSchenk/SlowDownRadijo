@@ -51,6 +51,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
+import cz.slowdownradijo.app.ui.theme.contentColumn
 
 /** The phone, for the feedback email (`DeviceInfo.swift`). */
 @Serializable
@@ -125,7 +126,7 @@ private val successGreen = Color(0xFF28C840)
 @Composable
 fun FeedbackScreen(message: String, state: FeedbackForm.State, onEdit: (String) -> Unit, onSubmit: () -> Unit, onReset: () -> Unit, back: () -> Unit) {
     Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(top = 20.dp, bottom = Theme.Spacing.xl),
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).contentColumn().padding(horizontal = 20.dp).padding(top = 20.dp, bottom = Theme.Spacing.xl),
         verticalArrangement = Arrangement.spacedBy(Theme.Spacing.lg),
     ) {
         BackHeader(stringResource(R.string.settingsFeedbackTitle), stringResource(R.string.close), back)

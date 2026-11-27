@@ -83,6 +83,7 @@ import cz.slowdownradijo.app.ui.components.PrimaryActionButton
 import cz.slowdownradijo.app.ui.theme.Theme
 import kotlinx.coroutines.launch
 import java.time.Instant
+import cz.slowdownradijo.app.ui.theme.contentColumn
 
 private val letterStyle = Theme.Typography.manrope(11f, FontWeight.ExtraBold).copy(letterSpacing = 0.8.sp)
 private val selectedFill = Color(0xFF2C1A3A)
@@ -213,6 +214,7 @@ fun ContestContent(
     Column(
         modifier
             .verticalScroll(rememberScrollState())
+            .contentColumn()
             .padding(horizontal = 20.dp)
             .padding(top = 8.dp, bottom = 36.dp),
         verticalArrangement = Arrangement.spacedBy(Theme.Spacing.lg),

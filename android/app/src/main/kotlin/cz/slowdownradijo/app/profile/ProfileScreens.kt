@@ -80,6 +80,7 @@ import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
+import cz.slowdownradijo.app.ui.theme.contentColumn
 
 /** What the Profil page can do; the stateful wrapper is `ProfilePage` in MainActivity.kt. */
 data class ProfileActions(
@@ -756,7 +757,7 @@ fun ChatRulesScreen(back: () -> Unit) {
 @Composable
 fun SubPage(title: String, back: () -> Unit, content: @Composable () -> Unit) {
     Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).statusBarsPadding().padding(horizontal = 20.dp).padding(top = 16.dp, bottom = 36.dp),
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).contentColumn().statusBarsPadding().padding(horizontal = 20.dp).padding(top = 16.dp, bottom = 36.dp),
         verticalArrangement = Arrangement.spacedBy(Theme.Spacing.lg),
     ) {
         BackHeader(title, stringResource(R.string.close), back)

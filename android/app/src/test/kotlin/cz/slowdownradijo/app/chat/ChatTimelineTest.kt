@@ -122,4 +122,41 @@ class ChatTimelineTest {
         assertEquals("6 nových zpráv", L10nLogic.chatNewMessages(false, 6))
         assertEquals("6 new messages", L10nLogic.chatNewMessages(true, 6))
     }
+
+    // Replies (1.4)
+
+    @Test fun emojiReplyStaysOnItsOwn() {
+        val original = msg(1, "2026-11-18T06:09:00Z", "Tenhle groove jede", name = "tom", user = "me")
+        val r = rows(listOf(
+            original,
+            msg(2, "2026-11-18T06:10:00Z", "🔥", name = "nela"),
+            msg(3, "2026-11-18T06:10:10Z", "🔥", name = "marty").withQuote(ChatQuote.of(original)),
+            msg(4, "2026-11-18T06:10:20Z", "🔥", name = "jana"),
+        ))
+        assertEquals(listOf(1L, 2L, 3L, 4L), r.filterIsInstance<Row.Message>().map { it.message.id })
+        assertNull(ChatTimeline.homeLines(r.filterIsInstance<Row.Message>().map { it.message }).firstOrNull { it.count > 1 })
+    }
+
+    @Test fun quoteDisplay() {
+        val quote = ChatQuote(7, "karolina", "karolina.pivnivila", "supporter", "Výsadba nové chmelnice\nnení jen tak")
+        assertEquals(ChatQuote.Display.Message("karolina.pivnivila", "supporter", "Výsadba nové chmelnice není jen tak"), quote.display("me"))
+        assertEquals(ChatQuote.Display.Mine("Výsadba nové chmelnice není jen tak"), quote.display("karolina"))
+        assertEquals(ChatQuote.Display.Unavailable, quote.display("me", hidden = setOf("karolina")))
+        assertEquals(ChatQuote.Display.Unavailable, quote.copy(body = null).display("me"))
+        assertEquals(ChatQuote.Display.Message(null, "listener", "Ahoj"), ChatQuote(8, null, null, "listener", "Ahoj").display("me"))
+        assertEquals(true, quote.isTo("karolina"))
+        assertEquals(false, quote.isTo("me"))
+        assertEquals(false, quote.copy(body = null).isTo("karolina"))
+    }
+
+    @Test fun decodesReplyColumns() {
+        val json = """{"id": 9, "user_id": "u9", "author_name": "marty", "author_role": "listener", "body": "Taky!",
+            "created_at": "2026-11-18T06:10:00+00:00", "reply_to_id": 4, "reply_to_user_id": "u4",
+            "reply_to_author": "karolina.pivnivila", "reply_to_role": "supporter", "reply_to_body": "Výsadba"}"""
+        val message = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }.decodeFromString<ChatMessage>(json)
+        assertEquals(ChatQuote(4, "u4", "karolina.pivnivila", "supporter", "Výsadba"), message.replyTo)
+        val plain = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
+            .decodeFromString<ChatMessage>("""{"id": 1, "body": "Ahoj", "created_at": "2026-11-18T06:10:00+00:00"}""")
+        assertNull(plain.replyTo)
+    }
 }

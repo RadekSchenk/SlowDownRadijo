@@ -14,6 +14,8 @@ enum class PlayTrigger(val analyticsName: String) {
     USER("user"), AUTOPLAY("autoplay"), LOCK_SCREEN("lock_screen"), NOTIFICATION("notification"), RESUME("resume"), PREVIEW("preview"),
     /** The live item on the car's screen, as iOS's "carplay". */
     ANDROID_AUTO("android_auto"),
+    /** "Budík s rádiem" ([cz.slowdownradijo.app.alarm.RadioAlarm]). */
+    ALARM("alarm"),
 }
 
 /** What last stopped it, as `RadioPlayerService.StopReason`. */

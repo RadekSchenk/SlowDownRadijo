@@ -27,6 +27,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -67,7 +71,7 @@ data class StatsUi(
  * per show, everyone together, then how it is measured.
  */
 @Composable
-fun StatsContent(ui: StatsUi, onEnable: () -> Unit, onRetry: () -> Unit) {
+fun StatsContent(ui: StatsUi, onEnable: () -> Unit, onRetry: () -> Unit, onPeriodChanged: (StatsPeriod, ranked: Boolean) -> Unit = { _, _ -> }) {
     val english = LocalAppLanguage.current.isEnglish
     val summary = ui.summary
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -103,66 +107,17 @@ fun StatsContent(ui: StatsUi, onEnable: () -> Unit, onRetry: () -> Unit) {
                 Box(Modifier.padding(top = 4.dp)) { WeekBars(summary.bars) }
             }
             val hours = summary.totalSeconds / 3600
-            val rankText = if (ui.communityUnlocked) summary.rank?.let { "#$it" } else null
+            // This week's place and the run of days (Statistiky 1.4): both a newcomer can top.
+            val rankText = if (ui.communityUnlocked) summary.period(StatsPeriod.WEEK).rank?.let { "#$it" } else null
             StatStrip(
                 listOf(
                     StripItem(if (hours > 0) "${StatsFormat.number(english, hours)} h" else StatsFormat.duration(english, summary.totalSeconds), stringResource(R.string.statsStripTotal)),
-                    StripItem(rankText ?: "–", stringResource(R.string.statsStripRank), accent = rankText != null),
-                    StripItem("${summary.listeningDays} ${L10nLogic.slowrideDays(english, summary.listeningDays)}", stringResource(R.string.statsStripDays)),
+                    StripItem(rankText ?: "–", stringResource(R.string.statsPeriodWeekLabel), accent = rankText != null),
+                    StripItem("${summary.streakDays} ${L10nLogic.slowrideDays(english, summary.streakDays)}", stringResource(R.string.statsStripStreak)),
                 )
             )
-
-            // The leaderboard: where you are among listeners, calmly — no race.
-            StatsPanel(spacing = 18) {
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Text(stringResource(R.string.statsLeaderboardTitle), style = Theme.Typography.manrope(16f, FontWeight.ExtraBold), color = Theme.textPrimary, modifier = Modifier.weight(1f))
-                    if (ui.communityUnlocked && summary.rankedListeners > 0) {
-                        Text("${stringResource(R.string.statsRankOf)} ${StatsFormat.number(english, summary.rankedListeners)}", style = Theme.Typography.manrope(13f, FontWeight.SemiBold), color = Theme.mutedText)
-                    }
-                }
-                val rank = summary.rank
-                when {
-                    !ui.communityUnlocked -> BodyText(stringResource(R.string.statsLeaderboardLocked))
-                    rank != null -> {
-                        Row(Modifier.semantics(mergeDescendants = true) {}, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                            Text("#$rank", style = Theme.Typography.manrope(48f, FontWeight.ExtraBold), color = Theme.liveRed, maxLines = 1)
-                            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                                StatsTier.label(rank, summary.rankedListeners)?.let { tier ->
-                                    Text(
-                                        stringResource(R.string.statsTierTop, tier), style = Theme.Typography.manrope(11f, FontWeight.Bold).copy(letterSpacing = 1.sp), color = GlowLabel,
-                                        modifier = Modifier.background(Theme.liveRed.copy(alpha = 0.18f), CircleShape).border(1.dp, Theme.liveRed.copy(alpha = 0.5f), CircleShape).padding(horizontal = 10.dp, vertical = 4.dp),
-                                    )
-                                }
-                                if (rank == 1 || StatsTier.isLoyal(rank, summary.rankedListeners)) {
-                                    Text(
-                                        stringResource(if (rank == 1) R.string.statsFirstPlace else R.string.statsTierLoyal),
-                                        style = Theme.Typography.manrope(14f, FontWeight.SemiBold), color = Theme.mutedText,
-                                    )
-                                }
-                            }
-                        }
-                        if (summary.aheadSeconds != null || summary.behindSeconds != null) {
-                            Column(
-                                Modifier.fillMaxWidth().background(Color.White.copy(alpha = 0.04f), RoundedCornerShape(14.dp)).padding(14.dp),
-                                verticalArrangement = Arrangement.spacedBy(10.dp),
-                            ) {
-                                Text(stringResource(R.string.statsNeighbours), style = Theme.Typography.manrope(12f, FontWeight.Bold), color = Theme.mutedText)
-                                NeighboursTrack(summary.totalSeconds, rank, summary.aheadSeconds, summary.behindSeconds)
-                            }
-                        }
-                        Text(stringResource(R.string.statsEncouragement), style = Theme.Typography.manrope(14f, FontWeight.Bold).copy(lineHeight = 20.sp), color = Theme.textPrimary)
-                        Text(stringResource(R.string.statsLeaderboardAnonymous), style = Theme.Typography.manrope(12f, FontWeight.SemiBold), color = Theme.mutedText.copy(alpha = 0.75f))
-                        if (ui.loadFailed) BodyText(stringResource(R.string.statsOfflineNote), color = Theme.subtleText)
-                    }
-                    ui.loadFailed -> {
-                        BodyText(stringResource(R.string.statsRankFailed))
-                        SecondaryActionButton(stringResource(R.string.statsRetry), onClick = onRetry)
-                    }
-                    summary.totalSeconds == 0 -> BodyText(stringResource(R.string.statsRankNoListening))
-                    summary.totalSeconds < 60 -> BodyText(stringResource(R.string.statsRankNeedsMinute))
-                    else -> BodyText(stringResource(R.string.statsRankCalculating))
-                }
-            }
+            LastWeekCard(summary)
+            Leaderboard(ui, onRetry, onPeriodChanged)
 
             StatsPanel(spacing = 16) {
                 Text(stringResource(R.string.statsShowsTitle), style = Theme.Typography.manrope(16f, FontWeight.ExtraBold), color = Theme.textPrimary)
@@ -197,6 +152,211 @@ fun StatsContent(ui: StatsUi, onEnable: () -> Unit, onRetry: () -> Unit) {
     }
 }
 
+/** 10 minutes in a period put a listener on its leaderboard (019). */
+private const val RANKED_SECONDS = 600
+
+/**
+ * The leaderboard for this week (the default), this month or all time, as `StatsView.swift`
+ * (Figma "Statistiky 1.4"). Never shows how many listeners there are; with too few in a
+ * period, the listener's own time instead of a place.
+ */
+@Composable
+private fun Leaderboard(ui: StatsUi, onRetry: () -> Unit, onPeriodChanged: (StatsPeriod, ranked: Boolean) -> Unit) {
+    val english = LocalAppLanguage.current.isEnglish
+    val summary = ui.summary
+    var periodId by rememberSaveable { mutableStateOf(StatsPeriod.WEEK.id) }
+    val period = StatsPeriod.fromId(periodId)
+    val standing = summary.period(period)
+    StatsPanel(spacing = 18) {
+        Row(verticalAlignment = Alignment.Bottom) {
+            Text(
+                stringResource(if (standing.rank == null && ui.communityUnlocked) R.string.statsPersonalTitle else R.string.statsLeaderboardTitle),
+                style = Theme.Typography.manrope(16f, FontWeight.ExtraBold), color = Theme.textPrimary, modifier = Modifier.weight(1f),
+            )
+            if (ui.communityUnlocked) {
+                Text(
+                    stringResource(when (period) { StatsPeriod.WEEK -> R.string.statsPeriodWeekLabel; StatsPeriod.MONTH -> R.string.statsPeriodMonthLabel; StatsPeriod.ALL -> R.string.statsPeriodAllLabel }),
+                    style = Theme.Typography.manrope(13f, FontWeight.SemiBold), color = Theme.mutedText,
+                )
+            }
+        }
+        if (!ui.communityUnlocked) {
+            BodyText(stringResource(R.string.statsLeaderboardLocked))
+            return@StatsPanel
+        }
+        PeriodPicker(period) {
+            if (it.id != periodId) onPeriodChanged(it, summary.period(it).rank != null)
+            periodId = it.id
+        }
+        val rank = standing.rank
+        when {
+            rank != null -> {
+                Row(Modifier.semantics(mergeDescendants = true) {}, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                    Text("#$rank", style = Theme.Typography.manrope(48f, FontWeight.ExtraBold), color = Theme.liveRed, maxLines = 1)
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        StatsTier.label(rank, standing.ranked)?.let { tier ->
+                            Text(
+                                stringResource(R.string.statsTierTop, tier), style = Theme.Typography.manrope(11f, FontWeight.Bold).copy(letterSpacing = 1.sp), color = GlowLabel,
+                                modifier = Modifier.background(Theme.liveRed.copy(alpha = 0.18f), CircleShape).border(1.dp, Theme.liveRed.copy(alpha = 0.5f), CircleShape).padding(horizontal = 10.dp, vertical = 4.dp),
+                            )
+                        }
+                        if (rank == 1 || StatsTier.isLoyal(rank, standing.ranked)) {
+                            Text(
+                                stringResource(
+                                    when {
+                                        rank == 1 -> R.string.statsFirstPlace
+                                        period == StatsPeriod.WEEK -> R.string.statsTierLoyalWeek
+                                        period == StatsPeriod.MONTH -> R.string.statsTierLoyalMonth
+                                        else -> R.string.statsTierLoyal
+                                    }
+                                ),
+                                style = Theme.Typography.manrope(14f, FontWeight.SemiBold), color = Theme.mutedText,
+                            )
+                        }
+                    }
+                }
+                if (standing.aheadSeconds != null || standing.behindSeconds != null) {
+                    Column(
+                        Modifier.fillMaxWidth().background(Color.White.copy(alpha = 0.04f), RoundedCornerShape(14.dp)).padding(14.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        Text(
+                            stringResource(when (period) { StatsPeriod.WEEK -> R.string.statsNeighboursWeek; StatsPeriod.MONTH -> R.string.statsNeighboursMonth; StatsPeriod.ALL -> R.string.statsNeighbours }),
+                            style = Theme.Typography.manrope(12f, FontWeight.Bold), color = Theme.mutedText,
+                        )
+                        NeighboursTrack(standing.seconds, rank, standing.aheadSeconds, standing.behindSeconds)
+                    }
+                }
+                PeriodFooter(period)
+            }
+            summary.totalSeconds == 0 -> BodyText(stringResource(R.string.statsRankNoListening))
+            ui.loadFailed && standing.seconds == 0 -> {
+                BodyText(stringResource(R.string.statsRankFailed))
+                SecondaryActionButton(stringResource(R.string.statsRetry), onClick = onRetry)
+            }
+            period != StatsPeriod.ALL && standing.isOpen && standing.seconds < RANKED_SECONDS -> {
+                ProgressToRank(standing, period)
+                PeriodFooter(period)
+            }
+            else -> {
+                Personal(standing, period, english)
+                PeriodFooter(period)
+            }
+        }
+        if (ui.loadFailed && summary.totalSeconds > 0) BodyText(stringResource(R.string.statsOfflineNote), color = Theme.subtleText)
+    }
+}
+
+@Composable
+private fun PeriodPicker(selected: StatsPeriod, onSelect: (StatsPeriod) -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().background(Color.White.copy(alpha = 0.05f), RoundedCornerShape(12.dp)).padding(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        StatsPeriod.entries.forEach { period ->
+            val isSelected = period == selected
+            Box(
+                Modifier
+                    .weight(1f)
+                    .background(if (isSelected) Color(0xFF3A2F5C) else Color.Transparent, RoundedCornerShape(9.dp))
+                    .clickable { onSelect(period) }
+                    .semantics { this.selected = isSelected }
+                    .padding(vertical = 8.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    stringResource(when (period) { StatsPeriod.WEEK -> R.string.statsPeriodWeek; StatsPeriod.MONTH -> R.string.statsPeriodMonth; StatsPeriod.ALL -> R.string.statsPeriodAll }),
+                    style = Theme.Typography.manrope(13f, if (isSelected) FontWeight.ExtraBold else FontWeight.SemiBold),
+                    color = if (isSelected) Theme.textPrimary else Theme.mutedText,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PeriodFooter(period: StatsPeriod) {
+    Text(
+        stringResource(when (period) { StatsPeriod.WEEK -> R.string.statsPeriodFooterWeek; StatsPeriod.MONTH -> R.string.statsPeriodFooterMonth; StatsPeriod.ALL -> R.string.statsPeriodFooterAll }),
+        style = Theme.Typography.manrope(14f, FontWeight.Bold).copy(lineHeight = 20.sp), color = Theme.textPrimary,
+    )
+    Text(stringResource(R.string.statsLeaderboardAnonymous), style = Theme.Typography.manrope(12f, FontWeight.SemiBold), color = Theme.mutedText.copy(alpha = 0.75f))
+}
+
+/** Figma R4: not on this period's leaderboard yet, and how little is missing. */
+@Composable
+private fun ProgressToRank(standing: PeriodStanding, period: StatsPeriod) {
+    val minutes = minOf(standing.seconds / 60, 9)
+    Column(
+        Modifier.fillMaxWidth().background(Color.White.copy(alpha = 0.04f), RoundedCornerShape(14.dp)).padding(14.dp).semantics(mergeDescendants = true) {},
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Text(
+            stringResource(if (period == StatsPeriod.WEEK) R.string.statsToRankWeek else R.string.statsToRankMonth, 10 - minutes),
+            style = Theme.Typography.manrope(13f, FontWeight.Bold), color = Theme.textPrimary,
+        )
+        Box(Modifier.fillMaxWidth().height(6.dp).background(Color.White.copy(alpha = 0.1f), CircleShape)) {
+            Box(Modifier.fillMaxWidth(standing.seconds.toFloat() / RANKED_SECONDS).height(6.dp).background(Theme.liveRed, CircleShape))
+        }
+        Text(stringResource(R.string.statsToRankProgress, minutes), style = Theme.Typography.manrope(12f, FontWeight.SemiBold), color = Theme.mutedText)
+    }
+}
+
+/** Figma R7: the listener's own time, compared with the period before — never with others. */
+@Composable
+private fun Personal(standing: PeriodStanding, period: StatsPeriod, english: Boolean) {
+    Column(Modifier.semantics(mergeDescendants = true) {}, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        DurationText(standing.seconds, numberSize = 40f, unitSize = 18f)
+        Text(
+            stringResource(when (period) { StatsPeriod.WEEK -> R.string.statsPersonalWeek; StatsPeriod.MONTH -> R.string.statsPersonalMonth; StatsPeriod.ALL -> R.string.statsPersonalAll }),
+            style = Theme.Typography.manrope(14f, FontWeight.SemiBold), color = Theme.mutedText,
+        )
+        val previous = standing.previousSeconds
+        if (period != StatsPeriod.ALL && previous != null && previous > 0) {
+            val difference = standing.seconds - previous
+            val amount = StatsFormat.duration(english, kotlin.math.abs(difference))
+            val week = period == StatsPeriod.WEEK
+            val text = when {
+                kotlin.math.abs(difference) < 60 -> stringResource(if (week) R.string.statsSameAsLastWeek else R.string.statsSameAsLastMonth)
+                difference > 0 -> stringResource(if (week) R.string.statsMoreThanLastWeek else R.string.statsMoreThanLastMonth, amount)
+                else -> stringResource(if (week) R.string.statsLessThanLastWeek else R.string.statsLessThanLastMonth, amount)
+            }
+            Text(
+                text, style = Theme.Typography.manrope(12f, FontWeight.Bold), color = GlowLabel,
+                modifier = Modifier.padding(top = 2.dp).background(Theme.liveRed.copy(alpha = 0.18f), CircleShape).padding(horizontal = 10.dp, vertical = 5.dp),
+            )
+        }
+    }
+}
+
+/** Figma R5: on Monday and Tuesday, how last week went; the place only in the top ten of a week that had places. */
+@Composable
+private fun LastWeekCard(summary: StatsSummary) {
+    val english = LocalAppLanguage.current.isEnglish
+    val weekday = java.time.ZonedDateTime.now(java.time.ZoneId.of("Europe/Prague")).dayOfWeek
+    if (weekday != java.time.DayOfWeek.MONDAY && weekday != java.time.DayOfWeek.TUESDAY) return
+    if (summary.lastWeekSeconds < RANKED_SECONDS) return
+    val place = summary.lastWeekRank?.takeIf { it <= 10 }
+    val withRadio = stringResource(R.string.statsWithRadio, StatsFormat.duration(english, summary.lastWeekSeconds))
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .background(androidx.compose.ui.graphics.Brush.linearGradient(listOf(Color(0xFF3B1F7A), Color(0xFF7A1838))), RoundedCornerShape(20.dp))
+            .padding(20.dp)
+            .semantics(mergeDescendants = true) {},
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(stringResource(R.string.statsLastWeekTitle), style = Theme.Typography.manrope(13f, FontWeight.SemiBold), color = GlowLabel)
+        Text(if (place != null) stringResource(R.string.statsLastWeekPlace, place) else withRadio, style = Theme.Typography.manrope(22f, FontWeight.ExtraBold), color = Theme.textPrimary)
+        if (place != null) Text(withRadio, style = Theme.Typography.manrope(13f, FontWeight.SemiBold), color = GlowLabel)
+        Text(
+            stringResource(if (place != null) R.string.statsLastWeekGreat else R.string.statsLastWeekNew),
+            style = Theme.Typography.manrope(14f, FontWeight.SemiBold).copy(lineHeight = 20.sp), color = Theme.textPrimary,
+            modifier = Modifier.padding(top = 2.dp),
+        )
+    }
+}
+
 /** "Tvoje statistiky poslechu" on the home screen (`StatsHomeBlock.swift`); opens Statistiky. */
 @Composable
 fun StatsHomeBlock(ui: StatsUi, onOpen: () -> Unit, modifier: Modifier = Modifier) {
@@ -211,22 +371,13 @@ fun StatsHomeBlock(ui: StatsUi, onOpen: () -> Unit, modifier: Modifier = Modifie
                 SmallMetric(stringResource(R.string.statsTotal), summary.totalSeconds, false, Modifier.weight(1f))
             }
         }
-        if (ui.communityUnlocked) {
+        // This week's place only (Statistiky 1.4), never "of N"; no place this week, no row.
+        val weekRank = summary.period(StatsPeriod.WEEK).rank
+        if (ui.communityUnlocked && weekRank != null) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(stringResource(R.string.statsLeaderboardScope), style = Theme.Typography.Copy.body, color = Theme.mutedText, maxLines = 1, modifier = Modifier.weight(1f))
+                Text(stringResource(R.string.statsLeaderboardWeekScope), style = Theme.Typography.Copy.body, color = Theme.mutedText, maxLines = 1, modifier = Modifier.weight(1f))
                 Box(Modifier.background(Theme.liveRed.copy(alpha = 0.08f), RoundedCornerShape(6.dp)).padding(horizontal = 8.dp, vertical = 4.dp)) {
-                    val rank = summary.rank
-                    if (rank != null) {
-                        Text(
-                            buildAnnotatedString {
-                                withStyle(SpanStyle(color = Theme.liveRed, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold)) { append("#$rank") }
-                                withStyle(SpanStyle(color = Theme.mutedText)) { append("  ${stringResource(R.string.statsRankOf)} ${StatsFormat.number(english, summary.rankedListeners)}") }
-                            },
-                            style = Theme.Typography.Copy.body,
-                        )
-                    } else {
-                        Text("—", style = Theme.Typography.manrope(15f, FontWeight.ExtraBold), color = Theme.mutedText)
-                    }
+                    Text("#$weekRank", style = Theme.Typography.manrope(15f, FontWeight.ExtraBold), color = Theme.liveRed)
                 }
             }
         }

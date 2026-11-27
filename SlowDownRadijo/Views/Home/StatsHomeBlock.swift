@@ -35,17 +35,19 @@ struct StatsHomeBlock: View {
                 }
                 .animation(Motion.cardResize, value: summary.totalSeconds >= summary.todaySeconds + 60)
 
-                if stats.communityUnlocked {
+                // This week's place only (Statistiky 1.4), never "of N"; with
+                // no place this week (few listeners, or not ranked) no row.
+                if stats.communityUnlocked, let rank = summary.period(.week).rank {
                     HStack(spacing: 8) {
                         // One line in Figma; with a four-digit rank in a big
                         // community the pill grows, so this shrinks rather than wraps.
-                        Text(L10n.statsLeaderboardScope)
+                        Text(L10n.statsLeaderboardWeekScope)
                             .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
                             .foregroundStyle(Theme.mutedText)
                             .lineLimit(1)
                             .minimumScaleFactor(0.75)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                        rankPill(summary)
+                        rankPill(rank)
                     }
                 }
             }
@@ -77,25 +79,12 @@ struct StatsHomeBlock: View {
         .background(Theme.statsCardRaised, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
-    private func rankPill(_ summary: ListeningStatsSummary) -> some View {
-        HStack(alignment: .lastTextBaseline, spacing: 0) {
-            if let rank = summary.rank {
-                PopNumberText(
-                    text: "#\(rank)",
-                    font: Theme.Typography.Manrope.extraBold(size: 15, relativeTo: .subheadline),
-                    color: Theme.liveRed
-                )
-                PopNumberText(
-                    text: "  \(L10n.statsRankOf) \(StatsFormat.number(summary.rankedListeners))",
-                    font: Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline),
-                    color: Theme.mutedText
-                )
-            } else {
-                Text("—")
-                    .font(Theme.Typography.Manrope.extraBold(size: 15, relativeTo: .subheadline))
-                    .foregroundStyle(Theme.mutedText)
-            }
-        }
+    private func rankPill(_ rank: Int) -> some View {
+        PopNumberText(
+            text: "#\(rank)",
+            font: Theme.Typography.Manrope.extraBold(size: 15, relativeTo: .subheadline),
+            color: Theme.liveRed
+        )
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
         .background(Theme.liveRed.opacity(0.08), in: RoundedRectangle(cornerRadius: 6, style: .continuous))

@@ -19,7 +19,7 @@ android {
         targetSdk = 37
         // CI sets the build number (the run number); 1 locally.
         versionCode = providers.environmentVariable("VERSION_CODE").orNull?.toInt() ?: 1
-        versionName = "1.3"
+        versionName = "1.4"
         // "Pokračovat s Google": the *Web* OAuth client id from Google Cloud
         // (the one Supabase checks the ID token against). Empty until set
         // up; the Google button then says it's unavailable.

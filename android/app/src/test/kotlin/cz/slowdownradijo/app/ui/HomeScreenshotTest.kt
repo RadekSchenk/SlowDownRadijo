@@ -88,6 +88,14 @@ class HomeScreenshotTest {
         compose.onRoot().captureRoboImage("src/test/screenshots/home_earlier_song_cs.png")
     }
 
+    /** Advent: snow in the header and the bauble on the logo ("Zimní vzhled"). */
+    @Test fun winter() {
+        val (onAir, now) = onAir("2026-11-30T12:30:00Z", NowPlayingTrack("Khruangbin", "Maria También"))
+        capture("home_winter_cs", AppLanguage.CS) {
+            HomeScreen(HomeUi(onAir, PlaybackState.Playing, null, now, winter = true), HomeActions())
+        }
+    }
+
     /** Monday 01:00: the rotation, no host, paused, in English. */
     @Test fun pausedRotationEnglish() {
         val (onAir, now) = onAir("2026-11-09T00:00:00Z")

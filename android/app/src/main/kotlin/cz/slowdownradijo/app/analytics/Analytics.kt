@@ -28,6 +28,8 @@ import kotlin.math.roundToInt
 /** The screens, with the iOS names (`AnalyticsScreen`). */
 enum class AnalyticsScreen(val id: String) {
     HOME("home"), MESSAGE("message"), STATS("stats"), PROFILE("profile"), MENU("menu"), SETTINGS("settings"), SHOW_REMINDERS("show_reminders"), NEWS("news"),
+    /** Sheets and pages added in 1.3 and 1.4. */
+    CHAT("chat"), CONTEST("contest"), RADIO_ALARM("radio_alarm"), FEEDBACK("feedback"),
 }
 
 /** The events, with the iOS names and properties (`AnalyticsEvent` in Analytics.swift). */
@@ -63,10 +65,12 @@ sealed class AnalyticsEvent(val name: String, val properties: Map<String, Any>) 
     // [account]: none, anonymous, registered (`AccountService.analyticsAccount`).
     /** [source]: home_section, home_field, invite. */
     class ChatOpened(source: String, account: String) : AnalyticsEvent("chat_opened", mapOf("source" to source, "account" to account))
-    /** [kind]: text, emoji, starter; [first]: the listener's first message ever. */
-    class ChatMessageSent(kind: String, success: Boolean, first: Boolean, account: String) : AnalyticsEvent(
-        "chat_message_sent", mapOf("kind" to kind, "success" to success, "first" to first, "account" to account),
+    /** [kind]: text, emoji, starter; [first]: the listener's first message ever; [isReply]: answers another message (1.4). */
+    class ChatMessageSent(kind: String, success: Boolean, first: Boolean, account: String, isReply: Boolean = false) : AnalyticsEvent(
+        "chat_message_sent", mapOf("kind" to kind, "success" to success, "first" to first, "account" to account, "is_reply" to isReply),
     )
+    /** Started answering a message (1.4). [source]: swipe, menu, accessibility. */
+    class ChatReplyStarted(source: String) : AnalyticsEvent("chat_reply_started", mapOf("source" to source))
     /** "Tvoje přezdívka" before the first message. */
     class ChatNicknamePromptShown : AnalyticsEvent("chat_nickname_prompt_shown", emptyMap())
     /** [whenSet]: first_message, change. */
@@ -113,6 +117,17 @@ sealed class AnalyticsEvent(val name: String, val properties: Map<String, Any>) 
     class AdminContestCreated(answerType: String, winners: Int) : AnalyticsEvent("admin_contest_created", mapOf("answer_type" to answerType, "winners" to winners))
     class AdminContestEnded : AnalyticsEvent("admin_contest_ended", emptyMap())
     class AdminContestDrawn(replacement: Boolean) : AnalyticsEvent("admin_contest_drawn", mapOf("replacement" to replacement))
+
+    /** "Budík s rádiem" (1.4). `days`: once, weekdays, weekend, daily, custom; `edit`: it was already on. Waking up is `playback_started` with `trigger` = `alarm`. */
+    class RadioAlarmSaved(days: String, hour: Int, snoozeMinutes: Int, edit: Boolean) : AnalyticsEvent(
+        "radio_alarm_saved", mapOf("days" to days, "hour" to hour, "snooze_min" to snoozeMinutes, "edit" to edit),
+    )
+    class RadioAlarmTurnedOff : AnalyticsEvent("radio_alarm_turned_off", emptyMap())
+    class RadioAlarmTested : AnalyticsEvent("radio_alarm_tested", emptyMap())
+    /** `count`: the how-manieth snooze this morning. */
+    class RadioAlarmSnoozed(count: Int) : AnalyticsEvent("radio_alarm_snoozed", mapOf("count" to count))
+    /** Statistiky 1.4: Týden · Měsíc · Celkem. `ranked`: on that leaderboard. */
+    class StatsPeriodChanged(period: String, ranked: Boolean) : AnalyticsEvent("stats_period_changed", mapOf("period" to period, "ranked" to ranked))
 
     companion object {
         fun rounded(seconds: Int, step: Int = 10) = maxOf(0, (seconds.toDouble() / step).roundToInt() * step)

@@ -91,7 +91,7 @@ final class ContestService: ObservableObject {
             myEntry = try? c.decodeIfPresent(Entry.self, forKey: .myEntry)
         }
 
-        var isRunning: Bool { endsAt > Date() }
+        var isRunning: Bool { endsAt > AppClock.now }
 
         /// "A · Weekend Aftertaste" for a letter answer, else the words.
         func answerLabel(_ answer: String) -> String {

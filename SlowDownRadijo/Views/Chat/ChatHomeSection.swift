@@ -13,10 +13,15 @@ import SwiftUI
 /// app the section shows what the listener already saw, then 600 ms later
 /// plays the new ones one after another (1.2 s apart, at most four; more
 /// than four arrive as one change). With Reduce Motion they just appear.
+///
+/// Replies (1.4, Figma H1–H2) stay one line: "marty ↳ karolina.pivnivila
+/// Taky sázíme…", and "nela ↳ tobě  Jede!" in white when it answers the
+/// listener. Tapping the section then opens the chat on that reply.
 struct ChatHomeSection: View {
     let onOpen: (_ withKeyboard: Bool) -> Void
 
     @ObservedObject private var chat = ChatService.shared
+    @ObservedObject private var account = AccountService.shared
     @ObservedObject private var loc = LocalizationManager.shared
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var shown: [ChatTimeline.HomeLine] = []
@@ -30,7 +35,11 @@ struct ChatHomeSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-            Button { onOpen(false) } label: {
+            Button {
+                // A reply to the listener on screen: the chat opens on it.
+                chat.focusMessageID = shown.last { $0.message.replyTo?.isTo(account.me?.userID) == true }?.message.id
+                onOpen(false)
+            } label: {
                 VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                     HStack {
                         Text(L10n.chatTitle)
@@ -118,7 +127,7 @@ struct ChatHomeSection: View {
     private func line(_ homeLine: ChatTimeline.HomeLine, isNewest: Bool) -> some View {
         let message = homeLine.message
         let count = homeLine.count > 1 ? " ×\(homeLine.count)" : ""
-        return (nameText(message) + Text("  ") + Text((message.body ?? "") + count).foregroundColor(isNewest ? Theme.textPrimary : Theme.mutedText))
+        return (nameText(message) + replyText(message) + Text("  ") + Text((message.body ?? "") + count).foregroundColor(isNewest ? Theme.textPrimary : Theme.mutedText))
             .font(Theme.Typography.Manrope.semibold(size: 14, relativeTo: .subheadline))
             .lineLimit(1)
             .frame(height: Self.lineHeight, alignment: .leading)
@@ -133,6 +142,24 @@ struct ChatHomeSection: View {
             name = name + Text(" ★").foregroundColor(Theme.gold)
         }
         return name
+    }
+
+    /// " ↳ karolina.pivnivila", or " ↳ tobě" in white for a reply to the
+    /// listener; nothing when the original is gone or hidden.
+    private func replyText(_ message: ChatMessage) -> Text {
+        guard let quote = message.replyTo else { return Text("") }
+        let arrow = Text(Image(systemName: "arrow.turn.down.right")).font(.system(size: 11, weight: .semibold))
+        switch quote.display(viewer: account.me?.userID, hidden: chat.hiddenUserIDs) {
+        case .message(let name, _, _):
+            return Text(" ") + arrow.foregroundColor(Theme.subtleText) + Text(" ")
+                + Text(name).foregroundColor(Theme.subtleText)
+        case .mine:
+            return Text(" ") + arrow.foregroundColor(Theme.textPrimary) + Text(" ")
+                + Text(L10n.chatHomeToYou).font(Theme.Typography.Manrope.extraBold(size: 14, relativeTo: .subheadline))
+                    .foregroundColor(Theme.textPrimary)
+        case .unavailable:
+            return Text("")
+        }
     }
 
     /// Nothing written in the last 24 hours (Figma "A2 · Homepage — ticho").

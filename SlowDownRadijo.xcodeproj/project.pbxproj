@@ -46,6 +46,7 @@
 		3C93E3D6EDB59CE7A810B789 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 7FA14895A0018FEFFF0F5CD2 /* GoogleSignIn */; };
 		3CBC1D2D185C427404D22728 /* WaveformBarsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69AF4E70CC54DF8156A8E440 /* WaveformBarsView.swift */; };
 		3EAC830FDD87FF1FFB8B6D25 /* NowPlayingEqualizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F9F81DF3119022A7E2E59C8 /* NowPlayingEqualizer.swift */; };
+		400AB3593AAE899176C9B68E /* RadioAlarmViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC35EB77503BC8DFFFD4E32E /* RadioAlarmViews.swift */; };
 		40B16DC8B2498EFC72DCD0C7 /* PreviewPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C3536F4A5A76152420091AC /* PreviewPlayerService.swift */; };
 		41CC8A8BFAC2AF82684BA936 /* FavoritesIntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98FA67736EE87C3B8E76FE46 /* FavoritesIntroView.swift */; };
 		446F3002BB673D2133818D7C /* SocialLinksRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FC83928A194CD4AF340FC6 /* SocialLinksRow.swift */; };
@@ -54,6 +55,7 @@
 		46C102F07B0954EC6791DFDE /* ReviewPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = F62129DCB7967DB617A04918 /* ReviewPrompt.swift */; };
 		46FB04EAA1F41D1488359BCE /* SignInButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB06976DAB34920B3D1B6107 /* SignInButtons.swift */; };
 		47C2D5D73DC78FD527069A78 /* ChatSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0906F2DE1049124A1B13CFD /* ChatSheetView.swift */; };
+		48867CCFD2132669A1D077BF /* RadioAlarmLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B8A5C2016B6E2692754E78F /* RadioAlarmLiveActivity.swift */; };
 		49E4DD001941ED7AD04FBCA1 /* ChatService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E258C908DABBF8035FDC0903 /* ChatService.swift */; };
 		49E5982FBAB267C697C84F49 /* ScrollEdgeFade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22FB90D86351B735182924C8 /* ScrollEdgeFade.swift */; };
 		515B6862BB286FE55B04703B /* ListRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2015810767A595DA63380A17 /* ListRow.swift */; };
@@ -94,6 +96,7 @@
 		762A9C011E94513BB0C54FFB /* RemoteHistoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 298328CFB2247B8C05D3A60D /* RemoteHistoryService.swift */; };
 		79F0209D836446A11C833D89 /* SpotifySearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26C1AC0ADB5E0B105C0D88C3 /* SpotifySearch.swift */; };
 		7C1D723FFFF991F221D736CE /* AccentCircle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56497A65734A1629CE0DAC8F /* AccentCircle.swift */; };
+		7C74E2E7F0489562BF2FAD20 /* RadioAlarmStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 523FE219001FEB0261D8997C /* RadioAlarmStore.swift */; };
 		7CB94CFB105A7A757BDF6879 /* Manrope-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E5E20A4EF4EE7A6B6FB7F387 /* Manrope-Regular.ttf */; };
 		7E1BBDA27F5658EA53680597 /* MessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72A53ABC9D26C0FEFCD3A623 /* MessageView.swift */; };
 		7EF889A4EBB492EC9D7938DC /* Manrope-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8C2C71C37713A50C4EC6D649 /* Manrope-Light.ttf */; };
@@ -119,12 +122,14 @@
 		9822C6617331D65D791C0C46 /* ChatModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA262A7D2FD16E6B7A774A5 /* ChatModels.swift */; };
 		98CE4DBD8D0286954B38615F /* Manrope-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1DD55775932816203A312CA9 /* Manrope-ExtraBold.ttf */; };
 		9F8B19A4B8ECB6EB2C250ABB /* NewsPost.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DC82166EB2B538C0565A55 /* NewsPost.swift */; };
+		9F993A8DD882243A3021C7B0 /* RadioAlarmMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD066C4FE705D492CDDA2681 /* RadioAlarmMetadata.swift */; };
 		A1BA93CD386E81DA9FE411A0 /* ContestDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08D143094505EFB02B864BB /* ContestDemo.swift */; };
 		A22E511D5C193ECDAD5AFFFE /* AudioOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0C689E57DD7C0B88B858EAB /* AudioOutput.swift */; };
 		A91BA23B8EE76427F35FC131 /* ContestAdmin.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA6BE778437D4356192ECC34 /* ContestAdmin.swift */; };
 		AA5479EBEE81275B5F272706 /* NicknameViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B80BD2EA97104ED3A35CC40D /* NicknameViews.swift */; };
 		ABCC45E5AE45F1965A09A6D2 /* Manrope-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D4863B328BC4D761671DC231 /* Manrope-Bold.ttf */; };
 		AD21F1047EECEBAB5FAFFF8D /* SleepMoon.swift in Sources */ = {isa = PBXBuildFile; fileRef = F83D4C2EFCC87DFC5CDD3889 /* SleepMoon.swift */; };
+		AD685EFBA1AE1089741C29ED /* WinterViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B80BD275715C523AE7D6C1EF /* WinterViews.swift */; };
 		B28609B8CE2E55A43DEEEDCA /* ShowProgressTrack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53135256E63DFF2CCD332E69 /* ShowProgressTrack.swift */; };
 		B3F69BBE9836D0289DEC62E1 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9F45C020F0FA2C48F203684 /* SettingsView.swift */; };
 		B678ECA3653A4478E049DC2F /* FavoriteTrackStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 264DEDF38592C9B0B92B86D3 /* FavoriteTrackStore.swift */; };
@@ -135,8 +140,10 @@
 		BE526974FFC2E16B5AC43D98 /* FeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A299B9FEFA5DC0289BA56D5 /* FeedbackView.swift */; };
 		C1D2BE8B1459E25B278322BB /* ShowReminderStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8944F984D451CAEBE8E36B6C /* ShowReminderStore.swift */; };
 		C2B85DFE51A39B5DEE3E5FBC /* Manrope-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B26E607347B3911B648DB65E /* Manrope-Medium.ttf */; };
+		C725C992F72DDD744807425C /* RadioAlarmNightWatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED2A21EA700D9F0F62F7D8C3 /* RadioAlarmNightWatch.swift */; };
 		C7DD2A75A4963FCAD4DF5187 /* TrackDetailsRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3080A7F705A91A1A384AE650 /* TrackDetailsRow.swift */; };
 		C83A2BE8A69C12040B5E0036 /* HomeProgramSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D89DC4EC0B30059D3BD5A06 /* HomeProgramSection.swift */; };
+		CD052FDA395F46ECB096C1B4 /* WinterSeason.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48C342469BB315C1DD54C819 /* WinterSeason.swift */; };
 		CD87D3E58B780CD8FCFC255E /* StatsHomeBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D2470C49CD8B3B20DA9895F /* StatsHomeBlock.swift */; };
 		D0E163C80D92ECB32D39B683 /* ChatHomeSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7251401D076C92C1C2C60FCE /* ChatHomeSection.swift */; };
 		D3FEA96BD7A91CC1A6F129F3 /* AppSupabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71443179EE9F7313B60197C8 /* AppSupabase.swift */; };
@@ -155,6 +162,7 @@
 		E11C263A9917B1CB0E0D88C7 /* LatestTrackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C122843C9684C125663D1683 /* LatestTrackService.swift */; };
 		E18C68702B4A9BBFF417B773 /* ListeningTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6D1D0CA2B39C3E49003DAD8 /* ListeningTracker.swift */; };
 		E47620A3B9B86CDE26648AD3 /* ScheduleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A43A86699B9373436B5D67 /* ScheduleStore.swift */; };
+		E49F129F2A8A0531954A174C /* RadioAlarmMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD066C4FE705D492CDDA2681 /* RadioAlarmMetadata.swift */; };
 		E4FFC6ED5854F9B67013F713 /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8128582EC2CE40C98E9AA6B /* KeychainStore.swift */; };
 		E65D232CECCD19E8463C8CDC /* BackHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D586E39AA7BC35C063E18F8F /* BackHeaderView.swift */; };
 		EA47FA0AEAE1EDF6BE84B93E /* HeaderClouds.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3F14C4AB429F86A0CB87550 /* HeaderClouds.swift */; };
@@ -247,14 +255,17 @@
 		32038C1E233C21A7ED9DD89C /* HistoryRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryRowView.swift; sourceTree = "<group>"; };
 		33ABF34419569C516ACCE6F4 /* SlowDownRadijoWidgetExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = SlowDownRadijoWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		345625FC0053022CF6A4B48E /* SlowDownRadijo.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SlowDownRadijo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3B8A5C2016B6E2692754E78F /* RadioAlarmLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioAlarmLiveActivity.swift; sourceTree = "<group>"; };
 		3C9415A1EFDC8174B9C24C6F /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
 		3DC0DD53F5302B6021C60A04 /* Show.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Show.swift; sourceTree = "<group>"; };
 		40782CE7CC1D37CB5A417C9E /* SlowDownRadijo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SlowDownRadijo.entitlements; sourceTree = "<group>"; };
 		47D49493DD44FD0AA6BE75F9 /* FeedbackUploadService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackUploadService.swift; sourceTree = "<group>"; };
+		48C342469BB315C1DD54C819 /* WinterSeason.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WinterSeason.swift; sourceTree = "<group>"; };
 		4C1714C7CB0A4E98D80D86D5 /* StatsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsResponse.swift; sourceTree = "<group>"; };
 		4D508971F5BA45331620FB53 /* DeviceInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceInfo.swift; sourceTree = "<group>"; };
 		507E75F7BD2E731117031FD5 /* ChatAdmin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAdmin.swift; sourceTree = "<group>"; };
 		510CA2B353BF9B8EB1856F02 /* RemotePlayedTrack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemotePlayedTrack.swift; sourceTree = "<group>"; };
+		523FE219001FEB0261D8997C /* RadioAlarmStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioAlarmStore.swift; sourceTree = "<group>"; };
 		52EF3A0E684B2D1F4D5761A0 /* TextSizeLimit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextSizeLimit.swift; sourceTree = "<group>"; };
 		53135256E63DFF2CCD332E69 /* ShowProgressTrack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowProgressTrack.swift; sourceTree = "<group>"; };
 		55EB0993837F40C17F84987B /* NewsDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsDetailView.swift; sourceTree = "<group>"; };
@@ -315,12 +326,15 @@
 		A522BB814EA15299365816A1 /* ShowcaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowcaseTests.swift; sourceTree = "<group>"; };
 		A9F45C020F0FA2C48F203684 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		ABEE2AC236CD0F23185A36C7 /* AccountError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountError.swift; sourceTree = "<group>"; };
+		AC35EB77503BC8DFFFD4E32E /* RadioAlarmViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioAlarmViews.swift; sourceTree = "<group>"; };
+		AD066C4FE705D492CDDA2681 /* RadioAlarmMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioAlarmMetadata.swift; sourceTree = "<group>"; };
 		AE171237D781237499D1108F /* SongHistoryLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongHistoryLine.swift; sourceTree = "<group>"; };
 		B0CF8B58E2E17FED3960B7AB /* ShowProgressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowProgressBar.swift; sourceTree = "<group>"; };
 		B26E607347B3911B648DB65E /* Manrope-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Manrope-Medium.ttf"; sourceTree = "<group>"; };
 		B4F8F9F79C08E14505F9BAF7 /* FavoriteTrack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteTrack.swift; sourceTree = "<group>"; };
 		B5DC82166EB2B538C0565A55 /* NewsPost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsPost.swift; sourceTree = "<group>"; };
 		B62D6F6E76D0AB06D618F287 /* HomePromptCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePromptCard.swift; sourceTree = "<group>"; };
+		B80BD275715C523AE7D6C1EF /* WinterViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WinterViews.swift; sourceTree = "<group>"; };
 		B80BD2EA97104ED3A35CC40D /* NicknameViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NicknameViews.swift; sourceTree = "<group>"; };
 		B9F614148AA8BD43557EB70D /* ContestViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContestViews.swift; sourceTree = "<group>"; };
 		BBADEE545D3880AC7D8E9963 /* FeedbackViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackViewModel.swift; sourceTree = "<group>"; };
@@ -354,6 +368,7 @@
 		E5FF8C9E35C7D05E19886C30 /* LocalizationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationManager.swift; sourceTree = "<group>"; };
 		E8128582EC2CE40C98E9AA6B /* KeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
 		EA30370E85EA8E17C80F01B5 /* PlayButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayButton.swift; sourceTree = "<group>"; };
+		ED2A21EA700D9F0F62F7D8C3 /* RadioAlarmNightWatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioAlarmNightWatch.swift; sourceTree = "<group>"; };
 		EF77DBC6399371C00824047B /* OutputPickerButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputPickerButton.swift; sourceTree = "<group>"; };
 		F62129DCB7967DB617A04918 /* ReviewPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewPrompt.swift; sourceTree = "<group>"; };
 		F6D1D0CA2B39C3E49003DAD8 /* ListeningTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningTracker.swift; sourceTree = "<group>"; };
@@ -409,6 +424,7 @@
 				5976046FB7D0A7BCE7F3C533 /* OnAirBadge.swift */,
 				EF77DBC6399371C00824047B /* OutputPickerButton.swift */,
 				EA30370E85EA8E17C80F01B5 /* PlayButton.swift */,
+				AC35EB77503BC8DFFFD4E32E /* RadioAlarmViews.swift */,
 				76A74413EEB07E86A610A9BC /* ShowDividerRow.swift */,
 				B0CF8B58E2E17FED3960B7AB /* ShowProgressBar.swift */,
 				F83D4C2EFCC87DFC5CDD3889 /* SleepMoon.swift */,
@@ -650,8 +666,19 @@
 				52EF3A0E684B2D1F4D5761A0 /* TextSizeLimit.swift */,
 				250E6095DAA24E4EC642BE2B /* Toast.swift */,
 				3080A7F705A91A1A384AE650 /* TrackDetailsRow.swift */,
+				B80BD275715C523AE7D6C1EF /* WinterViews.swift */,
 			);
 			path = Shared;
+			sourceTree = "<group>";
+		};
+		BB6859D61FE4A01D678D3750 /* RadioAlarm */ = {
+			isa = PBXGroup;
+			children = (
+				AD066C4FE705D492CDDA2681 /* RadioAlarmMetadata.swift */,
+				ED2A21EA700D9F0F62F7D8C3 /* RadioAlarmNightWatch.swift */,
+				523FE219001FEB0261D8997C /* RadioAlarmStore.swift */,
+			);
+			path = RadioAlarm;
 			sourceTree = "<group>";
 		};
 		BE35F40322C87CE5B02619D0 /* Services */ = {
@@ -678,10 +705,12 @@
 				7BADD47AE92FCB3825D65C65 /* VoiceMessageRecorder.swift */,
 				FB944480FA340A7F8CF3B6EE /* VoiceMessageUploadService.swift */,
 				07A0FB6298D88B63B4B6DF6C /* WebScheduleService.swift */,
+				48C342469BB315C1DD54C819 /* WinterSeason.swift */,
 				623A2D797EBCF4D8DD083EF8 /* Account */,
 				75A0DC98BAAE393FD9EB4923 /* Analytics */,
 				7A15F18DE3BC470B97D5BC7F /* Contests */,
 				0461445613388BFADA08FCD0 /* Chat */,
+				BB6859D61FE4A01D678D3750 /* RadioAlarm */,
 				CBA1C581CFC9153856A07F5C /* Stats */,
 			);
 			path = Services;
@@ -771,6 +800,7 @@
 				564A0A33D4EF7543E59E6825 /* NowPlayingEntry.swift */,
 				178B6B727528004BCE00BE98 /* NowPlayingProvider.swift */,
 				5D358E3DC746BA6BB9F1DCB6 /* NowPlayingWidgetView.swift */,
+				3B8A5C2016B6E2692754E78F /* RadioAlarmLiveActivity.swift */,
 				878FB81C2F488B32161708F1 /* SlowDownRadijoWidgetBundle.swift */,
 			);
 			path = SlowDownRadijoWidget;
@@ -1003,6 +1033,10 @@
 				EB2C8DEC38B5A603EA3B6C02 /* ProfileComponents.swift in Sources */,
 				F9FE1C689A80E18D46EEA0F7 /* ProfileView.swift in Sources */,
 				6757DCD4A558606FA4151453 /* ProgramView.swift in Sources */,
+				9F993A8DD882243A3021C7B0 /* RadioAlarmMetadata.swift in Sources */,
+				C725C992F72DDD744807425C /* RadioAlarmNightWatch.swift in Sources */,
+				7C74E2E7F0489562BF2FAD20 /* RadioAlarmStore.swift in Sources */,
+				400AB3593AAE899176C9B68E /* RadioAlarmViews.swift in Sources */,
 				2658E343F77502D4F346C748 /* RadioPlayerService.swift in Sources */,
 				D4D035136655AA3740686DBA /* ReminderBellButton.swift in Sources */,
 				22608BE624DFAAE3C52CF47F /* RemoteArtworkView.swift in Sources */,
@@ -1056,6 +1090,8 @@
 				75861ED0E375D85E1BC3B8ED /* VoiceMessageViewModel.swift in Sources */,
 				3CBC1D2D185C427404D22728 /* WaveformBarsView.swift in Sources */,
 				DD3A326FA0F69C59640A4F8F /* WebScheduleService.swift in Sources */,
+				CD052FDA395F46ECB096C1B4 /* WinterSeason.swift in Sources */,
+				AD685EFBA1AE1089741C29ED /* WinterViews.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1067,6 +1103,8 @@
 				7449C3A4F9DE11E8D0981EE5 /* NowPlayingEntry.swift in Sources */,
 				6CA21D4EE49C1CE6402E6FC9 /* NowPlayingProvider.swift in Sources */,
 				669D511D857C1F0AF3CB3B69 /* NowPlayingWidgetView.swift in Sources */,
+				48867CCFD2132669A1D077BF /* RadioAlarmLiveActivity.swift in Sources */,
+				E49F129F2A8A0531954A174C /* RadioAlarmMetadata.swift in Sources */,
 				DD23B1199B371E431C578E32 /* RemotePlayedTrack.swift in Sources */,
 				E47620A3B9B86CDE26648AD3 /* ScheduleStore.swift in Sources */,
 				DA47FFE9BE8C8497434E3490 /* Show.swift in Sources */,
@@ -1128,7 +1166,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = cz.slowdownradijo.app.UITests;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = SlowDownRadijo;
 			};
 			name = Release;
@@ -1144,11 +1182,11 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = cz.slowdownradijo.app.Widget;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -1164,7 +1202,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = cz.slowdownradijo.app.UITests;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = SlowDownRadijo;
 			};
 			name = Debug;
@@ -1224,14 +1262,14 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
 		ADB6E233E6EF814B8440BE70 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconWinter;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = SlowDownRadijo/SlowDownRadijo.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -1243,17 +1281,17 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = cz.slowdownradijo.app;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
 		BC50D12CD75376D439A62F09 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconWinter;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = SlowDownRadijo/SlowDownRadijo.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -1265,10 +1303,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = cz.slowdownradijo.app;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -1334,7 +1372,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -1349,11 +1387,11 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = cz.slowdownradijo.app.Widget;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};

@@ -37,6 +37,7 @@ struct MessageView: View {
                     .padding(.top, Theme.Spacing.sm)
             }
             .padding(.horizontal, 20)
+            .contentColumn()
             .padding(.bottom, Theme.Spacing.xl)
             .scrollsToTopOnTabReselect()
         }

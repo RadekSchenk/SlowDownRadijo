@@ -61,10 +61,13 @@ import cz.slowdownradijo.app.l10n.LocalAppLanguage
 import cz.slowdownradijo.app.player.PlaybackState
 import cz.slowdownradijo.app.ui.components.Hamburger
 import cz.slowdownradijo.app.ui.components.LocalAnimationsEnabled
+import cz.slowdownradijo.app.winter.WinterBauble
+import cz.slowdownradijo.app.winter.winterSnow
 import cz.slowdownradijo.app.ui.components.LocalReduceMotion
 import cz.slowdownradijo.app.ui.theme.Theme
 import java.time.Duration
 import java.time.Instant
+import cz.slowdownradijo.app.ui.theme.contentColumn
 
 /** Everything the home screen draws, so screenshot tests can set it. */
 data class HomeUi(
@@ -75,6 +78,10 @@ data class HomeUi(
     val output: AudioOutputInfo = AudioOutputInfo.phone,
     /** The songs before the one playing now, newest first (`RecentSongs`). */
     val earlierSongs: List<RecentSong> = emptyList(),
+    /** "Zimní vzhled" ([cz.slowdownradijo.app.winter.WinterSeason]): snow in the header, the bauble on the logo. */
+    val winter: Boolean = false,
+    /** "Budík s rádiem", for the line under the sleep timer. */
+    val alarm: cz.slowdownradijo.app.alarm.RadioAlarmSettings = cz.slowdownradijo.app.alarm.RadioAlarmSettings(),
 )
 
 class HomeActions(
@@ -83,6 +90,7 @@ class HomeActions(
     val openSong: (NowPlayingTrack) -> Unit = {},
     val openMenu: () -> Unit = {},
     val openOutputPicker: () -> Unit = {},
+    val openAlarm: () -> Unit = {},
 )
 
 /**
@@ -104,6 +112,9 @@ fun HomeScreen(ui: HomeUi, actions: HomeActions, below: @Composable ColumnScope.
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .headerClouds(isPlaying)
+                // In front of the clouds, behind everything else.
+                .winterSnow(ui.winter)
+                .contentColumn()
                 .padding(horizontal = 20.dp)
                 .navigationBarsPadding()
                 .padding(bottom = Theme.Spacing.xl),
@@ -130,6 +141,14 @@ private fun NowPlayingHeader(ui: HomeUi, actions: HomeActions) {
                     .padding(top = 22.dp)
                     .size(80.dp, 67.dp),
             )
+            if (ui.winter) {
+                WinterBauble(
+                    Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 22.dp)
+                        .size(80.dp, 67.dp),
+                )
+            }
         }
         Spacer(Modifier.height(22.dp + 67.dp + 10.dp - 66.dp))
 
@@ -157,6 +176,7 @@ private fun NowPlayingHeader(ui: HomeUi, actions: HomeActions) {
                         )
                     }
                     SleepTimerLink(ui.sleepTimerFireAt, ui.now, actions.openSleepTimer)
+                    cz.slowdownradijo.app.alarm.RadioAlarmLink(ui.alarm, actions.openAlarm)
                 }
                 // Where it plays, next to whether it plays.
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {

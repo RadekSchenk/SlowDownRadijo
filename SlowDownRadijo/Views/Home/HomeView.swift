@@ -23,6 +23,8 @@ struct HomeView: View {
     /// One-shot: flips true the first time a favorite is ever added, so the
     /// explainer sheet below only appears once, ever.
     @AppStorage("hasSeenFavoritesIntro") private var hasSeenFavoritesIntro = false
+    /// "Zimní vzhled" (WinterSeason): snow in the header, the bauble on the logo.
+    @AppStorage(WinterSeason.enabledKey) private var winterLookEnabled = true
     @State private var isShowingFavoritesIntro = false
     /// The chat sheet, opened from the home page section — with the
     /// keyboard up when the listener tapped the field.
@@ -47,6 +49,14 @@ struct HomeView: View {
                 nowPlayingHeader
 
                 // Figma "Soutěže" H1: between the player and the chat.
+                // Figma "Budík s rádiem" B5/B6: the morning card after the
+                // alarm, or the snooze countdown.
+                if RadioAlarmStore.isSupported {
+                    // Pads itself: nothing at all when there's no card.
+                    RadioAlarmCard()
+                        .movesWithScroll()
+                }
+
                 if let contest = contests.infoboxContest {
                     ContestInfobox(
                         contest: contest,
@@ -101,12 +111,24 @@ struct HomeView: View {
                 }
             }
             .padding(.horizontal, 20)
+            // Tablets: the content in the centred column, the clouds below
+            // still across the whole width.
+            .contentColumn()
             .padding(.bottom, Theme.Spacing.xl)
             .animation(Motion.smoothOut(Motion.medium), value: contests.infoboxContest?.id)
             // Behind the header and the show, edge to edge, scrolling away
             // with them.
             .background(alignment: .top) {
-                HeaderClouds(isPlaying: nowPlaying.playbackState == .playing)
+                ZStack(alignment: .top) {
+                    HeaderClouds(isPlaying: nowPlaying.playbackState == .playing)
+                    // In front of the clouds, behind everything else, and
+                    // gone before the player row.
+                    if isWinter {
+                        Snowfall()
+                            .frame(height: Self.snowHeight)
+                            .transition(.opacity)
+                    }
+                }
             }
             .scrollsToTopOnTabReselect()
         }
@@ -132,6 +154,7 @@ struct HomeView: View {
         }
         .sheet(item: $chatOpening) { opening in
             ChatSheetView(nowPlaying: nowPlaying, scheduleStore: scheduleStore, focusComposer: opening.withKeyboard)
+                .onAppear { Analytics.shared.screen(.chat) }
                 .presentationDetents(Self.chatDetents)
                 .presentationDragIndicator(.visible)
                 .presentationCornerRadius(24)
@@ -141,6 +164,7 @@ struct HomeView: View {
         }
         .sheet(item: $openContest) { contest in
             ContestSheetView(snapshot: contest)
+                .onAppear { Analytics.shared.screen(.contest) }
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
                 .presentationCornerRadius(24)
@@ -160,8 +184,15 @@ struct HomeView: View {
             Text(L10n.contestDismissBody(contest.title))
         }
         .task { await contests.refresh() }
+        .task {
+            RadioAlarmNightWatch.shared.start()
+            await RadioAlarmStore.shared.sync()
+        }
         .onChange(of: scenePhase) { _, phase in
-            if phase == .active { Task { await contests.refresh() } }
+            if phase == .active {
+                Task { await contests.refresh() }
+                Task { await RadioAlarmStore.shared.sync() }
+            }
         }
         .onReceive(AccountService.shared.$state.removeDuplicates().dropFirst()) { _ in
             Task { await contests.refresh() }
@@ -205,6 +236,9 @@ struct HomeView: View {
             // them, clear of the Dynamic Island; taps pass through to them.
             AnimatedBrandLogo()
                 .frame(width: Self.logoSize.width, height: Self.logoSize.height)
+                .overlay(alignment: .topLeading) {
+                    if isWinter { WinterBauble(size: Self.logoSize) }
+                }
                 .allowsHitTesting(false)
                 .frame(maxWidth: .infinity)
 
@@ -243,6 +277,12 @@ struct HomeView: View {
     /// about 48pt down) it has room to breathe instead of touching it.
     private static let logoTop = AppHeaderView.topInset + 22
     private static let logoSize = CGSize(width: 80, height: 67)
+    /// Figma A1: the snow thins out by the show's title.
+    private static let snowHeight: CGFloat = 340
+
+    private var isWinter: Bool {
+        winterLookEnabled && WinterSeason.isWinter()
+    }
 
     /// Figma "Pořad": the cover with its equalizer, 14pt, then the show's
     /// title and host.
@@ -312,6 +352,9 @@ struct HomeView: View {
                         }
                     }
                     SleepTimerButton(player: nowPlaying.player, currentShowEndDate: nowPlaying.currentShowEndDate)
+                    if RadioAlarmStore.isSupported {
+                        RadioAlarmLink(scheduleStore: scheduleStore)
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 

@@ -60,6 +60,16 @@ object Theme {
     /** Faint hairline overlay: white at the given opacity. */
     fun hairline(opacity: Float) = Color.White.copy(alpha = opacity)
 
+    /**
+     * Tablets (1.4, Figma "Tablety"): every page's content sits in a centred
+     * column no wider than this (600 of content plus the 20 margins); the
+     * background and the tab bar still run edge to edge. On a phone the
+     * column is the whole screen. See [contentColumn].
+     */
+    object Layout {
+        val contentColumnWidth = 640.dp
+    }
+
     object Spacing {
         val xs = 4.dp
         val sm = 8.dp

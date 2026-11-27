@@ -351,6 +351,21 @@ listener's anonymous stats user, so their stats stay. Design and rules:
     `posthog_export.listening_quality_daily`, `listening_quality_users`,
     `chat_daily`, `chat_shows_30d` and `chat_retention` (turned on in the
     "radio" source, every 6 hours). On production since 21. 11. 2026.
+17. **Run `supabase/sql/029_period_ranking.sql`** (after 028) **before 1.4
+    goes out**: `get_my_stats` adds the leaderboard for this week and this
+    month (`periods`), last week and the run of days (Statistiky 1.4), and
+    `stats_config.min_period_listeners` (30): with fewer listeners in a
+    period, no places are shown. Older apps ignore the new keys. Without it,
+    1.4 shows only the listener's own time in the leaderboard and no place
+    on the home screen.
+18. **Run `supabase/sql/030_chat_replies.sql`** (after 029) **before 1.4
+    goes out**: chat replies. `chat_messages` gets `reply_to_id` and the quote of the
+    original (`reply_to_user_id`, `reply_to_author`, `reply_to_role`,
+    `reply_to_body`, first 140 characters), kept live by a trigger (rename,
+    account deletion, a moderator's deletion and undo, the 90-day
+    clean-up). `send_chat_message` takes `p_reply_to` (default null, so the
+    1.3 apps keep working); a deleted original is refused with
+    `reply_unavailable`.
 9. **Invite links on slowdownradijo.cz.** Until these two files are on the
    web, the `https://slowdownradijo.cz/dj/<code>` link opens the website, not
    the app; `slowdownradijo://dj/<code>` works right away in both apps.

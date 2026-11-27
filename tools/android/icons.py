@@ -5,7 +5,11 @@ Writes an adaptive icon (the logo on a transparent foreground layer, over
 the icon's own purple as the background colour) and legacy square/round
 PNGs for each density into android/app/src/main/res. Run again when the
 iOS icon changes.
+
+`--winter` writes the winter icon instead (`ic_launcher_winter*`), see
+winter_icon.py.
 """
+import sys
 from pathlib import Path
 from PIL import Image, ImageDraw
 
@@ -13,6 +17,11 @@ ROOT = Path(__file__).resolve().parents[2]
 ICON = ROOT / "SlowDownRadijo/Resources/Assets.xcassets/AppIcon.appiconset/icon-1024.png"
 RES = ROOT / "android/app/src/main/res"
 DENSITIES = {"mdpi": 1, "hdpi": 1.5, "xhdpi": 2, "xxhdpi": 3, "xxxhdpi": 4}
+
+if "--winter" in sys.argv:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import winter_icon  # noqa: F401  (writes everything on import)
+    sys.exit(0)
 
 icon = Image.open(ICON).convert("RGBA")
 bg = icon.getpixel((8, 8))

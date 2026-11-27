@@ -8,6 +8,13 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -103,6 +110,7 @@ import cz.slowdownradijo.app.ui.theme.Theme
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.time.Instant
+import cz.slowdownradijo.app.ui.theme.contentColumn
 
 /** What the composer may do (Figma B, G, L3). */
 data class ChatWriter(
@@ -157,11 +165,21 @@ fun ChatContent(
     focusRequester: FocusRequester = remember { FocusRequester() },
     initialEmojiOpen: Boolean = false,
     onLongPress: (ChatMessage) -> Unit = {},
+    /** The listener's user id: "Ty" in quotes of their messages. */
+    viewerId: String? = null,
+    /** The message being answered (Figma R3): the bar above the field. */
+    replyTarget: ChatMessage? = null,
+    /** Start answering (`source`: swipe, menu, accessibility). */
+    onReply: (message: ChatMessage, source: String) -> Unit = { _, _ -> },
+    onCancelReply: () -> Unit = {},
+    /** Open on this message, highlighted (a reply to the listener tapped on the home page). */
+    initialFocusId: Long? = null,
 ) {
     val words = chatWords()
     val rows = ChatTimeline.rows(state.messages, words, state.outgoing, state.outgoingShow, state.hidden, now, STATION_ZONE, showLabel)
     var emojiOpen by remember { mutableStateOf(initialEmojiOpen) }
     val focusManager = LocalFocusManager.current
+    fun quote(message: ChatMessage) = message.replyTo?.display(viewerId, state.hidden)
 
     Column(modifier.fillMaxWidth().background(Theme.statsCard)) {
         // Header
@@ -201,6 +219,28 @@ fun ChatContent(
         }
         val unseen = state.visibleMessages.count { it.id > bottomSeenId }
         val scope = rememberCoroutineScope()
+        // R6: a tapped quote scrolls to the original and tints it for a moment;
+        // "Zpět na nejnovější" until the listener is back at the bottom.
+        var highlighted by remember { mutableStateOf<Long?>(null) }
+        var jumped by remember { mutableStateOf(false) }
+        LaunchedEffect(atBottom) { if (atBottom) jumped = false }
+        fun jump(id: Long) {
+            val index = rows.indexOfFirst { it is ChatTimeline.Row.Message && it.message.id == id }
+            if (index < 0) return
+            jumped = true
+            scope.launch {
+                listState.animateScrollToItem(index + (if (state.loaded) 0 else 1), -listState.layoutInfo.viewportSize.height / 3)
+                highlighted = id
+                kotlinx.coroutines.delay(1500)
+                if (highlighted == id) highlighted = null
+            }
+        }
+        LaunchedEffect(initialFocusId, state.loaded) {
+            if (initialFocusId != null && state.loaded) {
+                kotlinx.coroutines.delay(350)
+                jump(initialFocusId)
+            }
+        }
         val quietToday = state.loaded && state.outgoing.isEmpty() &&
             state.visibleMessages.none { it.createdAt.atZone(STATION_ZONE).toLocalDate() == now.atZone(STATION_ZONE).toLocalDate() }
 
@@ -220,23 +260,45 @@ fun ChatContent(
                 items(rows, key = { it.key }) { row ->
                     when (row) {
                         is ChatTimeline.Row.Divider -> ChatDividerRow(row.text)
-                        is ChatTimeline.Row.Message -> ChatMessageRow(row.message, onLongPress = { onLongPress(row.message) })
+                        is ChatTimeline.Row.Message -> {
+                            val message = row.message
+                            val replyLabel = stringResource(R.string.chatMenuReply)
+                            SwipeToReply(enabled = writer.canWrite && !message.isDeleted, onReply = { onReply(message, "swipe") }) {
+                                Box(
+                                    Modifier.semantics {
+                                        if (writer.canWrite && !message.isDeleted) {
+                                            customActions = listOf(CustomAccessibilityAction(replyLabel) { onReply(message, "accessibility"); true })
+                                        }
+                                    },
+                                ) {
+                                    ChatMessageRow(
+                                        message, onLongPress = { onLongPress(message) },
+                                        quote = quote(message),
+                                        onQuoteTap = message.replyToId?.let { id -> { jump(id) } },
+                                        highlighted = highlighted == message.id,
+                                    )
+                                }
+                            }
+                        }
                         is ChatTimeline.Row.Emoji -> ChatEmojiRow(row.emoji, row.count, row.names)
-                        is ChatTimeline.Row.Outgoing -> ChatOutgoingRow(row.message, writer.name.orEmpty(), writer.role) { onRetry(row.message.id) }
+                        is ChatTimeline.Row.Outgoing -> ChatOutgoingRow(
+                            row.message, writer.name.orEmpty(), writer.role, row.message.replyTo?.display(viewerId, state.hidden),
+                        ) { onRetry(row.message.id) }
                     }
                 }
                 if (quietToday) item("quiet") {
                     QuietState(writer.canWrite) { onSend(it, false) }
                 }
             }
-            if (!atBottom && unseen > 0) {
+            if (!atBottom && (unseen > 0 || jumped)) {
                 Text(
-                    "↓ " + L10nLogic.chatNewMessages(LocalAppLanguage.current.isEnglish, unseen),
+                    if (unseen > 0) "↓ " + L10nLogic.chatNewMessages(LocalAppLanguage.current.isEnglish, unseen)
+                    else stringResource(R.string.chatBackToLatest) + " ↓",
                     style = Theme.Typography.manrope(14f, FontWeight.ExtraBold), color = Theme.textPrimary,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(bottom = 12.dp)
-                        .background(Theme.liveRed, RoundedCornerShape(50))
+                        .background(if (unseen > 0) Theme.liveRed else Theme.statsCardRaised, RoundedCornerShape(50))
                         .clickable { scope.launch { listState.animateScrollToItem(rows.size) } }
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                 )
@@ -268,6 +330,7 @@ fun ChatContent(
                         }
                     }
                 }
+                replyTarget?.let { ReplyBar(it, onCancelReply) }
                 Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Row(
                         Modifier.weight(1f).heightIn(min = 44.dp).background(Theme.statsCardRaised, RoundedCornerShape(22.dp)).padding(start = 16.dp, end = 4.dp),
@@ -327,6 +390,42 @@ fun ChatContent(
     }
 }
 
+/**
+ * R3: "Odpovídáš: karolina.pivnivila ★" and the start of the message, a stripe in the
+ * author's colour, ✕ to cancel (the text stays). As `replyBar` in ChatSheetView.swift.
+ */
+@Composable
+private fun ReplyBar(message: ChatMessage, onCancel: () -> Unit) {
+    val name = (message.authorName ?: stringResource(R.string.deletedAccount)) + if (message.role == "supporter") " ★" else ""
+    val color = chatNameColor(message.role)
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .background(Theme.statsCardRaised, RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(12.dp)),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(Modifier.width(3.dp).fillMaxHeight().background(color))
+        Column(Modifier.weight(1f).padding(start = 10.dp, top = 7.dp, bottom = 7.dp), verticalArrangement = Arrangement.spacedBy(1.dp)) {
+            Text(
+                buildAnnotatedString {
+                    withStyle(SpanStyle(color = Theme.subtleText)) { append(stringResource(R.string.chatReplyingTo, "")) }
+                    withStyle(SpanStyle(color = color, fontWeight = FontWeight.ExtraBold)) { append(name) }
+                },
+                style = Theme.Typography.Copy.label, maxLines = 1, overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                message.body.orEmpty().lines().joinToString(" "),
+                style = Theme.Typography.Copy.label, color = Theme.mutedText, maxLines = 1, overflow = TextOverflow.Ellipsis,
+            )
+        }
+        Box(Modifier.size(44.dp).clickable(onClick = onCancel), contentAlignment = Alignment.Center) {
+            Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.chatReplyCancel), tint = Theme.mutedText, modifier = Modifier.size(18.dp))
+        }
+    }
+}
+
 /** Nobody has written today yet (Figma F). */
 @Composable
 private fun QuietState(canWrite: Boolean, onSend: (String) -> Unit) {
@@ -372,6 +471,10 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
     var draft by rememberSaveable { mutableStateOf("") }
     var pending by remember { mutableStateOf<String?>(null) }
     var pendingKind by remember { mutableStateOf("text") }
+    /** The message being answered (R3), and the one waiting for sign-in with [pending]. */
+    var replyTarget by remember { mutableStateOf<ChatMessage?>(null) }
+    var pendingReply by remember { mutableStateOf<ChatMessage?>(null) }
+    val initialFocusId = remember { chat.consumeFocus() }
     fun track(event: AnalyticsEvent) = app.analytics.track(event)
     var joining by remember { mutableStateOf(false) }
     var rules by remember { mutableStateOf(false) }
@@ -414,6 +517,16 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
         }
     }
 
+    fun startReply(message: ChatMessage, source: String) {
+        if (!writer.canWrite || message.isDeleted) return
+        track(AnalyticsEvent.ChatReplyStarted(source))
+        replyTarget = message
+        scope.launch {
+            kotlinx.coroutines.delay(100)
+            runCatching { focus.requestFocus() }
+        }
+    }
+
     fun mute(message: ChatMessage, minutes: Int) {
         val author = message.userId ?: return
         val name = message.authorName ?: context.getString(R.string.deletedAccount)
@@ -431,6 +544,7 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
         val name = message.authorName ?: context.getString(R.string.deletedAccount)
         val author = message.userId
         when (action) {
+            ChatMenuAction.REPLY -> startReply(message, "menu")
             ChatMenuAction.COPY -> clipboard.setText(androidx.compose.ui.text.AnnotatedString(message.body.orEmpty()))
             ChatMenuAction.PIN -> run {
                 chat.pin(message)
@@ -473,29 +587,38 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
         }
     }
 
-    fun send(text: String, announce: Boolean, kind: String) {
+    fun send(text: String, announce: Boolean, kind: String, replyTo: ChatMessage? = null) {
         val first = (me?.chatMessagesCount ?: 0) == 0 && state.messages.none { it.userId != null && it.userId == me?.userId }
         val accountKind = app.account.analyticsAccount
         scope.launch {
             try {
-                chat.send(text, app.schedule.currentShow() ?: show)
-                track(AnalyticsEvent.ChatMessageSent(kind, success = true, first = first, account = accountKind))
+                chat.send(text, app.schedule.currentShow() ?: show, replyTo)
+                track(AnalyticsEvent.ChatMessageSent(kind, success = true, first = first, account = accountKind, isReply = replyTo != null))
                 haptics.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
                 if (announce) writer.name?.let { name ->
                     ToastCenter.show(ToastCenter.Toast(Icons.Rounded.CheckCircleOutline, context.getString(R.string.chatSentAs, name)))
                 }
             } catch (e: AccountError) {
-                track(AnalyticsEvent.ChatMessageSent(kind, success = false, first = first, account = accountKind))
+                track(AnalyticsEvent.ChatMessageSent(kind, success = false, first = first, account = accountKind, isReply = replyTo != null))
                 when (e) {
                     AccountError.NicknameRequired -> {
                         pending = text
                         pendingKind = kind
+                        pendingReply = replyTo
                         joining = true
                     }
                     AccountError.Offline -> Unit // shown on the message itself
                     AccountError.LinksNeedAccount -> {
                         // Back in the field, to take the link out.
-                        if (draft.isEmpty()) draft = text
+                        if (draft.isEmpty()) {
+                            draft = text
+                            replyTarget = replyTo
+                        }
+                        ToastCenter.show(ToastCenter.Toast(Icons.Rounded.ErrorOutline, context.getString(e.messageRes)))
+                    }
+                    AccountError.ReplyUnavailable -> {
+                        // The original is gone: the text comes back, as a plain message.
+                        if (draft.isEmpty() && kind == "text") draft = text
                         ToastCenter.show(ToastCenter.Toast(Icons.Rounded.ErrorOutline, context.getString(e.messageRes)))
                     }
                     else -> ToastCenter.show(ToastCenter.Toast(Icons.Rounded.ErrorOutline, context.getString(e.messageRes)))
@@ -517,11 +640,14 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
             track(AnalyticsEvent.ChatNicknamePromptShown())
             pending = text
             pendingKind = kind
+            pendingReply = replyTarget
             joining = true
             return
         }
         if (clearsDraft) draft = ""
-        send(text, announce = false, kind = kind)
+        val reply = replyTarget
+        replyTarget = null
+        send(text, announce = false, kind = kind, replyTo = reply)
     }
 
     ModalBottomSheet(
@@ -549,6 +675,11 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
             now = now,
             focusRequester = focus,
             onLongPress = ::openMenu,
+            viewerId = me?.userId,
+            replyTarget = replyTarget,
+            onReply = ::startReply,
+            onCancelReply = { replyTarget = null },
+            initialFocusId = initialFocusId,
         ) }
     }
 
@@ -560,7 +691,10 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
         ) {
             ChatMessageMenu(
                 message,
-                ChatMenu.actions(message, me?.userId, isModerator, state.pinned?.id == message.id, menuStatus),
+                ChatMenu.actions(
+                    message, me?.userId, isModerator, state.pinned?.id == message.id, menuStatus,
+                    canReply = writer.canWrite && !message.isDeleted,
+                ),
                 menuStatus, Instant.now(),
             ) { action ->
                 menuMessage = null
@@ -613,12 +747,16 @@ fun ChatSheet(withKeyboard: Boolean, show: Show?, onDismiss: () -> Unit) {
                 joining = false
                 val text = pending ?: return@ChatJoinSheet
                 pending = null
+                val reply = pendingReply
+                pendingReply = null
+                if (replyTarget?.id == reply?.id) replyTarget = null
                 if (draft.trim() == text) draft = ""
-                send(text, announce = true, kind = pendingKind)
+                send(text, announce = true, kind = pendingKind, replyTo = reply)
             },
             onDismiss = {
                 joining = false
                 pending = null
+                pendingReply = null
             },
             onRules = { rules = true },
         )
@@ -734,7 +872,7 @@ fun NicknameFirstStep(
     var saving by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     Column(
-        Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(top = 8.dp, bottom = 24.dp).navigationBarsPadding().imePadding(),
+        Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).contentColumn().padding(horizontal = 20.dp).padding(top = 8.dp, bottom = 24.dp).navigationBarsPadding().imePadding(),
         verticalArrangement = Arrangement.spacedBy(Theme.Spacing.lg),
     ) {
         ProfileHeading(stringResource(R.string.chatNicknameTitle), stringResource(R.string.chatNicknameBody), hero = true)
@@ -772,7 +910,7 @@ fun NicknameFirstStep(
 @Composable
 fun SignInExisting(busy: Boolean, actions: ProfileActions, onBack: () -> Unit, onRules: () -> Unit) {
     Column(
-        Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(top = 8.dp, bottom = 24.dp).navigationBarsPadding(),
+        Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).contentColumn().padding(horizontal = 20.dp).padding(top = 8.dp, bottom = 24.dp).navigationBarsPadding(),
         verticalArrangement = Arrangement.spacedBy(Theme.Spacing.lg),
     ) {
         ProfileHeading(stringResource(R.string.chatSignInTitle), stringResource(R.string.chatSignInBody), hero = true)

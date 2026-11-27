@@ -1,6 +1,28 @@
 package cz.slowdownradijo.app.chat
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.layout.offset
+import androidx.compose.material.icons.automirrored.rounded.Reply
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.unit.IntOffset
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -64,6 +86,9 @@ fun chatNameColor(role: String): Color = when (role) {
     else -> Theme.mutedText
 }
 
+/** The curved line from a quote to the replier's name. */
+val CHAT_SPINE = Color(0xFF5A507C)
+
 val CHAT_QUICK_EMOJI = listOf("🔥", "❤️", "😂", "🎵", "👏", "💜", "🎧")
 
 val CHAT_PICKER_EMOJI = listOf(
@@ -109,6 +134,8 @@ private val tickerOpacity = listOf(1f, 0.8f, 0.6f, 0.4f)
  * older ones fading out) and a "Napiš zprávu…" field that opens the chat with the
  * keyboard. New messages arrive by movement: 600 ms after opening the app the ones
  * the listener hasn't seen play in one by one, 1.2 s apart (more than four: one change).
+ * Replies (1.4, Figma H1–H2) stay one line: "marty ↳ karolina.pivnivila  Taky sázíme…",
+ * and "nela ↳ tobě" in white when it answers the listener.
  */
 @Composable
 fun ChatHomeSection(
@@ -117,6 +144,10 @@ fun ChatHomeSection(
     onSeen: (Long) -> Unit,
     modifier: Modifier = Modifier,
     now: Instant = Instant.now(),
+    /** The listener's user id: "↳ tobě" on replies to them. */
+    viewerId: String? = null,
+    /** A reply to the listener on screen when the section is tapped: the chat opens on it. */
+    onFocus: (Long?) -> Unit = {},
 ) {
     val candidates = ChatTimeline.homeLines(state.visibleMessages.filterNot { it.isDeleted })
     var shown by remember { mutableStateOf<List<ChatTimeline.HomeLine>?>(null) }
@@ -163,7 +194,10 @@ fun ChatHomeSection(
 
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Theme.Spacing.md)) {
         Column(
-            Modifier.fillMaxWidth().clickable { onOpen(false) },
+            Modifier.fillMaxWidth().clickable {
+                onFocus(current?.lastOrNull { it.message.replyTo?.isTo(viewerId) == true }?.message?.id)
+                onOpen(false)
+            },
             verticalArrangement = Arrangement.spacedBy(Theme.Spacing.md),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -200,9 +234,20 @@ fun ChatHomeSection(
                         val message = line.message
                         val fromBottom = lines.size - 1 - lines.indexOf(line)
                         val deletedName = stringResource(R.string.deletedAccount)
+                        val toYou = stringResource(R.string.chatHomeToYou)
                         Text(
                             buildAnnotatedString {
                                 nameSpan(this, message.authorName ?: deletedName, message.role)
+                                // " ↳ karolina.pivnivila", or " ↳ tobě" in white for a reply to the listener.
+                                when (val quote = message.replyTo?.display(viewerId, state.hidden)) {
+                                    is ChatQuote.Display.Message -> withStyle(SpanStyle(color = Theme.subtleText)) {
+                                        append(" ↳ ${quote.name ?: deletedName}")
+                                    }
+                                    is ChatQuote.Display.Mine -> withStyle(SpanStyle(color = Theme.textPrimary, fontWeight = FontWeight.ExtraBold)) {
+                                        append(" ↳ $toYou")
+                                    }
+                                    else -> Unit
+                                }
                                 withStyle(SpanStyle(color = if (fromBottom == 0) Theme.textPrimary else Theme.mutedText)) {
                                     append("  ${message.body.orEmpty()}")
                                     if (line.count > 1) append(" ×${line.count}")
@@ -252,17 +297,160 @@ fun ChatAuthorLine(name: String, role: String) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ChatMessageRow(message: ChatMessage, onLongPress: () -> Unit = {}) {
+fun ChatMessageRow(
+    message: ChatMessage,
+    onLongPress: () -> Unit = {},
+    /** A reply's quote (Figma "Chat/Zpráva s odpovědí"), above the name. */
+    quote: ChatQuote.Display? = null,
+    onQuoteTap: (() -> Unit)? = null,
+    /** Briefly tinted after jumping to it from a quote (R6). */
+    highlighted: Boolean = false,
+) {
+    val tint by animateFloatAsState(if (highlighted) 0.07f else 0f, tween(if (highlighted) 200 else 450), label = "highlight")
     Column(
-        Modifier.fillMaxWidth().combinedClickable(onClick = {}, onLongClick = onLongPress),
+        Modifier
+            .fillMaxWidth()
+            .drawBehind {
+                if (tint > 0f) {
+                    val dx = 10.dp.toPx()
+                    val dy = 6.dp.toPx()
+                    drawRoundRect(
+                        Color.White.copy(alpha = tint), topLeft = Offset(-dx, -dy),
+                        size = Size(size.width + 2 * dx, size.height + 2 * dy), cornerRadius = CornerRadius(10.dp.toPx()),
+                    )
+                }
+            }
+            .combinedClickable(onClick = {}, onLongClick = onLongPress),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
+        if (quote != null) ChatQuoteLine(quote, onQuoteTap, Modifier.padding(bottom = 0.dp).offset(y = 2.dp))
         ChatAuthorLine(message.authorName ?: stringResource(R.string.deletedAccount), message.role)
         if (message.isDeleted) {
             Text(stringResource(R.string.chatDeletedByModerator), style = Theme.Typography.Copy.reading.copy(fontStyle = FontStyle.Italic), color = Theme.subtleText)
         } else {
             Text(message.body.orEmpty(), style = Theme.Typography.Copy.reading, color = Theme.textPrimary)
         }
+    }
+}
+
+/**
+ * The quote above a reply (Figma "Chat/Citace", variant A), as `ChatQuoteLine` in
+ * ChatComponents.swift: one line, "karolina.pivnivila · Výsadba nové chmelnice…", and a
+ * thin curved line from it down to the replier's name. Tapping it jumps to the original.
+ */
+@Composable
+fun ChatQuoteLine(display: ChatQuote.Display, onClick: (() -> Unit)? = null, modifier: Modifier = Modifier) {
+    val deleted = stringResource(R.string.deletedAccount)
+    val you = stringResource(R.string.chatQuoteYou)
+    val unavailable = stringResource(R.string.chatQuoteUnavailable)
+    val subtle = SpanStyle(color = Theme.subtleText)
+    val text = buildAnnotatedString {
+        when (display) {
+            is ChatQuote.Display.Message -> {
+                nameSpan(this, display.name ?: deleted, display.role)
+                withStyle(subtle) { append(" · ${display.body}") }
+            }
+            is ChatQuote.Display.Mine -> {
+                withStyle(SpanStyle(color = Theme.textPrimary, fontWeight = FontWeight.ExtraBold)) { append(you) }
+                withStyle(subtle) { append(" · ${display.body}") }
+            }
+            ChatQuote.Display.Unavailable -> withStyle(subtle) { append(unavailable) }
+        }
+    }
+    val label = when (display) {
+        is ChatQuote.Display.Message -> stringResource(R.string.chatReplyTo, display.name ?: deleted) + ": " + display.body
+        is ChatQuote.Display.Mine -> stringResource(R.string.chatReplyToYou) + ": " + display.body
+        ChatQuote.Display.Unavailable -> unavailable
+    }
+    val tappable = onClick != null && display != ChatQuote.Display.Unavailable
+    Row(
+        modifier
+            .fillMaxWidth()
+            .then(if (tappable) Modifier.clickable(onClick = onClick!!) else Modifier)
+            .semantics(mergeDescendants = true) { contentDescription = label },
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        ChatSpine(Modifier.size(width = 26.dp, height = 14.dp))
+        Text(text, style = Theme.Typography.Copy.label, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.offset(y = 3.dp))
+    }
+}
+
+/** ╭── from the quote, bending down towards the name below. */
+@Composable
+fun ChatSpine(modifier: Modifier = Modifier) {
+    Canvas(modifier) {
+        val sx = size.width / 26f
+        val sy = size.height / 14f
+        val path = Path().apply {
+            moveTo(5 * sx, 14 * sy)
+            lineTo(5 * sx, 9.5f * sy)
+            cubicTo(5 * sx, 6.5f * sy, 7 * sx, 5 * sy, 10 * sx, 5 * sy)
+            lineTo(24 * sx, 5 * sy)
+        }
+        drawPath(path, CHAT_SPINE, style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round))
+    }
+}
+
+/**
+ * Swipe a message to the right to answer it (Figma R1), as `swipeToReply` in
+ * ChatSheetView.swift: it follows the finger up to 56 dp (a tick of haptics), then
+ * slower; letting go past that starts the reply. A reply arrow shows up behind it.
+ */
+@Composable
+fun SwipeToReply(enabled: Boolean, onReply: () -> Unit, content: @Composable () -> Unit) {
+    if (!enabled) {
+        content()
+        return
+    }
+    val haptics = LocalHapticFeedback.current
+    val threshold = with(LocalDensity.current) { 56.dp.toPx() }
+    val offset = remember { Animatable(0f) }
+    val scope = rememberCoroutineScope()
+    val reply by rememberUpdatedState(onReply)
+    var armed by remember { mutableStateOf(false) }
+    Box {
+        val progress = (offset.value / threshold).coerceIn(0f, 1f)
+        Box(
+            Modifier
+                .align(Alignment.CenterStart)
+                .size(32.dp)
+                .alpha(progress)
+                .scale(if (armed) 1f else 0.8f)
+                .background(Theme.statsCardRaised, CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(Icons.AutoMirrored.Rounded.Reply, contentDescription = null, tint = Theme.textPrimary, modifier = Modifier.size(18.dp))
+        }
+        Box(
+            Modifier
+                .offset { IntOffset(offset.value.toInt(), 0) }
+                .pointerInput(Unit) {
+                    var total = 0f
+                    detectHorizontalDragGestures(
+                        onDragStart = { total = 0f },
+                        onDragEnd = {
+                            if (armed) reply()
+                            armed = false
+                            scope.launch { offset.animateTo(0f, tween(250)) }
+                        },
+                        onDragCancel = {
+                            armed = false
+                            scope.launch { offset.animateTo(0f, tween(250)) }
+                        },
+                    ) { change, dx ->
+                        total = (total + dx).coerceAtLeast(0f)
+                        if (total > 0f) change.consume()
+                        val value = if (total <= threshold) total else threshold + (total - threshold) * 0.25f
+                        scope.launch { offset.snapTo(value) }
+                        val nowArmed = value >= threshold
+                        if (nowArmed != armed) {
+                            armed = nowArmed
+                            if (nowArmed) haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        }
+                    }
+                },
+        ) { content() }
     }
 }
 
@@ -285,8 +473,9 @@ fun ChatDividerRow(text: String) {
 }
 
 @Composable
-fun ChatOutgoingRow(message: OutgoingChatMessage, name: String, role: String, onRetry: () -> Unit) {
+fun ChatOutgoingRow(message: OutgoingChatMessage, name: String, role: String, quote: ChatQuote.Display? = null, onRetry: () -> Unit) {
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        if (quote != null) ChatQuoteLine(quote, modifier = Modifier.offset(y = 2.dp))
         ChatAuthorLine(name, role)
         Text(message.body, style = Theme.Typography.Copy.reading, color = if (message.failed) Theme.textPrimary else Theme.textPrimary.copy(alpha = 0.6f))
         if (message.failed) {

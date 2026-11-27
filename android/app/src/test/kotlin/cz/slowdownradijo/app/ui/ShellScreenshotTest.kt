@@ -99,12 +99,35 @@ class ShellScreenshotTest {
             StatsSummary.ShowShare("x", null, null, null, null, 25_000, 0.27),
         ),
         showsSeconds = 95_000,
+        periods = mapOf(
+            cz.slowdownradijo.app.stats.StatsPeriod.WEEK to cz.slowdownradijo.app.stats.PeriodStanding(
+                seconds = 8 * 3600 + 40 * 60, previousSeconds = 7 * 3600, rank = 4, ranked = 128, isOpen = true,
+                aheadSeconds = 9 * 3600 + 10 * 60, behindSeconds = 7 * 3600 + 55 * 60,
+            ),
+        ),
+        streakDays = 6,
     )
 
     @Test fun stats() = capture("stats_cs") {
         page {
             androidx.compose.foundation.layout.Column(Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState()).padding(horizontal = 20.dp)) {
                 StatsContent(StatsUi(summary, enabled = true, measuring = true, communityUnlocked = true, loadFailed = false), {}, {})
+            }
+        }()
+    }
+
+    /** Few listeners this week: no place, the listener's own time against last week (Figma R7). */
+    @Test fun statsPersonal() = capture("stats_personal_cs") {
+        val few = summary.copy(
+            periods = mapOf(
+                cz.slowdownradijo.app.stats.StatsPeriod.WEEK to cz.slowdownradijo.app.stats.PeriodStanding(
+                    seconds = 8 * 3600 + 40 * 60, previousSeconds = 7 * 3600 + 20 * 60,
+                ),
+            ),
+        )
+        page {
+            androidx.compose.foundation.layout.Column(Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState()).padding(horizontal = 20.dp)) {
+                StatsContent(StatsUi(few, enabled = true, measuring = false, communityUnlocked = true, loadFailed = false), {}, {})
             }
         }()
     }
@@ -127,6 +150,50 @@ class ShellScreenshotTest {
 
     @Test fun settings() = capture("settings_cs") {
         page { SettingsScreen(SettingsUi(autoplay = true, remindersCount = 2, statsEnabled = true, analyticsEnabled = false), SettingsActions(), {}, {}) }()
+    }
+
+    @Test fun radioAlarmSheet() = capture("radio_alarm_sheet_cs") {
+        val show = store.catalog.first { it.hostName != null }
+        page {
+            cz.slowdownradijo.app.alarm.RadioAlarmSheetContent(
+                cz.slowdownradijo.app.alarm.RadioAlarmSheetUi(
+                    cz.slowdownradijo.app.alarm.RadioAlarmSettings(), canScheduleExact = false, showAt = { show },
+                    zone = java.time.ZoneId.of("Europe/Prague"), now = java.time.Instant.parse("2026-11-23T12:00:00Z"),
+                ),
+                cz.slowdownradijo.app.alarm.RadioAlarmActions(),
+            )
+        }()
+    }
+
+    /** Figma C3: a saved alarm — "Uložit změny" is off until something changes. */
+    @Test fun radioAlarmSheetSaved() = capture("radio_alarm_sheet_saved_cs") {
+        val show = store.catalog.first { it.hostName != null }
+        page {
+            cz.slowdownradijo.app.alarm.RadioAlarmSheetContent(
+                cz.slowdownradijo.app.alarm.RadioAlarmSheetUi(
+                    cz.slowdownradijo.app.alarm.RadioAlarmSettings(isOn = true), canScheduleExact = true, showAt = { show },
+                    zone = java.time.ZoneId.of("Europe/Prague"), now = java.time.Instant.parse("2026-11-23T12:00:00Z"),
+                ),
+                cz.slowdownradijo.app.alarm.RadioAlarmActions(),
+            )
+        }()
+    }
+
+    @Test fun radioAlarmCard() = capture("radio_alarm_card_cs") {
+        val now = java.time.Instant.parse("2026-11-24T05:31:00Z")
+        page {
+            androidx.compose.foundation.layout.Box(Modifier.padding(20.dp)) {
+                cz.slowdownradijo.app.alarm.RadioAlarmCard(
+                    wokeAt = java.time.Instant.parse("2026-11-24T05:30:00Z"), snoozedUntil = null,
+                    settings = cz.slowdownradijo.app.alarm.RadioAlarmSettings(isOn = true), canSnooze = true, now = now,
+                    zone = java.time.ZoneId.of("Europe/Prague"), onSnooze = {}, onDone = {}, onCancelSnooze = {}, onPlayNow = {},
+                )
+            }
+        }()
+    }
+
+    @Test fun settingsWinter() = capture("settings_winter_cs") {
+        page { SettingsScreen(SettingsUi(autoplay = true, remindersCount = 2, statsEnabled = true, analyticsEnabled = false, winterLook = true), SettingsActions(), {}, {}) }()
     }
 
     @Test fun showReminders() = capture("show_reminders_cs") {

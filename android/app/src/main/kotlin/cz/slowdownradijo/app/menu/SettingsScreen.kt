@@ -51,6 +51,7 @@ import cz.slowdownradijo.app.ui.components.ListRowChevron
 import cz.slowdownradijo.app.ui.components.SecondaryActionButton
 import cz.slowdownradijo.app.ui.theme.Theme
 import kotlinx.coroutines.launch
+import cz.slowdownradijo.app.ui.theme.contentColumn
 
 /** Everything Settings shows and changes, so screenshot tests can set it. */
 data class SettingsUi(
@@ -59,6 +60,8 @@ data class SettingsUi(
     val statsEnabled: Boolean,
     val analyticsEnabled: Boolean,
     val streamQuality: StreamQuality = StreamQuality.AUTO,
+    /** "Zimní vzhled": null out of season, when the switch isn't shown (the choice stays). */
+    val winterLook: Boolean? = null,
 )
 
 class SettingsActions(
@@ -66,6 +69,7 @@ class SettingsActions(
     val setStats: (Boolean) -> Unit = {},
     val setAnalytics: (Boolean) -> Unit = {},
     val setStreamQuality: (StreamQuality) -> Unit = {},
+    val setWinterLook: (Boolean) -> Unit = {},
     /** Deletes the listening stats; reports success. */
     val deleteStats: suspend () -> Boolean = { true },
 )
@@ -85,6 +89,7 @@ fun SettingsScreen(ui: SettingsUi, actions: SettingsActions, open: (MenuPage) ->
         Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
+            .contentColumn()
             .padding(horizontal = 20.dp)
             .padding(top = 20.dp, bottom = Theme.Spacing.xl),
         verticalArrangement = Arrangement.spacedBy(Theme.Spacing.lg),
@@ -94,6 +99,12 @@ fun SettingsScreen(ui: SettingsUi, actions: SettingsActions, open: (MenuPage) ->
             ListDivider()
             ListRow(stringResource(R.string.settingsAutoplayTitle), stringResource(R.string.settingsAutoplayDescription)) {
                 AppSwitch(ui.autoplay, actions.setAutoplay, stringResource(R.string.settingsAutoplayTitle))
+            }
+            ui.winterLook?.let { on ->
+                ListDivider()
+                ListRow(stringResource(R.string.winterLookTitle), stringResource(R.string.winterLookDescription)) {
+                    AppSwitch(on, actions.setWinterLook, stringResource(R.string.winterLookTitle))
+                }
             }
             ListDivider()
             StreamQualityRow(ui.streamQuality, actions.setStreamQuality)
@@ -219,6 +230,7 @@ fun ShowRemindersScreen(
         Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
+            .contentColumn()
             .padding(horizontal = 20.dp)
             .padding(top = 20.dp, bottom = Theme.Spacing.xl),
         verticalArrangement = Arrangement.spacedBy(Theme.Spacing.lg),
