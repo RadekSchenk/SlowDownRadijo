@@ -20,11 +20,11 @@ Texty k vložení: `docs/app-store.md` (popis, propagační text, klíčová slo
 1.4 je rozdělená do PR, které na sebe navazují. Slučovat zdola nahoru, po
 každém sloučení GitHub přesměruje další PR na `main`:
 
-1. ⬜ [#10](https://github.com/RadekSchenk/SlowDownRadijo/pull/10) zimní vzhled, žebříčky, budík → `main`
-2. ⬜ [#12](https://github.com/RadekSchenk/SlowDownRadijo/pull/12) tablety
-3. ⬜ [#13](https://github.com/RadekSchenk/SlowDownRadijo/pull/13) analytika 1.4
-4. ⬜ [#14](https://github.com/RadekSchenk/SlowDownRadijo/pull/14) odpovědi v chatu (+ oprava scrollování, + Keychain)
-5. ⬜ [#11](https://github.com/RadekSchenk/SlowDownRadijo/pull/11) hledání moderátorů ve správě (samostatné, do `main`)
+1. ✅ [#10](https://github.com/RadekSchenk/SlowDownRadijo/pull/10) zimní vzhled, žebříčky, budík → `main`
+2. ✅ [#12](https://github.com/RadekSchenk/SlowDownRadijo/pull/12) tablety
+3. ✅ [#13](https://github.com/RadekSchenk/SlowDownRadijo/pull/13) analytika 1.4
+4. ✅ [#14](https://github.com/RadekSchenk/SlowDownRadijo/pull/14) odpovědi v chatu (+ oprava scrollování, + Keychain)
+5. ✅ [#11](https://github.com/RadekSchenk/SlowDownRadijo/pull/11) hledání moderátorů ve správě (samostatné, do `main`)
 
 Verze je už nastavená: `MARKETING_VERSION` 1.4 v `project.yml`,
 `versionName` 1.4 na Androidu.
@@ -33,11 +33,10 @@ Verze je už nastavená: `MARKETING_VERSION` 1.4 v `project.yml`,
 
 Recenzent i posluchači 1.4 je potřebují. Verzi 1.3 nevadí, můžou jít hned.
 
-- ⬜ `backend/supabase/sql/029_period_ranking.sql` – týdenní a měsíční žebříček
-- ⬜ `backend/supabase/sql/030_chat_replies.sql` – odpovědi v chatu (až po 029)
+- ✅ `backend/supabase/sql/029_period_ranking.sql` (už byla na produkci) – týdenní a měsíční žebříček
+- ✅ `backend/supabase/sql/030_chat_replies.sql` – odpovědi v chatu (27. 11. 2026)
 - ✅ `029_admin_find_hosts.sql` – už na produkci
 
-Spustit v Supabase → SQL Editor (celý soubor), nebo mi řekni a pustím je.
 Kontrola: v TestFlightu ukazují Statistiky místo v týdnu/měsíci a odpověď
 v chatu se odešle.
 
